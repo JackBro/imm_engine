@@ -10,8 +10,8 @@ A simple game engine.
 The fundamental 3D rendering technique is derived from the textbook 
 Introduction to 3D Game Programming with DirectX 11 by Frank Luna.
 This engine development methodology is Quick-and-dirty, no traditional API design, casual style.
-I suggest do "Mod" on this game engine, Make "Mod" easy is my major goal.
-The engine is on low completion status.
+I suggest do "Mod" on this game engine, it will not waste too much time,
+because the engine is on low completion status.
 
 In Development:
 ---------------
@@ -44,7 +44,7 @@ How to Build:
 In demo folder, every subfolder inlude a signle demo.
 * **init_d3d**: Basic windows repsents empty.
 * **simple_secene**: The current work.
-The compile option see bat_tool\1.bat
+The compile option see bat_tool\1.bat  
 I will write the detail later.
 
 Runtime Folder Tree:
