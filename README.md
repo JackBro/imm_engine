@@ -42,10 +42,10 @@ Dependent Librarie Files:
 How to Build:
 -------------
 In demo folder, every subfolder inlude a signle demo.
+I will write the detail later.
 * **init_d3d**: Basic windows repsents empty.
 * **simple_secene**: The current work.
-The compile option see bat_tool\1.bat  
-I will write the detail later.
+The compile option see bat_tool\1.bat
 
 Runtime Folder Tree:
 --------------------
