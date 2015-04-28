@@ -75,6 +75,11 @@ https://github.com/endrollex/imm_blender_export
 * **immature engine console util b3m tool**: 
 Convert .m3d file to binary file.
 
+Released Demo:
+--------------
+* **x64**: http://pan.baidu.com/s/1c0yFrCc
+* **x86**: http://pan.baidu.com/s/1mg5k7XY
+
 Copyright and License:
 ----------------------
 * Copyright 2015 Huang Yiting (http://endrollex.com)
