@@ -6,7 +6,7 @@ Quick-and-dirty
 
 Introduction:
 -------------
-A simple game engine. 
+A small game engine. 
 The fundamental 3D rendering technique is derived from the textbook 
 Introduction to 3D Game Programming with DirectX 11 by Frank Luna.
 This engine development methodology is Quick-and-dirty, no traditional API design, casual style.
@@ -36,7 +36,7 @@ DirectX 11 capable GPU
 Dependent Librarie Files:
 -------------------------
 Those files should be in header_files_third_party\, 
-notice corresponding x64/x86, Debug/Release verion.
+notice corresponding x64/x86, Debug/Release version.
 * **DirectXTK.lib**: DirectX Tool Kit
 * **Effects11.lib**: Effects for Direct3D 11 (FX11)
 * **lua.lib**: Lua 5.3.0
