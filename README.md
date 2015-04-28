@@ -33,6 +33,8 @@ Update KB2670838 (Windows 7.1 situation)
 
 Dependent Librarie Files:
 -------------------------
+Those files should be in header_files_third_party\, 
+notice corresponding x64/x86, Debug/Release verion.
 * **DirectXTK.lib**: DirectX Tool Kit
 * **Effects11.lib**: Effects for Direct3D 11 (FX11)
 * **lua.lib**: Lua 5.3.0
