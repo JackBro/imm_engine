@@ -1,6 +1,6 @@
 BSD License
 
-immature physics engine
+immature engine
 Copyright (c) 2015, Huang Yiting (http://endrollex.com)
 All rights reserved.
 
