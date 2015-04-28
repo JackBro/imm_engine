@@ -30,8 +30,8 @@ Win 7.1 / Win 8.x
 DirectX End-User Runtimes (June 2010)  
 Visual C++ Redistributable Packages for Visual Studio 2013  
 Update KB2670838 (Windows 7.1 situation)  
-DirectX 11 capable GPU
-1024X768 minimum display resolution
+DirectX 11 capable GPU  
+1024X768 minimum display resolution  
 
 Dependent Librarie Files:
 -------------------------
