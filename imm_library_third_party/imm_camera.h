@@ -63,7 +63,7 @@ public:
 	void rotate_y(float angle);
 	// After modifying camera position/orientation, call to rebuild the view matrix.
 	void update_view_matrix();
-private:
+//private:
 	// Camera coordinate system with coordinates relative to world space.
 	XMFLOAT3 m_Position;
 	XMFLOAT3 m_Right;

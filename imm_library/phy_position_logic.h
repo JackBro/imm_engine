@@ -10,15 +10,14 @@
 #include "phy_prepare.h"
 namespace imm
 {
+// note if every delta time is not equal, simulation will be some distortion
 ////////////////
 // global var
 ////////////////
 ////////////////
 static const float PHY_FLOAT_EQUAL_1METER = 5.0f;
 static const float PHY_GRAVITY = -9.8f*PHY_FLOAT_EQUAL_1METER;
-// if too small velocity rebound, ignore it, no bigger than gravity * 1fps, (assume 1fps is physics refresh rate)
-// refresh rate, every delta time should be equal, but not required, according to the situation
-// if every delta time is not equal, simulation will be some distortion
+// if too small velocity rebound, ignore it
 static const float PHY_IGNORE_GRAVITY = 1.8f;
 // AABB six face normal
 XMGLOBALCONST XMVECTORF32 PHY_AABB_NORMAL[6] = {
@@ -107,7 +106,7 @@ XMVECTORF32 phy_boxA_normal(const BoundingBox &bbox_A, const BoundingBox &bbox_B
 // phy_impulse_casual
 // collision impulse method modify from
 // \Microsoft DirectX SDK (June 2010)\Samples\C++\Direct3D\ConfigSystem\main.cpp
-// it is originally used in two spheres, but there is used in two AABB or others, inaccuracy solution
+// it is originally used with two spheres, but there is used with two AABB or others, inaccuracy solution
 ////////////////
 ////////////////
 void phy_impulse_casual(
@@ -128,12 +127,12 @@ void phy_impulse_casual(
 	XMVECTOR AtoB = XMVector3Normalize(XMVectorSubtract(c_B, c_A));
 	XMVECTOR vel_A = XMLoadFloat3(&prop_A.velocity);
 	XMVECTOR vel_B = XMLoadFloat3(&prop_B.velocity);
-	// empirical formula is using, because velocity_nm is different from velocity
+	// empirical formula, velocity_nm is different from velocity
 	XMVECTOR vel_A_nm = XMLoadFloat3(&prop_A.velocity_nm);
 	XMVECTOR vel_B_nm = XMLoadFloat3(&prop_B.velocity_nm);
 	XMVECTOR vel_A_all = XMVectorAdd(vel_A, vel_A_nm);
 	XMVECTOR vel_B_all = XMVectorAdd(vel_B, vel_B_nm);
-	// penetration depth estimate, not accurate, increase it value
+	// penetration depth estimate, not accurate, increase its value
 	float penetration_much = XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*1.5f;
 	// bounce
 	float bounce = prop_A.bounce*prop_B.bounce;

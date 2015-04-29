@@ -52,8 +52,8 @@ instance_mgr::instance_mgr():
 //
 void instance_mgr::init(ID3D11Device *device, std::atomic<bool> &is_loading, atomic_wstring &input)
 {
-	is_loading = true;
 	m_IsLoading = true;
+	is_loading = m_IsLoading;
 	input += L"> Loading...\n";
 	input += L"> Please wait...\n";
 	m_Model.init_all(device);
@@ -83,8 +83,8 @@ void instance_mgr::init(ID3D11Device *device, std::atomic<bool> &is_loading, ato
 		m_Model.m_InstPNTT, inst_stat, k,
 		[](const pos_normal_tex_tan &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
-	is_loading = false;
 	m_IsLoading = false;
+	is_loading = m_IsLoading;
 	input.assign(L"> Scene load done\n");
 	// scene
 	m_SceneGroundIx = get_index(m_SceneGround);

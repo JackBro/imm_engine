@@ -39,7 +39,7 @@ void ui_simple<T_app>::define_txt_str()
 	m_DefineTxt["credit"] += L"Credit\n";
 	m_DefineTxt["credit"] += L"\n";
 	m_DefineTxt["credit"] += L"The fundamental 3D rendering technique is derived from the textbook ";
-	m_DefineTxt["credit"] += L"Introduction to 3D Game Programming with DirectX 10 by Frank Luna.\n";
+	m_DefineTxt["credit"] += L"Introduction to 3D Game Programming with DirectX 11 by Frank Luna.\n";
 	m_DefineTxt["credit"] += L"\n";
 	m_DefineTxt["credit"] += L"Sinon (Sword art Online) 3D model by Daniel Kreuter.\n";
 	m_DefineTxt["credit"] += L"\n";

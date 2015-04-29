@@ -151,58 +151,6 @@ void model_load_geo_mesh(ID3D11Device *device, simple_model<pos_normal_tex_tan> 
 	model_shape.set_MeshBuffer(device);
 }
 ////////////////
-// rotation_xyz
-////////////////
-////////////////
-struct rotation_xyz
-{
-	rotation_xyz():
-		x(0.0f),
-		y(0.0f),
-		z(0.0f)
-		{;}
-	rotation_xyz(const std::string &xyz);
-	float x;
-	float y;
-	float z;
-	XMMATRIX get_Matrix();
-};
-//
-rotation_xyz::rotation_xyz(const std::string &xyz)
-{
-	x = 0.0f;
-	y = 0.0f;
-	z = 0.0f;
-	std::vector<std::string::size_type> pos;
-	pos.push_back(xyz.find_first_of("Xx"));
-	pos.push_back(xyz.find_first_of("Yy"));
-	pos.push_back(xyz.find_first_of("Zz"));
-	//"0123456789" will check converting, stof() first part of string must be a number
-	std::string s_number("0123456789");
-	for (size_t ix = 0; ix != pos.size(); ++ix) {
-		if (pos[ix] != std::string::npos && pos[ix] < xyz.size()-1) {
-			std::string::size_type offset = 0;
-			if (xyz.substr(pos[ix]+1).find_first_of("+-") == 0) offset = 1;
-			if (xyz.substr(pos[ix]+1+offset).find_first_of(s_number) == 0) {
-				switch (ix) {
-					case 0: x = std::stof(xyz.substr(pos[ix]+1))/180.0f*XM_PI; break;
-					case 1: y = std::stof(xyz.substr(pos[ix]+1))/180.0f*XM_PI; break;
-					case 2: z = std::stof(xyz.substr(pos[ix]+1))/180.0f*XM_PI; break;
-				}
-			}
-		}
-	}
-}
-//
-XMMATRIX rotation_xyz::get_Matrix()
-{
-	XMMATRIX R = XMMatrixIdentity();
-	if (abs(x) > 0.01f) R = XMMatrixMultiply(R, XMMatrixRotationX(x));
-	if (abs(y) > 0.01f) R = XMMatrixMultiply(R, XMMatrixRotationY(y));
-	if (abs(z) > 0.01f) R = XMMatrixMultiply(R, XMMatrixRotationZ(z));
-	return R;
-}
-////////////////
 // model_load_csv_basic
 ////////////////
 ////////////////
@@ -265,20 +213,6 @@ void object_assign_csv_basic(
 	R = XMMatrixMultiply(scale, R);
 	R = XMMatrixMultiply(R, offset);
 	XMStoreFloat4x4(&(it->world), R);
-}
-////////////////
-// csv_string_to_float
-////////////////
-////////////////
-std::vector<float> csv_string_to_float(const std::string &str, const size_t &count)
-{
-	std::vector<float> rt;
-	std::string::size_type pos = 0, pos_get;
-	for (size_t ix = 0; ix != count; ++ix) {
-		rt.push_back(std::stof(str.substr(pos), &pos_get));
-		pos += pos_get;
-	}
-	return rt;
 }
 ////////////////
 // bin_m3d

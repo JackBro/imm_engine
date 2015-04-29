@@ -193,7 +193,7 @@ struct control_mov
 {
 	control_mov();
 	void init(T_app *app_in);
-	//
+	void update_loading_finish();
 	void mouse_instance_move(const int &pos_x, const int &pos_y);
 	void pad_instance_move();
 	void mouse_move_toward_hit(CXMVECTOR &plane_pos, const size_t &index, const float &speed = -1.0f);
@@ -201,10 +201,6 @@ struct control_mov
 	void pad_face_rot_y(XMMATRIX &W, XMMATRIX &RF, XMVECTOR &direction, const float &rot_cam);
 	void mouse_hit_plane_y0(const int &pos_x, const int &pos_y, XMVECTOR &plane_pos);
 	void pad_move_toward();
-	void pad_camera(const float &dt);
-	void key_camera(const float &dt);
-	void mouse_camera_wheel(const short &z_delta);
-	void mouse_camera_move(const float &dx, const float &dy);
 	void common_jump();
 	void mouse_pick(const int &pos_x, const int &pos_y);
 	void update_scene_instance(const float &dt);
@@ -215,7 +211,11 @@ struct control_mov
 	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_mouse_wheel(const short &z_delta);
-	//
+	// include
+	void pad_camera_free(const float &dt);
+	void key_camera_free(const float &dt);
+	void mouse_camera_wheel(const short &z_delta);
+	void mouse_camera_move(const float &dx, const float &dy);	
 	void cam_follow();
 	//
 	T_app *app;
@@ -224,7 +224,12 @@ struct control_mov
 	float wait_ui_disappear;
 	float phy_dt;
 	float phy_dt_every;
-	std::map<size_t, control_stop> stop;
+	std::map<size_t, control_stop> map_stop;
+	std::map<size_t, XMFLOAT4> map_rot_front_j;
+	
+	
+	
+	
 	control_xinput pad;
 	control_motion motion;
 };
@@ -239,13 +244,25 @@ control_mov<T_app>::control_mov():
 	phy_dt_every(0.016f),
 	pad()
 {
-	;
+	//phy_dt_every = 0.005f;
 }
 //
 template <typename T_app>
 void control_mov<T_app>::init(T_app *app_in)
 {
 	app = app_in;
+}
+//
+template <typename T_app>
+void control_mov<T_app>::update_loading_finish()
+{
+	if (player1 == -1 && !app->m_Inst.m_IsLoading) {
+		player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.g_map["player1"]));
+	}
+	if (app->m_Inst.m_IsLoading && player1 != -1) {
+		player1 = -1;
+		picked = -1;
+	}
 }
 //
 template <typename T_app>
@@ -257,9 +274,9 @@ void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 	mouse_hit_plane_y0(pos_x, pos_y, plane_pos);
 	mouse_move_toward_hit(plane_pos, picked);
 	//
-	stop[picked].is_stop = false;
-	stop[picked].speed = motion.speed;
-	stop[picked].set_aabb(plane_pos, app->m_Inst.m_BoundW.half_y(picked));
+	map_stop[picked].is_stop = false;
+	map_stop[picked].speed = motion.speed;
+	map_stop[picked].set_aabb(plane_pos, app->m_Inst.m_BoundW.half_y(picked));
 	app->m_Inst.m_Stat[picked].check_set_ClipName(motion.walk_run);
 }
 //
@@ -381,46 +398,6 @@ void control_mov<T_app>::pad_move_toward()
 }
 //
 template <typename T_app>
-void control_mov<T_app>::pad_camera(const float &dt)
-{
-	if (pad.is_R_active()) {
-		float dx = XMConvertToRadians(50.0f*pad.state.Gamepad.sThumbRX/32767*dt);
-		float dy = XMConvertToRadians(50.0f*pad.state.Gamepad.sThumbRY/32767*dt);
-		app->m_Cam.pitch(-dy);
-		app->m_Cam.rotate_y(dx);
-	}
-	if (app->m_UI.is_ui_appear()) return;	
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) app->m_Cam.up_down(10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) app->m_Cam.up_down(-10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) app->m_Cam.strafe(-10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) app->m_Cam.strafe(10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) app->m_Cam.walk(10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) app->m_Cam.walk(-10.0f*dt);
-}
-//
-template <typename T_app>
-void control_mov<T_app>::key_camera(const float &dt)
-{
-	if (GetAsyncKeyState('A') & 0x8000) app->m_Cam.strafe(-10.0f*dt);
-	if (GetAsyncKeyState('D') & 0x8000) app->m_Cam.strafe(10.0f*dt);
-	if (GetAsyncKeyState('W') & 0x8000) app->m_Cam.up_down(10.0f*dt);
-	if (GetAsyncKeyState('S') & 0x8000) app->m_Cam.up_down(-10.0f*dt);
-}
-//
-template <typename T_app>
-void control_mov<T_app>::mouse_camera_wheel(const short &z_delta)
-{
-	app->m_Cam.walk(z_delta/120*1.0f);
-}
-//
-template <typename T_app>
-void control_mov<T_app>::mouse_camera_move(const float &dx, const float &dy)
-{
-	app->m_Cam.pitch(dy);
-	app->m_Cam.rotate_y(dx);
-}
-//
-template <typename T_app>
 void control_mov<T_app>::common_jump()
 {
 	if (picked == -1) return;
@@ -442,16 +419,68 @@ template <typename T_app>
 void control_mov<T_app>::update_scene_instance(const float &dt)
 {
 	app->m_Inst.update_skinned(dt);
+	
+	
+	
+	
+	
+	
+	
+	
 	phy_dt += dt;
+	
+	
+	
+	
+	
+	/*
 	if (phy_dt > phy_dt_every) {
 		phy_dt -= phy_dt_every;
 		app->m_Inst.bound_update();
 		app->m_Inst.collision_update(phy_dt_every);
 	}
+	
+	//*/
+	
+	
+	
+	
+	
+	
+	app->m_Inst.bound_update();
+	app->m_Inst.collision_update(dt);
+	
+	
+	
+	
+	
+	
+	
+	
 	//
 	update_scene_instance_stop(dt);
 	
 	cam_follow();
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 }
@@ -459,7 +488,7 @@ void control_mov<T_app>::update_scene_instance(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::update_scene_instance_stop(const float &dt)
 {
-	for (auto it = stop.begin(); it != stop.end(); ++it) {
+	for (auto it = map_stop.begin(); it != map_stop.end(); ++it) {
 		if (it->second.is_stop) continue;
 		// assume bound'scenter approximate instance's world
 		bool is_inter = it->second.contains(app->m_Inst.m_BoundW.center(it->first));
@@ -484,9 +513,12 @@ template <typename T_app>
 void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 {
 	DUMMY(dt);
-	// once inst loading finished
-	if (player1 == -1 && !app->m_Inst.m_IsLoading)
-		player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.g_map["player1"]));
+		
+		
+	update_loading_finish();
+	
+		
+		
 	if (pad.is_enable()) {
 		picked = player1;
 		// walk or run
@@ -494,7 +526,7 @@ void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 		else motion.make_walk();
 		pad_instance_move();
 		// camera
-		pad_camera(dt);
+		pad_camera_free(dt);
 		// all pad on button event on here
 		on_pad_down(dt);
 	}
@@ -506,7 +538,7 @@ void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 		if (GetKeyState(VK_SPACE) & 0x8000) common_jump();
 	}
 	// camera
-	key_camera(dt);
+	key_camera_free(dt);
 }
 //
 template <typename T_app>

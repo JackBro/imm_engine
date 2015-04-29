@@ -31,7 +31,7 @@ struct phy_property
 		is_touch_ground(false)
 		{;}
 	XMFLOAT3 velocity;
-	XMFLOAT3 velocity_nm; // velcoity of no direct mechanical motion, for example: walk
+	XMFLOAT3 velocity_nm; // velcoity of no direct mechanical motion, for example: walk, run
 	XMFLOAT3 acceleration;
 	float mass;
 	float friction_rev; // reversed coefficient of friction, 0 <= this <= 1, ignore original friction > 1
@@ -76,8 +76,7 @@ enum phy_bound_type
 };
 ////////////////
 // phy_bound_mgr
-// manager various type of bounding
-// abstract the common points
+// manager various types of bounding
 ////////////////
 ////////////////
 class phy_bound_mgr
