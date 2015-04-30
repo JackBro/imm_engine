@@ -71,7 +71,7 @@ struct ui_simple
 	bool define_apply_ix(int &index);
 	bool define_apply_ix_if(int &index);
 	void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
-	void define_pad_on_keydown(const WORD &vkey, const float &dt);
+	void define_on_pad_keydown(const WORD &vkey, const float &dt);
 	void define_update();
 	void define_deactivate_all_default();
 	void define_txt_str();

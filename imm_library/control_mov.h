@@ -148,10 +148,10 @@ struct control_motion
 };
 //
 control_motion::control_motion():
-	walk_run("Walk"),
+	walk_run("Run"),
 	idle("Idle"),
 	jump("Jump"),
-	speed(4.5f),
+	speed(13.5f),
 	jump_velocity(15.0f)
 {
 	;
@@ -213,6 +213,7 @@ struct control_mov
 	void on_mouse_wheel(const short &z_delta);
 	// include
 	void pad_camera_free(const float &dt);
+	void on_pad_camera_follow(const WORD &vkey);
 	void key_camera_free(const float &dt);
 	void mouse_camera_wheel(const short &z_delta);
 	void mouse_camera_move(const int &pos_x, const int &pos_y);	
@@ -222,6 +223,7 @@ struct control_mov
 	int picked;
 	int player1;
 	bool is_cam_free;
+	bool is_pad_cam_follow_reset;
 	float cam_follow_walk;
 	float cam_follow_up;
 	float wait_ui_disappear;
@@ -237,6 +239,7 @@ control_mov<T_app>::control_mov():
 	picked(-1),
 	player1(-1),
 	is_cam_free(false),
+	is_pad_cam_follow_reset(false),
 	cam_follow_walk(-30.0f),
 	cam_follow_up(5.0f),
 	wait_ui_disappear(0.0f),
@@ -284,8 +287,8 @@ void control_mov<T_app>::pad_instance_move()
 	if (picked == -1) return;
 	if (!app->m_Inst.m_Stat[picked].phy.is_touch_ground) return;
 	// walk or run
-	if (pad.state.Gamepad.bRightTrigger > 50) motion.make_run();
-	else motion.make_walk();
+	if (pad.state.Gamepad.bRightTrigger > 50) motion.make_walk();
+	else motion.make_run();
 	if (pad.is_L_active()) {
 		pad_move_toward();
 	}
@@ -489,13 +492,14 @@ void control_mov<T_app>::on_pad_down(const float &dt)
 	pad_camera_free(dt);
 	//
 	WORD get_vkey;
-	if (pad.is_on_keydown(get_vkey)) app->m_UI.define_pad_on_keydown(get_vkey, dt);
+	if (pad.is_on_keydown(get_vkey)) app->m_UI.define_on_pad_keydown(get_vkey, dt);
 	// avoid ui conflict with control
 	if (app->m_UI.is_ui_appear()) wait_ui_disappear = 0.3f;
 	wait_ui_disappear -= dt;
 	if (wait_ui_disappear > 0.0f) return;
 	wait_ui_disappear = -1.0f;
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_A) common_jump();
+	on_pad_camera_follow(get_vkey);
+	if (get_vkey == VK_PAD_A) common_jump();
 }
 //
 template <typename T_app>

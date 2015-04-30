@@ -335,7 +335,7 @@ void ui_simple<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::define_pad_on_keydown(const WORD &vkey, const float &dt)
+void ui_simple<T_app>::define_on_pad_keydown(const WORD &vkey, const float &dt)
 {
 	DUMMY(dt);
 	if (vkey == VK_PAD_START) {

@@ -11,16 +11,30 @@ void control_mov<T_app>::pad_camera_free(const float &dt)
 	if (pad.is_R_active()) {
 		float dx = XMConvertToRadians(50.0f*pad.state.Gamepad.sThumbRX/32767*dt);
 		float dy = XMConvertToRadians(50.0f*pad.state.Gamepad.sThumbRY/32767*dt);
-		app->m_Cam.pitch(-dy);
-		app->m_Cam.rotate_y(dx);
+		app->m_Cam.pitch(dy);
+		app->m_Cam.rotate_y(-dx);
 	}
 	if (app->m_UI.is_ui_appear()) return;
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) app->m_Cam.up_down(10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) app->m_Cam.up_down(-10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) app->m_Cam.strafe(-10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) app->m_Cam.strafe(10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) app->m_Cam.walk(10.0f*dt);
-	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) app->m_Cam.walk(-10.0f*dt);
+	if (is_cam_free) {
+		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) app->m_Cam.up_down(10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) app->m_Cam.up_down(-10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) app->m_Cam.strafe(-10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) app->m_Cam.strafe(10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) app->m_Cam.walk(10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) app->m_Cam.walk(-10.0f*dt);
+	}
+	else {
+		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) cam_follow_walk += 10.0f*dt;
+		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) cam_follow_walk += -10.0f*dt;
+		cam_follow_walk = calc_clamp(cam_follow_walk, -50.0f, -10.0f);
+	}
+}
+//
+template <typename T_app>
+void control_mov<T_app>::on_pad_camera_follow(const WORD &vkey)
+{
+	if (is_cam_free) return;
+	if (vkey == VK_PAD_RSHOULDER) is_pad_cam_follow_reset = true;
 }
 //
 template <typename T_app>
@@ -73,7 +87,8 @@ void control_mov<T_app>::cam_follow_update()
 	U = XMLoadFloat3(&app->m_Cam.m_Up);
 	pos = XMVectorMultiplyAdd(scale, U, pos);
 	XMStoreFloat3(&app->m_Cam.m_Position, pos);
-	if (GetAsyncKeyState('Z')) {
+	if (GetAsyncKeyState('Z') || is_pad_cam_follow_reset) {
+		is_pad_cam_follow_reset = false;
 		cam_follow_walk = -30.0f;
 		if (!map_rot_front_c.count(picked)) {
 			XMMATRIX RF = XMLoadFloat4x4(app->m_Inst.m_Stat[picked].get_RotFront());
@@ -92,6 +107,10 @@ void control_mov<T_app>::cam_follow_update()
 		U = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 		R = XMVector3Normalize(XMVector3Cross(U, L));
 		U = XMVector3Cross(L, R);
+		// pitch
+		XMMATRIX M_R = XMMatrixRotationAxis(R, 0.34f);
+		U = XMVector3TransformNormal(U, M_R);
+		L = XMVector3TransformNormal(L, M_R);
 		XMStoreFloat3(&app->m_Cam.m_Look, L);
 		XMStoreFloat3(&app->m_Cam.m_Right, R);
 		XMStoreFloat3(&app->m_Cam.m_Up, U);
