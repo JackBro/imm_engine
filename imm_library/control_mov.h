@@ -204,7 +204,7 @@ struct control_mov
 	void common_jump();
 	void mouse_pick(const int &pos_x, const int &pos_y);
 	void update_scene_instance(const float &dt);
-	void update_scene_instance_stop(const float &dt);
+	void update_scene_stop(const float &dt);
 	void update_keydown_and_pad(const float &dt);
 	void on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_pad_down(const float &dt);
@@ -215,21 +215,18 @@ struct control_mov
 	void pad_camera_free(const float &dt);
 	void key_camera_free(const float &dt);
 	void mouse_camera_wheel(const short &z_delta);
-	void mouse_camera_move(const float &dx, const float &dy);	
-	void cam_follow();
+	void mouse_camera_move(const int &pos_x, const int &pos_y);	
+	void cam_follow_update();
 	//
 	T_app *app;
 	int picked;
 	int player1;
+	bool is_cam_free;
+	float cam_follow_walk;
+	float cam_follow_up;
 	float wait_ui_disappear;
-	float phy_dt;
-	float phy_dt_every;
 	std::map<size_t, control_stop> map_stop;
-	std::map<size_t, XMFLOAT4> map_rot_front_j;
-	
-	
-	
-	
+	std::map<size_t, XMFLOAT4> map_rot_front_c;
 	control_xinput pad;
 	control_motion motion;
 };
@@ -239,12 +236,13 @@ control_mov<T_app>::control_mov():
 	app(nullptr),
 	picked(-1),
 	player1(-1),
+	is_cam_free(false),
+	cam_follow_walk(-30.0f),
+	cam_follow_up(5.0f),
 	wait_ui_disappear(0.0f),
-	phy_dt(0.0f),
-	phy_dt_every(0.016f),
 	pad()
 {
-	//phy_dt_every = 0.005f;
+	;
 }
 //
 template <typename T_app>
@@ -285,6 +283,9 @@ void control_mov<T_app>::pad_instance_move()
 {
 	if (picked == -1) return;
 	if (!app->m_Inst.m_Stat[picked].phy.is_touch_ground) return;
+	// walk or run
+	if (pad.state.Gamepad.bRightTrigger > 50) motion.make_run();
+	else motion.make_walk();
 	if (pad.is_L_active()) {
 		pad_move_toward();
 	}
@@ -419,74 +420,14 @@ template <typename T_app>
 void control_mov<T_app>::update_scene_instance(const float &dt)
 {
 	app->m_Inst.update_skinned(dt);
-	
-	
-	
-	
-	
-	
-	
-	
-	phy_dt += dt;
-	
-	
-	
-	
-	
-	/*
-	if (phy_dt > phy_dt_every) {
-		phy_dt -= phy_dt_every;
-		app->m_Inst.bound_update();
-		app->m_Inst.collision_update(phy_dt_every);
-	}
-	
-	//*/
-	
-	
-	
-	
-	
-	
 	app->m_Inst.bound_update();
 	app->m_Inst.collision_update(dt);
-	
-	
-	
-	
-	
-	
-	
-	
-	//
-	update_scene_instance_stop(dt);
-	
-	cam_follow();
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	update_scene_stop(dt);
+	cam_follow_update();
 }
 //
 template <typename T_app>
-void control_mov<T_app>::update_scene_instance_stop(const float &dt)
+void control_mov<T_app>::update_scene_stop(const float &dt)
 {
 	for (auto it = map_stop.begin(); it != map_stop.end(); ++it) {
 		if (it->second.is_stop) continue;
@@ -513,26 +454,13 @@ template <typename T_app>
 void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 {
 	DUMMY(dt);
-		
-		
 	update_loading_finish();
-	
-		
-		
 	if (pad.is_enable()) {
 		picked = player1;
-		// walk or run
-		if (pad.state.Gamepad.bRightTrigger > 50) motion.make_run();
-		else motion.make_walk();
-		pad_instance_move();
-		// camera
-		pad_camera_free(dt);
-		// all pad on button event on here
 		on_pad_down(dt);
 	}
 	// keyborad
 	else {
-		// keep control player1
 		if (picked < 0) picked = player1;
 		if (picked == app->m_Inst.m_SceneGroundIx) picked = player1;
 		if (GetKeyState(VK_SPACE) & 0x8000) common_jump();
@@ -557,6 +485,9 @@ void control_mov<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 template <typename T_app>
 void control_mov<T_app>::on_pad_down(const float &dt)
 {
+	pad_instance_move();
+	pad_camera_free(dt);
+	//
 	WORD get_vkey;
 	if (pad.is_on_keydown(get_vkey)) app->m_UI.define_pad_on_keydown(get_vkey, dt);
 	// avoid ui conflict with control
@@ -579,10 +510,7 @@ template <typename T_app>
 void control_mov<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
 	if ((btn_state & MK_MBUTTON)) {
-		// Make each pixel correspond to a quarter of a degree.
-		float dx = XMConvertToRadians(0.25f*static_cast<float>(pos_x - app->m_LastMousePos.x));
-		float dy = XMConvertToRadians(0.25f*static_cast<float>(pos_y - app->m_LastMousePos.y));
-		mouse_camera_move(dx, dy);
+		mouse_camera_move(pos_x, pos_y);
 	}
 }
 //

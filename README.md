@@ -15,7 +15,7 @@ because the engine is on low completion status.
 
 In Development:
 ---------------
-The project is in development, there is less document and features now.
+The project is in development, there is less document and feature now.
 The framework of the engine is instability, will be changed frequently.
 Just guarantee the able to compile the project correctly.
 
@@ -26,7 +26,7 @@ Visual Studio 2013
 
 Runtime Environment:
 --------------------
-Win 7.1 / Win 8.x  
+Win 7.1 / Win 8.x / Win 10  
 DirectX End-User Runtimes (June 2010)  
 Visual C++ Redistributable Packages for Visual Studio 2013  
 Update KB2670838 (Windows 7.1 situation)  
@@ -46,10 +46,10 @@ notice corresponding x64/x86, Debug/Release version.
 How to Build:
 -------------
 In demo folder, every subfolder inlude a signle demo.
-I will write the detail later.
-* **init_d3d**: Basic windows repsents empty.
-* **simple_secene**: The current work.
-The compile option see bat_tool\1.bat
+The compile option see bat_tool\1.bat.
+* **init_d3d**: Basic windows draw empty.
+* **simple_secene**: The current work (see Released Demo).
+3D models and textures of this demo is absent in the repository, please obtain from the Released Demo.
 
 Runtime Folder Tree:
 --------------------
@@ -73,7 +73,7 @@ Asset and Tools:
 Export Blender model data to .m3d file format for immature engine. 
 https://github.com/endrollex/imm_blender_export
 * **immature engine console util b3m tool**: 
-Convert .m3d file to binary file.
+Convert .m3d file to binary file. In game input mode type "help".
 
 Released Demo:
 --------------

@@ -8,7 +8,7 @@ void imm_app::draw_scene()
 	else draw_scene_d3d_slient();
 	draw_scene_d2d();
 	m_SwapChain->Present(0, 0);
-	//m_SwapChain->Present1(0, 0, &m_DXGIPresentPara);
+	//m_SwapChain->Present1(1, 0, &m_DXGIPresentPara);
 }
 //
 void imm_app::build_shadow_transform()

@@ -14,7 +14,7 @@ void control_mov<T_app>::pad_camera_free(const float &dt)
 		app->m_Cam.pitch(-dy);
 		app->m_Cam.rotate_y(dx);
 	}
-	if (app->m_UI.is_ui_appear()) return;	
+	if (app->m_UI.is_ui_appear()) return;
 	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) app->m_Cam.up_down(10.0f*dt);
 	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) app->m_Cam.up_down(-10.0f*dt);
 	if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) app->m_Cam.strafe(-10.0f*dt);
@@ -26,6 +26,7 @@ void control_mov<T_app>::pad_camera_free(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::key_camera_free(const float &dt)
 {
+	if (!is_cam_free) return;
 	if (GetAsyncKeyState('A') & 0x8000) app->m_Cam.strafe(-10.0f*dt);
 	if (GetAsyncKeyState('D') & 0x8000) app->m_Cam.strafe(10.0f*dt);
 	if (GetAsyncKeyState('W') & 0x8000) app->m_Cam.up_down(10.0f*dt);
@@ -35,79 +36,65 @@ void control_mov<T_app>::key_camera_free(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::mouse_camera_wheel(const short &z_delta)
 {
-	app->m_Cam.walk(z_delta/120*1.0f);
+	if (is_cam_free) {
+		app->m_Cam.walk(z_delta/120*1.0f);
+	}
+	else {
+		cam_follow_walk += z_delta/120*1.0f;
+		cam_follow_walk = calc_clamp(cam_follow_walk, -50.0f, -10.0f);
+	}
 }
 //
 template <typename T_app>
-void control_mov<T_app>::mouse_camera_move(const float &dx, const float &dy)
+void control_mov<T_app>::mouse_camera_move(const int &pos_x, const int &pos_y)
 {
+	// Make each pixel correspond to a quarter of a degree.
+	float dx = XMConvertToRadians(0.25f*static_cast<float>(pos_x - app->m_LastMousePos.x));
+	float dy = XMConvertToRadians(0.25f*static_cast<float>(pos_y - app->m_LastMousePos.y));
 	app->m_Cam.pitch(dy);
 	app->m_Cam.rotate_y(dx);
+	// keep move continuous
+	cam_follow_update();
 }
 //
 template <typename T_app>
-void control_mov<T_app>::cam_follow()
+void control_mov<T_app>::cam_follow_update()
 {
-	if (picked < 0) return;
-	
+	if (picked < 0 || is_cam_free) return;
 	XMFLOAT4X4 player_world = *(app->m_Inst.m_Stat[picked].get_World());
 	XMMATRIX W = XMLoadFloat4x4(&player_world);
-	XMVECTOR scale, rot_quat, translation, rot_front_conj, pos;
+	XMVECTOR scale, rot_quat, rot_front_conj, pos, L, U, R;
 	XMMatrixDecompose(&scale, &rot_quat, &pos, W);
-	
-	
-	
-	// walk, up_down
-	float walk = -30.0f;
-	float up_down = 5.0f;
-	XMVECTOR s = XMVectorReplicate(walk);
-	XMVECTOR l = XMLoadFloat3(&app->m_Cam.m_Look);
-	pos = XMVectorMultiplyAdd(s, l, pos);
-	s = XMVectorReplicate(up_down);
-	l = XMLoadFloat3(&app->m_Cam.m_Up);
-	pos = XMVectorMultiplyAdd(s, l, pos);
+	// walk, up
+	scale = XMVectorReplicate(cam_follow_walk);
+	L = XMLoadFloat3(&app->m_Cam.m_Look);
+	pos = XMVectorMultiplyAdd(scale, L, pos);
+	scale = XMVectorReplicate(cam_follow_up);
+	U = XMLoadFloat3(&app->m_Cam.m_Up);
+	pos = XMVectorMultiplyAdd(scale, U, pos);
 	XMStoreFloat3(&app->m_Cam.m_Position, pos);
-	
-	
-	
-	
-	
 	if (GetAsyncKeyState('Z')) {
-		
-		map_rot_front_j.count(picked);
-		
-		XMFLOAT4X4 &rot_front = *app->m_Inst.m_Stat[picked].get_RotFront();
-		XMMATRIX RF = XMLoadFloat4x4(&rot_front);
-		XMMatrixDecompose(&scale, &rot_front_conj, &translation, RF);
-		rot_front_conj = XMQuaternionConjugate(rot_front_conj);
-		
-		
-		
-		XMVECTOR L = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+		cam_follow_walk = -30.0f;
+		if (!map_rot_front_c.count(picked)) {
+			XMMATRIX RF = XMLoadFloat4x4(app->m_Inst.m_Stat[picked].get_RotFront());
+			// L as dummy
+			XMMatrixDecompose(&scale, &rot_front_conj, &L, RF);
+			rot_front_conj = XMQuaternionConjugate(rot_front_conj);
+			XMStoreFloat4(&map_rot_front_c[picked], rot_front_conj);
+		}
+		else {
+			rot_front_conj = XMLoadFloat4(&map_rot_front_c[picked]);
+		}
+		L = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
 		L = XMVector3Rotate(L, rot_front_conj);
 		L = XMVector3Rotate(L, rot_quat);
 		L = XMVector3Normalize(L);
-		XMVECTOR world_up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-		XMVECTOR R = XMVector3Normalize(XMVector3Cross(world_up, L));
-		XMVECTOR U = XMVector3Cross(L, R);
-		
-		
-		
-		
-		
+		U = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+		R = XMVector3Normalize(XMVector3Cross(U, L));
+		U = XMVector3Cross(L, R);
 		XMStoreFloat3(&app->m_Cam.m_Look, L);
 		XMStoreFloat3(&app->m_Cam.m_Right, R);
 		XMStoreFloat3(&app->m_Cam.m_Up, U);
-		
-		
-		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 }
+//

@@ -193,8 +193,10 @@ void imm_app::on_mouse_move(WPARAM btn_state, int x, int y)
 	if (m_Cmd.is_slient) return;
 	m_Control.on_mouse_move(btn_state, x, y);
 	m_UI.on_mouse_over(x, y);
-	m_LastMousePos.x = x;
-	m_LastMousePos.y = y;
+	if (btn_state & MK_MBUTTON) {
+		m_LastMousePos.x = x;
+		m_LastMousePos.y = y;
+	}
 }
 //
 void imm_app::on_mouse_wheel(WPARAM btn_state, int x, int y)
