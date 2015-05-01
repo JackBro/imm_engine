@@ -6,7 +6,7 @@
 ////////////////
 #ifndef TOOL_TERRAIN_H
 #define TOOL_TERRAIN_H
-#include "tool_d3d_help.h"
+#include "tool_d3d_util.h"
 #include "stru_vertex.h"
 #include "imm_camera.h"
 #include "DDSTextureLoader.h"

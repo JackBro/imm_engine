@@ -117,9 +117,6 @@ bool imm_app::init_imm()
 	m_Cmd.init(this);
 	m_Cmd.is_slient = false;
 	m_Scene.init(this);
-	std::thread(
-		&instance_mgr::init, std::ref(m_Inst), m_D3DDevice,
-		std::ref(m_Cmd.is_loading), std::ref(m_Cmd.input)).detach();
 	m_Control.init(this);
 	m_Config.additional1();
 	return true;

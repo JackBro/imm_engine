@@ -7,7 +7,7 @@
 ////////////////
 #ifndef MISC_CMD_H
 #define MISC_CMD_H
-#include "misc_util.h"
+#include "misc_cmd_util.h"
 #include "misc_dwrite.h"
 #include <DirectXColors.h>
 namespace imm

@@ -1,10 +1,10 @@
 ////////////////
-// tool_d3d_help.h
+// tool_d3d_util.h
 // d3dUtil.h by Frank Luna (C) 2011 All Rights Reserved.
 ////////////////
 ////////////////
-#ifndef TOOL_D3D_HELP_H
-#define TOOL_D3D_HELP_H
+#ifndef TOOL_D3D_UTIL_H
+#define TOOL_D3D_UTIL_H
 #include "imm_core.h"
 #include "DDSTextureLoader.h"
 namespace imm

@@ -55,6 +55,9 @@ void scene_mgr<T_app>::init(T_app *app_in)
 	//
 	std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
 	skybox = new sky(app->m_D3DDevice, path_tex+L"sky_drywoods_hd.dds", 5000.0f);
+	std::thread(
+		&instance_mgr::init, std::ref(app->m_Inst), app->m_D3DDevice,
+		std::ref(app->m_Cmd.is_loading), std::ref(app->m_Cmd.input)).detach();
 }
 //
 }

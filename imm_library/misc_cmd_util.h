@@ -1,12 +1,12 @@
 ////////////////
-// misc_util.h
+// misc_cmd_util.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef MISC_UTIL_H
-#define MISC_UTIL_H
+#ifndef MISC_CMD_UTIL_H
+#define MISC_CMD_UTIL_H
 #include "stru_scene_help.h"
 #include <atomic>
 namespace imm
