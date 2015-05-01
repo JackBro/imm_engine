@@ -7,7 +7,7 @@
 ////////////////
 #ifndef MISC_UTIL_H
 #define MISC_UTIL_H
-#include "stru_scene_model_help.h"
+#include "stru_scene_help.h"
 #include <atomic>
 namespace imm
 {

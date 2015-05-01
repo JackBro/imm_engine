@@ -1,12 +1,12 @@
 ////////////////
-// stru_scene_model_common.h
+// stru_scene_swatch.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef STRU_SCENE_MODEL_COMMON_H
-#define STRU_SCENE_MODEL_COMMON_H
+#ifndef STRU_SCENE_SWATCH_H
+#define STRU_SCENE_SWATCH_H
 #include "imm_core.h"
 namespace imm
 {

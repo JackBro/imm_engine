@@ -7,7 +7,7 @@
 ////////////////
 #ifndef STRU_MODEL_MGR_H
 #define STRU_MODEL_MGR_H
-#include "stru_scene_model_help.h"
+#include "stru_scene_help.h"
 #include "phy_position_logic.h"
 #include "tool_basic_model.h"
 #include <thread>

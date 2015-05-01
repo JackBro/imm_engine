@@ -5,8 +5,8 @@
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef STRU_INSTANCE_H
-#define STRU_INSTANCE_H
+#ifndef STRU_INSTANCE_MGR_H
+#define STRU_INSTANCE_MGR_H
 #include "stru_model_mgr.h"
 namespace imm
 {
@@ -180,33 +180,6 @@ void instance_mgr::update_skinned(const float &dt)
 	if (m_IsLoading) return;
 	// should be multithread
 	for (auto &skinned: m_Model.m_InstSkinned) skinned.update(dt);
-}
-////////////////
-// scene_mgr
-////////////////
-////////////////
-struct scene_mgr
-{
-	scene_mgr();
-	void init(instance_mgr *inst_in);
-	instance_mgr *inst;
-	std::map<std::string, std::string> g_map;
-};
-//
-scene_mgr::scene_mgr()
-{
-	;
-}
-//
-void scene_mgr::init(instance_mgr *inst_in)
-{
-	inst = inst_in;
-	g_map["ground"] = "";
-	g_map["player1"] = "";
-	lua_reader l_reader;
-	l_reader.loadfile(GLOBAL["path_lua"]+"describe_scene.lua");
-	l_reader.map_from_global(g_map);
-	inst->m_SceneGround = g_map["ground"];
 }
 //
 }

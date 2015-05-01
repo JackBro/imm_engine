@@ -1,13 +1,13 @@
 ////////////////
-// stru_scene_model_help.h
+// stru_scene_help.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef STRU_SCENE_MODEL_HELP_H
-#define STRU_SCENE_MODEL_HELP_H
-#include "stru_scene_model_common.h"
+#ifndef STRU_SCENE_HELP_H
+#define STRU_SCENE_HELP_H
+#include "stru_scene_swatch.h"
 #include "misc_lua_help.h"
 #include "tool_geometry.h"
 #include "tool_basic_model.h"

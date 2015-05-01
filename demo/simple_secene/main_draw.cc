@@ -14,21 +14,21 @@ void imm_app::draw_scene()
 void imm_app::build_shadow_transform()
 {
 	// Only the first "main" light casts a shadow.
-	XMVECTOR light_dir = XMLoadFloat3(&m_DirLights[0].direction);
-	XMVECTOR light_pos = -2.0f*m_SceneBounds.Radius*light_dir;
-	XMVECTOR target_pos = XMLoadFloat3(&m_SceneBounds.Center);
+	XMVECTOR light_dir = XMLoadFloat3(&m_Scene.dir_lights[0].direction);
+	XMVECTOR light_pos = -2.0f*m_Scene.bounds.Radius*light_dir;
+	XMVECTOR target_pos = XMLoadFloat3(&m_Scene.bounds.Center);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMMATRIX V = XMMatrixLookAtLH(light_pos, target_pos, up);
 	// Transform bounding sphere to light space.
 	XMFLOAT3 sphere_center_ls;
 	XMStoreFloat3(&sphere_center_ls, XMVector3TransformCoord(target_pos, V));
 	// Ortho frustum in light space encloses scene.
-	float l = sphere_center_ls.x - m_SceneBounds.Radius;
-	float b = sphere_center_ls.y - m_SceneBounds.Radius;
-	float n = sphere_center_ls.z - m_SceneBounds.Radius;
-	float r = sphere_center_ls.x + m_SceneBounds.Radius;
-	float t = sphere_center_ls.y + m_SceneBounds.Radius;
-	float f = sphere_center_ls.z + m_SceneBounds.Radius;
+	float l = sphere_center_ls.x - m_Scene.bounds.Radius;
+	float b = sphere_center_ls.y - m_Scene.bounds.Radius;
+	float n = sphere_center_ls.z - m_Scene.bounds.Radius;
+	float r = sphere_center_ls.x + m_Scene.bounds.Radius;
+	float t = sphere_center_ls.y + m_Scene.bounds.Radius;
+	float f = sphere_center_ls.z + m_Scene.bounds.Radius;
 	XMMATRIX P = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
 	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
 	XMMATRIX T(
@@ -125,13 +125,13 @@ void imm_app::draw_scene_d3d()
 	auto *fx_basic = effects::m_BasicFX;
 	auto *fx_normal = effects::m_NormalMapFX;
 	// Set per frame constants.
-	fx_basic->set_DirLights(m_DirLights);
+	fx_basic->set_DirLights(m_Scene.dir_lights);
 	fx_basic->set_EyePosW(m_Cam.get_Position());
-	fx_basic->set_CubeMap(m_Sky->get_CubeMapSRV());
+	fx_basic->set_CubeMap(m_Scene.skybox->get_CubeMapSRV());
 	fx_basic->set_ShadowMap(m_Smap->get_DepthMapSRV());
-	fx_normal->set_DirLights(m_DirLights);
+	fx_normal->set_DirLights(m_Scene.dir_lights);
 	fx_normal->set_EyePosW(m_Cam.get_Position());
-	fx_normal->set_CubeMap(m_Sky->get_CubeMapSRV());
+	fx_normal->set_CubeMap(m_Scene.skybox->get_CubeMapSRV());
 	fx_normal->set_ShadowMap(m_Smap->get_DepthMapSRV());
 	m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	ID3DX11EffectTechnique *tech_basic = fx_normal->m_Light3TexTech;
@@ -209,7 +209,7 @@ void imm_app::draw_scene_d3d()
 		to_tex_space
 	);
 	// sky
-	m_Sky->draw(m_D3DDC, m_Cam);
+	m_Scene.skybox->draw(m_D3DDC, m_Cam);
 	// restore default states, as the SkyFX changes them in the effect file.
 	m_D3DDC->RSSetState(0);
 	m_D3DDC->OMSetDepthStencilState(0, 0);

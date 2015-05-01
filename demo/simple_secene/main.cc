@@ -8,9 +8,8 @@
 #include "misc_cmd.h"
 #include "misc_ui.h"
 #include "control_mov.h"
-#include "stru_instance_mgr.h"
+#include "stru_scene_mgr.h"
 #include "stru_draw_instance.h"
-#include "cast_sky.h"
 #include "stru_render.h"
 #include "imm_base.h"
 #include "cast_shadow.h"
@@ -48,20 +47,15 @@ public:
 	void draw_scene_d2d();
 	//
 	static const int m_SMapSize = 2048;
-	float m_LightRotationAngle;
 	cmd_shell<imm_app> m_Cmd;
 	POINT m_LastMousePos;
-	lit_dir m_DirLights[3];
 	camera m_Cam;
-	sky *m_Sky;
 	shadow_map *m_Smap;
-	scene_mgr m_Scene;
+	scene_mgr<imm_app> m_Scene;
 	instance_mgr m_Inst;
 	ui_simple<imm_app> m_UI;
 	lua_config<imm_app> m_Config;
 	control_mov<imm_app> m_Control;
-	BoundingSphere m_SceneBounds;
-	XMFLOAT3 m_OriginalLightDir[3];
 	XMFLOAT4X4 m_LightView;
 	XMFLOAT4X4 m_LightProj;
 	XMFLOAT4X4 m_ShadowTransform;
@@ -88,10 +82,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 ////////////////
 imm_app::imm_app():
 	base_win<imm_app>(),
-	m_LightRotationAngle(0.0f),	
 	m_Cmd(),
 	m_Cam(),
-	m_Sky(0),
 	m_Smap(0),
 	m_Scene(),
 	m_Inst(),	
@@ -103,20 +95,11 @@ imm_app::imm_app():
 	m_LastMousePos.x = 0;
 	m_LastMousePos.y = 0;
 	m_Cam.set_Position(0.0f, 7.0f, -25.0f);
-	scene_dir_lights_common(m_DirLights);
-	m_OriginalLightDir[0] = m_DirLights[0].direction;
-	m_OriginalLightDir[1] = m_DirLights[1].direction;
-	m_OriginalLightDir[2] = m_DirLights[2].direction;
-	//
-	m_SceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	//m_SceneBounds.Radius = sqrtf(10.0f*10.0f + 15.0f*15.0f);
-	m_SceneBounds.Radius = sqrtf(80.0f*80.0f + 80.0f*80.0f);
 }
 //
 imm_app::~imm_app()
 {
 	m_D3DDC->ClearState();
-	delete m_Sky;
 	delete m_Smap;
 	effects::destroy_all();
 	input_layouts::destroy_all();
@@ -128,14 +111,12 @@ bool imm_app::init_imm()
 	effects::init_all(m_D3DDevice);
 	input_layouts::init_all(m_D3DDevice);
 	render::init_all(m_D3DDevice);
-	std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
-	m_Sky = new sky(m_D3DDevice, path_tex+L"sky_drywoods_hd.dds", 5000.0f);
 	m_Smap = new shadow_map(m_D3DDevice, m_SMapSize, m_SMapSize);
 	m_Cam.set_Lens(0.25f*XM_PI, aspect_ratio(), 1.0f, 1000.0f);
 	m_UI.init(this);
 	m_Cmd.init(this);
 	m_Cmd.is_slient = false;
-	m_Scene.init(&m_Inst);
+	m_Scene.init(this);
 	std::thread(
 		&instance_mgr::init, std::ref(m_Inst), m_D3DDevice,
 		std::ref(m_Cmd.is_loading), std::ref(m_Cmd.input)).detach();
