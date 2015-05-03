@@ -49,7 +49,8 @@ In demo folder, every subfolder inlude a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: Basic windows draw empty.
 * **simple_secene**: The current work (see Released Demo).
-3D models and textures of this demo is absent in the repository, please obtain from the Released Demo.
+3D models and textures of this demo is absent in the repository, 
+please obtain from the Released Demo or rebuild the asset.
 
 Runtime Folder Tree:
 --------------------
@@ -73,7 +74,8 @@ Asset and Tools:
 Export Blender model data to .m3d file format for immature engine. 
 https://github.com/endrollex/imm_blender_export
 * **immature engine console util b3m tool**: 
-Convert .m3d file to binary file. In game input mode type "help".
+Convert .m3d file to binary file, it can be found in game input mode,
+"Alt+Delete" then type "help" for more info.
 
 Released Demo:
 --------------

@@ -23,11 +23,11 @@ public:
 	void set_EyePos(const XMFLOAT3 &eye_pos_w);
 	void set_EmitPos(const XMFLOAT3 &emit_pos_w);
 	void set_EmitDir(const XMFLOAT3 &emit_dir_w);
-	void init(ID3D11Device *device, imm::particle_effect *fx, ID3D11ShaderResourceView *tex_array_srv,
+	void init(ID3D11Device *device, particle_effect *fx, ID3D11ShaderResourceView *tex_array_srv,
 		ID3D11ShaderResourceView *random_tex_srv, UINT max_particles);
 	void reset();
 	void update(float dt, float game_time);
-	void draw(ID3D11DeviceContext *dc, const imm::camera &cam1);
+	void draw(ID3D11DeviceContext *dc, const camera &cam1);
 private:
 	void build_VB(ID3D11Device *device);
 	particle (const particle &rhs);
@@ -40,7 +40,7 @@ private:
 	XMFLOAT3 m_EyePosW;
 	XMFLOAT3 m_EmitPosW;
 	XMFLOAT3 m_EmitDirW;
-	imm::particle_effect *m_FX;
+	particle_effect *m_FX;
 	ID3D11Buffer *m_InitVB;
 	ID3D11Buffer *m_DrawVB;
 	ID3D11Buffer *m_StreamOutVB;
@@ -76,7 +76,7 @@ void particle::set_EyePos(const XMFLOAT3 &eye_pos_w) {m_EyePosW = eye_pos_w;}
 void particle::set_EmitPos(const XMFLOAT3 &emit_pos_w) {m_EmitPosW = emit_pos_w;}
 void particle::set_EmitDir(const XMFLOAT3 &emit_dir_w) {m_EmitDirW = emit_dir_w;}
 //
-void particle::init(ID3D11Device *device, imm::particle_effect *fx, ID3D11ShaderResourceView *tex_array_srv,
+void particle::init(ID3D11Device *device, particle_effect *fx, ID3D11ShaderResourceView *tex_array_srv,
 	ID3D11ShaderResourceView *random_tex_srv, UINT max_particles)
 {
 	m_MaxParticles = max_particles;
@@ -99,7 +99,7 @@ void particle::update(float dt, float game_time)
 	m_Age += dt;
 }
 //
-void particle::draw(ID3D11DeviceContext *dc, const imm::camera &cam1)
+void particle::draw(ID3D11DeviceContext *dc, const camera &cam1)
 {
 	XMMATRIX view_proj = cam1.get_ViewProj();
 	// Set constants.
@@ -114,7 +114,7 @@ void particle::draw(ID3D11DeviceContext *dc, const imm::camera &cam1)
 	// Set IA stage.
 	dc->IASetInputLayout(input_layouts::m_Particle);
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	UINT stride = sizeof(imm::stru_particle);
+	UINT stride = sizeof(stru_particle);
 	UINT offset = 0;
 	// On the first pass, use the initialization VB.  Otherwise, use
 	// the VB that contains the current particle list.
@@ -152,22 +152,22 @@ void particle::build_VB(ID3D11Device *device)
 	// Create the buffer to kick-off the particle system.
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage				= D3D11_USAGE_DEFAULT;
-	vbd.ByteWidth			= sizeof(imm::stru_particle) * 1;
+	vbd.ByteWidth			= sizeof(stru_particle) * 1;
 	vbd.BindFlags			= D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags		= 0;
 	vbd.MiscFlags			= 0;
 	vbd.StructureByteStride	= 0;
 	// The initial particle emitter has type 0 and age 0.  The rest
 	// of the particle attributes do not apply to an emitter.
-	imm::stru_particle p;
-	ZeroMemory(&p, sizeof(imm::stru_particle));
+	stru_particle p;
+	ZeroMemory(&p, sizeof(stru_particle));
 	p.age = 0.0f;
 	p.type = 0;
 	D3D11_SUBRESOURCE_DATA vinit_data;
 	vinit_data.pSysMem = &p;
 	HR(device->CreateBuffer(&vbd, &vinit_data, &m_InitVB));
 	// Create the ping-pong buffers for stream-out and drawing.
-	vbd.ByteWidth = sizeof(imm::stru_particle) * m_MaxParticles;
+	vbd.ByteWidth = sizeof(stru_particle) * m_MaxParticles;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_STREAM_OUTPUT;
 	HR(device->CreateBuffer(&vbd, 0, &m_DrawVB));
 	HR(device->CreateBuffer(&vbd, 0, &m_StreamOutVB));

@@ -87,7 +87,7 @@ terrain_effect::terrain_effect(ID3D11Device *device, const std::wstring &filenam
 	m_ViewProj				= m_FX->GetVariableByName("gViewProj")->AsMatrix();
 	m_EyePosW				= m_FX->GetVariableByName("gEyePosW")->AsVector();
 	m_DirLights 			= m_FX->GetVariableByName("gDirLights");
-	m_Mat				= m_FX->GetVariableByName("gMaterial");
+	m_Mat					= m_FX->GetVariableByName("gMaterial");
 	m_MinDist				= m_FX->GetVariableByName("gMinDist")->AsScalar();
 	m_MaxDist				= m_FX->GetVariableByName("gMaxDist")->AsScalar();
 	m_MinTess				= m_FX->GetVariableByName("gMinTess")->AsScalar();

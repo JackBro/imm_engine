@@ -34,12 +34,10 @@ public:
 	void set_CubeMap(ID3D11ShaderResourceView *tex) 	{m_CubeMap->SetResource(tex);}
 	void set_ShadowMap(ID3D11ShaderResourceView* tex)	{m_ShadowMap->SetResource(tex);}
 	void set_SsaoMap(ID3D11ShaderResourceView* tex) 	{m_SsaoMap->SetResource(tex);}
-	//
 	ID3DX11EffectTechnique *m_Light3Tech;
 	ID3DX11EffectTechnique *m_Light3TexTech;
 	ID3DX11EffectTechnique *m_Light3TexAlphaClipTech;
 	ID3DX11EffectTechnique *m_Light3ReflectTech;
-	//
 	ID3DX11EffectMatrixVariable *m_WorldViewProj;
 	ID3DX11EffectMatrixVariable *m_WorldViewProjTex;
 	ID3DX11EffectMatrixVariable *m_World;
@@ -62,7 +60,6 @@ basic_effect::basic_effect(ID3D11Device *device, const std::wstring &filename):
 	m_Light3TexTech 			= m_FX->GetTechniqueByName("Light3Tex");
 	m_Light3TexAlphaClipTech	= m_FX->GetTechniqueByName("Light3TexAlphaClip");
 	m_Light3ReflectTech 		= m_FX->GetTechniqueByName("Light3Reflect");
-	//
 	m_WorldViewProj 	= m_FX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	m_WorldViewProjTex	= m_FX->GetVariableByName("gWorldViewProjTex")->AsMatrix();
 	m_World 			= m_FX->GetVariableByName("gWorld")->AsMatrix();
@@ -71,7 +68,7 @@ basic_effect::basic_effect(ID3D11Device *device, const std::wstring &filename):
 	m_TexTransform		= m_FX->GetVariableByName("gTexTransform")->AsMatrix();
 	m_EyePosW			= m_FX->GetVariableByName("gEyePosW")->AsVector();
 	m_DirLights 		= m_FX->GetVariableByName("gDirLights");
-	m_Mat			= m_FX->GetVariableByName("gMaterial");
+	m_Mat				= m_FX->GetVariableByName("gMaterial");
 	m_DiffuseMap		= m_FX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 	m_CubeMap			= m_FX->GetVariableByName("gCubeMap")->AsShaderResource();
 	m_ShadowMap 		= m_FX->GetVariableByName("gShadowMap")->AsShaderResource();
@@ -106,7 +103,6 @@ public:
 	ID3DX11EffectTechnique *m_Light3TexAlphaClipTech;
 	ID3DX11EffectTechnique *m_Light3ReflectTech;
 	ID3DX11EffectTechnique *m_Light3TexSkinnedTech;
-	//
 	ID3DX11EffectMatrixVariable *m_WorldViewProj;
 	ID3DX11EffectMatrixVariable *m_WorldViewProjTex;
 	ID3DX11EffectMatrixVariable *m_World;
@@ -132,17 +128,16 @@ normal_map_effect::normal_map_effect(ID3D11Device *device, const std::wstring &f
 	m_Light3TexAlphaClipTech	= m_FX->GetTechniqueByName("Light3TexAlphaClip");
 	m_Light3ReflectTech 		= m_FX->GetTechniqueByName("Light3Reflect");
 	m_Light3TexSkinnedTech		= m_FX->GetTechniqueByName("Light3TexSkinned");
-	//
 	m_WorldViewProj 	= m_FX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	m_WorldViewProjTex	= m_FX->GetVariableByName("gWorldViewProjTex")->AsMatrix();
 	m_World 			= m_FX->GetVariableByName("gWorld")->AsMatrix();
-	m_WorldInvTranspose = m_FX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
+	m_WorldInvTranspose	= m_FX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
 	m_BoneTransforms	= m_FX->GetVariableByName("gBoneTransforms")->AsMatrix();
 	m_ShadowTransform	= m_FX->GetVariableByName("gShadowTransform")->AsMatrix();
 	m_TexTransform		= m_FX->GetVariableByName("gTexTransform")->AsMatrix();
 	m_EyePosW			= m_FX->GetVariableByName("gEyePosW")->AsVector();
 	m_DirLights 		= m_FX->GetVariableByName("gDirLights");
-	m_Mat			= m_FX->GetVariableByName("gMaterial");
+	m_Mat				= m_FX->GetVariableByName("gMaterial");
 	m_DiffuseMap		= m_FX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 	m_CubeMap			= m_FX->GetVariableByName("gCubeMap")->AsShaderResource();
 	m_NormalMap 		= m_FX->GetVariableByName("gNormalMap")->AsShaderResource();
@@ -177,12 +172,10 @@ public:
 	void set_NormalMap(ID3D11ShaderResourceView *tex)	{m_NormalMap->SetResource(tex);}
 	void set_ShadowMap(ID3D11ShaderResourceView* tex)	{m_ShadowMap->SetResource(tex);}
 	void set_SsaoMap(ID3D11ShaderResourceView* tex) 	{m_SsaoMap->SetResource(tex);}
-	//
 	ID3DX11EffectTechnique *m_Light3Tech;
 	ID3DX11EffectTechnique *m_Light3TexTech;
 	ID3DX11EffectTechnique *m_Light3TexAlphaClipTech;
 	ID3DX11EffectTechnique *m_Light3ReflectTech;
-	//
 	ID3DX11EffectMatrixVariable *m_ViewProj;
 	ID3DX11EffectMatrixVariable *m_WorldViewProj;
 	ID3DX11EffectMatrixVariable *m_World;
@@ -211,11 +204,10 @@ displacement_map_effect::displacement_map_effect(ID3D11Device *device, const std
 	m_Light3TexTech 			= m_FX->GetTechniqueByName("Light3Tex");
 	m_Light3TexAlphaClipTech	= m_FX->GetTechniqueByName("Light3TexAlphaClip");
 	m_Light3ReflectTech 		= m_FX->GetTechniqueByName("Light3Reflect");
-	//
 	m_ViewProj			= m_FX->GetVariableByName("gViewProj")->AsMatrix();
 	m_WorldViewProj 	= m_FX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	m_World 			= m_FX->GetVariableByName("gWorld")->AsMatrix();
-	m_WorldInvTranspose = m_FX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
+	m_WorldInvTranspose	= m_FX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
 	m_ShadowTransform	= m_FX->GetVariableByName("gShadowTransform")->AsMatrix();
 	m_TexTransform		= m_FX->GetVariableByName("gTexTransform")->AsMatrix();
 	m_EyePosW			= m_FX->GetVariableByName("gEyePosW")->AsVector();
@@ -323,22 +315,18 @@ public:
 	static ssao_effect *m_SsaoFX;
 	static ssao_blur_effect *m_SsaoBlurFX;
 };
-//
 basic_effect *effects::m_BasicFX = 0;
 normal_map_effect *effects::m_NormalMapFX = 0;
 displacement_map_effect *effects::m_DisplacementMapFX = 0;
 build_shadow_map_effect *effects::m_BuildShadowMapFX = 0;
-//
 sky_effect *effects::m_SkyFX = 0;
 terrain_effect *effects::m_TerrainFX = 0;
 particle_effect *effects::m_FireFX = 0;
 particle_effect *effects::m_RainFX = 0;
 debug_tex_effect *effects::m_DebugTexFX = 0;
-//
 ssao_normal_depth_effect *effects::m_SsaoNormalDepthFX = 0;
 ssao_effect *effects::m_SsaoFX = 0;
 ssao_blur_effect *effects::m_SsaoBlurFX = 0;
-//
 void effects::destroy_all()
 {
 	SafeDelete(m_BasicFX);

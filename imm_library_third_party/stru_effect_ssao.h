@@ -84,7 +84,7 @@ public:
 ssao_effect::ssao_effect(ID3D11Device *device, const std::wstring &filename):
 	effect(device, filename)
 {
-	m_SsaoTech				= m_FX->GetTechniqueByName("Ssao");
+	m_SsaoTech	= m_FX->GetTechniqueByName("Ssao");
 	m_ViewToTexSpace		= m_FX->GetVariableByName("gViewToTexSpace")->AsMatrix();
 	m_OffsetVectors 		= m_FX->GetVariableByName("gOffsetVectors")->AsVector();
 	m_FrustumCorners		= m_FX->GetVariableByName("gFrustumCorners")->AsVector();
