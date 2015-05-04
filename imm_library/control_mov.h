@@ -241,7 +241,7 @@ control_mov<T_app>::control_mov():
 	is_cam_free(false),
 	is_pad_cam_follow_reset(false),
 	cam_follow_walk(-30.0f),
-	cam_follow_up(5.0f),
+	cam_follow_up(4.0f),
 	wait_ui_disappear(0.0f),
 	pad()
 {

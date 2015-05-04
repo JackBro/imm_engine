@@ -31,7 +31,7 @@ struct instance_mgr
 	instance_stat &get(int ix);
 	int get_index(std::string &name);
 	void bound_update();
-	void collision_update(const float &dt_every);
+	void collision_update(float dt_every);
 	void update_skinned(const float &dt);
 	model_mgr m_Model;
 	std::vector<instance_stat> m_Stat;
@@ -149,10 +149,12 @@ void instance_mgr::bound_update()
 	}
 }
 //
-void instance_mgr::collision_update(const float &dt_every)
+void instance_mgr::collision_update(float dt_every)
 {
 	if (m_IsLoading) return;
 	if (m_SceneGroundIx == -1) return;
+	// if runtime stun
+	if (dt_every > PHY_MAX_DELTA_TIME) dt_every = PHY_MAX_DELTA_TIME;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		if (static_cast<int>(ix) == m_SceneGroundIx) continue;
 		size_t ix_gro = m_SceneGroundIx;

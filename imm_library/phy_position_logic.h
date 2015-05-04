@@ -19,6 +19,8 @@ static const float PHY_FLOAT_EQUAL_1METER = 5.0f;
 static const float PHY_GRAVITY = -9.8f*PHY_FLOAT_EQUAL_1METER;
 // if too small velocity rebound, ignore it
 static const float PHY_IGNORE_GRAVITY = 1.8f;
+// if runtime stun, restrict delta time not too big
+static const float PHY_MAX_DELTA_TIME = 0.3f;
 // AABB six face normal
 XMGLOBALCONST XMVECTORF32 PHY_AABB_NORMAL[6] = {
 	{0.0f, 0.0f, 1.0f, 0.0f},

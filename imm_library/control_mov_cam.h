@@ -27,6 +27,7 @@ void control_mov<T_app>::pad_camera_free(const float &dt)
 		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) cam_follow_walk += 10.0f*dt;
 		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) cam_follow_walk += -10.0f*dt;
 		cam_follow_walk = calc_clamp(cam_follow_walk, -50.0f, -10.0f);
+		cam_follow_up = cam_follow_walk * -0.133f;
 	}
 }
 //
@@ -56,6 +57,7 @@ void control_mov<T_app>::mouse_camera_wheel(const short &z_delta)
 	else {
 		cam_follow_walk += z_delta/120*1.0f;
 		cam_follow_walk = calc_clamp(cam_follow_walk, -50.0f, -10.0f);
+		cam_follow_up = cam_follow_walk * -0.133f;
 	}
 }
 //
