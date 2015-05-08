@@ -1,5 +1,5 @@
 ////////////////
-// mesh_geometry.h
+// mesh_geometry_gen.h
 // see 3D Game Programming with DirectX 11 by Frank Luna, GeometryGenerator.h
 // GeometryGenerator.h by Frank Luna (C) 2011 All Rights Reserved.
 // Defines a static class for procedurally generating the geometry of 
@@ -12,8 +12,8 @@
 //   3. Update the texture coordinates and tangent vectors.
 ////////////////
 ////////////////
-#ifndef MESH_GEOMETRY_H
-#define MESH_GEOMETRY_H
+#ifndef MESH_GEOMETRY_GEN_H
+#define MESH_GEOMETRY_GEN_H
 #include "imm_core.h"
 ////////////////
 // geometry
