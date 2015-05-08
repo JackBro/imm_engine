@@ -148,7 +148,7 @@ void instance_mgr::bound_update()
 		m_BoundL.transform(ix, m_BoundW, world);
 	}
 }
-//
+// should use octree, temporary not implement
 void instance_mgr::collision_update(float dt_every)
 {
 	if (m_IsLoading) return;

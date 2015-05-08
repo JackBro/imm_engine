@@ -10,7 +10,7 @@
 #include "control_mov.h"
 #include "stru_scene_mgr.h"
 #include "stru_draw_instance.h"
-#include "stru_render.h"
+#include "ia_render.h"
 #include "imm_base.h"
 #include "cast_shadow.h"
 //

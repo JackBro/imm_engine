@@ -7,7 +7,7 @@
 #define TOOL_LOAD_M3D_H
 #include "tool_skinned_data.h"
 #include "tool_mesh_geometry.h"
-#include "stru_vertex.h"
+#include "ia_vertex.h"
 namespace imm
 {
 ////////////////

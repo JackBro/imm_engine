@@ -1,11 +1,11 @@
 ////////////////
-// stru_render.h
+// ia_render.h
 // RenderStates.h by Frank Luna (C) 2011 All Rights Reserved.
 // Defines render state objects.  
 ////////////////
 ////////////////
-#ifndef STRU_RENDER_H
-#define STRU_RENDER_H
+#ifndef IA_RENDER_H
+#define IA_RENDER_H
 #include "imm_core.h"
 namespace imm
 {

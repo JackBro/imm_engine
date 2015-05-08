@@ -1,15 +1,15 @@
 ////////////////
-// stru_effect.h
+// ia_effect.h
 // Effects.h by Frank Luna (C) 2011 All Rights Reserved.
 // Defines lightweight effect wrappers to group an effect and its variables.
 // Also defines a static Effects class from which we can access all of our effects.
 ////////////////
 ////////////////
-#ifndef STRU_EFFECT_H
-#define STRU_EFFECT_H
+#ifndef IA_EFFECT_H
+#define IA_EFFECT_H
 #include "imm_core.h"
-#include "stru_effect_misc.h"
-#include "stru_effect_ssao.h"
+#include "ia_effect_misc.h"
+#include "ia_effect_ssao.h"
 namespace imm
 {
 ////////////////

@@ -8,7 +8,7 @@
 #include "cast_sky.h"
 #include "cast_particle.h"
 #include "cast_terrain.h"
-#include "stru_render.h"
+#include "ia_render.h"
 #include "imm_camera.h"
 #include "imm_base.h"
 #include <DirectXColors.h>

@@ -25,10 +25,10 @@ cbuffer cbFixed
 	// when we expand point particle into a quad.
 	float2 gQuadTexC[4] = 
 	{
-		float2(0.0f, 1.0f),
 		float2(1.0f, 1.0f),
-		float2(0.0f, 0.0f),
-		float2(1.0f, 0.0f)
+		float2(1.0f, 0.0f),
+		float2(0.0f, 1.0f),
+		float2(0.0f, 0.0f)
 	};
 };
 // Array of textures for texturing the particles.

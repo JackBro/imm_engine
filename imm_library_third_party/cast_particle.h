@@ -6,7 +6,7 @@
 #ifndef CAST_PARTICLE_H
 #define CAST_PARTICLE_H
 #include "imm_camera.h"
-#include "stru_vertex.h"
+#include "ia_vertex.h"
 namespace imm
 {
 ////////////////

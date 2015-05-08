@@ -1,12 +1,12 @@
 ////////////////
-// stru_vertex.h
+// ia_vertex.h
 // Vertex.h by Frank Luna (C) 2011 All Rights Reserved.
 // Defines vertex structures and input layouts.
 ////////////////
 ////////////////
-#ifndef STRU_VERTEX_H
-#define STRU_VERTEX_H
-#include "stru_effect.h"
+#ifndef IA_VERTEX_H
+#define IA_VERTEX_H
+#include "ia_effect.h"
 namespace imm
 {
 ////////////////
