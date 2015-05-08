@@ -1,10 +1,10 @@
 ////////////////
-// tool_d3d_util.h
+// mesh_d3d_util.h
 // d3dUtil.h by Frank Luna (C) 2011 All Rights Reserved.
 ////////////////
 ////////////////
-#ifndef TOOL_D3D_UTIL_H
-#define TOOL_D3D_UTIL_H
+#ifndef MESH_D3D_UTIL_H
+#define MESH_D3D_UTIL_H
 #include "imm_core.h"
 #include "DDSTextureLoader.h"
 namespace imm

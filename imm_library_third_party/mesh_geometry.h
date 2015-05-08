@@ -1,10 +1,10 @@
 ////////////////
-// tool_mesh_geometry.h
+// mesh_mesh_geometry.h
 // from 3D Game Programming with DirectX 11 by Frank Luna, MeshGeometry.h
 ////////////////
 ////////////////
-#ifndef TOOL_MESH_GEOMETRY_H
-#define TOOL_MESH_GEOMETRY_H
+#ifndef MESH_MESH_GEOMETRY_H
+#define MESH_MESH_GEOMETRY_H
 #include "imm_core.h"
 namespace imm
 {

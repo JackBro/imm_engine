@@ -1,13 +1,13 @@
 ////////////////
-// tool_basic_model.h
+// mesh_basic_model.h
 // from 3D Game Programming with DirectX 11 by Frank Luna, BasicModel.h, SkinnedModel.h
 ////////////////
 ////////////////
-#ifndef TOOL_BASIC_MODEL_H
-#define TOOL_BASIC_MODEL_H
-#include "tool_load_m3d.h"
-#include "tool_texture_mgr.h"
-#include "tool_skinned_data.h"
+#ifndef MESH_BASIC_MODEL_H
+#define MESH_BASIC_MODEL_H
+#include "mesh_load_m3d.h"
+#include "mesh_texture_mgr.h"
+#include "mesh_skinned_data.h"
 namespace imm
 {
 ////////////////

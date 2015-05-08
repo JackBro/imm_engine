@@ -1,12 +1,12 @@
 ////////////////
-// tool_load_m3d.h
+// mesh_load_m3d.h
 // from 3D Game Programming with DirectX 11 by Frank Luna, LoadM3d.h
 ////////////////
 ////////////////
-#ifndef TOOL_LOAD_M3D_H
-#define TOOL_LOAD_M3D_H
-#include "tool_skinned_data.h"
-#include "tool_mesh_geometry.h"
+#ifndef MESH_LOAD_M3D_H
+#define MESH_LOAD_M3D_H
+#include "mesh_skinned_data.h"
+#include "mesh_geometry.h"
 #include "ia_vertex.h"
 namespace imm
 {

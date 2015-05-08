@@ -10,7 +10,7 @@
 #include "stru_sprite.h"
 #include "stru_scene_help.h"
 #include "phy_position_logic.h"
-#include "tool_basic_model.h"
+#include "mesh_basic_model.h"
 #include <thread>
 namespace imm
 {

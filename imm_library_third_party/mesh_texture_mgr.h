@@ -1,10 +1,10 @@
 ////////////////
-// tool_texture_mgr.h
+// mesh_texture_mgr.h
 // from 3D Game Programming with DirectX 11 by Frank Luna, TextureMgr.h
 ////////////////
 ////////////////
-#ifndef TOOL_TEXTURE_MGR_H
-#define TOOL_TEXTURE_MGR_H
+#ifndef MESH_TEXTURE_MGR_H
+#define MESH_TEXTURE_MGR_H
 #include "imm_core.h"
 #include "DDSTextureLoader.h"
 namespace imm

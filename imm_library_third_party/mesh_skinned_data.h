@@ -1,10 +1,10 @@
 ////////////////
-// tool_skinned_data.h
+// mesh_skinned_data.h
 // from 3D Game Programming with DirectX 11 by Frank Luna, SkinnedData.h
 ////////////////
 ////////////////
-#ifndef TOOL_SKINNED_DATA_H
-#define TOOL_SKINNED_DATA_H
+#ifndef MESH_SKINNED_DATA_H
+#define MESH_SKINNED_DATA_H
 #include "imm_core.h"
 namespace imm
 {

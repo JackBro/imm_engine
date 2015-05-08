@@ -7,7 +7,7 @@
 #ifndef CAST_SKY_H
 #define CAST_SKY_H
 #include "imm_camera.h"
-#include "tool_geometry.h"
+#include "mesh_geometry_gen.h"
 #include "ia_vertex.h"
 #include "DDSTextureLoader.h"
 namespace imm
