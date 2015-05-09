@@ -10,7 +10,7 @@ A small game engine.
 The fundamental 3D rendering technique is derived from the textbook 
 Introduction to 3D Game Programming with DirectX 11 by Frank Luna.
 This engine development methodology is Quick-and-dirty, no traditional API design, casual style.
-I suggest do "Mod" on this game engine, it will not waste too much time,
+It may be difficult to use currently, suggest doing "Mod" on this game engine demo, 
 because the engine is on low completion status.
 
 In Development:
@@ -33,8 +33,8 @@ Update KB2670838 (Windows 7.1 situation)
 DirectX 11 capable GPU  
 1024X768 minimum display resolution  
 
-Dependent Librarie Files:
--------------------------
+Dependent Static Libraries:
+---------------------------
 Those files should be in header_files_third_party\, 
 notice corresponding x64/x86, Debug/Release version.
 * **DirectXTK.lib**: DirectX Tool Kit
@@ -43,8 +43,8 @@ notice corresponding x64/x86, Debug/Release version.
 * **lua_static.lib**: Lua 5.3.0
 * **XInput1_3.lib**: Its orgin name is XInput.lib, from DirectX SDK (June 2010)
 
-How to Build:
--------------
+How to Compile:
+---------------
 In demo folder, every subfolder inlude a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: Basic windows draw empty.
@@ -86,4 +86,4 @@ Copyright and License:
 ----------------------
 * Copyright 2015 Huang Yiting (http://endrollex.com)
 * immature engine is distributed under the the terms of the BSD license
-* Not include the files in floders of suffix "_third_party".
+* Not include the files in folders of suffix "_third_party".
