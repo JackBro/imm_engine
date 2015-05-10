@@ -22,7 +22,7 @@ public:
 	sky(ID3D11Device* device, const std::wstring& cubemap_filename, float sky_sphere_radius);
 	~sky();
 	ID3D11ShaderResourceView* get_CubeMapSRV();
-	void draw(ID3D11DeviceContext* dc, const imm::camera& cam1);
+	void draw(ID3D11DeviceContext* dc, const camera& cam1);
 private:
 	sky (const sky& rhs);
 	sky &operator=(const sky& rhs);
@@ -42,8 +42,8 @@ sky::~sky()
 sky::sky(ID3D11Device* device, const std::wstring& cubemap_filename, float sky_sphere_radius)
 {
 	HR(CreateDDSTextureFromFile(device, cubemap_filename.c_str(), 0, &m_CubeMapSRV, 0));
-	imm::geometry::mesh_data sphere;
-	imm::geometry geo_gen;
+	geometry::mesh_data sphere;
+	geometry geo_gen;
 	geo_gen.create_sphere(sky_sphere_radius, 30, 30, sphere);
 	std::vector<XMFLOAT3> vertices(sphere.vertices.size());
 	for(size_t i = 0; i < sphere.vertices.size(); ++i) vertices[i] = sphere.vertices[i].position;
@@ -77,24 +77,24 @@ ID3D11ShaderResourceView* sky::get_CubeMapSRV()
 	return m_CubeMapSRV;
 }
 //
-void sky::draw(ID3D11DeviceContext* dc, const imm::camera& cam1)
+void sky::draw(ID3D11DeviceContext* dc, const camera& cam1)
 {
 	// center Sky about eye in world space
 	XMFLOAT3 eye_pos = cam1.get_Position();
 	XMMATRIX T = XMMatrixTranslation(eye_pos.x, eye_pos.y, eye_pos.z);
 	XMMATRIX WVP = XMMatrixMultiply(T, cam1.get_ViewProj());
-	imm::effects::m_SkyFX->set_WorldViewProj(WVP);
-	imm::effects::m_SkyFX->set_CubeMap(m_CubeMapSRV);
+	effects::m_SkyFX->set_WorldViewProj(WVP);
+	effects::m_SkyFX->set_CubeMap(m_CubeMapSRV);
 	UINT stride = sizeof(XMFLOAT3);
     UINT offset = 0;
     dc->IASetVertexBuffers(0, 1, &m_VB, &stride, &offset);
 	dc->IASetIndexBuffer(m_IB, DXGI_FORMAT_R16_UINT, 0);
-	dc->IASetInputLayout(imm::input_layouts::m_Pos);
+	dc->IASetInputLayout(input_layouts::m_Pos);
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	D3DX11_TECHNIQUE_DESC tech_desc;
-    imm::effects::m_SkyFX->m_SkyTech->GetDesc(&tech_desc);
+    effects::m_SkyFX->m_SkyTech->GetDesc(&tech_desc);
     for(UINT p = 0; p < tech_desc.Passes; ++p) {
-        ID3DX11EffectPass* pass = imm::effects::m_SkyFX->m_SkyTech->GetPassByIndex(p);
+        ID3DX11EffectPass* pass = effects::m_SkyFX->m_SkyTech->GetPassByIndex(p);
 		pass->Apply(0, dc);
 		dc->DrawIndexed(m_ISize, 0, 0);
 	}

@@ -50,7 +50,11 @@ The compile option see bat_tool\1.bat.
 * **init_d3d**: Basic windows draw empty.
 * **simple_secene**: The current work (see Released Demo).
 3D models and textures of this demo is absent in the repository, 
-please obtain from the Released Demo or rebuild the asset.
+they can be obtained from the Released Demo or rebuild the asset.
+The Released Demo may be different with the latest source build, 
+please edit the Lua script or source files to delete the asset, 
+the engine will tell what files not found.
+Notice .b3m file corresponding x64/x86 version.
 
 Runtime Folder Tree:
 --------------------
@@ -74,7 +78,7 @@ Asset and Tools:
 Export Blender model data to .m3d file format for immature engine. 
 https://github.com/endrollex/imm_blender_export
 * **immature engine console util b3m tool**: 
-Convert .m3d file to binary file, it can be found in game input mode,
+Convert .m3d file to binary .b3m file, it can be found in game input mode,
 "Alt+Delete" then type "help" for more info.
 
 Released Demo:

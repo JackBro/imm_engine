@@ -196,6 +196,7 @@ void imm_app::draw_scene_d3d()
 		shadow_transform,
 		to_tex_space
 	);
+	m_D3DDC->RSSetState(0);
 	// draw skkined
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTanSkinned);
 	draw_inst_skinned(
@@ -211,8 +212,14 @@ void imm_app::draw_scene_d3d()
 	// sky
 	m_Scene.skybox->draw(m_D3DDC, m_Cam);
 	// restore default states, as the SkyFX changes them in the effect file.
+	flare_test.draw(m_D3DDC, m_Cam);
 	m_D3DDC->RSSetState(0);
 	m_D3DDC->OMSetDepthStencilState(0, 0);
+	// restore default states.
+	float blend_factor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+	m_D3DDC->RSSetState(0);
+	m_D3DDC->OMSetDepthStencilState(0, 0);
+	m_D3DDC->OMSetBlendState(0, blend_factor, 0xffffffff);
 	// Unbind shadow map and AmbientMap as a shader input because we are going to render
 	// to it next frame.  These textures can be at any slot, so clear all slots.
 	ID3D11ShaderResourceView *null_srv[16] = {0};
