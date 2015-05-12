@@ -7,6 +7,7 @@
 ////////////////
 #ifndef STRU_SCENE_MGR_H
 #define STRU_SCENE_MGR_H
+#include "stru_element.h"
 #include "stru_instance_mgr.h"
 #include "cast_sky.h"
 namespace imm
@@ -21,16 +22,19 @@ struct scene_mgr
 	scene_mgr();
 	~scene_mgr();
 	void init(T_app *app_in);
+	void update_atmosphere(float dt);
 	T_app *app;
 	std::map<std::string, std::string> g_map;
 	lit_dir dir_lights[3];
 	BoundingSphere bounds;
 	sky *skybox;
+	bright_aura aura;
 };
 //
 template <typename T_app>
 scene_mgr<T_app>::scene_mgr():
-	skybox(nullptr)
+	skybox(nullptr),
+	aura()
 {
 	scene_dir_lights_common(dir_lights);
 	bounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -58,6 +62,14 @@ void scene_mgr<T_app>::init(T_app *app_in)
 	std::thread(
 		&instance_mgr::init, std::ref(app->m_Inst), app->m_D3DDevice,
 		std::ref(app->m_Cmd.is_loading), std::ref(app->m_Cmd.input)).detach();
+	aura.init(app->m_D3DDevice, app->m_D3DDC);
+	aura.is_active = false;
+}
+//
+template <typename T_app>
+void scene_mgr<T_app>::update_atmosphere(float dt)
+{
+	aura.update(dt, app->m_Timer.total_time());
 }
 //
 }

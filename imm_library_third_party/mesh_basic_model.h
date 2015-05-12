@@ -24,7 +24,7 @@ public:
 	void set(
 		ID3D11Device *device, texture_mgr &tex_mgr, const std::wstring &texture_path);
 	virtual ~basic_model() {;}
-	std::pair <size_t, size_t> get_VertexRange(UINT sub_id);
+	std::pair<size_t, size_t> get_VertexRange(UINT sub_id);
 	size_t m_SubsetCount;
 	std::vector<material> m_Mat;
 	std::vector<std::string> m_Tex;
@@ -94,8 +94,8 @@ void basic_model::set(
 	}
 }
 //
-std::pair <size_t, size_t> basic_model::get_VertexRange(UINT sub_id){
-	std::pair <size_t, size_t> range(
+std::pair<size_t, size_t> basic_model::get_VertexRange(UINT sub_id){
+	std::pair<size_t, size_t> range(
 		m_Subsets[sub_id].vertex_start, m_Subsets[sub_id].vertex_start+m_Subsets[sub_id].vertex_count);
 	return range;	
 }
@@ -217,7 +217,11 @@ class simple_model: public basic_model
 	std::vector<vertex_type> m_Vertices;
 	void set_MeshBuffer(ID3D11Device *device);
 	void set_SingleSubset();
-	void set_MapSRV(texture_mgr &tex_mgr, const std::wstring diffuse_file, const std::wstring normal_file);
+	void set_MapSRV(
+		texture_mgr &tex_mgr,
+		const std::wstring diffuse_file,
+		const std::wstring normal_file,
+		const bool &is_texture);
 };
 ////////////////
 // simple_model_instance
@@ -268,12 +272,19 @@ void simple_model<vertex_type>::set_SingleSubset()
 }
 //
 template <typename vertex_type>
-void simple_model<vertex_type>::set_MapSRV
-	(texture_mgr &tex_mgr, const std::wstring diffuse_file, const std::wstring normal_file)
+void simple_model<vertex_type>::set_MapSRV(
+	texture_mgr &tex_mgr,
+	const std::wstring diffuse_file,
+	const std::wstring normal_file,
+	const bool &is_texture)
 {
-	ID3D11ShaderResourceView *diffuse_map_srv = tex_mgr.create_texture(diffuse_file);
+	ID3D11ShaderResourceView *diffuse_map_srv = nullptr;
+	ID3D11ShaderResourceView *normal_map_srv = nullptr;
+	if (is_texture) {
+		diffuse_map_srv = tex_mgr.create_texture(diffuse_file);
+		normal_map_srv = tex_mgr.create_texture(normal_file);
+	}
 	m_DiffuseMapSRV.push_back(diffuse_map_srv);
-	ID3D11ShaderResourceView *normal_map_srv = tex_mgr.create_texture(normal_file);
 	m_NormalMapSRV.push_back(normal_map_srv);
 }
 }

@@ -59,7 +59,6 @@ public:
 	XMFLOAT4X4 m_LightView;
 	XMFLOAT4X4 m_LightProj;
 	XMFLOAT4X4 m_ShadowTransform;
-	flare flare_test;
 };
 ////////////////
 //
@@ -90,8 +89,7 @@ imm_app::imm_app():
 	m_Inst(),	
 	m_UI(),
 	m_Config(this),
-	m_Control(),
-	flare_test()
+	m_Control()
 {
 	m_WindowName = L"immature engine Demo";
 	m_LastMousePos.x = 0;
@@ -119,7 +117,6 @@ bool imm_app::init_imm()
 	m_Cmd.init(this);
 	m_Cmd.is_slient = false;
 	m_Scene.init(this);
-	flare_test.init(m_D3DDevice, m_D3DDC);
 	m_Control.init(this);
 	m_Config.additional1();
 	return true;
@@ -140,8 +137,8 @@ void imm_app::update_scene(float dt)
 	if (!m_Cmd.is_active) update_scene_keydown(dt);
 	build_shadow_transform();
 	m_Cam.update_view_matrix();
-	flare_test.update(dt, m_Timer.total_time());
 	m_Control.update_scene_instance(dt);
+	m_Scene.update_atmosphere(dt);
 }
 //
 void imm_app::update_scene_keydown(float dt)

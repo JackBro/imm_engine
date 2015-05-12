@@ -12,7 +12,7 @@ namespace imm
 {
 // note if every delta time is not equal, simulation will be some distortion
 ////////////////
-// global var
+// PHY const
 ////////////////
 ////////////////
 static const float PHY_FLOAT_EQUAL_1METER = 5.0f;

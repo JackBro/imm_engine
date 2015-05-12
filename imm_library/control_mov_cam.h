@@ -15,7 +15,7 @@ void control_mov<T_app>::pad_camera_free(const float &dt)
 		app->m_Cam.rotate_y(-dx);
 	}
 	if (app->m_UI.is_ui_appear()) return;
-	if (is_cam_free) {
+	if (style_p1 & CONTORL_CAM_FREE) {
 		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) app->m_Cam.up_down(10.0f*dt);
 		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) app->m_Cam.up_down(-10.0f*dt);
 		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) app->m_Cam.strafe(-10.0f*dt);
@@ -34,14 +34,14 @@ void control_mov<T_app>::pad_camera_free(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::on_pad_camera_follow(const WORD &vkey)
 {
-	if (is_cam_free) return;
+	if (style_p1 & CONTORL_CAM_FREE) return;
 	if (vkey == VK_PAD_RSHOULDER) is_pad_cam_follow_reset = true;
 }
 //
 template <typename T_app>
 void control_mov<T_app>::key_camera_free(const float &dt)
 {
-	if (!is_cam_free) return;
+	if (!(style_p1 & CONTORL_CAM_FREE)) return;
 	if (GetAsyncKeyState('A') & 0x8000) app->m_Cam.strafe(-10.0f*dt);
 	if (GetAsyncKeyState('D') & 0x8000) app->m_Cam.strafe(10.0f*dt);
 	if (GetAsyncKeyState('W') & 0x8000) app->m_Cam.up_down(10.0f*dt);
@@ -51,7 +51,7 @@ void control_mov<T_app>::key_camera_free(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::mouse_camera_wheel(const short &z_delta)
 {
-	if (is_cam_free) {
+	if (style_p1 & CONTORL_CAM_FREE) {
 		app->m_Cam.walk(z_delta/120*1.0f);
 	}
 	else {
@@ -76,8 +76,8 @@ void control_mov<T_app>::mouse_camera_move(const int &pos_x, const int &pos_y)
 template <typename T_app>
 void control_mov<T_app>::cam_follow_update()
 {
-	if (picked < 0 || is_cam_free) return;
-	XMFLOAT4X4 player_world = *(app->m_Inst.m_Stat[picked].get_World());
+	if (picked1 < 0 || style_p1 & CONTORL_CAM_FREE) return;
+	XMFLOAT4X4 player_world = *(app->m_Inst.m_Stat[picked1].get_World());
 	XMMATRIX W = XMLoadFloat4x4(&player_world);
 	XMVECTOR scale, rot_quat, rot_front_conj, pos, L, U, R;
 	XMMatrixDecompose(&scale, &rot_quat, &pos, W);
@@ -92,15 +92,15 @@ void control_mov<T_app>::cam_follow_update()
 	if (GetAsyncKeyState('Z') || is_pad_cam_follow_reset) {
 		is_pad_cam_follow_reset = false;
 		cam_follow_walk = -30.0f;
-		if (!map_rot_front_c.count(picked)) {
-			XMMATRIX RF = XMLoadFloat4x4(app->m_Inst.m_Stat[picked].get_RotFront());
+		if (!map_rot_front_c.count(picked1)) {
+			XMMATRIX RF = XMLoadFloat4x4(app->m_Inst.m_Stat[picked1].get_RotFront());
 			// L as dummy
 			XMMatrixDecompose(&scale, &rot_front_conj, &L, RF);
 			rot_front_conj = XMQuaternionConjugate(rot_front_conj);
-			XMStoreFloat4(&map_rot_front_c[picked], rot_front_conj);
+			XMStoreFloat4(&map_rot_front_c[picked1], rot_front_conj);
 		}
 		else {
-			rot_front_conj = XMLoadFloat4(&map_rot_front_c[picked]);
+			rot_front_conj = XMLoadFloat4(&map_rot_front_c[picked1]);
 		}
 		L = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
 		L = XMVector3Rotate(L, rot_front_conj);

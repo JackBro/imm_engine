@@ -7,12 +7,19 @@
 ////////////////
 #ifndef CONTROL_MOV_H
 #define CONTROL_MOV_H
+#include "audio_dxtk.h"
 #include "stru_instance_mgr.h"
 #include "imm_camera.h"
 #include "phy_prepare.h"
 #include "XInput.h"
 namespace imm
 {
+////////////////
+// control style
+////////////////
+////////////////
+static const int CONTORL_CAM_FREE = 128;
+static const int CONTORL_MOVE_BY_MOUSE = 64;
 ////////////////
 // control_xinput
 ////////////////
@@ -141,6 +148,8 @@ struct control_motion
 	std::string idle;
 	std::string jump;
 	float speed;
+	float speed_walk;
+	float speed_run;
 	float jump_velocity;
 	void switch_walk_run();
 	void make_run();
@@ -152,6 +161,8 @@ control_motion::control_motion():
 	idle("Idle"),
 	jump("Jump"),
 	speed(13.5f),
+	speed_walk(4.5f),
+	speed_run(13.5),
 	jump_velocity(15.0f)
 {
 	;
@@ -161,11 +172,11 @@ void control_motion::switch_walk_run()
 {
 	if (walk_run == "Walk") {
 		walk_run = "Run";
-		speed = 13.5f;
+		speed = speed_run;
 	}
 	else {
 		walk_run = "Walk";
-		speed = 4.5f;
+		speed = speed_walk;
 	}
 }
 //
@@ -173,7 +184,7 @@ void control_motion::make_run()
 {
 	if (walk_run != "Run") {
 		walk_run = "Run";
-		speed = 13.5f;
+		speed = speed_run;
 	}
 }
 //
@@ -181,7 +192,7 @@ void control_motion::make_walk()
 {
 	if (walk_run != "Walk") {
 		walk_run = "Walk";
-		speed = 4.5f;
+		speed = speed_walk;
 	}
 }
 ////////////////
@@ -220,9 +231,9 @@ struct control_mov
 	void cam_follow_update();
 	//
 	T_app *app;
-	int picked;
+	int picked1;
 	int player1;
-	bool is_cam_free;
+	int style_p1;
 	bool is_pad_cam_follow_reset;
 	float cam_follow_walk;
 	float cam_follow_up;
@@ -236,9 +247,9 @@ struct control_mov
 template <typename T_app>
 control_mov<T_app>::control_mov():
 	app(nullptr),
-	picked(-1),
+	picked1(-1),
 	player1(-1),
-	is_cam_free(false),
+	style_p1(CONTORL_MOVE_BY_MOUSE),
 	is_pad_cam_follow_reset(false),
 	cam_follow_walk(-30.0f),
 	cam_follow_up(4.0f),
@@ -262,30 +273,30 @@ void control_mov<T_app>::update_loading_finish()
 	}
 	if (app->m_Inst.m_IsLoading && player1 != -1) {
 		player1 = -1;
-		picked = -1;
+		picked1 = -1;
 	}
 }
 //
 template <typename T_app>
 void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 {
-	if (picked == -1) return;
-	if (!app->m_Inst.m_Stat[picked].phy.is_touch_ground) return;
+	if (picked1 == -1) return;
+	if (!app->m_Inst.m_Stat[picked1].phy.is_touch_ground) return;
 	XMVECTOR plane_pos;
 	mouse_hit_plane_y0(pos_x, pos_y, plane_pos);
-	mouse_move_toward_hit(plane_pos, picked);
+	mouse_move_toward_hit(plane_pos, picked1);
 	//
-	map_stop[picked].is_stop = false;
-	map_stop[picked].speed = motion.speed;
-	map_stop[picked].set_aabb(plane_pos, app->m_Inst.m_BoundW.half_y(picked));
-	app->m_Inst.m_Stat[picked].check_set_ClipName(motion.walk_run);
+	map_stop[picked1].is_stop = false;
+	map_stop[picked1].speed = motion.speed;
+	map_stop[picked1].set_aabb(plane_pos, app->m_Inst.m_BoundW.half_y(picked1));
+	app->m_Inst.m_Stat[picked1].check_set_ClipName(motion.walk_run);
 }
 //
 template <typename T_app>
 void control_mov<T_app>::pad_instance_move()
 {
-	if (picked == -1) return;
-	if (!app->m_Inst.m_Stat[picked].phy.is_touch_ground) return;
+	if (picked1 == -1) return;
+	if (!app->m_Inst.m_Stat[picked1].phy.is_touch_ground) return;
 	// walk or run
 	if (pad.state.Gamepad.bRightTrigger > 50) motion.make_walk();
 	else motion.make_run();
@@ -293,8 +304,8 @@ void control_mov<T_app>::pad_instance_move()
 		pad_move_toward();
 	}
 	else {
-		app->m_Inst.m_Stat[picked].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		app->m_Inst.m_Stat[picked].check_set_ClipName(motion.idle);
+		app->m_Inst.m_Stat[picked1].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		app->m_Inst.m_Stat[picked1].check_set_ClipName(motion.idle);
 	}
 }
 //
@@ -388,8 +399,8 @@ void control_mov<T_app>::pad_move_toward()
 {
 	XMVECTOR velocity_nm = app->m_Cam.get_LookXM();
 	float cam_radians = atan2(-XMVectorGetX(velocity_nm), -XMVectorGetZ(velocity_nm));
-	XMFLOAT4X4 &world = *(app->m_Inst.m_Stat[picked].get_World());
-	XMFLOAT4X4 &rot_front = *(app->m_Inst.m_Stat[picked].get_RotFront());
+	XMFLOAT4X4 &world = *(app->m_Inst.m_Stat[picked1].get_World());
+	XMFLOAT4X4 &rot_front = *(app->m_Inst.m_Stat[picked1].get_RotFront());
 	XMMATRIX W = XMLoadFloat4x4(&world);
 	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
 	pad_face_rot_y(W, RF, velocity_nm, cam_radians);
@@ -397,16 +408,16 @@ void control_mov<T_app>::pad_move_toward()
 	velocity_nm = XMVector3Normalize(velocity_nm);
 	velocity_nm = XMVectorScale(velocity_nm, motion.speed);
 	XMStoreFloat4x4(&world, W);
-	XMStoreFloat3(&app->m_Inst.m_Stat[picked].phy.velocity_nm, velocity_nm);
-	app->m_Inst.m_Stat[picked].check_set_ClipName(motion.walk_run);
+	XMStoreFloat3(&app->m_Inst.m_Stat[picked1].phy.velocity_nm, velocity_nm);
+	app->m_Inst.m_Stat[picked1].check_set_ClipName(motion.walk_run);
 }
 //
 template <typename T_app>
 void control_mov<T_app>::common_jump()
 {
-	if (picked == -1) return;
-	if (app->m_Inst.m_Stat[picked].phy.is_touch_ground)
-		app->m_Inst.m_Stat[picked].phy.velocity.y = motion.jump_velocity;
+	if (picked1 == -1) return;
+	if (app->m_Inst.m_Stat[picked1].phy.is_touch_ground)
+		app->m_Inst.m_Stat[picked1].phy.velocity.y = motion.jump_velocity;
 }
 //
 template <typename T_app>
@@ -416,7 +427,7 @@ void control_mov<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 		pos_x, pos_y,
 		app->m_ClientWidth, app->m_ClientHeight,
 		app->m_Cam.get_Proj(), app->m_Cam.get_View(),
-		picked);
+		picked1);
 }
 //
 template <typename T_app>
@@ -434,7 +445,7 @@ void control_mov<T_app>::update_scene_stop(const float &dt)
 {
 	for (auto it = map_stop.begin(); it != map_stop.end(); ++it) {
 		if (it->second.is_stop) continue;
-		// assume bound'scenter approximate instance's world
+		// assume bound's center approximate instance's world
 		bool is_inter = it->second.contains(app->m_Inst.m_BoundW.center(it->first));
 		if (is_inter) {
 			it->second.is_stop = true;
@@ -459,13 +470,13 @@ void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 	DUMMY(dt);
 	update_loading_finish();
 	if (pad.is_enable()) {
-		picked = player1;
+		picked1 = player1;
 		on_pad_down(dt);
 	}
 	// keyborad
 	else {
-		if (picked < 0) picked = player1;
-		if (picked == app->m_Inst.m_SceneGroundIx) picked = player1;
+		if (picked1 < 0) picked1 = player1;
+		if (picked1 == app->m_Inst.m_SceneGroundIx) picked1 = player1;
 		if (GetKeyState(VK_SPACE) & 0x8000) common_jump();
 	}
 	// camera

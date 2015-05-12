@@ -212,7 +212,7 @@ void imm_app::draw_scene_d3d()
 	// sky
 	m_Scene.skybox->draw(m_D3DDC, m_Cam);
 	// restore default states, as the SkyFX changes them in the effect file.
-	flare_test.draw(m_D3DDC, m_Cam);
+	m_Scene.aura.draw(m_D3DDC, m_Cam);
 	m_D3DDC->RSSetState(0);
 	m_D3DDC->OMSetDepthStencilState(0, 0);
 	// restore default states.

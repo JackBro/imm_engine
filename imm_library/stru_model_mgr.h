@@ -7,7 +7,6 @@
 ////////////////
 #ifndef STRU_MODEL_MGR_H
 #define STRU_MODEL_MGR_H
-#include "stru_element.h"
 #include "stru_scene_help.h"
 #include "phy_position_logic.h"
 #include "mesh_basic_model.h"
@@ -148,6 +147,7 @@ void model_mgr::init_all(ID3D11Device *device)
 //
 void model_mgr::b32_init(ID3D11Device *device, lua_reader &l_reader)
 {
+	// simple_b32 not implement
 	DUMMY(device);
 	DUMMY(l_reader);
 }
@@ -200,8 +200,8 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 		tex_diffuse = path_tex+tex_diffuse;
 		std::wstring tex_normal(vec2d_model[ix][6].begin(), vec2d_model[ix][6].end());
 		tex_normal = path_tex+tex_normal;
-		m_PNTT["default"].set_MapSRV(m_TexMgr, tex_diffuse, tex_normal);
 		model_is_tex[model_name] = (std::stoi(vec2d_model[ix][7]) != 0);
+		m_PNTT["default"].set_MapSRV(m_TexMgr, tex_diffuse, tex_normal, model_is_tex[model_name]);
 		model_tex_trans[model_name] = vec2d_model[ix][8];
 	}
 	model_load_geo_mesh(device, m_PNTT["default"], geo_mesh);
