@@ -22,6 +22,7 @@
 #pragma comment(lib, "Dwrite")
 #pragma comment(lib, "lua")
 #pragma comment(lib, "Xinput1_3")
+#pragma comment(lib, "DirectXTKAudioDX")
 using namespace imm;
 //
 class imm_app: public base_win<imm_app>

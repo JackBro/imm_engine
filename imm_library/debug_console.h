@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <clocale>
 #include <DirectXMath.h>
 using namespace DirectX;
 namespace imm
@@ -116,13 +117,18 @@ std::ostream& operator<<(std::ostream &os, CXMMATRIX m)
 // echo_init
 ////////////////
 ////////////////
-bool is_debug_console = false;
+bool DEBUG_IS_CONSOLE = false;
 void echo_init()
 {
-	if (!is_debug_console) {RedirectIOToConsole(); is_debug_console = true;}
+	if (!DEBUG_IS_CONSOLE) {
+		RedirectIOToConsole();
+		// for prints chinese
+		std::setlocale(LC_ALL,"");
+		DEBUG_IS_CONSOLE = true;
+	}
 }
 ////////////////
-// echo
+// echo function
 ////////////////
 ////////////////
 template <typename T>

@@ -324,6 +324,7 @@ static std::map<std::string, std::string> GLOBAL {
 	{"path_fx", "ass_shader\\"},
 	{"path_mod", "ass_model\\"},
 	{"path_tex", "ass_texture\\"},
+	{"path_med", "ass_media\\"},
 	{"path_lua", "script\\"},
 	{"path_out", "misc\\output\\"},
 	{"path_inp", "misc\\input\\"},

@@ -1,3 +1,3 @@
 Audio.h
 from DirectXTK Audio
-modified for force using XAudio 2.7
+modification: forced to use XAudio 2.7

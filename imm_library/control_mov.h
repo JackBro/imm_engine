@@ -7,7 +7,6 @@
 ////////////////
 #ifndef CONTROL_MOV_H
 #define CONTROL_MOV_H
-#include "audio_dxtk.h"
 #include "stru_instance_mgr.h"
 #include "imm_camera.h"
 #include "phy_prepare.h"

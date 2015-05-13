@@ -221,7 +221,7 @@ class simple_model: public basic_model
 		texture_mgr &tex_mgr,
 		const std::wstring diffuse_file,
 		const std::wstring normal_file,
-		const bool &is_texture);
+		const bool is_texture = false);
 };
 ////////////////
 // simple_model_instance
@@ -276,7 +276,7 @@ void simple_model<vertex_type>::set_MapSRV(
 	texture_mgr &tex_mgr,
 	const std::wstring diffuse_file,
 	const std::wstring normal_file,
-	const bool &is_texture)
+	const bool is_texture = false)
 {
 	ID3D11ShaderResourceView *diffuse_map_srv = nullptr;
 	ID3D11ShaderResourceView *normal_map_srv = nullptr;

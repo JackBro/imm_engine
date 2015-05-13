@@ -7,11 +7,18 @@
 ////////////////
 #ifndef STRU_SCENE_MGR_H
 #define STRU_SCENE_MGR_H
+#include "audio_dxtk.h"
 #include "stru_element.h"
 #include "stru_instance_mgr.h"
 #include "cast_sky.h"
 namespace imm
 {
+////////////////
+// scene flag
+////////////////
+////////////////
+static const int SCENE_USE_SKY = 128;
+static const int SCENE_USE_TERRAIN = 64;
 ////////////////
 // scene_mgr
 ////////////////
@@ -24,17 +31,21 @@ struct scene_mgr
 	void init(T_app *app_in);
 	void update_atmosphere(float dt);
 	T_app *app;
+	int flag;
 	std::map<std::string, std::string> g_map;
 	lit_dir dir_lights[3];
 	BoundingSphere bounds;
 	sky *skybox;
 	bright_aura aura;
+	audio_dxtk audio;
 };
 //
 template <typename T_app>
 scene_mgr<T_app>::scene_mgr():
+	flag(0),
 	skybox(nullptr),
-	aura()
+	aura(),
+	audio()
 {
 	scene_dir_lights_common(dir_lights);
 	bounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -70,6 +81,7 @@ template <typename T_app>
 void scene_mgr<T_app>::update_atmosphere(float dt)
 {
 	aura.update(dt, app->m_Timer.total_time());
+	audio.aud_engine->Update();
 }
 //
 }

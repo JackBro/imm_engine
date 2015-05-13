@@ -45,6 +45,7 @@ notice corresponding x64/x86, Debug/Release version.
 * **XInput1_3.lib**: Its orgin name is XInput.lib, from DirectX SDK (June 2010)
 * **X3DAudio.lib**: DirectX SDK (June 2010)
 * **XAPOFX.lib**: DirectX SDK (June 2010)
+* **DirectXTKAudioDX.lib**: DirectXTK Audio
 
 How to Compile:
 ---------------
@@ -64,6 +65,7 @@ Runtime Folder Tree:
 --------------------
 See minimum_root\, represents following tree.
 
+	 |--ass_media
 	 |--ass_model
 	 |--ass_shader
 	 |--ass_texture
