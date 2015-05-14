@@ -6,12 +6,12 @@ Quick-and-dirty
 
 Introduction:
 -------------
-A small game engine. 
+A small game engine. All features tend to be minimized.
 The fundamental 3D rendering technique is derived from the textbook 
 Introduction to 3D Game Programming with DirectX 11 by Frank Luna. 
 This engine development methodology is Quick-and-dirty, no traditional API design, casual style. 
-It may be difficult to use, suggest doing "Mod" with the game engine demo, 
-because the engine is on low completion status.
+It may be difficult to use, suggest doing "Mod" on this game engine, 
+because it is on low completion status.
 
 In Development:
 ---------------
@@ -23,7 +23,7 @@ Compile Environment:
 --------------------
 Win 7.1 / Win 8.x  
 Visual Studio 2013  
-DirectX End-User Runtimes (June 2010)  
+DirectX SDK (June 2010)
 
 Runtime Environment:
 --------------------
@@ -53,13 +53,9 @@ In demo folder, every subfolder inlude a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: Basic windows draw empty.
 * **simple_secene**: The current work (see Released Demo). 
-3D models and textures of this demo is absent in the repository, 
-they can be obtained from the Released Demo or rebuild the asset. 
-The Released Demo may be different with the latest source build, 
-please edit the Lua script or source files to delete the unnecessary asset, 
-the engine will also tell what files not found.
-Notice .b3m file corresponding x64/x86 version.
-Sorry for the inconvenience, the hello world of script will be developed recently.
+Assets of this demo is absent in the repository (Some assets can be found in Released Demo),
+The non-existent asset need to be deleted from script and source files. 
+Sorry for the inconvenience, the practicable hello world script will be developed recently.
 
 Runtime Folder Tree:
 --------------------
@@ -84,8 +80,9 @@ Asset and Tools:
 Export Blender model data to .m3d file format for immature engine. 
 https://github.com/endrollex/imm_blender_export
 * **immature engine console util b3m tool**: 
-Convert .m3d file to binary .b3m file, it can be found in game input mode,
-"Alt+Delete" then type "help" for more info.
+Convert .m3d file to binary .b3m file, it can be found in game input mode, 
+"Alt+Delete" then type "help" for more info. 
+Notice .b3m file corresponding x64/x86 version.
 
 Released Demo:
 --------------

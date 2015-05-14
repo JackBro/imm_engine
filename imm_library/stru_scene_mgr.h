@@ -75,6 +75,8 @@ void scene_mgr<T_app>::init(T_app *app_in)
 		std::ref(app->m_Cmd.is_loading), std::ref(app->m_Cmd.input)).detach();
 	aura.init(app->m_D3DDevice, app->m_D3DDC);
 	aura.is_active = false;
+	audio.init();
+	audio.play_loop();
 }
 //
 template <typename T_app>
