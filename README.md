@@ -23,6 +23,7 @@ Compile Environment:
 --------------------
 Win 7.1 / Win 8.x  
 Visual Studio 2013  
+Windows SDK for Windows 8.1  
 DirectX SDK (June 2010)
 
 Runtime Environment:
@@ -54,7 +55,7 @@ The compile option see bat_tool\1.bat.
 * **init_d3d**: Basic windows draw empty.
 * **simple_secene**: The current work (see Released Demo). 
 Assets of this demo is absent in the repository (Some assets can be found in Released Demo),
-The non-existent asset need to be deleted from script and source files. 
+The non-existent asset need to be deleted from scripts and source files. 
 Sorry for the inconvenience, the practicable hello world script will be developed recently.
 
 Runtime Folder Tree:
