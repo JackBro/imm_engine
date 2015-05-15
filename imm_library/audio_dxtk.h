@@ -8,6 +8,7 @@
 #ifndef AUDIO_DXTK_H
 #define AUDIO_DXTK_H
 #include <Audio.h>
+#include "stru_scene_help.h"
 ////////////////
 // audio_dxtk
 ////////////////
@@ -48,10 +49,12 @@ void audio_dxtk::init()
 {
 	std::wstring path_med(GLOBAL["path_med"].begin(), GLOBAL["path_med"].end());
 	std::wstring path_play = path_med+L"dragon_fight.wav";
+	data_check_file_exist(path_play);
 	sound_effect = std::unique_ptr<SoundEffect>(new SoundEffect(aud_engine.get(), path_play.c_str()));
 	effect_inst = sound_effect->CreateInstance();
-	std::wstring path_wb = path_med+L"punches.xwb";
-	wave_bank = std::unique_ptr<WaveBank>(new WaveBank(aud_engine.get(), path_wb.c_str()));
+	path_play = path_med+L"punches.xwb";
+	data_check_file_exist(path_play);
+	wave_bank = std::unique_ptr<WaveBank>(new WaveBank(aud_engine.get(), path_play.c_str()));
 }
 //
 void audio_dxtk::set_effect_inst_volume(float volume)

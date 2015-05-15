@@ -71,6 +71,23 @@ void data_vector_load_from_bin(std::vector<T_data> &data, const std::string &dat
 	infile.close();
 }
 ////////////////
+// data_check_file_exist
+////////////////
+////////////////
+void data_check_file_exist(const std::wstring &path_file)
+{
+	std::ifstream infile(path_file);
+	if (infile.good()) {
+		infile.close();
+		return;
+	}
+	infile.close();
+	std::wostringstream os;
+	os << "file not found: " << path_file.c_str();
+	ERROR_MES(os.str().c_str());
+	return;
+}
+////////////////
 // model_load_simple_b32
 ////////////////
 ////////////////

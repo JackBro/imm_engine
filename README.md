@@ -7,6 +7,7 @@ Quick-and-dirty
 Introduction:
 -------------
 A small game engine. All features tend to be minimized.
+The engine platform only supports Microsoft Windows.
 The fundamental 3D rendering technique is derived from the textbook 
 Introduction to 3D Game Programming with DirectX 11 by Frank Luna. 
 This engine development methodology is Quick-and-dirty, no traditional API design, casual style. 
@@ -54,8 +55,8 @@ In demo folder, every subfolder inlude a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: Basic windows draw empty.
 * **simple_secene**: The current work (see Released Demo). 
-Assets of this demo is absent in the repository (Some assets can be found in Released Demo),
-The non-existent asset need to be deleted from scripts and source files. 
+Assets of this demo are absent in the repository (Some assets can be found in Released Demo),
+The non-existent assets need to be deleted from scripts and source files. 
 Sorry for the inconvenience, the practicable hello world script will be developed recently.
 
 Runtime Folder Tree:
@@ -75,8 +76,8 @@ See minimum_root\, represents following tree.
 	     |--scene
 
 
-Asset and Tools:
-----------------
+Asset Tools:
+------------
 * **immature Blender export**: 
 Export Blender model data to .m3d file format for immature engine. 
 https://github.com/endrollex/imm_blender_export
