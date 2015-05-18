@@ -1,0 +1,4 @@
+name,file,rot_front,is_alpha
+cactus,cactus.b3m,0,0
+column,column.b3m,x-90y180,0
+ammo_box,ammo_box.m3d,0,0

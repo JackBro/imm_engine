@@ -203,7 +203,8 @@ struct control_mov
 {
 	control_mov();
 	void init(T_app *app_in);
-	void update_loading_finish();
+	void remove();
+	void update_loading_stat();
 	void mouse_instance_move(const int &pos_x, const int &pos_y);
 	void pad_instance_move();
 	void mouse_move_toward_hit(CXMVECTOR &plane_pos, const size_t &index, const float &speed = -1.0f);
@@ -226,7 +227,7 @@ struct control_mov
 	void on_pad_camera_follow(const WORD &vkey);
 	void key_camera_free(const float &dt);
 	void mouse_camera_wheel(const short &z_delta);
-	void mouse_camera_move(const int &pos_x, const int &pos_y);	
+	void mouse_camera_move(const int &pos_x, const int &pos_y);
 	void cam_follow_update();
 	//
 	T_app *app;
@@ -265,14 +266,22 @@ void control_mov<T_app>::init(T_app *app_in)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::update_loading_finish()
+void control_mov<T_app>::remove()
+{
+	map_stop.clear();
+	map_rot_front_c.clear();
+	player1 = -1;
+	picked1 = -1;
+}
+//
+template <typename T_app>
+void control_mov<T_app>::update_loading_stat()
 {
 	if (player1 == -1 && !app->m_Inst.m_IsLoading) {
-		player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.g_map["player1"]));
+		player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.misc_info["player1"]));
 	}
 	if (app->m_Inst.m_IsLoading && player1 != -1) {
-		player1 = -1;
-		picked1 = -1;
+		remove();
 	}
 }
 //
@@ -435,6 +444,7 @@ void control_mov<T_app>::update_scene_instance(const float &dt)
 	app->m_Inst.update_skinned(dt);
 	app->m_Inst.bound_update();
 	app->m_Inst.collision_update(dt);
+	update_loading_stat();
 	update_scene_stop(dt);
 	cam_follow_update();
 }
@@ -467,7 +477,6 @@ template <typename T_app>
 void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 {
 	DUMMY(dt);
-	update_loading_finish();
 	if (pad.is_enable()) {
 		picked1 = player1;
 		on_pad_down(dt);

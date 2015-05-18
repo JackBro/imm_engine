@@ -88,6 +88,20 @@ void data_check_file_exist(const std::wstring &path_file)
 	return;
 }
 ////////////////
+// data_is_file_exist
+////////////////
+////////////////
+bool data_is_file_exist(const std::string &path_file)
+{
+	std::ifstream infile(path_file);
+	if (infile.good()) {
+		infile.close();
+		return true;
+	}
+	infile.close();
+	return false;
+}
+////////////////
 // model_load_simple_b32
 ////////////////
 ////////////////
@@ -205,26 +219,26 @@ void model_load_csv_basic(
 	}
 }
 ////////////////
-// object_assign_csv_basic
+// instance_assign_csv_basic
 ////////////////
 ////////////////
 template <typename T_it>
-void object_assign_csv_basic(
+void instance_assign_csv_basic(
 	T_it it,
 	const size_t &ix,
 	const std::string &model_name,
 	std::map<std::string, rotation_xyz> &rot_front,
-	const std::vector<std::vector<std::string>> &csv_object)
+	const std::vector<std::vector<std::string>> &csv_instance)
 {
 	XMMATRIX R = rot_front[model_name].get_Matrix();
 	XMStoreFloat4x4(&(it->rot_front), R);
-	float sca_f = stof(csv_object[ix][2]);
+	float sca_f = stof(csv_instance[ix][2]);
 	XMMATRIX scale = XMMatrixScaling(sca_f, sca_f, sca_f);
-	XMMATRIX rot = rotation_xyz(csv_object[ix][3]).get_Matrix();
+	XMMATRIX rot = rotation_xyz(csv_instance[ix][3]).get_Matrix();
 	XMMATRIX offset = XMMatrixTranslation(
-		stof(csv_object[ix][4]),
-		stof(csv_object[ix][5]),
-		stof(csv_object[ix][6]));
+		stof(csv_instance[ix][4]),
+		stof(csv_instance[ix][5]),
+		stof(csv_instance[ix][6]));
 	//
 	R = XMMatrixMultiply(R, rot);
 	R = XMMatrixMultiply(scale, R);

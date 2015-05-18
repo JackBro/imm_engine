@@ -28,11 +28,12 @@ struct scene_mgr
 {
 	scene_mgr();
 	~scene_mgr();
-	void init(T_app *app_in);
+	void init_load(T_app *app_in);
 	void update_atmosphere(float dt);
+	void reload(const std::wstring &scene_ix);
 	T_app *app;
 	int flag;
-	std::map<std::string, std::string> g_map;
+	std::map<std::string, std::string> misc_info;
 	lit_dir dir_lights[3];
 	BoundingSphere bounds;
 	sky *skybox;
@@ -58,25 +59,16 @@ scene_mgr<T_app>::~scene_mgr()
 }
 //
 template <typename T_app>
-void scene_mgr<T_app>::init(T_app *app_in)
+void scene_mgr<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
-	g_map["ground"] = "";
-	g_map["player1"] = "";
-	lua_reader l_reader;
-	l_reader.loadfile(GLOBAL["path_lua"]+"describe_scene.lua");
-	l_reader.map_from_global(g_map);
-	app->m_Inst.m_SceneGround = g_map["ground"];
-	//
 	std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
 	skybox = new sky(app->m_D3DDevice, path_tex+L"sky_drywoods_hd.dds", 5000.0f);
-	std::thread(
-		&instance_mgr::init, std::ref(app->m_Inst), app->m_D3DDevice,
-		std::ref(app->m_Cmd.is_loading), std::ref(app->m_Cmd.input)).detach();
 	aura.init(app->m_D3DDevice, app->m_D3DDC);
 	aura.is_active = false;
 	audio.init();
 	audio.play_loop();
+	reload(L"01");
 }
 //
 template <typename T_app>
@@ -84,6 +76,26 @@ void scene_mgr<T_app>::update_atmosphere(float dt)
 {
 	aura.update(dt, app->m_Timer.total_time());
 	audio.aud_engine->Update();
+}
+//
+template <typename T_app>
+void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
+{
+	std::string scene_ix_str(scene_ix.begin(), scene_ix.end());
+	misc_info["ground"] = "";
+	misc_info["player1"] = "";
+	lua_reader l_reader;
+	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix_str+"\\describe_instance.lua";
+	l_reader.loadfile(describe);
+	l_reader.map_from_global(misc_info);
+	//
+	std::thread(
+		&instance_mgr::load, std::ref(app->m_Inst),
+		app->m_D3DDevice,
+		scene_ix_str,
+		misc_info["ground"],
+		std::ref(app->m_Cmd.is_loading),
+		std::ref(app->m_Cmd.input)).detach();
 }
 //
 }

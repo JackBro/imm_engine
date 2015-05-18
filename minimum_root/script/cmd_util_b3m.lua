@@ -4,5 +4,5 @@
 -- require
 require "script\\library\\csv_dump"
 
--- global
+-- input
 csv_model_input = read_csv("script\\cmd_util\\input_m3d.csv")

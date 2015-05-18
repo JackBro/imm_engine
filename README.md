@@ -55,9 +55,8 @@ In demo folder, every subfolder inlude a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: Basic windows draw empty.
 * **simple_secene**: The current work (see Released Demo). 
-Assets of this demo are absent in the repository (Some assets can be found in Released Demo),
-The non-existent assets need to be deleted from scripts and source files. 
-Sorry for the inconvenience, the practicable hello world script will be developed recently.
+Assets of this demo are absent in the repository,
+not recommond to compile currently, the hello world script is in development.
 
 Runtime Folder Tree:
 --------------------
@@ -73,7 +72,7 @@ See minimum_root\, represents following tree.
 	 |--script
 	     |--cmd_util
 	     |--library
-	     |--scene
+	     |--scene00
 
 
 Asset Tools:

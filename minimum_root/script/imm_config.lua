@@ -2,6 +2,6 @@
 -- immature engine config
 
 -- initialization
-is_fullscreen = "true"
+is_fullscreen = "false"
 is_4xmsaa = "true"
 is_slient = "false"

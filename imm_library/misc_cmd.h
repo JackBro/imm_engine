@@ -101,6 +101,7 @@ void cmd_shell<T_app>::apply()
 		input += L"\n> help                 Prints command briefs.";
 		input += L"\n> slient               Switches between slient and normal.";
 		input += L"\n> util                 Development tools.";
+		input += L"\n> reload               Reload scene.";
 		input += L"\n";
 		return;
 	}
@@ -198,6 +199,19 @@ void cmd_shell<T_app>::apply()
 			std::thread(
 			misc_util_b3m<atomic_wstring>,
 			app->m_D3DDevice, std::ref(input), std::ref(is_busy)).detach();
+		}
+		return;
+	}
+	if (cmd_get.substr(0, 6) == L"reload") {
+		
+		if (cmd_get.size() < 8 || cmd_get.size() > 11) {
+			input += L"\n> Usage: reload [scene_index]";
+			input += L"\n> scene_index must be two characters.";
+			input += L"\n";
+		}
+		else {
+			std::wstring scene_ix = cmd_get.substr(7, 2);
+			app->m_Scene.reload(scene_ix);
 		}
 		return;
 	}

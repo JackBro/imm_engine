@@ -1,0 +1,4 @@
+name,model,scale,rotation,pos_x,pos_y,pos_z
+cactus,cactus,2,0,-25,10,-5
+column,column,3,0,5,10,25
+ammo_box,ammo_box,1,y-45,20,10,3

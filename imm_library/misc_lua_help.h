@@ -88,7 +88,11 @@ void lua_reader::vec2d_str_from_global(const std::string &table_name,
 	vec2d_str = std::vector<std::vector<std::string>>();
 	int ix_1 = 1;
 	lua_getglobal(L, table_name.c_str());
-	if (lua_isnil(L,-1)) {echo(table_name); assert(false); return;}
+	if (lua_isnil(L,-1)) {
+		std::wostringstream os;
+		os << "Lua table name error: " << table_name.c_str();
+		ERROR_MES(os.str().c_str());
+	}
 	lua_pushstring(L, "dummy");
 	while (!lua_isnil(L, -1)) {
 		lua_pop(L, 1);

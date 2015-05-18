@@ -117,7 +117,7 @@ bool imm_app::init_imm()
 	m_UI.init(this);
 	m_Cmd.init(this);
 	m_Cmd.is_slient = false;
-	m_Scene.init(this);
+	m_Scene.init_load(this);
 	m_Control.init(this);
 	m_Config.additional1();
 	return true;
