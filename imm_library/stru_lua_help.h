@@ -1,16 +1,17 @@
 ////////////////
-// misc_lua_help.h
+// stru_lua_help.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef MISC_LUA_HELP_H
-#define MISC_LUA_HELP_H
+#ifndef STRU_LUA_HELP_H
+#define STRU_LUA_HELP_H
 #include <iostream>
 #include "imm_core.h"
 #include "lua.hpp"
 #include <mutex>
+#include <codecvt>
 namespace imm
 {
 ////////////////
@@ -32,8 +33,12 @@ public:
 	void loadfile(const std::string &fname);
 	void clear_stack();
 	void map_from_global(std::map<std::string, std::string> &map_str);
-	void vec2d_str_from_global(const std::string &table_name,
+	void vec2d_str_from_global(
+		const std::string &table_name,
 		std::vector<std::vector<std::string>> &vec2d_str);
+	void vec2d_str_from_global_wstr(
+		const std::string &table_name,
+		std::vector<std::vector<std::wstring>> &vec2d_wstr);
 	template <typename T_bool>
 	void assign_bool(T_bool &b_out, const std::string &str_in);
 private:
@@ -80,7 +85,8 @@ void lua_reader::map_from_global(std::map<std::string, std::string> &map_str)
 	}
 }
 //
-void lua_reader::vec2d_str_from_global(const std::string &table_name,
+void lua_reader::vec2d_str_from_global(
+	const std::string &table_name,
 	std::vector<std::vector<std::string>> &vec2d_str)
 {
 	std::lock_guard<std::recursive_mutex> lock(mutex1);
@@ -116,6 +122,21 @@ void lua_reader::vec2d_str_from_global(const std::string &table_name,
 		}
 	}
 	vec2d_str.pop_back();
+}
+//
+void lua_reader::vec2d_str_from_global_wstr(
+	const std::string &table_name,
+	std::vector<std::vector<std::wstring>> &vec2d_wstr)
+{
+	vec2d_wstr = std::vector<std::vector<std::wstring>>();
+	std::vector<std::vector<std::string>> vec2d_str;
+	vec2d_str_from_global(table_name, vec2d_str);
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+	for (size_t ix = 0; ix < vec2d_str.size(); ++ix) {
+		vec2d_wstr.push_back(std::vector<std::wstring>());
+		for (size_t ix_2 = 0; ix_2 < vec2d_str[ix].size(); ++ix_2)
+			vec2d_wstr[ix].push_back(convert.from_bytes(vec2d_str[ix][ix_2]));
+	}	
 }
 //
 template <typename T_bool>
@@ -190,6 +211,27 @@ std::vector<float> csv_string_to_float(const std::string &str, const size_t &cou
 		pos += pos_get;
 	}
 	return rt;
+}
+////////////////
+// csv_value_is_empty
+////////////////
+////////////////
+bool csv_value_is_empty(const std::string &str)
+{
+	if (str == "none") return true;
+	if (str == "0") return true;
+	if (str == "empty") return true;
+	if (str == "") return true;
+	return false;
+}
+////////////////
+// convert_string_to_wstring
+////////////////
+////////////////
+std::wstring convert_string_to_wstring(const std::string &str)
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+	return convert.from_bytes(str);
 }
 ////////////////
 // lua_config

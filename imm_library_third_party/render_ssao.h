@@ -1,11 +1,11 @@
 ////////////////
-// cast_ssao.h
+// render_ssao.h
 // Ssao.h by Frank Luna (C) 2011 All Rights Reserved.
 // Class encapsulates data and methods to perform screen space ambient occlusion.
 ////////////////
 ////////////////
-#ifndef CAST_SSAO_H
-#define CAST_SSAO_H
+#ifndef RENDER_SSAO_H
+#define RENDER_SSAO_H
 #include "stru_vertex.h"
 #include "imm_camera.h"
 #include "imm_core.h"

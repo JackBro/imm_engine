@@ -1,11 +1,11 @@
 ////////////////
-// cast_terrain.h
+// render_terrain.h
 // Terrain.h by Frank Luna (C) 2011 All Rights Reserved.
 // Class that renders a terrain using hardware tessellation and multitexturing.
 ////////////////
 ////////////////
-#ifndef TOOL_TERRAIN_H
-#define TOOL_TERRAIN_H
+#ifndef RENDER_TERRAIN_H
+#define RENDER_TERRAIN_H
 #include "mesh_d3d_util.h"
 #include "ia_vertex.h"
 #include "imm_camera.h"

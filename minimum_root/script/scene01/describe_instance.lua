@@ -16,3 +16,5 @@ csv_model_skinned       = read_csv("script\\scene01\\model_skinned.csv")
 -- misc
 ground = "grid"
 player1 = "sinon"
+skybox_file = "sky_drywoods_hd.dds"
+play_bgm = "dragon_fight"

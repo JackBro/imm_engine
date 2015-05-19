@@ -1,12 +1,12 @@
 ////////////////
-// misc_dwrite.h
+// ui_dwrite.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef MISC_DWRITE_H
-#define MISC_DWRITE_H
+#ifndef UI_DWRITE_H
+#define UI_DWRITE_H
 #include <d2d1_1.h>
 #include <Dwrite.h>
 #include "imm_core.h"

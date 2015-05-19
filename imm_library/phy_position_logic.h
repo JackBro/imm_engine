@@ -34,9 +34,15 @@ XMGLOBALCONST XMVECTORF32 PHY_AABB_NORMAL[6] = {
 // phy_position_update
 ////////////////
 ////////////////
-void phy_position_update(const float &dt, XMFLOAT4X4 &world,
-	phy_property &prop, phy_property &prop_ground, const XMFLOAT3 &center,
-	const bool &is_touch_ground, const float &half_y, const float &ground = 0.0f)
+void phy_position_update(
+	const float &dt,
+	XMFLOAT4X4 &world,
+	phy_property &prop,
+	phy_property &prop_ground,
+	const XMFLOAT3 &center,
+	const bool &is_touch_ground,
+	const float &half_y,
+	const float &ground = 0.0f)
 {	
 	if (!is_touch_ground) {
 		prop.velocity.x += prop.acceleration.x*dt/2.0f;
@@ -113,9 +119,12 @@ XMVECTORF32 phy_boxA_normal(const BoundingBox &bbox_A, const BoundingBox &bbox_B
 ////////////////
 void phy_impulse_casual(
 	const float &dt,
-	XMFLOAT4X4 &world_A, XMFLOAT4X4 &world_B,
-	phy_property &prop_A, phy_property &prop_B,
-	const XMFLOAT3 &center_A, const XMFLOAT3 &center_B,
+	XMFLOAT4X4 &world_A,
+	XMFLOAT4X4 &world_B,
+	phy_property &prop_A,
+	phy_property &prop_B,
+	const XMFLOAT3 &center_A,
+	const XMFLOAT3 &center_B,
 	const bool &is_touch = true)
 {
 	if (!is_touch) return;

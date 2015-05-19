@@ -45,8 +45,12 @@ struct phy_property
 ////////////////
 ////////////////
 template <typename T_vertices, typename T_pos>
-void phy_set_aabb(BoundingBox &bbox, const T_vertices &vertices, const T_pos get_pos,
-	size_t ix_begin = 0, size_t ix_end = 0)
+void phy_set_aabb(
+	BoundingBox &bbox,
+	const T_vertices &vertices,
+	const T_pos get_pos,
+	size_t ix_begin = 0,
+	size_t ix_end = 0)
 {
 	if (ix_end == 0) ix_end = vertices.size();
 	if (ix_begin > ix_end) ix_begin = 0;
@@ -93,9 +97,14 @@ public:
 	bool intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &direction, float &dist);
 	template <typename T_bound>
 	bool intersects(const size_t &ix, const T_bound &bound);
-	void pick(const int &pos_x, const int &pos_y,
-		const int &client_width, const int &clinet_height,
-		CXMMATRIX cam_proj, CXMMATRIX cam_view, int &out_ix,
+	void pick(
+		const int &pos_x,
+		const int &pos_y,
+		const int &client_width,
+		const int &clinet_height,
+		CXMMATRIX cam_proj,
+		CXMMATRIX cam_view,
+		int &out_ix,
 		const std::vector<size_t> &ix_list);
 	//
 	XMFLOAT3 center(const size_t &ix);
@@ -187,9 +196,14 @@ bool phy_bound_mgr::intersects(const size_t &ix, const T_bound &bound)
 	return false;
 }
 //
-void phy_bound_mgr::pick(const int &pos_x, const int &pos_y,
-	const int &client_width, const int &clinet_height,
-	CXMMATRIX cam_proj, CXMMATRIX cam_view, int &out_ix,
+void phy_bound_mgr::pick(
+	const int &pos_x,
+	const int &pos_y,
+	const int &client_width,
+	const int &clinet_height,
+	CXMMATRIX cam_proj,
+	CXMMATRIX cam_view,
+	int &out_ix,
 	const std::vector<size_t> &ix_list = std::vector<size_t>())
 {
 	// Compute picking ray in view space.

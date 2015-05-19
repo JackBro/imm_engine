@@ -18,24 +18,29 @@ namespace imm
 struct audio_dxtk
 {
 	audio_dxtk();
-	void init();
-	void play_loop();
-	void play_shot();
+	void init_load();
+	void play_bgm(const std::string &name);
+	void stop_bgm();
+	void play_effect(const std::string &name);
 	void set_effect_inst_volume(float volume);
 	void set_wave_bank_volume(float volume);
 	float wave_bank_volume;
+	std::string current_bgm_name;
+	std::map<std::string, std::wstring> map_bgm;
+	std::map<std::string, std::string> map_effect_bank;
+	std::map<std::string, int> map_effect_ix;
+	std::map<std::string, std::unique_ptr<WaveBank>> map_wave_bank;
 	std::unique_ptr<AudioEngine> aud_engine;
 	std::unique_ptr<SoundEffect> sound_effect;
 	std::unique_ptr<SoundEffectInstance> effect_inst;
-	std::unique_ptr<WaveBank> wave_bank;
 };
 //
 audio_dxtk::audio_dxtk():
 	wave_bank_volume(1.0f),
+	current_bgm_name("none"),
 	aud_engine(nullptr),
 	sound_effect(nullptr),
-	effect_inst(nullptr),
-	wave_bank(nullptr)
+	effect_inst(nullptr)
 {
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
@@ -45,16 +50,29 @@ audio_dxtk::audio_dxtk():
 	aud_engine = std::unique_ptr<AudioEngine>(new AudioEngine(eflags));
 }
 //
-void audio_dxtk::init()
+void audio_dxtk::init_load()
 {
+	std::string describe = GLOBAL["path_lua"]+"describe_common.lua";
+	lua_reader l_reader;
+	l_reader.loadfile(describe);
+	std::vector<std::vector<std::string>> vec2d_audio_bgm;
+	l_reader.vec2d_str_from_global("csv_audio_bgm", vec2d_audio_bgm);
 	std::wstring path_med(GLOBAL["path_med"].begin(), GLOBAL["path_med"].end());
-	std::wstring path_play = path_med+L"dragon_fight.wav";
-	data_check_file_exist(path_play);
-	sound_effect = std::unique_ptr<SoundEffect>(new SoundEffect(aud_engine.get(), path_play.c_str()));
-	effect_inst = sound_effect->CreateInstance();
-	path_play = path_med+L"punches.xwb";
-	data_check_file_exist(path_play);
-	wave_bank = std::unique_ptr<WaveBank>(new WaveBank(aud_engine.get(), path_play.c_str()));
+	for (size_t ix = 1; ix < vec2d_audio_bgm.size(); ++ix) {
+		map_bgm[vec2d_audio_bgm[ix][0]] = path_med+convert_string_to_wstring(vec2d_audio_bgm[ix][1]);
+	}
+	std::vector<std::vector<std::string>> vec2d_audio_effect;
+	l_reader.vec2d_str_from_global("csv_audio_effect", vec2d_audio_effect);
+	for (size_t ix = 1; ix < vec2d_audio_effect.size(); ++ix) {
+		map_effect_bank[vec2d_audio_effect[ix][0]] = vec2d_audio_effect[ix][1];
+		map_effect_ix[vec2d_audio_effect[ix][0]] = std::stoi(vec2d_audio_effect[ix][2]);
+		if (!map_wave_bank.count(vec2d_audio_effect[ix][1])) {
+			std::wstring path_wave_bank = path_med+convert_string_to_wstring(vec2d_audio_effect[ix][1]);
+			data_check_file_exist(path_wave_bank);
+			map_wave_bank[vec2d_audio_effect[ix][1]] =
+				 std::unique_ptr<WaveBank>(new WaveBank(aud_engine.get(), path_wave_bank.c_str()));
+		}
+	}
 }
 //
 void audio_dxtk::set_effect_inst_volume(float volume)
@@ -67,14 +85,28 @@ void audio_dxtk::set_wave_bank_volume(float volume)
 	wave_bank_volume = volume;
 }
 //
-void audio_dxtk::play_loop()
+void audio_dxtk::play_bgm(const std::string &name)
 {
+	if (name != current_bgm_name) {
+		if (!map_bgm.count(name)) assert(false);
+		data_check_file_exist(map_bgm[name]);
+		sound_effect = std::unique_ptr<SoundEffect>(new SoundEffect(aud_engine.get(), map_bgm[name].c_str()));
+		effect_inst = sound_effect->CreateInstance();
+		current_bgm_name = name;
+	}
+	if (effect_inst == nullptr) return;
 	effect_inst->Play(true);
 }
 //
-void audio_dxtk::play_shot()
+void audio_dxtk::stop_bgm()
 {
-	wave_bank->Play(0, wave_bank_volume, 0.0f, 0.0f);
+	if (effect_inst == nullptr) return;
+	effect_inst->Stop(true);
+}
+//
+void audio_dxtk::play_effect(const std::string &name)
+{
+	map_wave_bank[map_effect_bank[name]]->Play(map_effect_ix[name], wave_bank_volume, 0.0f, 0.0f);
 }
 //
 }

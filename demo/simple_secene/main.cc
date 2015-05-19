@@ -5,14 +5,14 @@
 #ifndef UNICODE
 #define UNICODE
 #endif
-#include "misc_cmd.h"
-#include "misc_ui.h"
+#include "imm_cmd.h"
+#include "ui_simple.h"
 #include "control_mov.h"
 #include "stru_scene_mgr.h"
 #include "stru_draw_instance.h"
 #include "ia_render.h"
 #include "imm_base.h"
-#include "cast_shadow.h"
+#include "render_shadow.h"
 //
 #pragma comment(lib, "User32")
 #pragma comment(lib, "Effects11")

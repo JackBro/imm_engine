@@ -1,14 +1,14 @@
 ////////////////
-// misc_cmd.h
+// imm_cmd.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef MISC_CMD_H
-#define MISC_CMD_H
-#include "misc_cmd_util.h"
-#include "misc_dwrite.h"
+#ifndef IMM_CMD_H
+#define IMM_CMD_H
+#include "imm_cmd_util.h"
+#include "ui_dwrite.h"
 #include <DirectXColors.h>
 namespace imm
 {

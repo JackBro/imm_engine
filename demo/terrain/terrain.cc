@@ -5,9 +5,9 @@
 #ifndef UNICODE
 #define UNICODE
 #endif
-#include "cast_sky.h"
-#include "cast_particle.h"
-#include "cast_terrain.h"
+#include "render_sky.h"
+#include "render_particle.h"
+#include "render_terrain.h"
 #include "ia_render.h"
 #include "imm_camera.h"
 #include "imm_base.h"

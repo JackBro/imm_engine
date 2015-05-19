@@ -8,7 +8,7 @@
 #ifndef STRU_SCENE_HELP_H
 #define STRU_SCENE_HELP_H
 #include "stru_scene_swatch.h"
-#include "misc_lua_help.h"
+#include "stru_lua_help.h"
 #include "mesh_geometry_gen.h"
 #include "mesh_basic_model.h"
 namespace imm

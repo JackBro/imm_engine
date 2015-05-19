@@ -10,15 +10,9 @@
 #include "audio_dxtk.h"
 #include "stru_element.h"
 #include "stru_instance_mgr.h"
-#include "cast_sky.h"
+#include "render_sky.h"
 namespace imm
 {
-////////////////
-// scene flag
-////////////////
-////////////////
-static const int SCENE_USE_SKY = 128;
-static const int SCENE_USE_TERRAIN = 64;
 ////////////////
 // scene_mgr
 ////////////////
@@ -32,7 +26,6 @@ struct scene_mgr
 	void update_atmosphere(float dt);
 	void reload(const std::wstring &scene_ix);
 	T_app *app;
-	int flag;
 	std::map<std::string, std::string> misc_info;
 	lit_dir dir_lights[3];
 	BoundingSphere bounds;
@@ -43,7 +36,6 @@ struct scene_mgr
 //
 template <typename T_app>
 scene_mgr<T_app>::scene_mgr():
-	flag(0),
 	skybox(nullptr),
 	aura(),
 	audio()
@@ -62,12 +54,9 @@ template <typename T_app>
 void scene_mgr<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
-	std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
-	skybox = new sky(app->m_D3DDevice, path_tex+L"sky_drywoods_hd.dds", 5000.0f);
-	aura.init(app->m_D3DDevice, app->m_D3DDC);
+	aura.init_load(app->m_D3DDevice, app->m_D3DDC);
 	aura.is_active = false;
-	audio.init();
-	audio.play_loop();
+	audio.init_load();
 	reload(L"01");
 }
 //
@@ -84,6 +73,8 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	std::string scene_ix_str(scene_ix.begin(), scene_ix.end());
 	misc_info["ground"] = "";
 	misc_info["player1"] = "";
+	misc_info["skybox_file"] = "";
+	misc_info["play_bgm"] = "";
 	lua_reader l_reader;
 	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix_str+"\\describe_instance.lua";
 	l_reader.loadfile(describe);
@@ -96,6 +87,20 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 		misc_info["ground"],
 		std::ref(app->m_Cmd.is_loading),
 		std::ref(app->m_Cmd.input)).detach();
+	if (skybox != nullptr) delete skybox;
+	if (csv_value_is_empty(misc_info["skybox_file"])) {
+		// empty sky no draw
+		skybox = new sky();
+	}
+	else {	
+		std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
+		path_tex += convert_string_to_wstring(misc_info["skybox_file"]);
+		skybox = new sky(app->m_D3DDevice, path_tex, 5000.0f);
+	}
+	audio.stop_bgm();
+	if (!csv_value_is_empty(misc_info["play_bgm"])) {
+		audio.play_bgm(misc_info["play_bgm"]);
+	}
 }
 //
 }

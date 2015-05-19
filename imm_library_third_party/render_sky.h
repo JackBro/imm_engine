@@ -1,11 +1,11 @@
 ////////////////
-// cast_sky.h
+// render_sky.h
 // Sky.h by Frank Luna (C) 2011 All Rights Reserved.
 // Simple class that renders a sky using a cube map.
 ////////////////
 ////////////////
-#ifndef CAST_SKY_H
-#define CAST_SKY_H
+#ifndef RENDER_SKY_H
+#define RENDER_SKY_H
 #include "imm_camera.h"
 #include "mesh_geometry_gen.h"
 #include "ia_vertex.h"
@@ -19,8 +19,9 @@ namespace imm
 class sky
 {
 public:
-	sky(ID3D11Device* device, const std::wstring& cubemap_filename, float sky_sphere_radius);
+	sky();
 	~sky();
+	sky(ID3D11Device* device, const std::wstring& cubemap_filename, float sky_sphere_radius);
 	ID3D11ShaderResourceView* get_CubeMapSRV();
 	void draw(ID3D11DeviceContext* dc, const camera& cam1);
 private:
@@ -31,6 +32,15 @@ private:
 	ID3D11ShaderResourceView* m_CubeMapSRV;
 	UINT m_ISize;
 };
+//
+sky::sky():
+	m_VB(nullptr),
+	m_IB(nullptr),
+	m_CubeMapSRV(nullptr),
+	m_ISize(0)
+{
+	;
+}
 //
 sky::~sky()
 {
@@ -79,6 +89,7 @@ ID3D11ShaderResourceView* sky::get_CubeMapSRV()
 //
 void sky::draw(ID3D11DeviceContext* dc, const camera& cam1)
 {
+	if (m_VB == nullptr) return;	
 	// center Sky about eye in world space
 	XMFLOAT3 eye_pos = cam1.get_Position();
 	XMMATRIX T = XMMatrixTranslation(eye_pos.x, eye_pos.y, eye_pos.z);

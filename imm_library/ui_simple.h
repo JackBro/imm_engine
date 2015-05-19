@@ -1,13 +1,13 @@
 ////////////////
-// misc_ui.h
+// ui_simple.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef MISC_UI_H
-#define MISC_UI_H
-#include "misc_dwrite.h"
+#ifndef UI_SIMPLE_H
+#define UI_SIMPLE_H
+#include "ui_dwrite.h"
 #include "XInput.h"
 #include <algorithm>
 namespace imm
@@ -393,7 +393,7 @@ void ui_simple<T_app>::deactivate_all()
 // misc_ui_define.h
 ////////////////
 ////////////////
-#include "misc_ui_define.h"
-#include "misc_ui_define_txt.h"
+#include "ui_simple_define_rc.h"
+#include "ui_simple_define_txt.h"
 }
 #endif

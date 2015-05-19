@@ -1,10 +1,10 @@
 ////////////////
-// cast_particle.h
+// render_particle.h
 // ParticleSystem.h by Frank Luna (C) 2011 All Rights Reserved.
 ////////////////
 ////////////////
-#ifndef CAST_PARTICLE_H
-#define CAST_PARTICLE_H
+#ifndef RENDER_PARTICLE_H
+#define RENDER_PARTICLE_H
 #include "imm_camera.h"
 #include "ia_vertex.h"
 namespace imm

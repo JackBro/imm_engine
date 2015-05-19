@@ -1,11 +1,11 @@
 ////////////////
-// cast_shadow.h
+// render_shadow.h
 // ShadowMap.h by Frank Luna (C) 2011 All Rights Reserved.
 // Helper class for implementing shadows via shadow mapping algorithm.
 ////////////////
 ////////////////
-#ifndef CAST_SHADOW_H
-#define CAST_SHADOW_H
+#ifndef RENDER_SHADOW_H
+#define RENDER_SHADOW_H
 #include "imm_core.h"
 namespace imm
 {

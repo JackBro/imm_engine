@@ -432,9 +432,12 @@ template <typename T_app>
 void control_mov<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 {
 	app->m_Inst.m_BoundW.pick(
-		pos_x, pos_y,
-		app->m_ClientWidth, app->m_ClientHeight,
-		app->m_Cam.get_Proj(), app->m_Cam.get_View(),
+		pos_x,
+		pos_y,
+		app->m_ClientWidth,
+		app->m_ClientHeight,
+		app->m_Cam.get_Proj(),
+		app->m_Cam.get_View(),
 		picked1);
 }
 //

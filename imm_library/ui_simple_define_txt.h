@@ -1,5 +1,5 @@
-///////////////
-// misc_ui_define_txt.h
+////////////////
+// ui_simple_define_txt.h
 ////////////////
 ////////////////
 template <typename T_app>

@@ -1,5 +1,5 @@
 ////////////////
-// misc_ui_define.h
+// ui_simple_define_rc.h
 ////////////////
 ////////////////
 template <typename T_app>

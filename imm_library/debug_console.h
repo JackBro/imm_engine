@@ -123,7 +123,7 @@ void echo_init()
 	if (!DEBUG_IS_CONSOLE) {
 		RedirectIOToConsole();
 		// for prints chinese
-		std::setlocale(LC_ALL,"");
+		std::setlocale(LC_ALL, "");
 		DEBUG_IS_CONSOLE = true;
 	}
 }

@@ -7,7 +7,7 @@
 ////////////////
 #ifndef STRU_ELEMENT_H
 #define STRU_ELEMENT_H
-#include "cast_particle.h"
+#include "render_particle.h"
 #include "mesh_d3d_util.h"
 namespace imm
 {
@@ -19,7 +19,7 @@ struct bright_aura
 {
 	bright_aura();
 	~bright_aura();
-	void init(ID3D11Device *device, ID3D11DeviceContext *context);
+	void init_load(ID3D11Device *device, ID3D11DeviceContext *context);
 	void update(float dt, float total_time);
 	void draw(ID3D11DeviceContext *context, const camera &cam);
 	void reset();
@@ -45,7 +45,7 @@ bright_aura::~bright_aura()
 	ReleaseCOM(random_tex_srv);
 }
 //
-void bright_aura::init(ID3D11Device *device, ID3D11DeviceContext *context)
+void bright_aura::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 {
 	std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
 	random_tex_srv = create_RandomTexture1DSRV(device);

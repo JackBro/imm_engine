@@ -119,7 +119,10 @@ void instance_mgr::push_back(
 		m_Stat.push_back(inst_stat);
 		m_BoundL.push_empty(phy_bound_type::box);
 		m_BoundW.push_empty(phy_bound_type::box);
-		phy_set_aabb(m_BoundL.b1[k], v_inst[ix].model->m_Vertices, get_pos_f);
+		phy_set_aabb(
+			m_BoundL.b1[k],
+			v_inst[ix].model->m_Vertices,
+			get_pos_f);
 		++k;
 	}
 }
@@ -137,7 +140,12 @@ void instance_mgr::push_back_pntt(
 		m_BoundL.push_empty(phy_bound_type::box);
 		m_BoundW.push_empty(phy_bound_type::box);
 		auto vert_range = v_inst[ix].model->get_VertexRange(v_inst[ix].subid);
-		phy_set_aabb(m_BoundL.b1[k], v_inst[ix].model->m_Vertices, get_pos_f, vert_range.first, vert_range.second);
+		phy_set_aabb(
+			m_BoundL.b1[k],
+			v_inst[ix].model->m_Vertices,
+			get_pos_f,
+			vert_range.first,
+			vert_range.second);
 		++k;
 	}
 }
@@ -177,18 +185,26 @@ void instance_mgr::collision_update(float dt_every)
 		size_t ix_gro = m_SceneGroundIx;
 		if (m_Stat[ix].phy.stand_from >= 0) ix_gro = m_Stat[ix].phy.stand_from;
 		m_Stat[ix].phy.is_touch_ground = m_BoundW.intersects(ix_gro, ix);
-		phy_position_update(dt_every, *(m_Stat[ix].get_World()),
-			m_Stat[ix].phy, m_Stat[ix_gro].phy,
-			m_BoundW.center(ix), m_Stat[ix].phy.is_touch_ground, m_BoundW.half_y(ix));
+		phy_position_update(
+			dt_every,
+			*(m_Stat[ix].get_World()),
+			m_Stat[ix].phy,
+			m_Stat[ix_gro].phy,
+			m_BoundW.center(ix),
+			m_Stat[ix].phy.is_touch_ground,
+			m_BoundW.half_y(ix));
 	}
 	//
 	for (size_t ix = 0; ix != m_Stat.size()-1; ++ix) {
 		for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
 			if (static_cast<int>(ix) == m_SceneGroundIx || static_cast<int>(ix2) == m_SceneGroundIx) continue;
 			phy_impulse_casual(dt_every,
-				*(m_Stat[ix].get_World()), *(m_Stat[ix2].get_World()),
-				m_Stat[ix].phy, m_Stat[ix2].phy,
-				m_BoundW.center(ix), m_BoundW.center(ix2),
+				*(m_Stat[ix].get_World()),
+				*(m_Stat[ix2].get_World()),
+				m_Stat[ix].phy,
+				m_Stat[ix2].phy,
+				m_BoundW.center(ix),
+				m_BoundW.center(ix2),
 				m_BoundW.intersects(ix, ix2));
 		}
 	}
