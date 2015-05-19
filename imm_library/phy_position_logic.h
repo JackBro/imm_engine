@@ -45,9 +45,9 @@ void phy_position_update(
 	const float &ground = 0.0f)
 {	
 	if (!is_touch_ground) {
-		prop.velocity.x += prop.acceleration.x*dt/2.0f;
-		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt/2.0f;
-		prop.velocity.z += prop.acceleration.z*dt/2.0f;
+		prop.velocity.x += prop.acceleration.x*dt;
+		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt;
+		prop.velocity.z += prop.acceleration.z*dt;
 		world._41 += prop.velocity.x*dt + prop.velocity_nm.x*dt;
 		world._42 += prop.velocity.y*dt + prop.velocity_nm.y*dt;
 		world._43 += prop.velocity.z*dt + prop.velocity_nm.z*dt;

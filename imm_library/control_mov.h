@@ -162,7 +162,7 @@ control_motion::control_motion():
 	speed(13.5f),
 	speed_walk(4.5f),
 	speed_run(13.5),
-	jump_velocity(15.0f)
+	jump_velocity(20.0f)
 {
 	;
 }
