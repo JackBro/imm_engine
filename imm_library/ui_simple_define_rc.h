@@ -248,13 +248,6 @@ void ui_simple<T_app>::define_style()
 }
 //
 template <typename T_app>
-bool ui_simple<T_app>::define_pick_lb(const int &pos_x, const int &pos_y)
-{
-	mouse_pick(pos_x, pos_y);
-	return define_apply_ix(m_ClickIx);
-}
-//
-template <typename T_app>
 bool ui_simple<T_app>::define_apply_ix_if(int &index)
 {
 	// menu
@@ -306,23 +299,10 @@ bool ui_simple<T_app>::define_apply_ix_if(int &index)
 }
 //
 template <typename T_app>
-bool ui_simple<T_app>::define_apply_ix(int &index)
-{
-	if (index != -1) {
-		if (define_apply_ix_if(index)) {
-			// here will assign index (m_ClickIxPad or m_ClickIx) to -1
-			// no change m_ClickIxPad and m_ClickIx value in other define_ functions
-			index = -1;
-			return true;
-		}
-	}
-	return false;
-}
-//
-template <typename T_app>
 void ui_simple<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	DUMMY(l_param);
+	is_pad_using = false;
 	if (w_param == KEY_UI_ESC) {
 		if (is_ui_appear()) define_deactivate_all_default();
 		else group_active("menu", true);
@@ -338,6 +318,7 @@ template <typename T_app>
 void ui_simple<T_app>::define_on_pad_keydown(const WORD &vkey, const float &dt)
 {
 	DUMMY(dt);
+	is_pad_using = true;
 	if (vkey == PAD_UI_MENU) {
 		group_active_switch("menu");
 		return;
@@ -357,8 +338,8 @@ void ui_simple<T_app>::define_on_pad_keydown(const WORD &vkey, const float &dt)
 		return;
 	}
 	//
-	if (m_Actived != "none") {
-		if (vkey == PAD_UI_APPLY) define_apply_ix(m_ClickIxPad);
+	if (m_ClickableActived != "none") {
+		if (vkey == PAD_UI_APPLY) apply_ix(m_ClickIxPad);
 		return;
 	}
 }

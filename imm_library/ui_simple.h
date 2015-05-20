@@ -60,15 +60,14 @@ struct ui_simple
 	void on_mouse_over(const int &pos_x, const int &pos_y);
 	void mouse_pick(const int &pos_x, const int &pos_y);
 	void group_active_switch(const std::string &name);
-	void group_active(const std::string &name, const bool &is_act);
+	void group_active(const std::string &name, const bool &is_act, const bool &is_switched = false);
 	void pad_loop_button(const bool &is_down, const std::string &select_none = "");
 	void pad_roll_text_layout(const bool &is_down);
 	bool is_ui_appear();
 	void deactivate_all();
+	bool apply_ix(int &index, const bool &is_mouse = false);
 	//
 	void define_style();
-	bool define_pick_lb(const int &pos_x, const int &pos_y);
-	bool define_apply_ix(int &index);
 	bool define_apply_ix_if(int &index);
 	void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void define_on_pad_keydown(const WORD &vkey, const float &dt);
@@ -82,10 +81,12 @@ struct ui_simple
 	std::map<std::string, std::vector<size_t>> m_MapTextLayout;
 	std::map<std::string, int> m_MapID;
 	std::map<std::string, dwrite_simple> m_Dwrite;
-	int m_ClickIx;
+	int m_ClickIxMouse;
 	int m_ClickIxPad;
+	bool is_pad_using;
 	D2D1_POINT_2F M_TextLayoutOrigin;
-	std::string m_Actived;
+	// if a group has no button, it is no-clickable, otherwise it is clickable
+	std::string m_ClickableActived;
 	std::map<std::string, std::wstring> m_DefineTxt;
 	T_app *m_App;
 private:
@@ -95,10 +96,11 @@ private:
 //
 template <typename T_app>
 ui_simple<T_app>::ui_simple():
-	m_ClickIx(-1),
+	m_ClickIxMouse(-1),
 	m_ClickIxPad(-1),
+	is_pad_using(false),
 	m_App(0),
-	m_Actived("none")
+	m_ClickableActived("none")
 {
 	M_TextLayoutOrigin.x = 0.0f;
 	M_TextLayoutOrigin.y = 0.0f;
@@ -240,7 +242,11 @@ void ui_simple<T_app>::draw()
 template <typename T_app>
 bool ui_simple<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if (btn_state & MOUSE_UI_PICK) return (define_pick_lb(pos_x, pos_y));
+	if (btn_state & MOUSE_UI_PICK) {
+		is_pad_using = false;
+		mouse_pick(pos_x, pos_y);
+		return apply_ix(m_ClickIxMouse, true);
+	}
 	return false;
 }
 //
@@ -279,7 +285,7 @@ void ui_simple<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 		if (m_Rect[ix].tp == ui_rect::type::button && m_Rect[ix].active &&
 			pos_y > m_Rect[ix].rc.top && pos_y < m_Rect[ix].rc.bottom &&
 			pos_x > m_Rect[ix].rc.left && pos_x < m_Rect[ix].rc.right) {
-			m_ClickIx = static_cast<int>(ix);
+			m_ClickIxMouse = static_cast<int>(ix);
 			break;
 		}
 	}
@@ -288,36 +294,33 @@ void ui_simple<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 template <typename T_app>
 void ui_simple<T_app>::group_active_switch(const std::string &name)
 {
-	if (!(m_Actived == "none" || m_Actived == name)) return;
+	// avoid active two clickable group
+	if (!(m_ClickableActived == "none" || m_ClickableActived == name)) {
+		define_deactivate_all_default();
+		return;
+	}
 	for (auto &ix: m_MapGroup[name]) m_Rect[ix].active = !m_Rect[ix].active;
-	if (m_Rect[m_MapGroup[name][0]].active) {
-		m_ClickIxPad = -1;
-		if (m_MapButton[name].size() > 0) {
-			m_Actived = name;
-			pad_loop_button(true, name);
-		}
-		else m_Actived = "none";
-	}
-	else {
-		m_Actived = "none";
-		M_TextLayoutOrigin.y = 0.0f;
-	}
+	group_active(name, false, true);
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::group_active(const std::string &name, const bool &is_act)
+void ui_simple<T_app>::group_active(const std::string &name, const bool &is_act, const bool &is_switched = false)
 {
-	for (auto &ix: m_MapGroup[name]) m_Rect[ix].active = is_act;
+	if (!is_switched) for (auto &ix: m_MapGroup[name]) m_Rect[ix].active = is_act;
 	if (m_Rect[m_MapGroup[name][0]].active) {
 		m_ClickIxPad = -1;
 		if (m_MapButton[name].size() > 0) {
-			m_Actived = name;
+			m_ClickableActived = name;
 			pad_loop_button(true, name);
 		}
-		else m_Actived = "none";
+		else {
+			// keep no button group, as no-clickable
+			m_ClickableActived = "none";
+		}
 	}
 	else {
-		m_Actived = "none";
+		m_ClickableActived = "none";
+		// reset text_layout position
 		M_TextLayoutOrigin.y = 0.0f;
 	}
 }
@@ -329,31 +332,32 @@ void ui_simple<T_app>::pad_loop_button(const bool &is_down, const std::string &s
 	if (select_none != "") {
 		assert(m_MapButton[select_none].size() > 0);
 		for (auto &ix: m_MapButton[select_none]) m_Rect[ix].brush_ix = m_Rect[ix].brush_sel[0];
+		if (is_pad_using) pad_loop_button(true);
 		return;
 	}
 	// select first
-	if (m_ClickIxPad == -1 && m_Actived != "none") {
-		assert(m_MapButton[m_Actived].size() > 0);
-		m_Rect[m_MapButton[m_Actived][0]].brush_ix = m_Rect[m_MapButton[m_Actived][0]].brush_sel[1];
-		m_ClickIxPad = static_cast<int>(m_MapButton[m_Actived][0]);
+	if (m_ClickIxPad == -1 && m_ClickableActived != "none") {
+		assert(m_MapButton[m_ClickableActived].size() > 0);
+		m_Rect[m_MapButton[m_ClickableActived][0]].brush_ix = m_Rect[m_MapButton[m_ClickableActived][0]].brush_sel[1];
+		m_ClickIxPad = static_cast<int>(m_MapButton[m_ClickableActived][0]);
 		return;
 	}
 	// select next
-	if (m_ClickIxPad != -1 && m_Actived != "none") {
+	if (m_ClickIxPad != -1 && m_ClickableActived != "none") {
 		m_Rect[m_ClickIxPad].brush_ix = m_Rect[m_ClickIxPad].brush_sel[0];
 		// point to next button
 		size_t pos = 
-			find(m_MapButton[m_Actived].begin(), m_MapButton[m_Actived].end(),
-			m_ClickIxPad) - m_MapButton[m_Actived].begin();
+			find(m_MapButton[m_ClickableActived].begin(), m_MapButton[m_ClickableActived].end(),
+			m_ClickIxPad) - m_MapButton[m_ClickableActived].begin();
 		int next = static_cast<int>(pos);
 		//
 		if (is_down) ++next;
 		else --next;
-		int int_size = static_cast<int>(m_MapButton[m_Actived].size());
+		int int_size = static_cast<int>(m_MapButton[m_ClickableActived].size());
 		if (next > int_size-1) next = 0;
 		if (next < 0) next = int_size-1;
-		m_ClickIxPad = static_cast<int>(m_MapButton[m_Actived][next]);
-		m_Rect[m_MapButton[m_Actived][next]].brush_ix = m_Rect[m_MapButton[m_Actived][next]].brush_sel[1];
+		m_ClickIxPad = static_cast<int>(m_MapButton[m_ClickableActived][next]);
+		m_Rect[m_MapButton[m_ClickableActived][next]].brush_ix = m_Rect[m_MapButton[m_ClickableActived][next]].brush_sel[1];
 	}
 }
 //
@@ -377,7 +381,7 @@ void ui_simple<T_app>::pad_roll_text_layout(const bool &is_down)
 template <typename T_app>
 bool ui_simple<T_app>::is_ui_appear()
 {
-	if (m_Actived == "none") return false;
+	if (m_ClickableActived == "none") return false;
 	return true;
 }
 //
@@ -387,8 +391,26 @@ void ui_simple<T_app>::deactivate_all()
 	for (auto &map: m_MapGroup) {
 		group_active(map.first, false);
 	}
-	m_Actived = "none";
+	m_ClickableActived = "none";
 }
+//
+template <typename T_app>
+bool ui_simple<T_app>::apply_ix(int &index, const bool &is_mouse = false)
+{
+	if (index != -1) {
+		if (define_apply_ix_if(index)) {
+			// no change m_ClickIxPad and m_ClickIxMouse value in define_ functions
+			// let pad select first button immediately from another group apply, keep m_ClickIxPad
+			// otherwise m_ClickIxPad will be clean by apply, the first selected buttom will be invalid
+			if (is_mouse) {
+				index = -1;
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
 ////////////////
 // misc_ui_define.h
 ////////////////
