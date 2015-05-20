@@ -9,6 +9,7 @@
 #define IMM_CMD_H
 #include "imm_cmd_util.h"
 #include "ui_dwrite.h"
+#include "control_key_define.h"
 #include <DirectXColors.h>
 namespace imm
 {
@@ -79,7 +80,7 @@ template <typename T_app>
 void cmd_shell<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	DUMMY(l_param);
-	if (w_param == VK_DELETE && GetKeyState(VK_MENU)) {
+	if (w_param == KEY_CMD_ACT1 && GetKeyState(KEY_CMD_ACT2)) {
 		is_active = !is_active;
 	}
 }

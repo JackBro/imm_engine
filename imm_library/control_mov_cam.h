@@ -16,16 +16,16 @@ void control_mov<T_app>::pad_camera_free(const float &dt)
 	}
 	if (app->m_UI.is_ui_appear()) return;
 	if (style_p1 & CONTORL_CAM_FREE) {
-		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) app->m_Cam.up_down(10.0f*dt);
-		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) app->m_Cam.up_down(-10.0f*dt);
-		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) app->m_Cam.strafe(-10.0f*dt);
-		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) app->m_Cam.strafe(10.0f*dt);
-		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) app->m_Cam.walk(10.0f*dt);
-		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) app->m_Cam.walk(-10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_UP) app->m_Cam.up_down(10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_DOWN) app->m_Cam.up_down(-10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_LEFT) app->m_Cam.strafe(-10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_RIGHT) app->m_Cam.strafe(10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_FORWARD) app->m_Cam.walk(10.0f*dt);
+		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_BACKWARD) app->m_Cam.walk(-10.0f*dt);
 	}
 	else {
-		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) cam_follow_walk += 10.0f*dt;
-		if (pad.state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) cam_follow_walk += -10.0f*dt;
+		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FOLLOW_FORWARD) cam_follow_walk += 10.0f*dt;
+		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FOLLOW_BACKWARD) cam_follow_walk += -10.0f*dt;
 		cam_follow_walk = calc_clamp(cam_follow_walk, -50.0f, -10.0f);
 		cam_follow_up = cam_follow_walk * -0.133f;
 	}
@@ -35,17 +35,17 @@ template <typename T_app>
 void control_mov<T_app>::on_pad_camera_follow(const WORD &vkey)
 {
 	if (style_p1 & CONTORL_CAM_FREE) return;
-	if (vkey == VK_PAD_RSHOULDER) is_pad_cam_follow_reset = true;
+	if (vkey == PAD_CAM_FOLLOW_RESET) is_pad_cam_follow_reset = true;
 }
 //
 template <typename T_app>
 void control_mov<T_app>::key_camera_free(const float &dt)
 {
 	if (!(style_p1 & CONTORL_CAM_FREE)) return;
-	if (GetAsyncKeyState('A') & 0x8000) app->m_Cam.strafe(-10.0f*dt);
-	if (GetAsyncKeyState('D') & 0x8000) app->m_Cam.strafe(10.0f*dt);
-	if (GetAsyncKeyState('W') & 0x8000) app->m_Cam.up_down(10.0f*dt);
-	if (GetAsyncKeyState('S') & 0x8000) app->m_Cam.up_down(-10.0f*dt);
+	if (GetKeyState(KEY_CAM_FREE_LEFT) & 0x8000) app->m_Cam.strafe(-10.0f*dt);
+	if (GetKeyState(KEY_CAM_FREE_RIGHT) & 0x8000) app->m_Cam.strafe(10.0f*dt);
+	if (GetKeyState(KEY_CAM_FREE_UP) & 0x8000) app->m_Cam.up_down(10.0f*dt);
+	if (GetKeyState(KEY_CAM_FREE_DOWN) & 0x8000) app->m_Cam.up_down(-10.0f*dt);
 }
 //
 template <typename T_app>
@@ -76,8 +76,8 @@ void control_mov<T_app>::mouse_camera_move(const int &pos_x, const int &pos_y)
 template <typename T_app>
 void control_mov<T_app>::cam_follow_update()
 {
-	if (picked1 < 0 || style_p1 & CONTORL_CAM_FREE) return;
-	XMFLOAT4X4 player_world = *(app->m_Inst.m_Stat[picked1].get_World());
+	if (player1 < 0 || style_p1 & CONTORL_CAM_FREE) return;
+	XMFLOAT4X4 player_world = *(app->m_Inst.m_Stat[player1].get_World());
 	XMMATRIX W = XMLoadFloat4x4(&player_world);
 	XMVECTOR scale, rot_quat, rot_front_conj, pos, L, U, R;
 	XMMatrixDecompose(&scale, &rot_quat, &pos, W);
@@ -89,18 +89,19 @@ void control_mov<T_app>::cam_follow_update()
 	U = XMLoadFloat3(&app->m_Cam.m_Up);
 	pos = XMVectorMultiplyAdd(scale, U, pos);
 	XMStoreFloat3(&app->m_Cam.m_Position, pos);
-	if (GetAsyncKeyState('Z') || is_pad_cam_follow_reset) {
+	if (GetKeyState(KEY_CAM_FOLLOW_RESET) & 0x8000 || is_pad_cam_follow_reset) {
 		is_pad_cam_follow_reset = false;
+		// reset
 		cam_follow_walk = -30.0f;
 		if (!map_rot_front_c.count(picked1)) {
-			XMMATRIX RF = XMLoadFloat4x4(app->m_Inst.m_Stat[picked1].get_RotFront());
+			XMMATRIX RF = XMLoadFloat4x4(app->m_Inst.m_Stat[player1].get_RotFront());
 			// L as dummy
 			XMMatrixDecompose(&scale, &rot_front_conj, &L, RF);
 			rot_front_conj = XMQuaternionConjugate(rot_front_conj);
-			XMStoreFloat4(&map_rot_front_c[picked1], rot_front_conj);
+			XMStoreFloat4(&map_rot_front_c[player1], rot_front_conj);
 		}
 		else {
-			rot_front_conj = XMLoadFloat4(&map_rot_front_c[picked1]);
+			rot_front_conj = XMLoadFloat4(&map_rot_front_c[player1]);
 		}
 		L = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
 		L = XMVector3Rotate(L, rot_front_conj);

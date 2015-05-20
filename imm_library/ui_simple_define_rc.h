@@ -323,12 +323,12 @@ template <typename T_app>
 void ui_simple<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	DUMMY(l_param);
-	if (w_param == VK_ESCAPE) {
+	if (w_param == KEY_UI_ESC) {
 		if (is_ui_appear()) define_deactivate_all_default();
 		else group_active("menu", true);
 		return;
 	}
-	if (w_param == 0x52 && GetKeyState(VK_CONTROL)) {
+	if (w_param == KEY_UI_FPS1 && GetKeyState(KEY_UI_FPS2)) {
 		group_active_switch("fps");
 		return;
 	}
@@ -338,27 +338,27 @@ template <typename T_app>
 void ui_simple<T_app>::define_on_pad_keydown(const WORD &vkey, const float &dt)
 {
 	DUMMY(dt);
-	if (vkey == VK_PAD_START) {
+	if (vkey == PAD_UI_MENU) {
 		group_active_switch("menu");
 		return;
 	}
-	if (vkey == VK_PAD_DPAD_DOWN || vkey == VK_PAD_DPAD_RIGHT) {
+	if (vkey == PAD_UI_DWON1 || vkey == PAD_UI_DWON2) {
 		pad_loop_button(true);
-		if (vkey == VK_PAD_DPAD_DOWN) pad_roll_text_layout(true);
+		if (vkey == PAD_UI_DWON1) pad_roll_text_layout(true);
 		return;
 	}
-	if (vkey == VK_PAD_DPAD_UP || vkey == VK_PAD_DPAD_LEFT) {
+	if (vkey == PAD_UI_UP1 || vkey == PAD_UI_UP2) {
 		pad_loop_button(false);
-		if (vkey == VK_PAD_DPAD_UP) pad_roll_text_layout(false);
+		if (vkey == PAD_UI_UP1) pad_roll_text_layout(false);
 		return;
 	}
-	if (vkey == VK_PAD_B) {
+	if (vkey == PAD_UI_DEACTIVATE) {
 		define_deactivate_all_default();
 		return;
 	}
 	//
 	if (m_Actived != "none") {
-		if (vkey == VK_PAD_A) define_apply_ix(m_ClickIxPad);
+		if (vkey == PAD_UI_APPLY) define_apply_ix(m_ClickIxPad);
 		return;
 	}
 }

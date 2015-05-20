@@ -54,9 +54,8 @@ How to Compile:
 In demo folder, every subfolder inlude a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: Basic windows draw empty.
-* **simple_secene**: The current work (see Released Demo). 
-Assets of this demo are absent in the repository,
-not recommond to compile currently, the hello world script is in development.
+* **simple_secene**: A very simple scene draw 4 basic geometrics. 
+This program is same as the Released Demo, but the Demo assets are absent.
 
 Runtime Folder Tree:
 --------------------
@@ -73,6 +72,7 @@ See minimum_root\, represents following tree.
 	     |--cmd_util
 	     |--library
 	     |--scene00
+	     |--scene01
 
 
 Asset Tools:

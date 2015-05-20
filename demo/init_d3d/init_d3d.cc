@@ -10,9 +10,7 @@
 #pragma comment(lib, "User32")
 #pragma comment(lib, "d3d11")
 #pragma comment(lib, "Effects11")
-#pragma comment(lib, "DirectXTK")
 #pragma comment(lib, "D2d1")
-#pragma comment(lib, "lua")
 using namespace imm;
 class imm_app: public base_win<imm_app>
 {

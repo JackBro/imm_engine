@@ -10,7 +10,7 @@
 #include "stru_instance_mgr.h"
 #include "imm_camera.h"
 #include "phy_prepare.h"
-#include "XInput.h"
+#include "control_key_define.h"
 namespace imm
 {
 ////////////////
@@ -203,7 +203,7 @@ struct control_mov
 {
 	control_mov();
 	void init(T_app *app_in);
-	void remove();
+	void reset();
 	void update_loading_stat();
 	void mouse_instance_move(const int &pos_x, const int &pos_y);
 	void pad_instance_move();
@@ -266,7 +266,7 @@ void control_mov<T_app>::init(T_app *app_in)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::remove()
+void control_mov<T_app>::reset()
 {
 	map_stop.clear();
 	map_rot_front_c.clear();
@@ -277,34 +277,34 @@ void control_mov<T_app>::remove()
 template <typename T_app>
 void control_mov<T_app>::update_loading_stat()
 {
-	if (player1 == -1 && !app->m_Inst.m_IsLoading) {
+	if (player1 < 0 && !app->m_Inst.m_IsLoading) {
 		player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.misc_info["player1"]));
 	}
 	if (app->m_Inst.m_IsLoading && player1 != -1) {
-		remove();
+		reset();
 	}
 }
 //
 template <typename T_app>
 void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 {
-	if (picked1 == -1) return;
-	if (!app->m_Inst.m_Stat[picked1].phy.is_touch_ground) return;
+	if (player1 < 0) return;
+	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
 	XMVECTOR plane_pos;
 	mouse_hit_plane_y0(pos_x, pos_y, plane_pos);
-	mouse_move_toward_hit(plane_pos, picked1);
+	mouse_move_toward_hit(plane_pos, player1);
 	//
-	map_stop[picked1].is_stop = false;
-	map_stop[picked1].speed = motion.speed;
-	map_stop[picked1].set_aabb(plane_pos, app->m_Inst.m_BoundW.half_y(picked1));
-	app->m_Inst.m_Stat[picked1].check_set_ClipName(motion.walk_run);
+	map_stop[player1].is_stop = false;
+	map_stop[player1].speed = motion.speed;
+	map_stop[player1].set_aabb(plane_pos, app->m_Inst.m_BoundW.half_y(player1));
+	app->m_Inst.m_Stat[player1].check_set_ClipName(motion.walk_run);
 }
 //
 template <typename T_app>
 void control_mov<T_app>::pad_instance_move()
 {
-	if (picked1 == -1) return;
-	if (!app->m_Inst.m_Stat[picked1].phy.is_touch_ground) return;
+	if (player1 < 0) return;
+	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
 	// walk or run
 	if (pad.state.Gamepad.bRightTrigger > 50) motion.make_walk();
 	else motion.make_run();
@@ -312,8 +312,8 @@ void control_mov<T_app>::pad_instance_move()
 		pad_move_toward();
 	}
 	else {
-		app->m_Inst.m_Stat[picked1].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		app->m_Inst.m_Stat[picked1].check_set_ClipName(motion.idle);
+		app->m_Inst.m_Stat[player1].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		app->m_Inst.m_Stat[player1].check_set_ClipName(motion.idle);
 	}
 }
 //
@@ -407,8 +407,8 @@ void control_mov<T_app>::pad_move_toward()
 {
 	XMVECTOR velocity_nm = app->m_Cam.get_LookXM();
 	float cam_radians = atan2(-XMVectorGetX(velocity_nm), -XMVectorGetZ(velocity_nm));
-	XMFLOAT4X4 &world = *(app->m_Inst.m_Stat[picked1].get_World());
-	XMFLOAT4X4 &rot_front = *(app->m_Inst.m_Stat[picked1].get_RotFront());
+	XMFLOAT4X4 &world = *(app->m_Inst.m_Stat[player1].get_World());
+	XMFLOAT4X4 &rot_front = *(app->m_Inst.m_Stat[player1].get_RotFront());
 	XMMATRIX W = XMLoadFloat4x4(&world);
 	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
 	pad_face_rot_y(W, RF, velocity_nm, cam_radians);
@@ -416,16 +416,16 @@ void control_mov<T_app>::pad_move_toward()
 	velocity_nm = XMVector3Normalize(velocity_nm);
 	velocity_nm = XMVectorScale(velocity_nm, motion.speed);
 	XMStoreFloat4x4(&world, W);
-	XMStoreFloat3(&app->m_Inst.m_Stat[picked1].phy.velocity_nm, velocity_nm);
-	app->m_Inst.m_Stat[picked1].check_set_ClipName(motion.walk_run);
+	XMStoreFloat3(&app->m_Inst.m_Stat[player1].phy.velocity_nm, velocity_nm);
+	app->m_Inst.m_Stat[player1].check_set_ClipName(motion.walk_run);
 }
 //
 template <typename T_app>
 void control_mov<T_app>::common_jump()
 {
-	if (picked1 == -1) return;
-	if (app->m_Inst.m_Stat[picked1].phy.is_touch_ground)
-		app->m_Inst.m_Stat[picked1].phy.velocity.y = motion.jump_velocity;
+	if (player1 < 0) return;
+	if (app->m_Inst.m_Stat[player1].phy.is_touch_ground)
+		app->m_Inst.m_Stat[player1].phy.velocity.y = motion.jump_velocity;
 }
 //
 template <typename T_app>
@@ -439,6 +439,8 @@ void control_mov<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 		app->m_Cam.get_Proj(),
 		app->m_Cam.get_View(),
 		picked1);
+	//	
+	player1 = picked1;
 }
 //
 template <typename T_app>
@@ -481,14 +483,7 @@ void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 {
 	DUMMY(dt);
 	if (pad.is_enable()) {
-		picked1 = player1;
 		on_pad_down(dt);
-	}
-	// keyborad
-	else {
-		if (picked1 < 0) picked1 = player1;
-		if (picked1 == app->m_Inst.m_SceneGroundIx) picked1 = player1;
-		if (GetKeyState(VK_SPACE) & 0x8000) common_jump();
 	}
 	// camera
 	key_camera_free(dt);
@@ -497,12 +492,13 @@ void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if (btn_state & MK_RBUTTON) {
+	if (app->m_UI.on_mouse_down(btn_state, pos_x, pos_y)) return;
+	if (btn_state & MOUSE_P1_PICK) {
 		mouse_pick(pos_x, pos_y);
 	}
 	if (pad.is_enable()) return;
 	// player
-	if (btn_state & MK_LBUTTON) {
+	if (btn_state & MOUSE_P1_MOVE) {
 		mouse_instance_move(pos_x, pos_y);
 	}
 }
@@ -521,28 +517,31 @@ void control_mov<T_app>::on_pad_down(const float &dt)
 	if (wait_ui_disappear > 0.0f) return;
 	wait_ui_disappear = -1.0f;
 	on_pad_camera_follow(get_vkey);
-	if (get_vkey == VK_PAD_A) common_jump();
+	if (get_vkey == PAD_P1_JUMP) common_jump();
 }
 //
 template <typename T_app>
 void control_mov<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
-	DUMMY(l_param);
+	app->m_UI.define_on_input_keydown(w_param, l_param);
 	if (pad.is_enable()) return;
-	if (w_param == VK_SHIFT) motion.switch_walk_run();
+	if (w_param == KEY_P1_WALK_RUN) motion.switch_walk_run();
+	if (w_param == KEY_P1_JUMP) common_jump();
 }
 //
 template <typename T_app>
 void control_mov<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if ((btn_state & MK_MBUTTON)) {
+	if ((btn_state & MOUSE_CAM_MOVE)) {
 		mouse_camera_move(pos_x, pos_y);
 	}
+	app->m_UI.on_mouse_over(pos_x, pos_y);
 }
 //
 template <typename T_app>
 void control_mov<T_app>::on_mouse_wheel(const short &z_delta)
 {
+	if (app->m_UI.on_mouse_wheel(z_delta)) return;
 	mouse_camera_wheel(z_delta);
 }
 ////////////////

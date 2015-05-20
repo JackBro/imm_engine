@@ -133,6 +133,7 @@ void imm_app::on_resize()
 //
 void imm_app::update_scene(float dt)
 {
+	// m_UI before m_Cmd, always update, m_Cmd will close m_UI
 	m_UI.define_update();
 	if (m_Cmd.is_slient) return;
 	if (!m_Cmd.is_active) update_scene_keydown(dt);
@@ -150,12 +151,11 @@ void imm_app::update_scene_keydown(float dt)
 void imm_app::on_mouse_down(WPARAM btn_state, int x, int y)
 {
 	if (m_Cmd.is_slient) return;
-	if (btn_state & MK_MBUTTON) {
+	if (btn_state & MOUSE_CAM_MOVE) {
 		m_LastMousePos.x = x;
 		m_LastMousePos.y = y;
 		SetCapture(this->get_hwnd());
 	}
-	if (m_UI.on_mouse_down(btn_state, x, y)) return;
 	m_Control.on_mouse_down(btn_state, x, y);
 }
 //
@@ -172,8 +172,7 @@ void imm_app::on_mouse_move(WPARAM btn_state, int x, int y)
 {
 	if (m_Cmd.is_slient) return;
 	m_Control.on_mouse_move(btn_state, x, y);
-	m_UI.on_mouse_over(x, y);
-	if (btn_state & MK_MBUTTON) {
+	if (btn_state & MOUSE_CAM_MOVE) {
 		m_LastMousePos.x = x;
 		m_LastMousePos.y = y;
 	}
@@ -185,7 +184,6 @@ void imm_app::on_mouse_wheel(WPARAM btn_state, int x, int y)
 	DUMMY(x);
 	DUMMY(y);
 	short z_delta = GET_WHEEL_DELTA_WPARAM(btn_state);
-	if (m_UI.on_mouse_wheel(z_delta)) return;
 	m_Control.on_mouse_wheel(z_delta);
 }
 //
@@ -198,7 +196,6 @@ void imm_app::on_input_keydown(WPARAM w_param, LPARAM l_param)
 {
 	m_Cmd.on_input_keydown(w_param, l_param);
 	if (m_Cmd.is_slient) return;
-	m_UI.define_on_input_keydown(w_param, l_param);
 	m_Control.on_input_keydown(w_param, l_param);
 }
 ////////////////

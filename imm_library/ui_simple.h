@@ -8,7 +8,7 @@
 #ifndef UI_SIMPLE_H
 #define UI_SIMPLE_H
 #include "ui_dwrite.h"
-#include "XInput.h"
+#include "control_key_define.h"
 #include <algorithm>
 namespace imm
 {
@@ -240,7 +240,7 @@ void ui_simple<T_app>::draw()
 template <typename T_app>
 bool ui_simple<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if (btn_state & MK_LBUTTON) return (define_pick_lb(pos_x, pos_y));
+	if (btn_state & MOUSE_UI_PICK) return (define_pick_lb(pos_x, pos_y));
 	return false;
 }
 //

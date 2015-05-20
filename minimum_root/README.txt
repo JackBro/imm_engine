@@ -1,2 +1,2 @@
-put compiled exe file in root
-put compiled fxo file in ass_shader
+put compiled .exe file into root
+put compiled .fxo files into ass_shader

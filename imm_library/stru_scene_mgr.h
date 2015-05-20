@@ -54,7 +54,7 @@ template <typename T_app>
 void scene_mgr<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
-	aura.init_load(app->m_D3DDevice, app->m_D3DDC);
+	//aura.init_load(app->m_D3DDevice, app->m_D3DDC);
 	aura.is_active = false;
 	audio.init_load();
 	reload(L"01");
