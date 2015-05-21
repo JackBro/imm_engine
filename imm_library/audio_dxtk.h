@@ -59,7 +59,7 @@ void audio_dxtk::init_load()
 	l_reader.vec2d_str_from_global("csv_audio_bgm", vec2d_audio_bgm);
 	std::wstring path_med(GLOBAL["path_med"].begin(), GLOBAL["path_med"].end());
 	for (size_t ix = 1; ix < vec2d_audio_bgm.size(); ++ix) {
-		map_bgm[vec2d_audio_bgm[ix][0]] = path_med+convert_string_to_wstring(vec2d_audio_bgm[ix][1]);
+		map_bgm[vec2d_audio_bgm[ix][0]] = path_med+str_to_wstr(vec2d_audio_bgm[ix][1]);
 	}
 	std::vector<std::vector<std::string>> vec2d_audio_effect;
 	l_reader.vec2d_str_from_global("csv_audio_effect", vec2d_audio_effect);
@@ -67,7 +67,7 @@ void audio_dxtk::init_load()
 		map_effect_bank[vec2d_audio_effect[ix][0]] = vec2d_audio_effect[ix][1];
 		map_effect_ix[vec2d_audio_effect[ix][0]] = std::stoi(vec2d_audio_effect[ix][2]);
 		if (!map_wave_bank.count(vec2d_audio_effect[ix][1])) {
-			std::wstring path_wave_bank = path_med+convert_string_to_wstring(vec2d_audio_effect[ix][1]);
+			std::wstring path_wave_bank = path_med+str_to_wstr(vec2d_audio_effect[ix][1]);
 			data_check_file_exist(path_wave_bank);
 			map_wave_bank[vec2d_audio_effect[ix][1]] =
 				 std::unique_ptr<WaveBank>(new WaveBank(aud_engine.get(), path_wave_bank.c_str()));

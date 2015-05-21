@@ -5,6 +5,7 @@
 template <typename T_app>
 void ui_simple<T_app>::define_style()
 {
+	m_TitleFontFactor = 32.0f;
 	m_Dwrite["32"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, 32.0f, 2);
 	m_Dwrite["24"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, 24.0f, 2);
 	m_Dwrite["20_alig"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, 20.0f, 3);
@@ -302,7 +303,7 @@ template <typename T_app>
 void ui_simple<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	DUMMY(l_param);
-	is_pad_using = false;
+	m_IsPadUsing = false;
 	if (w_param == KEY_UI_ESC) {
 		if (is_ui_appear()) define_deactivate_all_default();
 		else group_active("menu", true);
@@ -318,7 +319,7 @@ template <typename T_app>
 void ui_simple<T_app>::define_on_pad_keydown(const WORD &vkey, const float &dt)
 {
 	DUMMY(dt);
-	is_pad_using = true;
+	m_IsPadUsing = true;
 	if (vkey == PAD_UI_MENU) {
 		group_active_switch("menu");
 		return;

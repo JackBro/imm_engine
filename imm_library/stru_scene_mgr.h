@@ -94,7 +94,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	}
 	else {	
 		std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
-		path_tex += convert_string_to_wstring(misc_info["skybox_file"]);
+		path_tex += str_to_wstr(misc_info["skybox_file"]);
 		skybox = new sky(app->m_D3DDevice, path_tex, 5000.0f);
 	}
 	audio.stop_bgm();

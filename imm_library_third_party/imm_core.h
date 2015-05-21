@@ -25,6 +25,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <codecvt>
 #include <d3d11.h>
 #include "d3dx11effect.h"
 #include <DirectXMath.h>
@@ -329,5 +330,15 @@ static std::map<std::string, std::string> GLOBAL {
 	{"path_out", "misc\\output\\"},
 	{"path_inp", "misc\\input\\"},
 };
+////////////////
+// convert_string_to_wstring
+////////////////
+////////////////
+std::wstring str_to_wstr(const std::string &str)
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+	return convert.from_bytes(str);
+}
+//
 }
 #endif

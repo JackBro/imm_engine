@@ -23,6 +23,8 @@ public:
 		const std::wstring &texture_path);
 	void set(
 		ID3D11Device *device, texture_mgr &tex_mgr, const std::wstring &texture_path);
+	// base class must have virtual destructor
+	// tex_mgr will kill ID3D11ShaderResourceView*
 	virtual ~basic_model() {;}
 	std::pair<size_t, size_t> get_VertexRange(UINT sub_id);
 	size_t m_SubsetCount;

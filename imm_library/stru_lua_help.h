@@ -11,7 +11,6 @@
 #include "imm_core.h"
 #include "lua.hpp"
 #include <mutex>
-#include <codecvt>
 namespace imm
 {
 ////////////////
@@ -223,15 +222,6 @@ bool csv_value_is_empty(const std::string &str)
 	if (str == "empty") return true;
 	if (str == "") return true;
 	return false;
-}
-////////////////
-// convert_string_to_wstring
-////////////////
-////////////////
-std::wstring convert_string_to_wstring(const std::string &str)
-{
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
-	return convert.from_bytes(str);
 }
 ////////////////
 // lua_config

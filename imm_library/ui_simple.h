@@ -7,6 +7,7 @@
 ////////////////
 #ifndef UI_SIMPLE_H
 #define UI_SIMPLE_H
+#include "ui_sprite.h"
 #include "ui_dwrite.h"
 #include "control_key_define.h"
 #include <algorithm>
@@ -65,7 +66,7 @@ struct ui_simple
 	void pad_roll_text_layout(const bool &is_down);
 	bool is_ui_appear();
 	void deactivate_all();
-	bool apply_ix(int &index, const bool &is_mouse = false);
+	bool apply_ix(int &index);
 	//
 	void define_style();
 	bool define_apply_ix_if(int &index);
@@ -81,10 +82,13 @@ struct ui_simple
 	std::map<std::string, std::vector<size_t>> m_MapTextLayout;
 	std::map<std::string, int> m_MapID;
 	std::map<std::string, dwrite_simple> m_Dwrite;
+	sprite_simple m_Sprite;
 	int m_ClickIxMouse;
 	int m_ClickIxPad;
-	bool is_pad_using;
-	D2D1_POINT_2F M_TextLayoutOrigin;
+	bool m_IsPadUsing;
+	FLOAT m_TitleFontFactor;
+	D2D1_POINT_2F m_TextLayoutOrigin;
+	RECT m_RcHWND;
 	// if a group has no button, it is no-clickable, otherwise it is clickable
 	std::string m_ClickableActived;
 	std::map<std::string, std::wstring> m_DefineTxt;
@@ -98,12 +102,14 @@ template <typename T_app>
 ui_simple<T_app>::ui_simple():
 	m_ClickIxMouse(-1),
 	m_ClickIxPad(-1),
-	is_pad_using(false),
-	m_App(0),
-	m_ClickableActived("none")
+	m_IsPadUsing(false),
+	m_TitleFontFactor(32.0f),
+	m_RcHWND(),
+	m_ClickableActived("none"),
+	m_App(0)
 {
-	M_TextLayoutOrigin.x = 0.0f;
-	M_TextLayoutOrigin.y = 0.0f;
+	m_TextLayoutOrigin.x = 0.0f;
+	m_TextLayoutOrigin.y = 0.0f;
 }
 //
 template <typename T_app>
@@ -116,6 +122,7 @@ template <typename T_app>
 void ui_simple<T_app>::init(T_app *app_in)
 {
 	m_App = app_in;
+	m_Sprite.init(m_App->m_D3DDevice, m_App->m_D3DDC);
 	//
 	define_txt_str();
 	define_style();
@@ -146,15 +153,13 @@ void ui_simple<T_app>::build_rect_map()
 template <typename T_app>
 void ui_simple<T_app>::on_resize_RectFromHWND(const size_t &ix)
 {
-	RECT rc_hwnd;
-	GetClientRect(m_App->m_hwnd, &rc_hwnd);
-	LONG height = rc_hwnd.bottom - rc_hwnd.top;
-	LONG width = rc_hwnd.right - rc_hwnd.left;
+	LONG height = m_RcHWND.bottom - m_RcHWND.top;
+	LONG width = m_RcHWND.right - m_RcHWND.left;
 	m_Rect[ix].rc = D2D1::RectF(
-		rc_hwnd.left + m_Rect[ix].margin.x*width,
-		rc_hwnd.top + m_Rect[ix].margin.y*height,
-		rc_hwnd.right - m_Rect[ix].margin.z*width,
-		rc_hwnd.bottom - m_Rect[ix].margin.w*height);
+		m_RcHWND.left + m_Rect[ix].margin.x*width,
+		m_RcHWND.top + m_Rect[ix].margin.y*height,
+		m_RcHWND.right - m_Rect[ix].margin.z*width,
+		m_RcHWND.bottom - m_Rect[ix].margin.w*height);
 }
 //
 template <typename T_app>
@@ -173,12 +178,8 @@ void ui_simple<T_app>::on_resize_RectFromRect(const size_t &ix, const int &paren
 template <typename T_app>
 void ui_simple<T_app>::on_resize_TextLayout(const size_t &ix, const bool &is_resize = false)
 {
-	// title font size
-	FLOAT title_font = 32.0f;
-	RECT rc_hwnd;
-	GetClientRect(m_App->m_hwnd, &rc_hwnd);
-	float height = static_cast<float>(rc_hwnd.bottom - rc_hwnd.top);
-	float width = static_cast<float>(rc_hwnd.right - rc_hwnd.left);
+	float height = static_cast<float>(m_RcHWND.bottom - m_RcHWND.top);
+	float width = static_cast<float>(m_RcHWND.right - m_RcHWND.left);
 	float txt_width = (1-m_Rect[ix].margin.x-m_Rect[ix].margin.z)*width;
 	// uses margin.y as origin.x
 	m_Rect[ix].margin.y = (width-txt_width)/2.0f;
@@ -186,10 +187,10 @@ void ui_simple<T_app>::on_resize_TextLayout(const size_t &ix, const bool &is_res
 	if (!is_resize) {
 		// init, title len = group size + 1
 		m_Dwrite[rect->dwrite_ix].on_resize_TextLayout(
-			rect->text, txt_width, height, ix, title_font, rect->group.size()+1);
+			rect->text, txt_width, height, ix, m_TitleFontFactor, rect->group.size()+1);
 	}	
 	else {
-		m_Dwrite[rect->dwrite_ix].resize_TextLayout(ix, txt_width, height);
+		m_Dwrite[rect->dwrite_ix].build_resize_TextLayout(ix, txt_width, height);
 	}
 	// uses margin.w as text layout's height
 	m_Dwrite[m_Rect[ix].dwrite_ix].get_TextLayout_height(ix, m_Rect[ix].margin.w);
@@ -204,7 +205,10 @@ PCWSTR ui_simple<T_app>::get_DefineTxt(const std::string &name)
 template <typename T_app>
 void ui_simple<T_app>::on_resize()
 {
-	for (auto &dwrite: m_Dwrite)  dwrite.second.on_resize_CreateTextFormat(m_App->m_hwnd);
+	// if not init, no resize
+	if (m_MapGroup.size() == 0) return;
+	GetClientRect(m_App->m_hwnd, &m_RcHWND);
+	for (auto &dwrite: m_Dwrite) dwrite.second.on_resize_CreateTextFormat(m_App->m_hwnd);
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		if (m_Rect[ix].tp < 3) {
 			if (m_Rect[ix].parent < 0) on_resize_RectFromHWND(ix);
@@ -233,8 +237,8 @@ void ui_simple<T_app>::draw()
 		if (it->tp < 2) m_App->m_D2DDC->FillRectangle(&it->rc, m_Brush[it->brush_ix]);
 		if (it->tp < 3) m_Dwrite[it->dwrite_ix].draw_Rect(m_App->m_D2DDC, it->text, it->rc);
 		if (it->tp == 3) {
-			M_TextLayoutOrigin.x = it->margin.y;
-			m_Dwrite[it->dwrite_ix].draw_TextLayout(m_App->m_D2DDC, M_TextLayoutOrigin, it-m_Rect.begin());
+			m_TextLayoutOrigin.x = it->margin.y;
+			m_Dwrite[it->dwrite_ix].draw_TextLayout(m_App->m_D2DDC, m_TextLayoutOrigin, it-m_Rect.begin());
 		}
 	}
 }
@@ -243,9 +247,9 @@ template <typename T_app>
 bool ui_simple<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
 	if (btn_state & MOUSE_UI_PICK) {
-		is_pad_using = false;
+		m_IsPadUsing = false;
 		mouse_pick(pos_x, pos_y);
-		return apply_ix(m_ClickIxMouse, true);
+		return apply_ix(m_ClickIxMouse);
 	}
 	return false;
 }
@@ -256,9 +260,9 @@ bool ui_simple<T_app>::on_mouse_wheel(const short &z_delta)
 	for (auto &map: m_MapTextLayout) {
 		if (m_Rect[map.second[0]].active) {
 			float restrict_y = -m_Rect[map.second[0]].margin.w+100.0f;
-			M_TextLayoutOrigin.y += z_delta/120*30;
-			if (M_TextLayoutOrigin.y < restrict_y) M_TextLayoutOrigin.y = restrict_y;
-			if (M_TextLayoutOrigin.y > 0.0f) M_TextLayoutOrigin.y = 0.0f;
+			m_TextLayoutOrigin.y += z_delta/120*30;
+			if (m_TextLayoutOrigin.y < restrict_y) m_TextLayoutOrigin.y = restrict_y;
+			if (m_TextLayoutOrigin.y > 0.0f) m_TextLayoutOrigin.y = 0.0f;
 			return true;
 		}
 	}
@@ -321,7 +325,7 @@ void ui_simple<T_app>::group_active(const std::string &name, const bool &is_act,
 	else {
 		m_ClickableActived = "none";
 		// reset text_layout position
-		M_TextLayoutOrigin.y = 0.0f;
+		m_TextLayoutOrigin.y = 0.0f;
 	}
 }
 //
@@ -332,7 +336,7 @@ void ui_simple<T_app>::pad_loop_button(const bool &is_down, const std::string &s
 	if (select_none != "") {
 		assert(m_MapButton[select_none].size() > 0);
 		for (auto &ix: m_MapButton[select_none]) m_Rect[ix].brush_ix = m_Rect[ix].brush_sel[0];
-		if (is_pad_using) pad_loop_button(true);
+		if (m_IsPadUsing) pad_loop_button(true);
 		return;
 	}
 	// select first
@@ -369,9 +373,9 @@ void ui_simple<T_app>::pad_roll_text_layout(const bool &is_down)
 			float restrict_y = -m_Rect[map.second[0]].margin.w+100.0f;
 			float delta = 100.0f;
 			if (is_down) delta = -delta;
-			M_TextLayoutOrigin.y += delta;
-			if (M_TextLayoutOrigin.y < restrict_y) M_TextLayoutOrigin.y = restrict_y;
-			if (M_TextLayoutOrigin.y > 0.0f) M_TextLayoutOrigin.y = 0.0f;
+			m_TextLayoutOrigin.y += delta;
+			if (m_TextLayoutOrigin.y < restrict_y) m_TextLayoutOrigin.y = restrict_y;
+			if (m_TextLayoutOrigin.y > 0.0f) m_TextLayoutOrigin.y = 0.0f;
 			return;
 		}
 	}
@@ -395,14 +399,14 @@ void ui_simple<T_app>::deactivate_all()
 }
 //
 template <typename T_app>
-bool ui_simple<T_app>::apply_ix(int &index, const bool &is_mouse = false)
+bool ui_simple<T_app>::apply_ix(int &index)
 {
 	if (index != -1) {
 		if (define_apply_ix_if(index)) {
 			// no change m_ClickIxPad and m_ClickIxMouse value in define_ functions
 			// let pad select first button immediately from another group apply, keep m_ClickIxPad
 			// otherwise m_ClickIxPad will be clean by apply, the first selected buttom will be invalid
-			if (is_mouse) {
+			if (!m_IsPadUsing) {
 				index = -1;
 			}
 			return true;

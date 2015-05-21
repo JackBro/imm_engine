@@ -525,6 +525,7 @@ void control_mov<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	app->m_UI.define_on_input_keydown(w_param, l_param);
 	if (pad.is_enable()) return;
+	if (app->m_Cmd.is_active) return;
 	if (w_param == KEY_P1_WALK_RUN) motion.switch_walk_run();
 	if (w_param == KEY_P1_JUMP) common_jump();
 }

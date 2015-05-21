@@ -55,7 +55,7 @@ void imm_app::draw_scene_d3d_shadow()
 	ID3DX11EffectTechnique *tech_shadow_skinned = fx_shadow->m_BuildShadowMapSkinnedTech;
 	D3DX11_TECHNIQUE_DESC tech_desc;
 	m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	// draw simple b32
+	// Draw simple b32
 	m_D3DDC->IASetInputLayout(input_layouts::m_Basic32);
 	draw_inst_simple_pntt_shadow(
 		m_D3DDC,
@@ -65,7 +65,7 @@ void imm_app::draw_scene_d3d_shadow()
 		m_Inst.m_Model.m_InstB32,
 		view_proj
 	);
-	// draw simple pntt
+	// Draw simple pntt
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan);
 	draw_inst_simple_pntt_shadow(
 		m_D3DDC,
@@ -75,7 +75,7 @@ void imm_app::draw_scene_d3d_shadow()
 		m_Inst.m_Model.m_InstPNTT,
 		view_proj
 	);
-	// draw basic 
+	// Draw basic 
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan2);
 	draw_inst_basic_shadow(
 		m_D3DDC,
@@ -86,7 +86,7 @@ void imm_app::draw_scene_d3d_shadow()
 		false,
 		view_proj
 	);
-	// draw basic alpha
+	// Draw basic alpha
 	draw_inst_basic_shadow(
 		m_D3DDC,
 		tech_shadow_alpha,
@@ -96,7 +96,7 @@ void imm_app::draw_scene_d3d_shadow()
 		true,
 		view_proj
 	);
-	// draw skinned
+	// Draw skinned
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTanSkinned);
 	draw_inst_skinned_shadow(
 		m_D3DDC,
@@ -147,7 +147,7 @@ void imm_app::draw_scene_d3d()
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 	XMMATRIX shadow_transform = XMLoadFloat4x4(&m_ShadowTransform);
-	// draw simple b32
+	// Draw simple b32
 	m_D3DDC->IASetInputLayout(input_layouts::m_Basic32);
 	draw_inst_simple_b32(
 		m_D3DDC,
@@ -158,7 +158,7 @@ void imm_app::draw_scene_d3d()
 		view_proj,
 		shadow_transform
 	);
-	// draw simple pntt
+	// Draw simple pntt
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan);
 	draw_inst_simple_pntt(
 		m_D3DDC,
@@ -172,7 +172,7 @@ void imm_app::draw_scene_d3d()
 		shadow_transform,
 		to_tex_space
 	);
-	// draw basic
+	// Draw basic
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan2);
 	draw_inst_basic(
 		m_D3DDC,
@@ -184,7 +184,7 @@ void imm_app::draw_scene_d3d()
 		shadow_transform,
 		to_tex_space
 	);
-	// draw basic alpha
+	// Draw basic alpha
 	m_D3DDC->RSSetState(render::m_NoCullRS);
 	draw_inst_basic(
 		m_D3DDC,
@@ -197,7 +197,7 @@ void imm_app::draw_scene_d3d()
 		to_tex_space
 	);
 	m_D3DDC->RSSetState(0);
-	// draw skkined
+	// Draw skinned
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTanSkinned);
 	draw_inst_skinned(
 		m_D3DDC,
@@ -209,19 +209,22 @@ void imm_app::draw_scene_d3d()
 		shadow_transform,
 		to_tex_space
 	);
-	// sky
+	// Draw sky
 	m_Scene.skybox->draw(m_D3DDC, m_Cam);
-	// restore default states, as the SkyFX changes them in the effect file.
-	m_Scene.aura.draw(m_D3DDC, m_Cam);
+	// Restore default states, as the SkyFX changes them in the effect file.
 	m_D3DDC->RSSetState(0);
 	m_D3DDC->OMSetDepthStencilState(0, 0);
-	// restore default states.
+	// Draw UI sprite
+	m_UI.m_Sprite.draw_d3d();
+	// Draw particle systems last so it is blended with scene.
+	m_Scene.aura.draw(m_D3DDC, m_Cam);
+	// Restore default states.
 	float blend_factor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	m_D3DDC->RSSetState(0);
 	m_D3DDC->OMSetDepthStencilState(0, 0);
 	m_D3DDC->OMSetBlendState(0, blend_factor, 0xffffffff);
 	// Unbind shadow map and AmbientMap as a shader input because we are going to render
-	// to it next frame.  These textures can be at any slot, so clear all slots.
+	// To it next frame.  These textures can be at any slot, so clear all slots.
 	ID3D11ShaderResourceView *null_srv[16] = {0};
 	m_D3DDC->PSSetShaderResources(0, 16, null_srv);
 }

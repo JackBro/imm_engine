@@ -41,9 +41,8 @@ Dependent .Lib Files:
 Those files should be in include_third_party\, 
 notice corresponding x64/x86, Debug/Release version.
 * **DirectXTK.lib**: DirectX Tool Kit
-* **Effects11.lib**: Effects for Direct3D 11 (FX11)
+* **Effects11.lib**: Effects for Direct3D 11
 * **lua.lib**: Lua 5.3.0
-* **lua_static.lib**: Lua 5.3.0
 * **XInput1_3.lib**: Its orgin name is XInput.lib, from DirectX SDK (June 2010)
 * **X3DAudio.lib**: DirectX SDK (June 2010)
 * **XAPOFX.lib**: DirectX SDK (June 2010)

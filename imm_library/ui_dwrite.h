@@ -31,7 +31,7 @@ struct dwrite_simple
 	void on_resize_TextLayout(
 		T_wstring &wst_text, const FLOAT &width, const FLOAT &height, const size_t &index,
 		const FLOAT &title_font, const size_t &title_len);
-	void resize_TextLayout(const size_t &index, const FLOAT &width, const FLOAT &height);
+	void build_resize_TextLayout(const size_t &index, const FLOAT &width, const FLOAT &height);
 	void get_TextLayout_height(const size_t &index, float &height);
 	template <typename T_wstring>
 	void draw(ID2D1DeviceContext *d2d_dc, T_wstring &wst_text);
@@ -170,7 +170,7 @@ void dwrite_simple::on_resize_TextLayout(
 	m_TextLayout[index]->SetFontWeight (DWRITE_FONT_WEIGHT_BOLD , range);
 }
 //
-void dwrite_simple::resize_TextLayout(const size_t &index, const FLOAT &width, const FLOAT &height)
+void dwrite_simple::build_resize_TextLayout(const size_t &index, const FLOAT &width, const FLOAT &height)
 {
 	HR(m_TextLayout[index]->SetMaxHeight(height));
 	HR(m_TextLayout[index]->SetMaxWidth(width));
