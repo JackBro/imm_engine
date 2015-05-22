@@ -57,7 +57,7 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 	//aura.init_load(app->m_D3DDevice, app->m_D3DDC);
 	aura.is_active = false;
 	audio.init_load();
-	reload(L"01");
+	reload(L"00");
 }
 //
 template <typename T_app>
@@ -75,11 +75,13 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	misc_info["player1"] = "";
 	misc_info["skybox_file"] = "";
 	misc_info["play_bgm"] = "";
+	misc_info["ui_class"] = "";
+	misc_info["ui_name"] = "";
 	lua_reader l_reader;
 	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix_str+"\\describe_instance.lua";
 	l_reader.loadfile(describe);
 	l_reader.map_from_global(misc_info);
-	//
+	// instance
 	std::thread(
 		&instance_mgr::load, std::ref(app->m_Inst),
 		app->m_D3DDevice,
@@ -87,20 +89,24 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 		misc_info["ground"],
 		std::ref(app->m_Cmd.is_loading),
 		std::ref(app->m_Cmd.input)).detach();
+	// skybox
 	if (skybox != nullptr) delete skybox;
 	if (csv_value_is_empty(misc_info["skybox_file"])) {
 		// empty sky no draw
 		skybox = new sky();
 	}
-	else {	
+	else {
 		std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
 		path_tex += str_to_wstr(misc_info["skybox_file"]);
 		skybox = new sky(app->m_D3DDevice, path_tex, 5000.0f);
 	}
+	// audio
 	audio.stop_bgm();
 	if (!csv_value_is_empty(misc_info["play_bgm"])) {
 		audio.play_bgm(misc_info["play_bgm"]);
 	}
+	// ui
+	app->m_UiMgr.reload_active(misc_info["ui_class"], misc_info["ui_name"]);
 }
 //
 }

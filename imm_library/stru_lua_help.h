@@ -15,6 +15,7 @@ namespace imm
 {
 ////////////////
 // lua_reader
+// can not use ERROR_MES()
 ////////////////
 ////////////////	
 class lua_reader
@@ -53,9 +54,8 @@ void lua_reader::loadfile(const std::string &fname)
 	L = luaL_newstate();
 	luaL_openlibs(L);
 	if (luaL_loadfile(L, file_name.c_str()) || lua_pcall(L, 0, 0, 0)) {
-		std::wostringstream os;
-		os << "Lua error: " << lua_tostring(L, -1);
-		ERROR_MES(os.str().c_str());
+		assert(false);
+		abort();
 		return;
 	}
 }
@@ -70,15 +70,13 @@ void lua_reader::clear_stack()
 void lua_reader::map_from_global(std::map<std::string, std::string> &map_str)
 {
 	std::lock_guard<std::recursive_mutex> lock(mutex1);
-	if (!L) {assert(false); return;}
+	if (!L) {assert(false); abort(); return;}
 	for (auto map_it = map_str.begin(); map_it != map_str.end(); ++map_it) {
 		lua_getglobal(L, map_it->first.c_str());
-		if (lua_isnil(L,-1)) {assert(false); return;}
 		if (lua_isstring(L, -1)) map_it->second = (lua_tostring(L, -1));
 		else {
-			std::wostringstream os;
-			os << "Load " << file_name.c_str() << " error: " << map_it->first.c_str();
-			ERROR_MES(os.str().c_str());
+			assert(false);
+			abort();
 			return;
 		}
 	}
@@ -89,14 +87,13 @@ void lua_reader::vec2d_str_from_global(
 	std::vector<std::vector<std::string>> &vec2d_str)
 {
 	std::lock_guard<std::recursive_mutex> lock(mutex1);
-	if (!L) {assert(false); return;}
+	if (!L) {assert(false); abort(); return;}
 	vec2d_str = std::vector<std::vector<std::string>>();
 	int ix_1 = 1;
 	lua_getglobal(L, table_name.c_str());
-	if (lua_isnil(L,-1)) {
-		std::wostringstream os;
-		os << "Lua table name error: " << table_name.c_str();
-		ERROR_MES(os.str().c_str());
+	if (lua_isnil(L, -1)) {
+		assert(false);
+		abort();
 	}
 	lua_pushstring(L, "dummy");
 	while (!lua_isnil(L, -1)) {

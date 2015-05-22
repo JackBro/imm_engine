@@ -8,7 +8,7 @@
 #ifndef UI_MGR_H
 #define UI_MGR_H
 #include "ui_main_menu_rect.h"
-#include "ui_start_rect.h"
+#include "ui_welcome_rect.h"
 namespace imm
 {
 ////////////////
@@ -32,16 +32,18 @@ struct ui_mgr
 	void define_on_pad_keydown(const WORD &vkey);
 	void define_deactivate_all_default();
 	void define_deactivate_all_cmd_slient();
+	// reload
+	void reload_active(const std::string &ui_class, const std::string &ui_name);
 	T_app *app;
 	ui_main_menu<T_app> main_menu;
-	ui_start<T_app> start;
+	ui_welcome<T_app> welcome;
 };
 //
 template <typename T_app>
 void ui_mgr<T_app>::init(T_app *app_in)
 {
 	main_menu.init(app_in);
-	start.init(app_in);
+	welcome.init(app_in);
 }
 //
 template <typename T_app>
@@ -114,6 +116,12 @@ template <typename T_app>
 void ui_mgr<T_app>::define_deactivate_all_cmd_slient()
 {
 	main_menu.define_deactivate_all_cmd_slient();
+}
+template <typename T_app>
+void ui_mgr<T_app>::reload_active(const std::string &ui_class, const std::string &ui_name)
+{
+	ui_class;
+	ui_name;
 }
 //
 }

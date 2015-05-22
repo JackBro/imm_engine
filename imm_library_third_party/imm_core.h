@@ -133,7 +133,7 @@ void timer::tick()
 #if defined(DEBUG) | defined(_DEBUG)
 	#ifndef HR 
 	#define HR(x) {HRESULT hr = (x); if (FAILED(hr))\
-		{std::wostringstream os; os << hr; MessageBox(0, os.str().c_str(), L"HRESULT", 0); assert(false); abort();}}
+		{std::wostringstream os; os << hr; MessageBox(0, os.str().c_str(), L"HRESULT", MB_OK); assert(false); abort();}}
 	#endif
 #else
 	#ifndef HR
@@ -145,9 +145,7 @@ void timer::tick()
 // do nothing
 #define DUMMY(x) (x)
 // error messagebox
-#define ERROR_MES(x) \
-	{std::wstring w = (x); \
-	std::wostringstream os; os << w; MessageBox(0, os.str().c_str(), L"ERROR", 0); assert(false); abort();}
+#define ERROR_MES(x) {MessageBox(0, x, L"ERROR", MB_OK); assert(false); abort();}
 namespace imm
 {
 ////////////////

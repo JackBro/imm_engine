@@ -88,7 +88,10 @@ void audio_dxtk::set_wave_bank_volume(float volume)
 void audio_dxtk::play_bgm(const std::string &name)
 {
 	if (name != current_bgm_name) {
-		if (!map_bgm.count(name)) assert(false);
+		if (!map_bgm.count(name)) {
+			assert(false);
+			abort();
+		}
 		data_check_file_exist(map_bgm[name]);
 		sound_effect = std::unique_ptr<SoundEffect>(new SoundEffect(aud_engine.get(), map_bgm[name].c_str()));
 		effect_inst = sound_effect->CreateInstance();

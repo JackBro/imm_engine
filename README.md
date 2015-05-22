@@ -70,8 +70,8 @@ See minimum_root\, represents following tree.
 	 |--script
 	     |--cmd_util
 	     |--library
+	     |--scene_common
 	     |--scene00
-	     |--scene01
 
 
 Asset Tools:

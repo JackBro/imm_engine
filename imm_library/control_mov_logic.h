@@ -350,6 +350,8 @@ void control_mov<T_app>::update_scene(const float &dt)
 	app->m_Inst.collision_update(dt);
 	update_loading_stat();
 	update_stop(dt);
+	// camera follow update even m_Cmd.is_active()
+	cam_follow_update();
 }
 //
 template <typename T_app>
@@ -379,15 +381,12 @@ void control_mov<T_app>::update_stop(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 {
-	// all pad/key update or down must be here
-	// pad key
+	// player1 and camera update, if !m_Cmd.is_active()
 	if (pad.is_enable()) {
 		on_pad_down(dt);
 		pad_instance_move_update();
 		pad_camera_free_update(dt);
 	}
-	// keydown
-	cam_follow_update();
 	key_camera_free_update(dt);
 }
 //

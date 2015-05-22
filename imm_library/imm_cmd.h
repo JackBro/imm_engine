@@ -204,7 +204,7 @@ void cmd_shell<T_app>::apply()
 	}
 	if (cmd_get.substr(0, 6) == L"reload") {
 		
-		if (cmd_get.size() < 8 || cmd_get.size() > 11) {
+		if (cmd_get.size() < 9 || cmd_get.size() > 11) {
 			input += L"\n> Usage: reload [scene_index]";
 			input += L"\n> scene_index must be two characters.";
 			input += L"\n";

@@ -1,24 +1,24 @@
 ////////////////
-// ui_start_rect.h
+// ui_welcome_rect.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef UI_START_RECT_H
-#define UI_START_RECT_H
+#ifndef UI_WELCOME_RECT_H
+#define UI_WELCOME_RECT_H
 #include "ui_base.h"
 namespace imm
 {
 ////////////////
-// ui_start
+// ui_welcome
 ////////////////
 ////////////////
 template <class T_app>
-struct ui_start: public ui_base<T_app>
+struct ui_welcome: public ui_base<T_app>
 {
-	ui_start() {;}
-	~ui_start() {;}
+	ui_welcome() {;}
+	~ui_welcome() {;}
 	void define_style();
 	bool define_apply_ix_if(int &index);
 	void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
@@ -30,7 +30,7 @@ struct ui_start: public ui_base<T_app>
 };
 //
 template <typename T_app>
-void ui_start<T_app>::define_style()
+void ui_welcome<T_app>::define_style()
 {
 	m_TitleFontFactor = 32.0f;
 	m_Dwrite["32"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, 32.0f, 2);
@@ -61,14 +61,14 @@ void ui_start<T_app>::define_style()
 }
 //
 template <typename T_app>
-bool ui_start<T_app>::define_apply_ix_if(int &index)
+bool ui_welcome<T_app>::define_apply_ix_if(int &index)
 {
 	index;
 	return false;	
 }
 //
 template <typename T_app>
-void ui_start<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
+void ui_welcome<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	DUMMY(l_param);
 	m_IsPadUsing = false;
@@ -76,32 +76,32 @@ void ui_start<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 }
 //
 template <typename T_app>
-void ui_start<T_app>::define_on_pad_keydown(const WORD &vkey)
+void ui_welcome<T_app>::define_on_pad_keydown(const WORD &vkey)
 {
 	m_IsPadUsing = true;
 	vkey;
 }
 //
 template <typename T_app>
-void ui_start<T_app>::define_update()
+void ui_welcome<T_app>::define_update()
 {
 	;
 }
 //
 template <typename T_app>
-void ui_start<T_app>::define_deactivate_all_default()
+void ui_welcome<T_app>::define_deactivate_all_default()
 {
 	deactivate_all();
 }
 //
 template <typename T_app>
-void ui_start<T_app>::define_deactivate_all_cmd_slient()
+void ui_welcome<T_app>::define_deactivate_all_cmd_slient()
 {
 	deactivate_all();
 }
 //
 template <typename T_app>
-void ui_start<T_app>::define_txt_str()
+void ui_welcome<T_app>::define_txt_str()
 {
 	;
 }
