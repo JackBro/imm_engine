@@ -1,12 +1,12 @@
 ////////////////
-// ui_simple.h
+// ui_base.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef UI_SIMPLE_H
-#define UI_SIMPLE_H
+#ifndef UI_BASE_H
+#define UI_BASE_H
 #include "ui_sprite.h"
 #include "ui_dwrite.h"
 #include "control_key_define.h"
@@ -39,14 +39,14 @@ struct ui_rect
 	bool active;
 };
 ////////////////
-// ui_simple
+// ui_base
 ////////////////
 ////////////////
 template <typename T_app>
-struct ui_simple
+struct ui_base
 {
-	ui_simple();
-	~ui_simple();
+	ui_base();
+	virtual ~ui_base();
 	void init(T_app *app_in);
 	void build_rect_map();
 	void set_Brush(D2D1::ColorF::Enum color, const float &opacity, const std::string index);
@@ -55,7 +55,8 @@ struct ui_simple
 	void on_resize_TextLayout(const size_t &ix, const bool &is_resize = false);
 	PCWSTR get_DefineTxt(const std::string &name);
 	void on_resize();
-	void draw();
+	void draw_d2d();
+	void draw_d3d();
 	bool on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	bool on_mouse_wheel(const short &z_delta);
 	void on_mouse_over(const int &pos_x, const int &pos_y);
@@ -67,14 +68,15 @@ struct ui_simple
 	bool is_ui_appear();
 	void deactivate_all();
 	bool apply_ix(int &index);
-	//
-	void define_style();
-	bool define_apply_ix_if(int &index);
-	void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
-	void define_on_pad_keydown(const WORD &vkey, const float &dt);
-	void define_update();
-	void define_deactivate_all_default();
-	void define_txt_str();
+	// virtual
+	virtual void define_style() = 0;
+	virtual bool define_apply_ix_if(int &index) = 0;
+	virtual void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param) = 0;
+	virtual void define_on_pad_keydown(const WORD &vkey) = 0;
+	virtual void define_update() = 0;
+	virtual void define_deactivate_all_default() = 0;
+	virtual void define_deactivate_all_cmd_slient() = 0;
+	virtual void define_txt_str() = 0;
 	std::map<std::string, ID2D1SolidColorBrush*> m_Brush;
 	std::vector<ui_rect> m_Rect;
 	std::map<std::string, std::vector<size_t>> m_MapGroup;
@@ -94,12 +96,12 @@ struct ui_simple
 	std::map<std::string, std::wstring> m_DefineTxt;
 	T_app *m_App;
 private:
-	ui_simple(const ui_simple &rhs);
-	ui_simple &operator=(const ui_simple &rhs);
+	ui_base(const ui_base &rhs);
+	ui_base &operator=(const ui_base &rhs);
 };
 //
 template <typename T_app>
-ui_simple<T_app>::ui_simple():
+ui_base<T_app>::ui_base():
 	m_ClickIxMouse(-1),
 	m_ClickIxPad(-1),
 	m_IsPadUsing(false),
@@ -113,13 +115,13 @@ ui_simple<T_app>::ui_simple():
 }
 //
 template <typename T_app>
-ui_simple<T_app>::~ui_simple()
+ui_base<T_app>::~ui_base()
 {
 	for (auto &brush: m_Brush) ReleaseCOM(brush.second);
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::init(T_app *app_in)
+void ui_base<T_app>::init(T_app *app_in)
 {
 	m_App = app_in;
 	m_Sprite.init(m_App->m_D3DDevice, m_App->m_D3DDC);
@@ -130,7 +132,7 @@ void ui_simple<T_app>::init(T_app *app_in)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::build_rect_map()
+void ui_base<T_app>::build_rect_map()
 {
 	// map rect id_str for search parent
 	// -1 stands for root
@@ -151,7 +153,7 @@ void ui_simple<T_app>::build_rect_map()
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::on_resize_RectFromHWND(const size_t &ix)
+void ui_base<T_app>::on_resize_RectFromHWND(const size_t &ix)
 {
 	LONG height = m_RcHWND.bottom - m_RcHWND.top;
 	LONG width = m_RcHWND.right - m_RcHWND.left;
@@ -163,7 +165,7 @@ void ui_simple<T_app>::on_resize_RectFromHWND(const size_t &ix)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::on_resize_RectFromRect(const size_t &ix, const int &parent)
+void ui_base<T_app>::on_resize_RectFromRect(const size_t &ix, const int &parent)
 {
 	assert(parent >= 0);
 	LONG height = static_cast<LONG>(m_Rect[parent].rc.bottom - m_Rect[parent].rc.top);
@@ -176,7 +178,7 @@ void ui_simple<T_app>::on_resize_RectFromRect(const size_t &ix, const int &paren
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::on_resize_TextLayout(const size_t &ix, const bool &is_resize = false)
+void ui_base<T_app>::on_resize_TextLayout(const size_t &ix, const bool &is_resize = false)
 {
 	float height = static_cast<float>(m_RcHWND.bottom - m_RcHWND.top);
 	float width = static_cast<float>(m_RcHWND.right - m_RcHWND.left);
@@ -197,13 +199,13 @@ void ui_simple<T_app>::on_resize_TextLayout(const size_t &ix, const bool &is_res
 }
 //
 template <typename T_app>
-PCWSTR ui_simple<T_app>::get_DefineTxt(const std::string &name)
+PCWSTR ui_base<T_app>::get_DefineTxt(const std::string &name)
 {
 	return m_DefineTxt[name].c_str();
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::on_resize()
+void ui_base<T_app>::on_resize()
 {
 	// if not init, no resize
 	if (m_MapGroup.size() == 0) return;
@@ -221,7 +223,7 @@ void ui_simple<T_app>::on_resize()
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::set_Brush(D2D1::ColorF::Enum color, const float &opacity, const std::string index)
+void ui_base<T_app>::set_Brush(D2D1::ColorF::Enum color, const float &opacity, const std::string index)
 {
 	D2D1_BRUSH_PROPERTIES br_prop;
 	br_prop.opacity = opacity;
@@ -230,7 +232,7 @@ void ui_simple<T_app>::set_Brush(D2D1::ColorF::Enum color, const float &opacity,
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::draw()
+void ui_base<T_app>::draw_d2d()
 {
 	for (auto it = m_Rect.begin(); it != m_Rect.end(); ++it) {
 		if (!it->active) continue;
@@ -244,7 +246,13 @@ void ui_simple<T_app>::draw()
 }
 //
 template <typename T_app>
-bool ui_simple<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
+void ui_base<T_app>::draw_d3d()
+{
+	m_Sprite.draw_d3d();
+}
+//
+template <typename T_app>
+bool ui_base<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
 	if (btn_state & MOUSE_UI_PICK) {
 		m_IsPadUsing = false;
@@ -255,7 +263,7 @@ bool ui_simple<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const i
 }
 //
 template <typename T_app>
-bool ui_simple<T_app>::on_mouse_wheel(const short &z_delta)
+bool ui_base<T_app>::on_mouse_wheel(const short &z_delta)
 {
 	for (auto &map: m_MapTextLayout) {
 		if (m_Rect[map.second[0]].active) {
@@ -270,7 +278,7 @@ bool ui_simple<T_app>::on_mouse_wheel(const short &z_delta)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::on_mouse_over(const int &pos_x, const int &pos_y)
+void ui_base<T_app>::on_mouse_over(const int &pos_x, const int &pos_y)
 {
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		if (m_Rect[ix].tp == ui_rect::type::button && m_Rect[ix].active &&
@@ -283,7 +291,7 @@ void ui_simple<T_app>::on_mouse_over(const int &pos_x, const int &pos_y)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
+void ui_base<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 {
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		if (m_Rect[ix].tp == ui_rect::type::button && m_Rect[ix].active &&
@@ -296,7 +304,7 @@ void ui_simple<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::group_active_switch(const std::string &name)
+void ui_base<T_app>::group_active_switch(const std::string &name)
 {
 	// avoid active two clickable group
 	if (!(m_ClickableActived == "none" || m_ClickableActived == name)) {
@@ -308,7 +316,7 @@ void ui_simple<T_app>::group_active_switch(const std::string &name)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::group_active(const std::string &name, const bool &is_act, const bool &is_switched = false)
+void ui_base<T_app>::group_active(const std::string &name, const bool &is_act, const bool &is_switched = false)
 {
 	if (!is_switched) for (auto &ix: m_MapGroup[name]) m_Rect[ix].active = is_act;
 	if (m_Rect[m_MapGroup[name][0]].active) {
@@ -330,7 +338,7 @@ void ui_simple<T_app>::group_active(const std::string &name, const bool &is_act,
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::pad_loop_button(const bool &is_down, const std::string &select_none = "")
+void ui_base<T_app>::pad_loop_button(const bool &is_down, const std::string &select_none = "")
 {
 	// select none
 	if (select_none != "") {
@@ -342,7 +350,8 @@ void ui_simple<T_app>::pad_loop_button(const bool &is_down, const std::string &s
 	// select first
 	if (m_ClickIxPad == -1 && m_ClickableActived != "none") {
 		assert(m_MapButton[m_ClickableActived].size() > 0);
-		m_Rect[m_MapButton[m_ClickableActived][0]].brush_ix = m_Rect[m_MapButton[m_ClickableActived][0]].brush_sel[1];
+		m_Rect[m_MapButton[m_ClickableActived][0]].brush_ix =
+			m_Rect[m_MapButton[m_ClickableActived][0]].brush_sel[1];
 		m_ClickIxPad = static_cast<int>(m_MapButton[m_ClickableActived][0]);
 		return;
 	}
@@ -361,12 +370,13 @@ void ui_simple<T_app>::pad_loop_button(const bool &is_down, const std::string &s
 		if (next > int_size-1) next = 0;
 		if (next < 0) next = int_size-1;
 		m_ClickIxPad = static_cast<int>(m_MapButton[m_ClickableActived][next]);
-		m_Rect[m_MapButton[m_ClickableActived][next]].brush_ix = m_Rect[m_MapButton[m_ClickableActived][next]].brush_sel[1];
+		m_Rect[m_MapButton[m_ClickableActived][next]].brush_ix =
+			m_Rect[m_MapButton[m_ClickableActived][next]].brush_sel[1];
 	}
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::pad_roll_text_layout(const bool &is_down)
+void ui_base<T_app>::pad_roll_text_layout(const bool &is_down)
 {
 	for (auto &map: m_MapTextLayout) {
 		if (m_Rect[map.second[0]].active) {
@@ -383,14 +393,14 @@ void ui_simple<T_app>::pad_roll_text_layout(const bool &is_down)
 }
 //
 template <typename T_app>
-bool ui_simple<T_app>::is_ui_appear()
+bool ui_base<T_app>::is_ui_appear()
 {
 	if (m_ClickableActived == "none") return false;
 	return true;
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::deactivate_all()
+void ui_base<T_app>::deactivate_all()
 {
 	for (auto &map: m_MapGroup) {
 		group_active(map.first, false);
@@ -399,7 +409,7 @@ void ui_simple<T_app>::deactivate_all()
 }
 //
 template <typename T_app>
-bool ui_simple<T_app>::apply_ix(int &index)
+bool ui_base<T_app>::apply_ix(int &index)
 {
 	if (index != -1) {
 		if (define_apply_ix_if(index)) {
@@ -414,12 +424,5 @@ bool ui_simple<T_app>::apply_ix(int &index)
 	}
 	return false;
 }
-
-////////////////
-// misc_ui_define.h
-////////////////
-////////////////
-#include "ui_simple_define_rc.h"
-#include "ui_simple_define_txt.h"
 }
 #endif

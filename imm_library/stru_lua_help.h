@@ -250,11 +250,13 @@ lua_config<T_app>::lua_config(T_app *app_in)
 	std::map<std::string, std::string> g_map;
 	g_map["is_fullscreen"] = "";
 	g_map["is_4xmsaa"] = "";
+	g_map["is_sync_iterval"] = "";
 	lua_reader l_reader;
 	l_reader.loadfile(GLOBAL["path_lua"]+"imm_config.lua");
 	l_reader.map_from_global(g_map);
 	l_reader.assign_bool(m_App->m_FullScreen, g_map["is_fullscreen"]);
 	l_reader.assign_bool(m_App->m_Enable4xMsaa, g_map["is_4xmsaa"]);
+	l_reader.assign_bool(m_App->m_IsSyncInterval, g_map["is_sync_iterval"]);
 }
 template <typename T_app>
 void lua_config<T_app>::additional1()

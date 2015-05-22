@@ -1,9 +1,36 @@
 ////////////////
-// ui_simple_define_rc.h
+// ui_main_menu_rect.h
+// This file is a portion of the immature engine.
+// It is distributed under the BSD license.
+// Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
+#ifndef UI_MAIN_MENU_RECT_H
+#define UI_MAIN_MENU_RECT_H
+#include "ui_base.h"
+namespace imm
+{
+////////////////
+// ui_main_menu
+////////////////
+////////////////
+template <class T_app>
+struct ui_main_menu: public ui_base<T_app>
+{
+	ui_main_menu() {;}
+	~ui_main_menu() {;}
+	void define_style();
+	bool define_apply_ix_if(int &index);
+	void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
+	void define_on_pad_keydown(const WORD &vkey);
+	void define_update();
+	void define_deactivate_all_default();
+	void define_deactivate_all_cmd_slient();
+	void define_txt_str();
+};
+//
 template <typename T_app>
-void ui_simple<T_app>::define_style()
+void ui_main_menu<T_app>::define_style()
 {
 	m_TitleFontFactor = 32.0f;
 	m_Dwrite["32"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, 32.0f, 2);
@@ -54,22 +81,22 @@ void ui_simple<T_app>::define_style()
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.8f);
 	//
 	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "menu_exit";
-	m_Rect.back().parent_str = "menu_backg";
-	m_Rect.back().group = "menu";
-	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Exit";
-	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.3f, 0.2f, 0.3f, 0.72f);
-	//
-	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "menu_help";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
 	m_Rect.back().brush_sel = {"yellow"};
 	m_Rect.back().text = L"Help";
+	m_Rect.back().dwrite_ix = "24";
+	m_Rect.back().margin = XMFLOAT4(0.3f, 0.2f, 0.3f, 0.72f);
+	//
+	m_Rect.emplace_back(ui_rect());
+	m_Rect.back().id_str = "menu_exit";
+	m_Rect.back().parent_str = "menu_backg";
+	m_Rect.back().group = "menu";
+	m_Rect.back().tp = ui_rect::type::button;
+	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().text = L"Exit";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.3f, 0.35f, 0.3f, 0.57f);
 	//
@@ -92,6 +119,39 @@ void ui_simple<T_app>::define_style()
 	m_Rect.back().text = L"About";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.3f, 0.65f, 0.3f, 0.27f);
+	////////////////
+	// help
+	////////////////
+	////////////////
+	m_Rect.emplace_back(ui_rect());
+	m_Rect.back().id_str = "help_backg";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "help";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "32";
+	m_Rect.back().margin = XMFLOAT4(0.1f, 0.0f, 0.1f, 0.0f);
+	//
+	m_Rect.emplace_back(ui_rect());
+	m_Rect.back().id_str = "help_close";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "help";
+	m_Rect.back().tp = ui_rect::type::button;
+	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().text = L"Close";
+	m_Rect.back().dwrite_ix = "24";
+	m_Rect.back().margin = XMFLOAT4(0.75f, 0.82f, 0.05f, 0.1f);
+	//
+	m_Rect.emplace_back(ui_rect());
+	m_Rect.back().id_str = "help_content";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "help";
+	m_Rect.back().tp = ui_rect::type::text_layout;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = get_DefineTxt("help");
+	m_Rect.back().dwrite_ix = "20_alig";
+	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
 	////////////////
 	// exit
 	////////////////
@@ -135,39 +195,6 @@ void ui_simple<T_app>::define_style()
 	m_Rect.back().text = L"Exit the Demo?";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.3f);
-	////////////////
-	// help
-	////////////////
-	////////////////
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "help_backg";
-	m_Rect.back().parent_str = "-1";
-	m_Rect.back().group = "help";
-	m_Rect.back().tp = ui_rect::type::background;
-	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "32";
-	m_Rect.back().margin = XMFLOAT4(0.1f, 0.0f, 0.1f, 0.0f);
-	//
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "help_close";
-	m_Rect.back().parent_str = "-1";
-	m_Rect.back().group = "help";
-	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Close";
-	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.75f, 0.82f, 0.05f, 0.1f);
-	//
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "help_content";
-	m_Rect.back().parent_str = "-1";
-	m_Rect.back().group = "help";
-	m_Rect.back().tp = ui_rect::type::text_layout;
-	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = get_DefineTxt("help");
-	m_Rect.back().dwrite_ix = "20_alig";
-	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
 	////////////////
 	// credit
 	////////////////
@@ -249,7 +276,7 @@ void ui_simple<T_app>::define_style()
 }
 //
 template <typename T_app>
-bool ui_simple<T_app>::define_apply_ix_if(int &index)
+bool ui_main_menu<T_app>::define_apply_ix_if(int &index)
 {
 	// menu
 	if (index == m_MapID["menu_exit"]) {
@@ -300,7 +327,7 @@ bool ui_simple<T_app>::define_apply_ix_if(int &index)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
+void ui_main_menu<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	DUMMY(l_param);
 	m_IsPadUsing = false;
@@ -316,9 +343,8 @@ void ui_simple<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::define_on_pad_keydown(const WORD &vkey, const float &dt)
+void ui_main_menu<T_app>::define_on_pad_keydown(const WORD &vkey)
 {
-	DUMMY(dt);
 	m_IsPadUsing = true;
 	if (vkey == PAD_UI_MENU) {
 		group_active_switch("menu");
@@ -346,16 +372,29 @@ void ui_simple<T_app>::define_on_pad_keydown(const WORD &vkey, const float &dt)
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::define_update()
+void ui_main_menu<T_app>::define_update()
 {
 	m_Rect[m_MapGroup["fps"][0]].text = m_App->m_Fps;
 }
 //
 template <typename T_app>
-void ui_simple<T_app>::define_deactivate_all_default()
+void ui_main_menu<T_app>::define_deactivate_all_default()
 {
 	bool fps = m_Rect[m_MapGroup["fps"][0]].active;
 	deactivate_all();
 	if (fps) group_active_switch("fps");
 }
 //
+template <typename T_app>
+void ui_main_menu<T_app>::define_deactivate_all_cmd_slient()
+{
+	deactivate_all();
+	group_active("fps", true);
+}
+////////////////
+// ui_main_menu_text.h
+////////////////
+////////////////
+#include "ui_main_menu_text.h"
+}
+#endif

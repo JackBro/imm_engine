@@ -7,8 +7,9 @@ void imm_app::draw_scene()
 	if (!m_Cmd.is_slient && !m_Cmd.is_loading) draw_scene_d3d();
 	else draw_scene_d3d_slient();
 	draw_scene_d2d();
-	m_SwapChain->Present(0, 0);
-	//m_SwapChain->Present1(1, 0, &m_DXGIPresentPara);
+	// Synchronize presentation
+	if (m_IsSyncInterval) m_SwapChain->Present1(1, 0, &m_DXGIPresentPara);
+	else m_SwapChain->Present(0, 0);
 }
 //
 void imm_app::build_shadow_transform()
@@ -215,7 +216,7 @@ void imm_app::draw_scene_d3d()
 	m_D3DDC->RSSetState(0);
 	m_D3DDC->OMSetDepthStencilState(0, 0);
 	// Draw UI sprite
-	m_UI.m_Sprite.draw_d3d();
+	m_UiMgr.draw_d3d();
 	// Draw particle systems last so it is blended with scene.
 	m_Scene.aura.draw(m_D3DDC, m_Cam);
 	// Restore default states.
@@ -235,6 +236,8 @@ void imm_app::draw_scene_d3d_slient()
 	assert(m_SwapChain);
 	m_D3DDC->ClearRenderTargetView(m_RenderTargetView, reinterpret_cast<const float*>(&m_Cmd.back_color));
 	m_D3DDC->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+	// Draw UI sprite
+	m_UiMgr.draw_d3d();
 }
 //
 void imm_app::draw_scene_d2d()
@@ -243,6 +246,6 @@ void imm_app::draw_scene_d2d()
 	m_D2DDC->BeginDraw();
 	m_D2DDC->SetTransform(D2D1::IdentityMatrix());
 	m_Cmd.draw();
-	m_UI.draw();
+	m_UiMgr.draw_d2d();
 	HR(m_D2DDC->EndDraw());
 }

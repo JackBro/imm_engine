@@ -28,7 +28,8 @@ struct phy_property
 		bounce(0.3f),
 		stand_from(-1),
 		is_ground(false),
-		is_touch_ground(false)
+		is_touch_ground(false),
+		is_abnormal(false)
 		{;}
 	XMFLOAT3 velocity;
 	XMFLOAT3 velocity_nm; // velcoity of no direct mechanical motion, for example: walk, run
@@ -39,6 +40,7 @@ struct phy_property
 	int stand_from;
 	bool is_ground;
 	bool is_touch_ground;
+	bool is_abnormal;
 };
 ////////////////
 // phy_set_aabb

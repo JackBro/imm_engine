@@ -44,6 +44,7 @@ void phy_position_update(
 	const float &half_y,
 	const float &ground = 0.0f)
 {	
+	if (prop.is_abnormal) return;
 	if (!is_touch_ground) {
 		prop.velocity.x += prop.acceleration.x*dt;
 		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt;
@@ -72,6 +73,12 @@ void phy_position_update(
 		if (abs(prop.velocity.y) < PHY_IGNORE_GRAVITY) prop.velocity.y = 0.0f;
 		if (center_y < stand) center_y = stand;
 		world._42 = center_y+offset_y;
+	}
+	// too big number
+	if (abs(prop.velocity.x) > 1000.0f ||
+		abs(prop.velocity.y) > 1000.0f ||
+		abs(prop.velocity.z) > 1000.0f) {
+		prop.is_abnormal = true;		
 	}
 	return;
 }

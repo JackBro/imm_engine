@@ -1,9 +1,9 @@
 ////////////////
-// ui_simple_define_txt.h
+// ui_main_menu_text.h
 ////////////////
 ////////////////
 template <typename T_app>
-void ui_simple<T_app>::define_txt_str()
+void ui_main_menu<T_app>::define_txt_str()
 {
 	// help
 	m_DefineTxt["help"] = L"\n";
@@ -55,7 +55,7 @@ void ui_simple<T_app>::define_txt_str()
 	m_DefineTxt["about"] += L"immature engine Demo 20150424\n";
 	m_DefineTxt["about"] += L"Copyright 2015 Huang Yiting (http://endrollex.com)\n";
 	m_DefineTxt["about"] += L"\n";
-	m_DefineTxt["about"] += L"This demo only has a simple scene, not game logic yet. ";
+	m_DefineTxt["about"] += L"This demo only has a menu scene, not game logic yet. ";
 	m_DefineTxt["about"] += L"You can manipulate an instance, just have a look.\n";
 	m_DefineTxt["about"] += L"\n";
 	m_DefineTxt["about"] += L"Notice the 3D model Sinon is a fan art, this work is noncommercial use.\n";

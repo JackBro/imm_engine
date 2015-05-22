@@ -339,6 +339,13 @@ std::wstring str_to_wstr(const std::string &str)
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
 	return convert.from_bytes(str);
 }
+////////////////
+// REF_RESOLUTION_WIDTH, REF_RESOLUTION_HEIGHT
+// for calclate UI size with factor
+////////////////
+////////////////
+static const float REF_RESOLUTION_WIDTH = 1366.0f;
+static const float REF_RESOLUTION_HEIGHT = 768.0f;
 //
 }
 #endif

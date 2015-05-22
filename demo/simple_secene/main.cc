@@ -6,8 +6,8 @@
 #define UNICODE
 #endif
 #include "imm_cmd.h"
-#include "ui_simple.h"
-#include "control_mov.h"
+#include "ui_mgr.h"
+#include "control_mov_logic.h"
 #include "stru_scene_mgr.h"
 #include "stru_draw_instance.h"
 #include "ia_render.h"
@@ -48,13 +48,14 @@ public:
 	void draw_scene_d2d();
 	//
 	static const int m_SMapSize = 2048;
+	bool m_IsSyncInterval;
 	cmd_shell<imm_app> m_Cmd;
 	POINT m_LastMousePos;
 	camera m_Cam;
 	shadow_map *m_Smap;
 	scene_mgr<imm_app> m_Scene;
 	instance_mgr m_Inst;
-	ui_simple<imm_app> m_UI;
+	ui_mgr<imm_app> m_UiMgr;
 	lua_config<imm_app> m_Config;
 	control_mov<imm_app> m_Control;
 	XMFLOAT4X4 m_LightView;
@@ -83,12 +84,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 ////////////////
 imm_app::imm_app():
 	base_win<imm_app>(),
+	m_IsSyncInterval(false),
 	m_Cmd(),
 	m_Cam(),
 	m_Smap(0),
 	m_Scene(),
 	m_Inst(),	
-	m_UI(),
+	m_UiMgr(),
 	m_Config(this),
 	m_Control()
 {
@@ -114,7 +116,7 @@ bool imm_app::init_imm()
 	render::init_all(m_D3DDevice);
 	m_Smap = new shadow_map(m_D3DDevice, m_SMapSize, m_SMapSize);
 	m_Cam.set_Lens(0.25f*XM_PI, aspect_ratio(), 1.0f, 1000.0f);
-	m_UI.init(this);
+	m_UiMgr.init(this);
 	m_Cmd.init(this);
 	m_Cmd.is_slient = false;
 	m_Scene.init_load(this);
@@ -126,20 +128,20 @@ bool imm_app::init_imm()
 void imm_app::on_resize()
 {
 	m_Cmd.on_resize();
-	m_UI.on_resize();
+	m_UiMgr.on_resize();
 	base_win<imm_app>::on_resize();
 	m_Cam.set_Lens(0.25f*XM_PI, aspect_ratio(), 1.0f, 1000.0f);
 }
 //
 void imm_app::update_scene(float dt)
 {
-	// m_UI before m_Cmd, always update, m_Cmd will close m_UI
-	m_UI.define_update();
+	// m_UiMgr before m_Cmd, always update, m_Cmd will close m_UiMgr
+	m_UiMgr.define_update();
 	if (m_Cmd.is_slient) return;
 	if (!m_Cmd.is_active) update_scene_keydown(dt);
 	build_shadow_transform();
 	m_Cam.update_view_matrix();
-	m_Control.update_scene_instance(dt);
+	m_Control.update_scene(dt);
 	m_Scene.update_atmosphere(dt);
 }
 //

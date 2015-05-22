@@ -155,8 +155,7 @@ void cmd_shell<T_app>::apply()
 		is_slient = !is_slient;
 		if (is_slient) {
 			is_active = true;
-			app->m_UI.deactivate_all();
-			app->m_UI.group_active_switch("fps");
+			app->m_UiMgr.define_deactivate_all_cmd_slient();
 		}
 		else is_active = false;
 		return;

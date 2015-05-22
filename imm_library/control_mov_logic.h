@@ -1,12 +1,12 @@
 ////////////////
-// control_mov.h
+// control_mov_logic.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef CONTROL_MOV_H
-#define CONTROL_MOV_H
+#ifndef CONTROL_MOV_LOGIC_H
+#define CONTROL_MOV_LOGIC_H
 #include "stru_instance_mgr.h"
 #include "imm_camera.h"
 #include "phy_prepare.h"
@@ -202,34 +202,36 @@ template <typename T_app>
 struct control_mov
 {
 	control_mov();
+	// logic fuction
 	void init(T_app *app_in);
 	void reset();
 	void update_loading_stat();
 	void mouse_instance_move(const int &pos_x, const int &pos_y);
-	void pad_instance_move();
-	void mouse_move_toward_hit(CXMVECTOR &plane_pos, const size_t &index, const float &speed = -1.0f);
-	void mouse_face_rot_y(XMMATRIX &W, XMMATRIX &RF, CXMVECTOR &direction);
-	void pad_face_rot_y(XMMATRIX &W, XMMATRIX &RF, XMVECTOR &direction, const float &rot_cam);
-	void mouse_hit_plane_y0(const int &pos_x, const int &pos_y, XMVECTOR &plane_pos);
-	void pad_move_toward();
+	void pad_instance_move_update();
 	void common_jump();
 	void mouse_pick(const int &pos_x, const int &pos_y);
-	void update_scene_instance(const float &dt);
-	void update_scene_stop(const float &dt);
+	void update_scene(const float &dt);
+	void update_stop(const float &dt);
 	void update_keydown_and_pad(const float &dt);
 	void on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_pad_down(const float &dt);
 	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_mouse_wheel(const short &z_delta);
-	// include
-	void pad_camera_free(const float &dt);
+	// math function
+	void math_mouse_move_toward_hit(CXMVECTOR &plane_pos, const size_t &index, const float &speed = -1.0f);
+	void math_mouse_face_rot_y(XMMATRIX &W, XMMATRIX &RF, CXMVECTOR &direction);
+	void math_pad_face_rot_y(XMMATRIX &W, XMMATRIX &RF, XMVECTOR &direction, const float &rot_cam);
+	void math_mouse_hit_plane_y0(const int &pos_x, const int &pos_y, XMVECTOR &plane_pos);
+	void math_pad_move_toward();
+	// cam function
+	void pad_camera_free_update(const float &dt);
 	void on_pad_camera_follow(const WORD &vkey);
-	void key_camera_free(const float &dt);
+	void key_camera_free_update(const float &dt);
 	void mouse_camera_wheel(const short &z_delta);
 	void mouse_camera_move(const int &pos_x, const int &pos_y);
 	void cam_follow_update();
-	//
+	// member variable 
 	T_app *app;
 	int picked1;
 	int player1;
@@ -291,8 +293,8 @@ void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 	if (player1 < 0) return;
 	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
 	XMVECTOR plane_pos;
-	mouse_hit_plane_y0(pos_x, pos_y, plane_pos);
-	mouse_move_toward_hit(plane_pos, player1);
+	math_mouse_hit_plane_y0(pos_x, pos_y, plane_pos);
+	math_mouse_move_toward_hit(plane_pos, player1);
 	//
 	map_stop[player1].is_stop = false;
 	map_stop[player1].speed = motion.speed;
@@ -301,7 +303,7 @@ void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::pad_instance_move()
+void control_mov<T_app>::pad_instance_move_update()
 {
 	if (player1 < 0) return;
 	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
@@ -309,115 +311,12 @@ void control_mov<T_app>::pad_instance_move()
 	if (pad.state.Gamepad.bRightTrigger > 50) motion.make_walk();
 	else motion.make_run();
 	if (pad.is_L_active()) {
-		pad_move_toward();
+		math_pad_move_toward();
 	}
 	else {
 		app->m_Inst.m_Stat[player1].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		app->m_Inst.m_Stat[player1].check_set_ClipName(motion.idle);
 	}
-}
-//
-template <typename T_app>
-void control_mov<T_app>::mouse_move_toward_hit(CXMVECTOR &plane_pos, const size_t &index, const float &speed = -1.0f)
-{
-	XMFLOAT4X4 &world = *app->m_Inst.m_Stat[index].get_World();
-	XMFLOAT4X4 &rot_front = *app->m_Inst.m_Stat[index].get_RotFront();
-	XMFLOAT3 *phy_velocity_nm = &app->m_Inst.m_Stat[index].phy.velocity_nm;
-	XMVECTOR velocity_nm = XMLoadFloat3(phy_velocity_nm);
-	XMMATRIX W = XMLoadFloat4x4(&world);
-	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
-	velocity_nm = XMVectorSubtract(plane_pos, W.r[3]);
-	velocity_nm = XMVectorSetY(velocity_nm, 0.0f);
-	velocity_nm = XMVector3Normalize(velocity_nm);
-	// use velocity_nm as front direction
-	mouse_face_rot_y(W, RF, velocity_nm);
-	// when update stop, use object own speed
-	if (speed < 0.0f) velocity_nm = XMVectorScale(velocity_nm, motion.speed);
-	else velocity_nm = XMVectorScale(velocity_nm, speed);
-	XMStoreFloat3(phy_velocity_nm, velocity_nm);
-	XMStoreFloat4x4(&world, W);
-}
-//
-template <typename T_app>
-void control_mov<T_app>::mouse_face_rot_y(XMMATRIX &W, XMMATRIX &RF, CXMVECTOR &direction)
-{
-	// Decompose the matrix into its individual parts.
-	XMVECTOR scale, rot_quat, translation;
-	XMMatrixDecompose(&scale, &rot_quat, &translation, W);
-	XMMATRIX S, R, T;
-	S = XMMatrixScalingFromVector(scale);
-	float rot_radians = atan2(-XMVectorGetX(direction), -XMVectorGetZ(direction));
-	R = XMMatrixRotationY(rot_radians);
-	//
-	R = XMMatrixMultiply(RF, R);
-	T = XMMatrixTranslationFromVector(translation);
-	W = XMMatrixMultiply(XMMatrixMultiply(S, R), T);
-}
-//
-template <typename T_app>
-void control_mov<T_app>::pad_face_rot_y(XMMATRIX &W, XMMATRIX &RF, XMVECTOR &direction, const float &rot_cam)
-{
-	// Decompose the matrix into its individual parts.
-	XMVECTOR scale, rot_quat, translation;
-	XMMatrixDecompose(&scale, &rot_quat, &translation, W);
-	XMMATRIX S, R, T;
-	S = XMMatrixScalingFromVector(scale);
-	// rot_quat uses as temp var
-	float rot_pad = pad.L_radians();
-	rot_quat =  XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), rot_pad);
-	direction = XMVector3Rotate(direction, rot_quat);
-	//
-	R = XMMatrixRotationY(rot_cam);
-	R = XMMatrixMultiply(XMMatrixRotationY(rot_pad), R);
-	//
-	R = XMMatrixMultiply(RF, R);
-	T = XMMatrixTranslationFromVector(translation);
-	W = XMMatrixMultiply(XMMatrixMultiply(S, R), T);
-}
-//
-template <typename T_app>
-void control_mov<T_app>::mouse_hit_plane_y0(const int &pos_x, const int &pos_y, XMVECTOR &plane_pos)
-{
-	CXMMATRIX cam_proj = app->m_Cam.get_Proj();
-	CXMMATRIX cam_view = app->m_Cam.get_View();
-	// Compute picking ray in view space.
-	float vx = (+2.0f*pos_x/app->m_ClientWidth - 1.0f)/cam_proj.r[0].m128_f32[0];
-	float vy = (-2.0f*pos_y/app->m_ClientHeight + 1.0f)/cam_proj.r[1].m128_f32[1];
-	// Ray definition in view space.
-	XMVECTOR ray_origin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-	XMVECTOR ray_dir = XMVectorSet(vx, vy, 1.0f, 0.0f);
-	// Tranform ray to world.
-	XMVECTOR det_view = XMMatrixDeterminant(cam_view);
-	XMMATRIX inv_view = XMMatrixInverse(&det_view, cam_view);
-	ray_origin = XMVector3TransformCoord(ray_origin, inv_view);
-	ray_dir = XMVector3TransformNormal(ray_dir, inv_view);
-	// Make the ray direction unit length for the intersection tests.
-	ray_dir = XMVector3Normalize(ray_dir);
-	// Ray hit y=value plane at plane_p
-	float plane_y_value = 0.0f;
-	plane_pos = ray_origin;
-	float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+plane_y_value;
-	plane_pos = XMVectorSetY(plane_pos, plane_y_value);
-	plane_pos = XMVectorSetX(plane_pos, XMVectorGetX(plane_pos)+ratio_y*XMVectorGetX(ray_dir));
-	plane_pos = XMVectorSetZ(plane_pos, XMVectorGetZ(plane_pos)+ratio_y*XMVectorGetZ(ray_dir));
-}
-//
-template <typename T_app>
-void control_mov<T_app>::pad_move_toward()
-{
-	XMVECTOR velocity_nm = app->m_Cam.get_LookXM();
-	float cam_radians = atan2(-XMVectorGetX(velocity_nm), -XMVectorGetZ(velocity_nm));
-	XMFLOAT4X4 &world = *(app->m_Inst.m_Stat[player1].get_World());
-	XMFLOAT4X4 &rot_front = *(app->m_Inst.m_Stat[player1].get_RotFront());
-	XMMATRIX W = XMLoadFloat4x4(&world);
-	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
-	pad_face_rot_y(W, RF, velocity_nm, cam_radians);
-	velocity_nm = XMVectorSetY(velocity_nm, 0.0f);
-	velocity_nm = XMVector3Normalize(velocity_nm);
-	velocity_nm = XMVectorScale(velocity_nm, motion.speed);
-	XMStoreFloat4x4(&world, W);
-	XMStoreFloat3(&app->m_Inst.m_Stat[player1].phy.velocity_nm, velocity_nm);
-	app->m_Inst.m_Stat[player1].check_set_ClipName(motion.walk_run);
 }
 //
 template <typename T_app>
@@ -444,18 +343,17 @@ void control_mov<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::update_scene_instance(const float &dt)
+void control_mov<T_app>::update_scene(const float &dt)
 {
 	app->m_Inst.update_skinned(dt);
 	app->m_Inst.bound_update();
 	app->m_Inst.collision_update(dt);
 	update_loading_stat();
-	update_scene_stop(dt);
-	cam_follow_update();
+	update_stop(dt);
 }
 //
 template <typename T_app>
-void control_mov<T_app>::update_scene_stop(const float &dt)
+void control_mov<T_app>::update_stop(const float &dt)
 {
 	for (auto it = map_stop.begin(); it != map_stop.end(); ++it) {
 		if (it->second.is_stop) continue;
@@ -473,7 +371,7 @@ void control_mov<T_app>::update_scene_stop(const float &dt)
 			else continue;
 			if (!app->m_Inst.m_Stat[it->first].phy.is_touch_ground) continue;
 			XMVECTOR plane_pos = XMLoadFloat3(&(it->second.plane_pos));
-			mouse_move_toward_hit(plane_pos, it->first, it->second.speed);
+			math_mouse_move_toward_hit(plane_pos, it->first, it->second.speed);
 		}
 	}
 }
@@ -481,18 +379,22 @@ void control_mov<T_app>::update_scene_stop(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 {
-	DUMMY(dt);
+	// all pad/key update or down must be here
+	// pad key
 	if (pad.is_enable()) {
 		on_pad_down(dt);
+		pad_instance_move_update();
+		pad_camera_free_update(dt);
 	}
-	// camera
-	key_camera_free(dt);
+	// keydown
+	cam_follow_update();
+	key_camera_free_update(dt);
 }
 //
 template <typename T_app>
 void control_mov<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if (app->m_UI.on_mouse_down(btn_state, pos_x, pos_y)) return;
+	if (app->m_UiMgr.on_mouse_down(btn_state, pos_x, pos_y)) return;
 	if (btn_state & MOUSE_P1_PICK) {
 		mouse_pick(pos_x, pos_y);
 	}
@@ -506,13 +408,10 @@ void control_mov<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 template <typename T_app>
 void control_mov<T_app>::on_pad_down(const float &dt)
 {
-	pad_instance_move();
-	pad_camera_free(dt);
-	//
 	WORD get_vkey;
-	if (pad.is_on_keydown(get_vkey)) app->m_UI.define_on_pad_keydown(get_vkey, dt);
+	if (pad.is_on_keydown(get_vkey)) app->m_UiMgr.define_on_pad_keydown(get_vkey);
 	// avoid ui conflict with control
-	if (app->m_UI.is_ui_appear()) wait_ui_disappear = 0.3f;
+	if (app->m_UiMgr.is_ui_appear()) wait_ui_disappear = 0.3f;
 	wait_ui_disappear -= dt;
 	if (wait_ui_disappear > 0.0f) return;
 	wait_ui_disappear = -1.0f;
@@ -523,7 +422,7 @@ void control_mov<T_app>::on_pad_down(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
-	app->m_UI.define_on_input_keydown(w_param, l_param);
+	app->m_UiMgr.define_on_input_keydown(w_param, l_param);
 	if (pad.is_enable()) return;
 	if (app->m_Cmd.is_active) return;
 	if (w_param == KEY_P1_WALK_RUN) motion.switch_walk_run();
@@ -536,19 +435,21 @@ void control_mov<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const
 	if ((btn_state & MOUSE_CAM_MOVE)) {
 		mouse_camera_move(pos_x, pos_y);
 	}
-	app->m_UI.on_mouse_over(pos_x, pos_y);
+	app->m_UiMgr.on_mouse_over(pos_x, pos_y);
 }
 //
 template <typename T_app>
 void control_mov<T_app>::on_mouse_wheel(const short &z_delta)
 {
-	if (app->m_UI.on_mouse_wheel(z_delta)) return;
+	if (app->m_UiMgr.on_mouse_wheel(z_delta)) return;
 	mouse_camera_wheel(z_delta);
 }
 ////////////////
+// control_mov_math.h
 // control_mov_cam.h
 ////////////////
 ////////////////
+#include "control_mov_math.h"
 #include "control_mov_cam.h"
 }
 #endif

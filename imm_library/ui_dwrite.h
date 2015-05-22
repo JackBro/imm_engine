@@ -75,9 +75,12 @@ void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
 {
 	RECT rc;
 	GetClientRect(hwnd, &rc);
+	float width = static_cast<float>(rc.right - rc.left);
 	float height = static_cast<float>(rc.bottom - rc.top);
 	// font size according 786p (1366*768 resolution)
-	float font_size = m_FontFactor*height/768.0f;
+	float width_size = m_FontFactor*width/REF_RESOLUTION_WIDTH;
+	float height_size = m_FontFactor*height/REF_RESOLUTION_HEIGHT;
+	float font_size = (width_size > height_size) ? width_size : height_size;
 	ReleaseCOM(m_TextFormat);
 	HR(m_WriteFactory->CreateTextFormat(
 		L"Consolas",

@@ -6,7 +6,7 @@
 ////////////////
 ////////////////
 template <typename T_app>
-void control_mov<T_app>::pad_camera_free(const float &dt)
+void control_mov<T_app>::pad_camera_free_update(const float &dt)
 {
 	if (pad.is_R_active()) {
 		float dx = XMConvertToRadians(50.0f*pad.state.Gamepad.sThumbRX/32767*dt);
@@ -14,7 +14,7 @@ void control_mov<T_app>::pad_camera_free(const float &dt)
 		app->m_Cam.pitch(dy);
 		app->m_Cam.rotate_y(-dx);
 	}
-	if (app->m_UI.is_ui_appear()) return;
+	if (app->m_UiMgr.is_ui_appear()) return;
 	if (style_p1 & CONTORL_CAM_FREE) {
 		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_UP) app->m_Cam.up_down(10.0f*dt);
 		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_DOWN) app->m_Cam.up_down(-10.0f*dt);
@@ -39,7 +39,7 @@ void control_mov<T_app>::on_pad_camera_follow(const WORD &vkey)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::key_camera_free(const float &dt)
+void control_mov<T_app>::key_camera_free_update(const float &dt)
 {
 	if (!(style_p1 & CONTORL_CAM_FREE)) return;
 	if (GetKeyState(KEY_CAM_FREE_LEFT) & 0x8000) app->m_Cam.strafe(-10.0f*dt);
