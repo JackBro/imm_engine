@@ -36,27 +36,6 @@ void ui_main_menu<T_app>::define_txt_str()
 	m_DefineTxt["help"] += L"if the gamepad is plugin, the keyboard and mouse control will be disabled.\n";
 	// credit
 	m_DefineTxt["credit"] = L"\n";
-	m_DefineTxt["credit"] += L"Credit\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"The fundamental 3D rendering technique is derived from the textbook ";
-	m_DefineTxt["credit"] += L"Introduction to 3D Game Programming with DirectX 11 by Frank Luna.\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"Sinon (Sword art Online) 3D model by Daniel Kreuter.\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"Low Poly Cactus 3D model by Richard Thorogood.\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"Hand-Painted Column 3D model by xrg.\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"Ammo Box 3D model by mahesh.\n";
 	// about
 	m_DefineTxt["about"] = L"\n";
-	m_DefineTxt["about"] += L"About\n";
-	m_DefineTxt["about"] += L"\n";
-	m_DefineTxt["about"] += L"immature engine Demo 20150424\n";
-	m_DefineTxt["about"] += L"Copyright 2015 Huang Yiting (http://endrollex.com)\n";
-	m_DefineTxt["about"] += L"\n";
-	m_DefineTxt["about"] += L"This demo only has a menu scene, not game logic yet. ";
-	m_DefineTxt["about"] += L"You can manipulate an instance, just have a look.\n";
-	m_DefineTxt["about"] += L"\n";
-	m_DefineTxt["about"] += L"Notice the 3D model Sinon is a fan art, this work is noncommercial use.\n";
 }

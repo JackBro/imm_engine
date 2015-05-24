@@ -21,7 +21,7 @@ struct instance_mgr
 		ID3D11Device *device,		
 		const std::string &scene_ix,
 		const std::string &scene_ground,
-		std::atomic<bool> &is_loading,
+		std::atomic<bool> &is_preparing,
 		atomic_wstring &input);
 	template <typename instance, typename get_pos>
 	void push_back(
@@ -49,7 +49,7 @@ struct instance_mgr
 };
 //
 instance_mgr::instance_mgr():
-	m_IsLoading(true),
+	m_IsLoading(false),
 	m_SceneGroundIx(0)
 {
 	;
@@ -59,11 +59,11 @@ void instance_mgr::load(
 	ID3D11Device *device,
 	const std::string &scene_ix,
 	const std::string &scene_ground,	
-	std::atomic<bool> &is_loading,
+	std::atomic<bool> &is_preparing,
 	atomic_wstring &input)
 {
 	m_IsLoading = true;
-	is_loading = m_IsLoading;
+	is_preparing = m_IsLoading;
 	std::wstring load_done(scene_ix.begin(), scene_ix.end());
 	if (!m_Model.load(device, scene_ix)) {
 		load_done = L"> Scene "+load_done+L" not found.\n";
@@ -100,7 +100,7 @@ void instance_mgr::load(
 		[](const pos_normal_tex_tan &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
 	m_IsLoading = false;
-	is_loading = m_IsLoading;
+	is_preparing = m_IsLoading;
 	load_done = L"> Scene "+load_done+L" load done\n";
 	input.assign(load_done);
 	// scene

@@ -192,14 +192,26 @@ void ui_base<T_app>::on_resize_TextLayout(const size_t &ix, const bool &is_resiz
 	auto rect = &m_Rect[ix];
 	if (!is_resize) {
 		// init, title len = group size + 1
-		m_Dwrite[rect->dwrite_ix].on_resize_TextLayout(
-			rect->text, txt_width, height, ix, m_TitleFontFactor, rect->group.size()+1);
+		m_Dwrite[rect->dwrite_ix].build_TextLayout(
+			m_App->m_hwnd,
+			rect->text,
+			ix,
+			txt_width,
+			height,
+			m_TitleFontFactor,
+			rect->group.size()+1);
 	}	
 	else {
-		m_Dwrite[rect->dwrite_ix].build_resize_TextLayout(ix, txt_width, height);
+		m_Dwrite[rect->dwrite_ix].on_resize_TextLayout(
+			m_App->m_hwnd,
+			ix,
+			txt_width,
+			height,
+			m_TitleFontFactor,
+			rect->group.size()+1);
 	}
 	// uses margin.w as text layout's height
-	m_Dwrite[m_Rect[ix].dwrite_ix].get_TextLayout_height(ix, m_Rect[ix].margin.w);
+	m_Dwrite[m_Rect[ix].dwrite_ix].on_size_get_TextLayout_height(ix, m_Rect[ix].margin.w);
 }
 //
 template <typename T_app>

@@ -70,6 +70,7 @@ void scene_mgr<T_app>::update_atmosphere(float dt)
 template <typename T_app>
 void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 {
+	assert(!app->m_Inst.m_IsLoading);
 	std::string scene_ix_str(scene_ix.begin(), scene_ix.end());
 	misc_info["ground"] = "";
 	misc_info["player1"] = "";
@@ -82,12 +83,13 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	l_reader.loadfile(describe);
 	l_reader.map_from_global(misc_info);
 	// instance
+	app->m_Control.reset();
 	std::thread(
 		&instance_mgr::load, std::ref(app->m_Inst),
 		app->m_D3DDevice,
 		scene_ix_str,
 		misc_info["ground"],
-		std::ref(app->m_Cmd.is_loading),
+		std::ref(app->m_Cmd.is_preparing),
 		std::ref(app->m_Cmd.input)).detach();
 	// skybox
 	if (skybox != nullptr) delete skybox;

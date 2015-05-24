@@ -27,6 +27,7 @@ struct dwrite_simple
 {
 	dwrite_simple();
 	~dwrite_simple();
+	float calc_FontSize(HWND &hwnd, const float &font_factor);
 	void on_resize_CreateTextFormat(HWND &hwnd);
 	// for m_LayoutRc as writting area
 	void init_solo(
@@ -45,15 +46,22 @@ struct dwrite_simple
 	void on_resize_LayoutRc(HWND &hwnd, const FLOAT &margin_factor);
 	void set_Brush(ID2D1DeviceContext *d2d_dc, D2D1::ColorF::Enum color);
 	template <typename T_wstring>
-	void on_resize_TextLayout(
+	void build_TextLayout(
+		HWND &hwnd,
 		T_wstring &wst_text,
+		const size_t &index,
 		const FLOAT &width,
 		const FLOAT &height,
-		const size_t &index,
-		const FLOAT &title_font,
+		const FLOAT &title_font_factor,
 		const size_t &title_len);
-	void build_resize_TextLayout(const size_t &index, const FLOAT &width, const FLOAT &height);
-	void get_TextLayout_height(const size_t &index, float &height);
+	void on_resize_TextLayout(
+		HWND &hwnd,
+		const size_t &index,
+		const FLOAT &width,
+		const FLOAT &height,
+		const FLOAT &title_font_factor,
+		const size_t &title_len);
+	void on_size_get_TextLayout_height(const size_t &index, float &height);
 	template <typename T_wstring>
 	void draw(ID2D1DeviceContext *d2d_dc, T_wstring &wst_text);
 	template <typename T_wstring>
@@ -94,16 +102,22 @@ dwrite_simple::~dwrite_simple()
 	for (auto text_layout: m_TextLayout) ReleaseCOM(text_layout.second);
 }
 //
-void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
+float dwrite_simple::calc_FontSize(HWND &hwnd, const float &font_factor)
 {
 	RECT rc;
 	GetClientRect(hwnd, &rc);
 	float width = static_cast<float>(rc.right - rc.left);
 	float height = static_cast<float>(rc.bottom - rc.top);
 	// font size according 786p (1366*768 resolution)
-	float width_size = m_FontFactor*width/REF_RESOLUTION_WIDTH;
-	float height_size = m_FontFactor*height/REF_RESOLUTION_HEIGHT;
+	float width_size = font_factor*width/REF_RESOLUTION_WIDTH;
+	float height_size = font_factor*height/REF_RESOLUTION_HEIGHT;
 	float font_size = (width_size > height_size) ? width_size : height_size;
+	return font_size;
+}
+//
+void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
+{
+	float font_size = calc_FontSize(hwnd, m_FontFactor);
 	ReleaseCOM(m_TextFormat);
 	HR(m_WriteFactory->CreateTextFormat(
 		m_FontName.c_str(),
@@ -185,12 +199,13 @@ void dwrite_simple::set_Brush(ID2D1DeviceContext *d2d_dc, D2D1::ColorF::Enum col
 }
 //
 template <typename T_wstring>
-void dwrite_simple::on_resize_TextLayout(
+void dwrite_simple::build_TextLayout(
+	HWND &hwnd,
 	T_wstring &wst_text,
+	const size_t &index,
 	const FLOAT &width,
 	const FLOAT &height,
-	const size_t &index,
-	const FLOAT &title_font,
+	const FLOAT &title_font_factor,
 	const size_t &title_len)
 {
 	m_TextLayout[index];
@@ -203,20 +218,41 @@ void dwrite_simple::on_resize_TextLayout(
 		height,
 		&m_TextLayout[index]));
 	//
+	on_resize_TextLayout(
+		hwnd,
+		index,
+		width,
+		height,
+		title_font_factor,
+		title_len);
+}
+//
+void dwrite_simple::on_resize_TextLayout(
+	HWND &hwnd,
+	const size_t &index,
+	const FLOAT &width,
+	const FLOAT &height,
+	const FLOAT &title_font_factor,
+	const size_t &title_len)
+{
+	// recalc title font size
 	DWRITE_TEXT_RANGE range;
 	range.startPosition = 0;
 	range.length = static_cast<UINT32>(title_len);
-	m_TextLayout[index]->SetFontSize(title_font, range);
-	m_TextLayout[index]->SetFontWeight (DWRITE_FONT_WEIGHT_BOLD , range);
-}
-//
-void dwrite_simple::build_resize_TextLayout(const size_t &index, const FLOAT &width, const FLOAT &height)
-{
+	float title_font_size = calc_FontSize(hwnd, title_font_factor);
+	m_TextLayout[index]->SetFontSize(title_font_size, range);
+	m_TextLayout[index]->SetFontWeight (DWRITE_FONT_WEIGHT_BOLD, range);
+	// recalc font size
+	float font_size = calc_FontSize(hwnd, m_FontFactor);
+	range.startPosition = static_cast<UINT32>(title_len);
+	range.length = 2000000000;
+	m_TextLayout[index]->SetFontSize(font_size, range);
+	//
 	HR(m_TextLayout[index]->SetMaxHeight(height));
 	HR(m_TextLayout[index]->SetMaxWidth(width));
 }
 //
-void dwrite_simple::get_TextLayout_height(const size_t &index, float &height)
+void dwrite_simple::on_size_get_TextLayout_height(const size_t &index, float &height)
 {
 	DWRITE_TEXT_METRICS text_metrics;
 	HR(m_TextLayout[index]->GetMetrics(&text_metrics));

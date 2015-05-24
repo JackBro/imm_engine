@@ -91,6 +91,16 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().margin = XMFLOAT4(0.3f, 0.2f, 0.3f, 0.72f);
 	//
 	m_Rect.emplace_back(ui_rect());
+	m_Rect.back().id_str = "menu_title";
+	m_Rect.back().parent_str = "menu_backg";
+	m_Rect.back().group = "menu";
+	m_Rect.back().tp = ui_rect::type::button;
+	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().text = L"Retrun to Title";
+	m_Rect.back().dwrite_ix = "24";
+	m_Rect.back().margin = XMFLOAT4(0.3f, 0.32f, 0.3f, 0.60f);
+	//
+	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "menu_exit";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
@@ -98,7 +108,7 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().brush_sel = {"yellow"};
 	m_Rect.back().text = L"Exit";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.3f, 0.35f, 0.3f, 0.57f);
+	m_Rect.back().margin = XMFLOAT4(0.3f, 0.44f, 0.3f, 0.48f);
 	//
 	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "menu_credit";
@@ -108,7 +118,7 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().brush_sel = {"yellow"};
 	m_Rect.back().text = L"Credit";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.3f, 0.5f, 0.3f, 0.42f);
+	m_Rect.back().margin = XMFLOAT4(0.3f, 0.56f, 0.3f, 0.36f);
 	//
 	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "menu_about";
@@ -118,7 +128,7 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().brush_sel = {"yellow"};
 	m_Rect.back().text = L"About";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.3f, 0.65f, 0.3f, 0.27f);
+	m_Rect.back().margin = XMFLOAT4(0.3f, 0.68f, 0.3f, 0.24f);
 	////////////////
 	// help
 	////////////////
@@ -279,14 +289,18 @@ template <typename T_app>
 bool ui_main_menu<T_app>::define_apply_ix_if(int &index)
 {
 	// menu
-	if (index == m_MapID["menu_exit"]) {
-		group_active("menu", false);
-		group_active("exit", true);
-		return true;
-	}
 	if (index == m_MapID["menu_help"]) {
 		group_active("menu", false);
 		group_active("help", true);
+		return true;
+	}
+	if (index == m_MapID["menu_title"]) {
+		m_App->m_Scene.reload(L"00");
+		return true;
+	}
+	if (index == m_MapID["menu_exit"]) {
+		group_active("menu", false);
+		group_active("exit", true);
 		return true;
 	}
 	if (index == m_MapID["menu_credit"]) {
@@ -313,7 +327,7 @@ bool ui_main_menu<T_app>::define_apply_ix_if(int &index)
 		group_active("help", false);
 		return true;
 	}
-	// about
+	// credit
 	if (index == m_MapID["credit_close"]) {
 		group_active("credit", false);
 		return true;

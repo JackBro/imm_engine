@@ -4,7 +4,7 @@
 ////////////////
 void imm_app::draw_scene()
 {
-	if (!m_Cmd.is_slient && !m_Cmd.is_loading) draw_scene_d3d();
+	if (!m_Cmd.is_should_be_quiet()) draw_scene_d3d();
 	else draw_scene_d3d_slient();
 	draw_scene_d2d();
 	// Synchronize presentation

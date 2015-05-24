@@ -279,10 +279,10 @@ void control_mov<T_app>::reset()
 template <typename T_app>
 void control_mov<T_app>::update_loading_stat()
 {
-	if (player1 < 0 && !app->m_Inst.m_IsLoading) {
+	if (player1 < 0 && !app->m_Cmd.is_preparing) {
 		player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.misc_info["player1"]));
 	}
-	if (app->m_Inst.m_IsLoading && player1 != -1) {
+	if (app->m_Cmd.is_preparing && player1 != -1) {
 		reset();
 	}
 }

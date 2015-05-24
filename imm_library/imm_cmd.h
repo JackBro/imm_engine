@@ -23,8 +23,8 @@ struct cmd_shell
 	cmd_shell();
 	std::atomic<bool> is_active;
 	std::atomic<bool> is_slient;
-	std::atomic<bool> is_busy;
-	std::atomic<bool> is_loading;
+	std::atomic<bool> is_busying;
+	std::atomic<bool> is_preparing;
 	FLOAT margin_factor;
 	float font_factor;
 	std::wstring cmd;
@@ -38,14 +38,15 @@ struct cmd_shell
 	void apply();
 	void on_resize();
 	void draw();
+	bool is_should_be_quiet();
 };
 //
 template <typename T_app>
 cmd_shell<T_app>::cmd_shell():
 	is_active(false),
 	is_slient(true),
-	is_busy(false),
-	is_loading(true),
+	is_busying(false),
+	is_preparing(true),
 	margin_factor(0.018f),
 	font_factor(16.0f),
 	cmd(),
@@ -197,10 +198,10 @@ void cmd_shell<T_app>::apply()
 	if (cmd_get == L"util b3m start") {
 		is_slient = true;
 		input += L"\n> util b3m processing...";
-		if (!is_busy) {
+		if (!is_busying) {
 			std::thread(
 			misc_util_b3m<atomic_wstring>,
-			app->m_D3DDevice, std::ref(input), std::ref(is_busy)).detach();
+			app->m_D3DDevice, std::ref(input), std::ref(is_busying)).detach();
 		}
 		return;
 	}
@@ -233,5 +234,14 @@ void cmd_shell<T_app>::draw()
 {
 	dwrite.draw(app->m_D2DDC, input);
 }
+//
+template <typename T_app>
+bool cmd_shell<T_app>::is_should_be_quiet()
+{
+	if (is_slient) return true;
+	if (is_preparing) return true;
+	return false;
+}
+//
 }
 #endif
