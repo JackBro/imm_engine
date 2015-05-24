@@ -33,9 +33,9 @@ template <typename T_app>
 void ui_main_menu<T_app>::define_style()
 {
 	m_TitleFontFactor = 32.0f;
-	m_Dwrite["32"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, 32.0f, 2);
-	m_Dwrite["24"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, 24.0f, 2);
-	m_Dwrite["20_alig"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, 20.0f, 3);
+	m_Dwrite["32"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 32.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["24"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 24.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["22_page"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 22.0f, DWRITE_ALIG_STYLE_PAGE);
 	// brush
 	m_Brush["black"];
 	set_Brush(D2D1::ColorF::Black, 0.5f, "black");
@@ -141,7 +141,7 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().brush_sel = {"yellow"};
 	m_Rect.back().text = L"Close";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.75f, 0.82f, 0.05f, 0.1f);
+	m_Rect.back().margin = XMFLOAT4(0.8f, 0.84f, 0.05f, 0.08f);
 	//
 	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "help_content";
@@ -150,7 +150,7 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().tp = ui_rect::type::text_layout;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = get_DefineTxt("help");
-	m_Rect.back().dwrite_ix = "20_alig";
+	m_Rect.back().dwrite_ix = "22_page";
 	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
 	////////////////
 	// exit
@@ -168,33 +168,33 @@ void ui_main_menu<T_app>::define_style()
 	//
 	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "exit_yes";
-	m_Rect.back().parent_str = "exit_backg";
+	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
 	m_Rect.back().tp = ui_rect::type::button;
 	m_Rect.back().brush_sel = {"yellow"};
 	m_Rect.back().text = L"Yes";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.25f, 0.6f, 0.6f, 0.3f);
+	m_Rect.back().margin = XMFLOAT4(0.25f, 0.5f, 0.6f, 0.42f);
 	//
 	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "exit_no";
-	m_Rect.back().parent_str = "exit_backg";
+	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
 	m_Rect.back().tp = ui_rect::type::button;
 	m_Rect.back().brush_sel = {"yellow"};
 	m_Rect.back().text = L"No";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.6f, 0.6f, 0.25f, 0.3f);
+	m_Rect.back().margin = XMFLOAT4(0.6f, 0.5f, 0.25f, 0.42f);
 	//
 	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "exit_title";
-	m_Rect.back().parent_str = "exit_backg";
+	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"Exit the Demo?";
 	m_Rect.back().dwrite_ix = "32";
-	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.3f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.2f);
 	////////////////
 	// credit
 	////////////////
@@ -217,7 +217,7 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().brush_sel = {"yellow"};
 	m_Rect.back().text = L"Close";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.75f, 0.82f, 0.05f, 0.1f);
+	m_Rect.back().margin = XMFLOAT4(0.8f, 0.84f, 0.05f, 0.08f);
 	//
 	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "credit_content";
@@ -226,7 +226,7 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().tp = ui_rect::type::text_layout;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = get_DefineTxt("credit");
-	m_Rect.back().dwrite_ix = "20_alig";
+	m_Rect.back().dwrite_ix = "22_page";
 	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
 	////////////////
 	// about
@@ -250,7 +250,7 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().brush_sel = {"yellow"};
 	m_Rect.back().text = L"Close";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.75f, 0.82f, 0.05f, 0.1f);
+	m_Rect.back().margin = XMFLOAT4(0.8f, 0.84f, 0.05f, 0.08f);
 	//
 	m_Rect.emplace_back(ui_rect());
 	m_Rect.back().id_str = "about_content";
@@ -259,7 +259,7 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().tp = ui_rect::type::text_layout;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = get_DefineTxt("about");
-	m_Rect.back().dwrite_ix = "20_alig";
+	m_Rect.back().dwrite_ix = "22_page";
 	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
 	////////////////
 	//
@@ -330,7 +330,6 @@ template <typename T_app>
 void ui_main_menu<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	DUMMY(l_param);
-	m_IsPadUsing = false;
 	if (w_param == KEY_UI_ESC) {
 		if (is_ui_appear()) define_deactivate_all_default();
 		else group_active("menu", true);
@@ -345,28 +344,12 @@ void ui_main_menu<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_par
 template <typename T_app>
 void ui_main_menu<T_app>::define_on_pad_keydown(const WORD &vkey)
 {
-	m_IsPadUsing = true;
 	if (vkey == PAD_UI_MENU) {
 		group_active_switch("menu");
 		return;
 	}
-	if (vkey == PAD_UI_DWON1 || vkey == PAD_UI_DWON2) {
-		pad_loop_button(true);
-		if (vkey == PAD_UI_DWON1) pad_roll_text_layout(true);
-		return;
-	}
-	if (vkey == PAD_UI_UP1 || vkey == PAD_UI_UP2) {
-		pad_loop_button(false);
-		if (vkey == PAD_UI_UP1) pad_roll_text_layout(false);
-		return;
-	}
 	if (vkey == PAD_UI_DEACTIVATE) {
 		define_deactivate_all_default();
-		return;
-	}
-	//
-	if (m_ClickableActived != "none") {
-		if (vkey == PAD_UI_APPLY) apply_ix(m_ClickIxPad);
 		return;
 	}
 }

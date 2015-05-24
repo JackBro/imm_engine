@@ -11,6 +11,13 @@
 #include <Dwrite.h>
 #include "imm_core.h"
 ////////////////
+// DWRITE_ALIG_STYLE
+////////////////
+////////////////
+static const int DWRITE_ALIG_STYLE_CMD = 0;
+static const int DWRITE_ALIG_STYLE_CENTER = 1;
+static const int DWRITE_ALIG_STYLE_PAGE = 2;
+////////////////
 // dwrite_simple
 ////////////////
 ////////////////
@@ -22,15 +29,29 @@ struct dwrite_simple
 	~dwrite_simple();
 	void on_resize_CreateTextFormat(HWND &hwnd);
 	// for m_LayoutRc as writting area
-	void init(ID2D1DeviceContext *d2d_dc, HWND &hwnd, const FLOAT &margin_factor, const float &font_factor);
+	void init_solo(
+		ID2D1DeviceContext *d2d_dc,
+		HWND &hwnd,
+		const std::wstring &font_name,
+		const FLOAT &margin_factor,
+		const float &font_factor);
 	// for draw rect form external
-	void init_without_rect(ID2D1DeviceContext *d2d_dc, HWND &hwnd, const float &font_factor, const int &text_alig_style);
+	void init_without_rect(
+		ID2D1DeviceContext *d2d_dc,
+		HWND &hwnd,
+		const std::wstring &font_name,
+		const float &font_factor,
+		const int &text_alig_style);
 	void on_resize_LayoutRc(HWND &hwnd, const FLOAT &margin_factor);
 	void set_Brush(ID2D1DeviceContext *d2d_dc, D2D1::ColorF::Enum color);
 	template <typename T_wstring>
 	void on_resize_TextLayout(
-		T_wstring &wst_text, const FLOAT &width, const FLOAT &height, const size_t &index,
-		const FLOAT &title_font, const size_t &title_len);
+		T_wstring &wst_text,
+		const FLOAT &width,
+		const FLOAT &height,
+		const size_t &index,
+		const FLOAT &title_font,
+		const size_t &title_len);
 	void build_resize_TextLayout(const size_t &index, const FLOAT &width, const FLOAT &height);
 	void get_TextLayout_height(const size_t &index, float &height);
 	template <typename T_wstring>
@@ -45,6 +66,7 @@ struct dwrite_simple
 	D2D1_RECT_F m_LayoutRc;
 	size_t m_MaxSize;
 	float m_FontFactor;
+	std::wstring m_FontName;
 	int m_TextAligStyle;
 private:
 	dwrite_simple(const dwrite_simple &rhs);
@@ -58,7 +80,8 @@ dwrite_simple::dwrite_simple():
 	m_LayoutRc(),
 	m_MaxSize(2500),
 	m_FontFactor(0.0f),
-	m_TextAligStyle(1)
+	m_FontName(L"Consolas"),
+	m_TextAligStyle(DWRITE_ALIG_STYLE_CMD)
 {
 	;
 }
@@ -83,7 +106,7 @@ void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
 	float font_size = (width_size > height_size) ? width_size : height_size;
 	ReleaseCOM(m_TextFormat);
 	HR(m_WriteFactory->CreateTextFormat(
-		L"Consolas",
+		m_FontName.c_str(),
 		NULL,
 		DWRITE_FONT_WEIGHT_REGULAR,
 		DWRITE_FONT_STYLE_NORMAL,
@@ -93,15 +116,15 @@ void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
 		&m_TextFormat
 	));
 	switch (m_TextAligStyle) {
-		case 1:
+		case DWRITE_ALIG_STYLE_CMD:
 			HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
 			HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR));
 			return;
-		case 2:
+		case DWRITE_ALIG_STYLE_CENTER:
 			HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
 			HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
 			return;
-		case 3:
+		case DWRITE_ALIG_STYLE_PAGE:
 			HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
 			HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
 			return;		
@@ -109,10 +132,14 @@ void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
 	assert(false);
 }
 //
-void dwrite_simple::init(
-	ID2D1DeviceContext *d2d_dc, HWND &hwnd, const FLOAT &margin_factor, const float &font_factor)
+void dwrite_simple::init_solo(
+	ID2D1DeviceContext *d2d_dc,
+	HWND &hwnd,
+	const std::wstring &font_name,
+	const FLOAT &margin_factor,
+	const float &font_factor)
 {
-	m_TextAligStyle = 1;
+	m_FontName = font_name;
 	m_FontFactor = font_factor;
 	HR(DWriteCreateFactory(
 		DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&m_WriteFactory)));
@@ -122,8 +149,14 @@ void dwrite_simple::init(
 	HR(d2d_dc->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_Brush));
 }
 //
-void dwrite_simple::init_without_rect(ID2D1DeviceContext *d2d_dc, HWND &hwnd, const float &font_factor, const int &text_alig_style)
+void dwrite_simple::init_without_rect(
+	ID2D1DeviceContext *d2d_dc,
+	HWND &hwnd,
+	const std::wstring &font_name,
+	const float &font_factor,
+	const int &text_alig_style)
 {
+	m_FontName = font_name;
 	m_TextAligStyle = text_alig_style;
 	m_FontFactor = font_factor;
 	HR(DWriteCreateFactory(
@@ -153,8 +186,12 @@ void dwrite_simple::set_Brush(ID2D1DeviceContext *d2d_dc, D2D1::ColorF::Enum col
 //
 template <typename T_wstring>
 void dwrite_simple::on_resize_TextLayout(
-	T_wstring &wst_text, const FLOAT &width, const FLOAT &height, const size_t &index,
-	const FLOAT &title_font, const size_t &title_len)
+	T_wstring &wst_text,
+	const FLOAT &width,
+	const FLOAT &height,
+	const size_t &index,
+	const FLOAT &title_font,
+	const size_t &title_len)
 {
 	m_TextLayout[index];
 	ReleaseCOM(m_TextLayout[index]);

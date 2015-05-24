@@ -76,7 +76,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	misc_info["skybox_file"] = "";
 	misc_info["play_bgm"] = "";
 	misc_info["ui_class"] = "";
-	misc_info["ui_name"] = "";
+	misc_info["ui_group"] = "";
 	lua_reader l_reader;
 	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix_str+"\\describe_instance.lua";
 	l_reader.loadfile(describe);
@@ -106,7 +106,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 		audio.play_bgm(misc_info["play_bgm"]);
 	}
 	// ui
-	app->m_UiMgr.reload_active(misc_info["ui_class"], misc_info["ui_name"]);
+	app->m_UiMgr.reload_active(misc_info["ui_class"], misc_info["ui_group"]);
 }
 //
 }

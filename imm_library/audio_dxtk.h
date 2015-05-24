@@ -89,7 +89,8 @@ void audio_dxtk::play_bgm(const std::string &name)
 {
 	if (name != current_bgm_name) {
 		if (!map_bgm.count(name)) {
-			assert(false);
+			bool map_bgm_not_found_name = false;
+			assert(map_bgm_not_found_name);
 			abort();
 		}
 		data_check_file_exist(map_bgm[name]);

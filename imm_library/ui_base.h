@@ -61,6 +61,8 @@ struct ui_base
 	bool on_mouse_wheel(const short &z_delta);
 	void on_mouse_over(const int &pos_x, const int &pos_y);
 	void mouse_pick(const int &pos_x, const int &pos_y);
+	void on_pad_keydown(const WORD &vkey);
+	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void group_active_switch(const std::string &name);
 	void group_active(const std::string &name, const bool &is_act, const bool &is_switched = false);
 	void pad_loop_button(const bool &is_down, const std::string &select_none = "");
@@ -87,6 +89,7 @@ struct ui_base
 	sprite_simple m_Sprite;
 	int m_ClickIxMouse;
 	int m_ClickIxPad;
+	bool m_IsMute;
 	bool m_IsPadUsing;
 	FLOAT m_TitleFontFactor;
 	D2D1_POINT_2F m_TextLayoutOrigin;
@@ -104,6 +107,7 @@ template <typename T_app>
 ui_base<T_app>::ui_base():
 	m_ClickIxMouse(-1),
 	m_ClickIxPad(-1),
+	m_IsMute(false),
 	m_IsPadUsing(false),
 	m_TitleFontFactor(32.0f),
 	m_RcHWND(),
@@ -254,6 +258,7 @@ void ui_base<T_app>::draw_d3d()
 template <typename T_app>
 bool ui_base<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
+	if (m_IsMute) return false;
 	if (btn_state & MOUSE_UI_PICK) {
 		m_IsPadUsing = false;
 		mouse_pick(pos_x, pos_y);
@@ -265,6 +270,7 @@ bool ui_base<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int
 template <typename T_app>
 bool ui_base<T_app>::on_mouse_wheel(const short &z_delta)
 {
+	if (m_IsMute) return false;
 	for (auto &map: m_MapTextLayout) {
 		if (m_Rect[map.second[0]].active) {
 			float restrict_y = -m_Rect[map.second[0]].margin.w+100.0f;
@@ -280,6 +286,7 @@ bool ui_base<T_app>::on_mouse_wheel(const short &z_delta)
 template <typename T_app>
 void ui_base<T_app>::on_mouse_over(const int &pos_x, const int &pos_y)
 {
+	if (m_IsMute) return;
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		if (m_Rect[ix].tp == ui_rect::type::button && m_Rect[ix].active &&
 			pos_y > m_Rect[ix].rc.top && pos_y < m_Rect[ix].rc.bottom &&
@@ -293,6 +300,7 @@ void ui_base<T_app>::on_mouse_over(const int &pos_x, const int &pos_y)
 template <typename T_app>
 void ui_base<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 {
+	if (m_IsMute) return;
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		if (m_Rect[ix].tp == ui_rect::type::button && m_Rect[ix].active &&
 			pos_y > m_Rect[ix].rc.top && pos_y < m_Rect[ix].rc.bottom &&
@@ -301,6 +309,37 @@ void ui_base<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 			break;
 		}
 	}
+}
+//
+template <typename T_app>
+void ui_base<T_app>::on_pad_keydown(const WORD &vkey)
+{
+	if (m_IsMute) return;
+	m_IsPadUsing = true;
+	define_on_pad_keydown(vkey);
+	if (vkey == PAD_UI_DWON1 || vkey == PAD_UI_DWON2) {
+		pad_loop_button(true);
+		if (vkey == PAD_UI_DWON1) pad_roll_text_layout(true);
+		return;
+	}
+	if (vkey == PAD_UI_UP1 || vkey == PAD_UI_UP2) {
+		pad_loop_button(false);
+		if (vkey == PAD_UI_UP1) pad_roll_text_layout(false);
+		return;
+	}
+	//
+	if (m_ClickableActived != "none") {
+		if (vkey == PAD_UI_APPLY) apply_ix(m_ClickIxPad);
+		return;
+	}
+}
+//
+template <typename T_app>
+void ui_base<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
+{
+	if (m_IsMute) return;
+	m_IsPadUsing = false;
+	define_on_input_keydown(w_param, l_param);
 }
 //
 template <typename T_app>

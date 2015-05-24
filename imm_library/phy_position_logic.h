@@ -151,7 +151,8 @@ void phy_impulse_casual(
 	XMVECTOR vel_A_all = XMVectorAdd(vel_A, vel_A_nm);
 	XMVECTOR vel_B_all = XMVectorAdd(vel_B, vel_B_nm);
 	// penetration depth estimate, not accurate, increase its value
-	float penetration_much = XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*1.5f;
+	float penetration_scale = 1.5f;
+	float penetration = XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*penetration_scale;
 	// bounce
 	float bounce = prop_A.bounce*prop_B.bounce;
 	XMVECTOR vel_AB_all = XMVectorSubtract(vel_A_all, vel_B_all);
@@ -161,8 +162,8 @@ void phy_impulse_casual(
 	vel_A = XMVectorAdd(vel_A, injected_impulse);
 	vel_B = XMVectorSubtract(vel_B, injected_impulse);
 	// Fix the positions so that the two objects are apart, not accurate
-	c_A = XMVectorSubtract(c_A, XMVectorScale(AtoB, penetration_much));
-	c_B = XMVectorAdd(c_B, XMVectorScale(AtoB, penetration_much));
+	c_A = XMVectorSubtract(c_A, XMVectorScale(AtoB, penetration));
+	c_B = XMVectorAdd(c_B, XMVectorScale(AtoB, penetration));
 	w_A.r[3] = XMVectorAdd(c_A, offset_A);
 	w_B.r[3] = XMVectorAdd(c_B, offset_B);
 	w_A.r[3] = XMVectorSetW(w_A.r[3], 1.0f);

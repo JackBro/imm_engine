@@ -145,6 +145,7 @@ void timer::tick()
 // do nothing
 #define DUMMY(x) (x)
 // error messagebox
+// some error condition MessageBox will not work, if it is, not use ERROR_MES
 #define ERROR_MES(x) {MessageBox(0, x, L"ERROR", MB_OK); assert(false); abort();}
 namespace imm
 {

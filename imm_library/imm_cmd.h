@@ -26,6 +26,7 @@ struct cmd_shell
 	std::atomic<bool> is_busy;
 	std::atomic<bool> is_loading;
 	FLOAT margin_factor;
+	float font_factor;
 	std::wstring cmd;
 	atomic_wstring input;
 	XMVECTORF32 back_color;
@@ -46,6 +47,7 @@ cmd_shell<T_app>::cmd_shell():
 	is_busy(false),
 	is_loading(true),
 	margin_factor(0.018f),
+	font_factor(16.0f),
 	cmd(),
 	input(),
 	back_color(Colors::Blue),
@@ -59,7 +61,7 @@ void cmd_shell<T_app>::init(T_app *app_in)
 {
 	app = app_in;
 	input.assign(L"> immature engine\n");
-	dwrite.init(app->m_D2DDC, app->m_hwnd, margin_factor, 16.0f);
+	dwrite.init_solo(app->m_D2DDC, app->m_hwnd, L"Consolas", margin_factor, font_factor);
 }
 //
 template <typename T_app>
@@ -212,6 +214,7 @@ void cmd_shell<T_app>::apply()
 		else {
 			std::wstring scene_ix = cmd_get.substr(7, 2);
 			app->m_Scene.reload(scene_ix);
+			is_active = false;
 		}
 		return;
 	}

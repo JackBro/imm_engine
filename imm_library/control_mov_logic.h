@@ -408,7 +408,7 @@ template <typename T_app>
 void control_mov<T_app>::on_pad_down(const float &dt)
 {
 	WORD get_vkey;
-	if (pad.is_on_keydown(get_vkey)) app->m_UiMgr.define_on_pad_keydown(get_vkey);
+	if (pad.is_on_keydown(get_vkey)) app->m_UiMgr.on_pad_keydown(get_vkey);
 	// avoid ui conflict with control
 	if (app->m_UiMgr.is_ui_appear()) wait_ui_disappear = 0.3f;
 	wait_ui_disappear -= dt;
@@ -421,7 +421,7 @@ void control_mov<T_app>::on_pad_down(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
-	app->m_UiMgr.define_on_input_keydown(w_param, l_param);
+	app->m_UiMgr.on_input_keydown(w_param, l_param);
 	if (pad.is_enable()) return;
 	if (app->m_Cmd.is_active) return;
 	if (w_param == KEY_P1_WALK_RUN) motion.switch_walk_run();
