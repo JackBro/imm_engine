@@ -14,8 +14,8 @@
 // by Frank Luna (C) 2011 All Rights Reserved.
 ////////////////
 ////////////////
-#ifndef IMM_UTIL_H
-#define IMM_UTIL_H
+#ifndef IMM_CORE_H
+#define IMM_CORE_H
 #include <cassert>
 #include <windows.h>
 #include <cfloat>

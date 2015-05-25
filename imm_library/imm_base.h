@@ -152,10 +152,10 @@ BOOL base_win<DERIVED_TYPE>::init_win()
 	wc.lpszClassName	= class_name();
 	wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
 	RegisterClassW(&wc);
-	// rect
+	// Rect
 	RECT rect = {0, 0, m_ClientWidth, m_ClientHeight};
 	LONG l_style = WS_OVERLAPPEDWINDOW;
-	// Fake full screen
+	// Full screen (windowed)
 	if (m_FullScreen) {
 		GetWindowRect(GetDesktopWindow(), &rect);
 		l_style = WS_POPUP;
@@ -230,7 +230,7 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 		MessageBox(0, L"DirectXMath unsupported.", 0, 0);
 		return false;
 	}
-	// check ID3D11Device multithreading
+	// Check ID3D11Device multithreading
 	D3D11_FEATURE_DATA_THREADING check_feature_support;
 	m_D3DDevice->CheckFeatureSupport(
 		D3D11_FEATURE_THREADING, &check_feature_support, sizeof(check_feature_support));
@@ -280,7 +280,7 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 	m_DXGIPresentPara.pDirtyRects		= nullptr;
 	m_DXGIPresentPara.pScrollRect		= nullptr;
 	m_DXGIPresentPara.pScrollOffset		= nullptr;
-	// Disable alt-enter key, use fake full screen for IEM, otherwise full screen IEM will not work
+	// Disable alt-enter key, use full screen (windowed) for Microsoft IEM UI, otherwise full screen IEM will not work
 	// In addition, the alt-enter full screen can not use alt-tab correctly
 	dxgi_factory->MakeWindowAssociation(m_hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
 	// D2D init

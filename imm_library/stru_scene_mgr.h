@@ -85,7 +85,8 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	// instance
 	app->m_Control.reset();
 	std::thread(
-		&instance_mgr::load, std::ref(app->m_Inst),
+		&instance_mgr::load,
+		std::ref(app->m_Inst),
 		app->m_D3DDevice,
 		scene_ix_str,
 		misc_info["ground"],

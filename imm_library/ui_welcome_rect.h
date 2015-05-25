@@ -44,7 +44,7 @@ void ui_welcome<T_app>::define_style()
 	m_Brush["yellow"];
 	set_Brush(D2D1::ColorF::Yellow, 0.5f, "yellow");
 	m_Brush["red"];
-	set_Brush(D2D1::ColorF::Black, 0.5f, "red");
+	set_Brush(D2D1::ColorF::Red, 0.5f, "red");
 	////////////////
 	// entrance
 	////////////////
@@ -165,6 +165,49 @@ void ui_welcome<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "22_page";
 	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
 	////////////////
+	// exit
+	////////////////
+	////////////////
+	m_Rect.emplace_back(ui_rect());
+	m_Rect.back().id_str = "exit_backg";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "exit";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "32";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.15f, 0.0f, 0.15f);
+	//
+	m_Rect.emplace_back(ui_rect());
+	m_Rect.back().id_str = "exit_yes";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "exit";
+	m_Rect.back().tp = ui_rect::type::button;
+	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().text = L"Yes";
+	m_Rect.back().dwrite_ix = "24";
+	m_Rect.back().margin = XMFLOAT4(0.25f, 0.5f, 0.6f, 0.42f);
+	//
+	m_Rect.emplace_back(ui_rect());
+	m_Rect.back().id_str = "exit_no";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "exit";
+	m_Rect.back().tp = ui_rect::type::button;
+	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().text = L"No";
+	m_Rect.back().dwrite_ix = "24";
+	m_Rect.back().margin = XMFLOAT4(0.6f, 0.5f, 0.25f, 0.42f);
+	//
+	m_Rect.emplace_back(ui_rect());
+	m_Rect.back().id_str = "exit_title";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "exit";
+	m_Rect.back().tp = ui_rect::type::text_pure;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"Exit Game?";
+	m_Rect.back().dwrite_ix = "32";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.2f);
+	////////////////
 	//
 	////////////////
 	////////////////
@@ -172,7 +215,10 @@ void ui_welcome<T_app>::define_style()
 	//
 	for (auto &rect: m_Rect) {
 		rect.brush_ix = rect.brush_sel[0];
-		if (rect.tp == ui_rect::type::button) rect.brush_sel.emplace_back("red");
+		if (rect.tp == ui_rect::type::button) {
+			if (rect.group == "entrance") rect.brush_sel.emplace_back("black");
+			else rect.brush_sel.emplace_back("red");
+		}
 		rect.active = false;
 	}
 }
@@ -199,6 +245,11 @@ bool ui_welcome<T_app>::define_apply_ix_if(int &index)
 		group_active("about", true);
 		return true;
 	}
+	if (index == m_MapID["entrance_exit"]) {
+		group_active("entrance", false);
+		group_active("exit", true);
+		return true;
+	}	
 	// credit
 	if (index == m_MapID["credit_close"]) {
 		group_active("credit", false);
@@ -211,7 +262,17 @@ bool ui_welcome<T_app>::define_apply_ix_if(int &index)
 		group_active("entrance", true);
 		return true;
 	}
-	return false;	
+	// exit
+	if (index == m_MapID["exit_yes"]) {
+		PostQuitMessage(0);
+		return true;
+	}
+	if (index == m_MapID["exit_no"]) {
+		group_active("exit", false);
+		group_active("entrance", true);
+		return true;
+	}
+	return false;
 }
 //
 template <typename T_app>

@@ -70,6 +70,15 @@ void phy_set_aabb(
 	return;
 }
 ////////////////
+// vertex_color
+////////////////
+////////////////
+struct vertex_color
+{
+	XMFLOAT3 pos;
+	XMFLOAT4 color;
+};
+////////////////
 // phy_bound_type
 ////////////////
 ////////////////
@@ -116,7 +125,9 @@ public:
 //
 phy_bound_mgr::phy_bound_mgr():
 	b1(), b2(), b3(), map()
-{}
+{
+	;
+}
 //
 void phy_bound_mgr::push_empty(const phy_bound_type &type)
 {

@@ -18,7 +18,7 @@ struct instance_mgr
 {
 	instance_mgr();
 	void load(
-		ID3D11Device *device,		
+		ID3D11Device *device,
 		const std::string &scene_ix,
 		const std::string &scene_ground,
 		std::atomic<bool> &is_preparing,

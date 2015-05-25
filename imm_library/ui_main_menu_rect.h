@@ -106,29 +106,19 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
 	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Exit";
+	m_Rect.back().text = L"Exit Game";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.3f, 0.44f, 0.3f, 0.48f);
 	//
 	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "menu_credit";
+	m_Rect.back().id_str = "menu_options";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
 	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Credit";
+	m_Rect.back().text = L"Options";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.3f, 0.56f, 0.3f, 0.36f);
-	//
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "menu_about";
-	m_Rect.back().parent_str = "menu_backg";
-	m_Rect.back().group = "menu";
-	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"About";
-	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.3f, 0.68f, 0.3f, 0.24f);
 	////////////////
 	// help
 	////////////////
@@ -202,75 +192,9 @@ void ui_main_menu<T_app>::define_style()
 	m_Rect.back().group = "exit";
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = L"Exit the Demo?";
+	m_Rect.back().text = L"Exit Game?";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.2f);
-	////////////////
-	// credit
-	////////////////
-	////////////////
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "credit_backg";
-	m_Rect.back().parent_str = "-1";
-	m_Rect.back().group = "credit";
-	m_Rect.back().tp = ui_rect::type::background;
-	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "32";
-	m_Rect.back().margin = XMFLOAT4(0.1f, 0.0f, 0.1f, 0.0f);
-	//
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "credit_close";
-	m_Rect.back().parent_str = "-1";
-	m_Rect.back().group = "credit";
-	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Close";
-	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.8f, 0.84f, 0.05f, 0.08f);
-	//
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "credit_content";
-	m_Rect.back().parent_str = "-1";
-	m_Rect.back().group = "credit";
-	m_Rect.back().tp = ui_rect::type::text_layout;
-	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = get_DefineTxt("credit");
-	m_Rect.back().dwrite_ix = "22_page";
-	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
-	////////////////
-	// about
-	////////////////
-	////////////////
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "about_backg";
-	m_Rect.back().parent_str = "-1";
-	m_Rect.back().group = "about";
-	m_Rect.back().tp = ui_rect::type::background;
-	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "32";
-	m_Rect.back().margin = XMFLOAT4(0.1f, 0.0f, 0.1f, 0.0f);
-	//
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "about_close";
-	m_Rect.back().parent_str = "-1";
-	m_Rect.back().group = "about";
-	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Close";
-	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.8f, 0.84f, 0.05f, 0.08f);
-	//
-	m_Rect.emplace_back(ui_rect());
-	m_Rect.back().id_str = "about_content";
-	m_Rect.back().parent_str = "-1";
-	m_Rect.back().group = "about";
-	m_Rect.back().tp = ui_rect::type::text_layout;
-	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = get_DefineTxt("about");
-	m_Rect.back().dwrite_ix = "22_page";
-	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
 	////////////////
 	//
 	////////////////
@@ -303,16 +227,9 @@ bool ui_main_menu<T_app>::define_apply_ix_if(int &index)
 		group_active("exit", true);
 		return true;
 	}
-	if (index == m_MapID["menu_credit"]) {
-		group_active("menu", false);
-		group_active("credit", true);
+	if (index == m_MapID["menu_options"]) {
 		return true;
-	}
-	if (index == m_MapID["menu_about"]) {
-		group_active("menu", false);
-		group_active("about", true);
-		return true;
-	}
+	}	
 	// exit
 	if (index == m_MapID["exit_yes"]) {
 		PostQuitMessage(0);
@@ -325,16 +242,6 @@ bool ui_main_menu<T_app>::define_apply_ix_if(int &index)
 	// help
 	if (index == m_MapID["help_close"]) {
 		group_active("help", false);
-		return true;
-	}
-	// credit
-	if (index == m_MapID["credit_close"]) {
-		group_active("credit", false);
-		return true;
-	}
-	// about
-	if (index == m_MapID["about_close"]) {
-		group_active("about", false);
 		return true;
 	}
 	return false;	
@@ -389,9 +296,40 @@ void ui_main_menu<T_app>::define_deactivate_all_cmd_slient()
 	group_active("fps", true);
 }
 ////////////////
-// ui_main_menu_text.h
+// define_txt_str
 ////////////////
 ////////////////
-#include "ui_main_menu_text.h"
-}
+template <typename T_app>
+void ui_main_menu<T_app>::define_txt_str()
+{
+	// help
+	m_DefineTxt["help"] = L"\n";
+	m_DefineTxt["help"] += L"Help\n";
+	m_DefineTxt["help"] += L"\n";
+	m_DefineTxt["help"] += L"Keyboard and mouse:\n";
+	m_DefineTxt["help"] += L"W, A, S, D             Camera horizontal/vertical\n";
+	m_DefineTxt["help"] += L"Space                  Jump\n";
+	m_DefineTxt["help"] += L"Wheel Up/Down          Camera forward/backward\n";
+	m_DefineTxt["help"] += L"Middle Mouse Button    Camera pitch/yaw\n";
+	m_DefineTxt["help"] += L"Right Click            Select an instance\n";
+	m_DefineTxt["help"] += L"Left Click             Walk or Run\n";
+	m_DefineTxt["help"] += L"Shift                  Switch between Walk and Run\n";
+	m_DefineTxt["help"] += L"\n";
+	m_DefineTxt["help"] += L"System hotkeys:\n";
+	m_DefineTxt["help"] += L"Ctrl+R                 Prints FPS\n";
+	m_DefineTxt["help"] += L"Alt+Delete             Input/Gameplay mode\n";
+	m_DefineTxt["help"] += L"\n";
+	m_DefineTxt["help"] += L"Gamepad:\n";
+	m_DefineTxt["help"] += L"Left Stick             Walk\n";
+	m_DefineTxt["help"] += L"RT+Left Stick          Run\n";
+	m_DefineTxt["help"] += L"Buttom A               Jump\n";
+	m_DefineTxt["help"] += L"D-pad                  Camera horizontal/vertical\n";
+	m_DefineTxt["help"] += L"Right Stick            Camera pitch/yaw\n";
+	m_DefineTxt["help"] += L"LB                     Camera forward\n";
+	m_DefineTxt["help"] += L"RB                     Camera backward\n";
+	m_DefineTxt["help"] += L"\n";
+	m_DefineTxt["help"] += L"Note:\n";
+	m_DefineTxt["help"] += L"The program automatically detects the gamepad status, ";
+	m_DefineTxt["help"] += L"if the gamepad is plugin, the keyboard and mouse control will be disabled.\n";
+}}
 #endif

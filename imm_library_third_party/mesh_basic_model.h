@@ -19,10 +19,14 @@ class basic_model
 public:
 	basic_model() {;}
 	void set(
-		ID3D11Device *device, texture_mgr &tex_mgr, const std::string &model_filename,
+		ID3D11Device *device,
+		texture_mgr &tex_mgr,
+		const std::string &model_filename,
 		const std::wstring &texture_path);
 	void set(
-		ID3D11Device *device, texture_mgr &tex_mgr, const std::wstring &texture_path);
+		ID3D11Device *device,
+		texture_mgr &tex_mgr,
+		const std::wstring &texture_path);
 	// base class must have virtual destructor
 	// tex_mgr will kill ID3D11ShaderResourceView*
 	virtual ~basic_model() {;}
@@ -57,7 +61,9 @@ struct basic_model_instance
 };
 //
 void basic_model::set(
-	ID3D11Device *device, texture_mgr &tex_mgr, const std::string &model_filename,
+	ID3D11Device *device,
+	texture_mgr &tex_mgr,
+	const std::string &model_filename,
 	const std::wstring &texture_path)
 {
 	std::vector<m3d_material> mats;
@@ -80,7 +86,9 @@ void basic_model::set(
 }
 //
 void basic_model::set(
-	ID3D11Device *device, texture_mgr &tex_mgr, const std::wstring &texture_path)
+	ID3D11Device *device,
+	texture_mgr &tex_mgr,
+	const std::wstring &texture_path)
 {
 	m_ModelMesh.set_Vertices(device, &m_Vertices[0], static_cast<UINT>(m_Vertices.size()));
 	m_ModelMesh.set_Indices(device, &m_Indices[0], static_cast<UINT>(m_Indices.size()));
@@ -146,7 +154,10 @@ struct skinned_model_instance
 };
 //
 void skinned_model::set(
-	ID3D11Device *device, texture_mgr &tex_mgr, const std::string &model_filename, const std::wstring &texture_path)
+	ID3D11Device *device,
+	texture_mgr &tex_mgr,
+	const std::string &model_filename,
+	const std::wstring &texture_path)
 {
 	std::vector<m3d_material> mats;
 	m3d_loader loader1;
@@ -168,7 +179,9 @@ void skinned_model::set(
 }
 //
 void skinned_model::set(
-	ID3D11Device *device, texture_mgr &tex_mgr, const std::wstring &texture_path)
+	ID3D11Device *device,
+	texture_mgr &tex_mgr,
+	const std::wstring &texture_path)
 {
 	m_ModelMesh.set_Vertices(device, &m_Vertices[0], static_cast<UINT>(m_Vertices.size()));
 	m_ModelMesh.set_Indices(device, &m_Indices[0], static_cast<UINT>(m_Indices.size()));
@@ -186,6 +199,7 @@ void skinned_model::set(
 //
 void skinned_model_instance::update(float dt)
 {
+	if (!is_appear) return;
 	time_pos += dt;
 	model->m_SkinnedData.get_final_transforms(clip_name, time_pos, final_transforms);
 	// Loop animation

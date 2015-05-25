@@ -19,4 +19,5 @@ player1 = "cylinder"
 skybox_file = ""
 play_bgm = ""
 ui_class = ""
-ui_name = ""
+ui_group = ""
+
