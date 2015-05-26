@@ -6,9 +6,10 @@
 ////////////////
 #ifndef RENDER_SSAO_H
 #define RENDER_SSAO_H
-#include "stru_vertex.h"
+#include "ia_vertex.h"
 #include "imm_camera.h"
 #include "imm_core.h"
+#include <DirectXColors.h>
 #include <DirectXPackedVector.h>
 using namespace DirectX::PackedVector;
 namespace imm
@@ -36,7 +37,7 @@ public:
 	// quad to kick off the pixel shader to compute the AmbientMap.  We still keep the
 	// main depth buffer binded to the pipeline, but depth buffer read/writes
 	// are disabled, as we do not need the depth buffer computing the Ambient map.
-	void compute_ssao(const imm::camera &cam1);
+	void compute_ssao(const camera &cam1);
 	// Blurs the ambient map to smooth out the noise caused by only taking a
 	// few random samples per pixel.  We use an edge preserving blur so that
 	// we do not blur across discontinuities--we want edges to remain edges.
@@ -126,14 +127,14 @@ void ssao::set_NormalDepthRenderTarget(ID3D11DepthStencilView *dsv)
 	m_DC->ClearRenderTargetView(m_NormalDepthRTV, clear_color);
 }
 //
-void ssao::compute_ssao(const imm::camera &cam1)
+void ssao::compute_ssao(const camera &cam1)
 {
 	// Bind the ambient map as the render target.  Observe that this pass does not bind
 	// a depth/stencil buffer--it does not need it, and without one, no depth test is
 	// performed, which is what we want.
 	ID3D11RenderTargetView *render_targets[1] = {m_AmbientRTV0};
 	m_DC->OMSetRenderTargets(1, render_targets, 0);
-	m_DC->ClearRenderTargetView(m_AmbientRTV0, reinterpret_cast<const float*>(&imm::black));
+	m_DC->ClearRenderTargetView(m_AmbientRTV0, reinterpret_cast<const float*>(&Colors::Black));
 	m_DC->RSSetViewports(1, &m_AmbientMapViewport);
 	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
 	static const XMMATRIX T(
@@ -143,18 +144,18 @@ void ssao::compute_ssao(const imm::camera &cam1)
 		0.5f, 0.5f, 0.0f, 1.0f);
 	XMMATRIX P	= cam1.get_Proj();
 	XMMATRIX PT = XMMatrixMultiply(P, T);
-	imm::effects::m_SsaoFX->set_ViewToTexSpace(PT);
-	imm::effects::m_SsaoFX->set_OffsetVectors(m_Offsets);
-	imm::effects::m_SsaoFX->set_FrustumCorners(m_FrustumFarCorner);
-	imm::effects::m_SsaoFX->set_NormalDepthMap(m_NormalDepthSRV);
-	imm::effects::m_SsaoFX->set_RandomVecMap(m_RandomVectorSRV);
-	UINT stride = sizeof(imm::basic32);
+	effects::m_SsaoFX->set_ViewToTexSpace(PT);
+	effects::m_SsaoFX->set_OffsetVectors(m_Offsets);
+	effects::m_SsaoFX->set_FrustumCorners(m_FrustumFarCorner);
+	effects::m_SsaoFX->set_NormalDepthMap(m_NormalDepthSRV);
+	effects::m_SsaoFX->set_RandomVecMap(m_RandomVectorSRV);
+	UINT stride = sizeof(basic32);
 	UINT offset = 0;
-	m_DC->IASetInputLayout(imm::input_layouts::m_Basic32);
+	m_DC->IASetInputLayout(input_layouts::m_Basic32);
 	m_DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_DC->IASetVertexBuffers(0, 1, &m_ScreenQuadVB, &stride, &offset);
 	m_DC->IASetIndexBuffer(m_ScreenQuadIB, DXGI_FORMAT_R16_UINT, 0);
-	ID3DX11EffectTechnique *tech = imm::effects::m_SsaoFX->m_SsaoTech;
+	ID3DX11EffectTechnique *tech = effects::m_SsaoFX->m_SsaoTech;
 	D3DX11_TECHNIQUE_DESC tech_desc;
 	tech->GetDesc(&tech_desc);
 	for (UINT p = 0; p < tech_desc.Passes; ++p) {
@@ -177,18 +178,18 @@ void ssao::blur_ambient_map(ID3D11ShaderResourceView *input_srv, ID3D11RenderTar
 {
 	ID3D11RenderTargetView *render_targets[1] = {output_rtv};
 	m_DC->OMSetRenderTargets(1, render_targets, 0);
-	m_DC->ClearRenderTargetView(output_rtv, reinterpret_cast<const float*>(&imm::black));
+	m_DC->ClearRenderTargetView(output_rtv, reinterpret_cast<const float*>(&Colors::Black));
 	m_DC->RSSetViewports(1, &m_AmbientMapViewport);
-	imm::effects::m_SsaoBlurFX->set_TexelWidth(1.0f / m_AmbientMapViewport.Width);
-	imm::effects::m_SsaoBlurFX->set_TexelHeight(1.0f / m_AmbientMapViewport.Height);
-	imm::effects::m_SsaoBlurFX->set_NormalDepthMap(m_NormalDepthSRV);
-	imm::effects::m_SsaoBlurFX->set_InputImage(input_srv);
+	effects::m_SsaoBlurFX->set_TexelWidth(1.0f / m_AmbientMapViewport.Width);
+	effects::m_SsaoBlurFX->set_TexelHeight(1.0f / m_AmbientMapViewport.Height);
+	effects::m_SsaoBlurFX->set_NormalDepthMap(m_NormalDepthSRV);
+	effects::m_SsaoBlurFX->set_InputImage(input_srv);
 	ID3DX11EffectTechnique *tech;
-	if (horz_blur) tech = imm::effects::m_SsaoBlurFX->m_HorzBlurTech;
-	else tech = imm::effects::m_SsaoBlurFX->m_VertBlurTech;
-	UINT stride = sizeof(imm::basic32);
+	if (horz_blur) tech = effects::m_SsaoBlurFX->m_HorzBlurTech;
+	else tech = effects::m_SsaoBlurFX->m_VertBlurTech;
+	UINT stride = sizeof(basic32);
 	UINT offset = 0;
-	m_DC->IASetInputLayout(imm::input_layouts::m_Basic32);
+	m_DC->IASetInputLayout(input_layouts::m_Basic32);
 	m_DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_DC->IASetVertexBuffers(0, 1, &m_ScreenQuadVB, &stride, &offset);
 	m_DC->IASetIndexBuffer(m_ScreenQuadIB, DXGI_FORMAT_R16_UINT, 0);
@@ -198,7 +199,7 @@ void ssao::blur_ambient_map(ID3D11ShaderResourceView *input_srv, ID3D11RenderTar
 		tech->GetPassByIndex(p)->Apply(0, m_DC);
 		m_DC->DrawIndexed(6, 0, 0);
 		// Unbind the input SRV as it is going to be an output in the next blur.
-		imm::effects::m_SsaoBlurFX->set_InputImage(0);
+		effects::m_SsaoBlurFX->set_InputImage(0);
 		tech->GetPassByIndex(p)->Apply(0, m_DC);
 	}
 }
@@ -216,7 +217,7 @@ void ssao::build_FrustumFarCorners(float fovy, float far_z)
 //
 void ssao::build_FullScreenQuad()
 {
-	imm::basic32 v[4];
+	basic32 v[4];
 	v[0].pos = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 	v[1].pos = XMFLOAT3(-1.0f, +1.0f, 0.0f);
 	v[2].pos = XMFLOAT3(+1.0f, +1.0f, 0.0f);
@@ -232,7 +233,7 @@ void ssao::build_FullScreenQuad()
 	v[3].tex = XMFLOAT2(1.0f, 1.0f);
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage				= D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth			= sizeof(imm::basic32) * 4;
+	vbd.ByteWidth			= sizeof(basic32) * 4;
 	vbd.BindFlags			= D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags		= 0;
 	vbd.MiscFlags			= 0;
@@ -323,7 +324,7 @@ void ssao::build_RandomVectorTexture()
 	XMCOLOR color[256*256];
 	for (int i = 0; i < 256; ++i) {
 		for (int j = 0; j < 256; ++j) {
-			XMFLOAT3 v(imm::calc_randf(), imm::calc_randf(), imm::calc_randf());
+			XMFLOAT3 v(calc_randf(), calc_randf(), calc_randf());
 			color[i*256+j] = XMCOLOR(v.x, v.y, v.z, 0.0f);
 		}
 	}
@@ -359,7 +360,7 @@ void ssao::build_OffsetVectors()
 	m_Offsets[13] = XMFLOAT4(0.0f, 0.0f, +1.0f, 0.0f);
 	for (int i = 0; i < 14; ++i) {
 		// Create random lengths in [0.25, 1.0].
-		float s = imm::calc_randf(0.25f, 1.0f);
+		float s = calc_randf(0.25f, 1.0f);
 		XMVECTOR v = s * XMVector4Normalize(XMLoadFloat4(&m_Offsets[i]));
 		XMStoreFloat4(&m_Offsets[i], v);
 	}

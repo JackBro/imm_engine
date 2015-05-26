@@ -29,7 +29,7 @@ public:
 sky_effect::sky_effect(ID3D11Device *device, const std::wstring &filename):
 	effect(device, filename)
 {
-	m_SkyTech		= m_FX->GetTechniqueByName("SkyTech");
+	m_SkyTech = m_FX->GetTechniqueByName("SkyTech");
 	m_WorldViewProj = m_FX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	m_CubeMap		= m_FX->GetVariableByName("gCubeMap")->AsShaderResource();
 }
@@ -44,8 +44,8 @@ public:
 	~terrain_effect() {;}
 	void set_ViewProj(CXMMATRIX M)							{m_ViewProj->SetMatrix(reinterpret_cast<const float*>(&M));}
 	void set_EyePosW(const XMFLOAT3 &v) 					{m_EyePosW->SetRawValue(&v, 0, sizeof(XMFLOAT3));}
-	void set_DirLights(const imm::lit_dir *lights)			{m_DirLights->SetRawValue(lights, 0, 3*sizeof(imm::lit_dir));}
-	void set_Material(const imm::material &mat)				{m_Mat->SetRawValue(&mat, 0, sizeof(imm::material));}
+	void set_DirLights(const lit_dir *lights)				{m_DirLights->SetRawValue(lights, 0, 3*sizeof(lit_dir));}
+	void set_Material(const material &mat)					{m_Mat->SetRawValue(&mat, 0, sizeof(material));}
 	void set_MinDist(float f)								{m_MinDist->SetFloat(f);}
 	void set_MaxDist(float f)								{m_MaxDist->SetFloat(f);}
 	void set_MinTess(float f)								{m_MinTess->SetFloat(f);}
@@ -83,7 +83,7 @@ public:
 terrain_effect::terrain_effect(ID3D11Device *device, const std::wstring &filename):
 	effect(device, filename)
 {
-	m_Light3Tech	= m_FX->GetTechniqueByName("Light3");
+	m_Light3Tech = m_FX->GetTechniqueByName("Light3");
 	m_ViewProj				= m_FX->GetVariableByName("gViewProj")->AsMatrix();
 	m_EyePosW				= m_FX->GetVariableByName("gEyePosW")->AsVector();
 	m_DirLights 			= m_FX->GetVariableByName("gDirLights");
@@ -174,5 +174,26 @@ debug_tex_effect::debug_tex_effect(ID3D11Device *device, const std::wstring &fil
 	m_WorldViewProj	= m_FX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	m_Texture		= m_FX->GetVariableByName("gTexture")->AsShaderResource();
 }
+////////////////
+// color_effect
+////////////////
+////////////////
+class color_effect: public effect
+{
+public:
+	color_effect(ID3D11Device *device, const std::wstring &filename);
+	~color_effect() {;}
+	void set_WorldViewProj(CXMMATRIX M) {m_WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M));}
+	ID3DX11EffectTechnique *m_ColorTech;
+	ID3DX11EffectMatrixVariable *m_WorldViewProj;
+};
+//
+color_effect::color_effect(ID3D11Device *device, const std::wstring &filename):
+	effect(device, filename)
+{
+	m_ColorTech		= m_FX->GetTechniqueByName("ColorTech");
+	m_WorldViewProj = m_FX->GetVariableByName("gWorldViewProj")->AsMatrix();
+}
+//
 }
 #endif

@@ -70,15 +70,6 @@ void phy_set_aabb(
 	return;
 }
 ////////////////
-// vertex_color
-////////////////
-////////////////
-struct vertex_color
-{
-	XMFLOAT3 pos;
-	XMFLOAT4 color;
-};
-////////////////
 // phy_bound_type
 ////////////////
 ////////////////

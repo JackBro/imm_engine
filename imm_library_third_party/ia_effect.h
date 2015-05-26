@@ -28,8 +28,8 @@ public:
 	void set_ShadowTransform(CXMMATRIX M)				{m_ShadowTransform->SetMatrix(reinterpret_cast<const float*>(&M));}
 	void set_TexTransform(CXMMATRIX m)					{m_TexTransform->SetMatrix(reinterpret_cast<const float*>(&m));}
 	void set_EyePosW(const XMFLOAT3 &v) 				{m_EyePosW->SetRawValue(&v, 0, sizeof(XMFLOAT3));}
-	void set_DirLights(const imm::lit_dir *lights)		{m_DirLights->SetRawValue(lights, 0, 3*sizeof(imm::lit_dir));}
-	void set_Material(const imm::material &mat)			{m_Mat->SetRawValue(&mat, 0, sizeof(imm::material));}
+	void set_DirLights(const lit_dir *lights)			{m_DirLights->SetRawValue(lights, 0, 3*sizeof(lit_dir));}
+	void set_Material(const material &mat)				{m_Mat->SetRawValue(&mat, 0, sizeof(material));}
 	void set_DiffuseMap(ID3D11ShaderResourceView *tex)	{m_DiffuseMap->SetResource(tex);}
 	void set_CubeMap(ID3D11ShaderResourceView *tex) 	{m_CubeMap->SetResource(tex);}
 	void set_ShadowMap(ID3D11ShaderResourceView* tex)	{m_ShadowMap->SetResource(tex);}
@@ -91,8 +91,8 @@ public:
 	void set_ShadowTransform(CXMMATRIX M)					{m_ShadowTransform->SetMatrix(reinterpret_cast<const float*>(&M));}
 	void set_TexTransform(CXMMATRIX M)						{m_TexTransform->SetMatrix(reinterpret_cast<const float*>(&M));}
 	void set_EyePosW(const XMFLOAT3 &v) 					{m_EyePosW->SetRawValue(&v, 0, sizeof(XMFLOAT3));}
-	void set_DirLights(const imm::lit_dir *lights)			{m_DirLights->SetRawValue(lights, 0, 3*sizeof(imm::lit_dir));}
-	void set_Material(const imm::material &mat)				{m_Mat->SetRawValue(&mat, 0, sizeof(imm::material));}
+	void set_DirLights(const lit_dir *lights)				{m_DirLights->SetRawValue(lights, 0, 3*sizeof(lit_dir));}
+	void set_Material(const material &mat)					{m_Mat->SetRawValue(&mat, 0, sizeof(material));}
 	void set_DiffuseMap(ID3D11ShaderResourceView *tex)		{m_DiffuseMap->SetResource(tex);}
 	void set_CubeMap(ID3D11ShaderResourceView *tex) 		{m_CubeMap->SetResource(tex);}
 	void set_NormalMap(ID3D11ShaderResourceView *tex)		{m_NormalMap->SetResource(tex);}
@@ -160,8 +160,8 @@ public:
 	void set_ShadowTransform(CXMMATRIX M)				{m_ShadowTransform->SetMatrix(reinterpret_cast<const float*>(&M));}
 	void set_TexTransform(CXMMATRIX M)					{m_TexTransform->SetMatrix(reinterpret_cast<const float*>(&M));}
 	void set_EyePosW(const XMFLOAT3 &v) 				{m_EyePosW->SetRawValue(&v, 0, sizeof(XMFLOAT3));}
-	void set_DirLights(const imm::lit_dir *lights)		{m_DirLights->SetRawValue(lights, 0, 3*sizeof(imm::lit_dir));}
-	void set_Mat(const imm::material &mat)				{m_Mat->SetRawValue(&mat, 0, sizeof(imm::material));}
+	void set_DirLights(const lit_dir *lights)			{m_DirLights->SetRawValue(lights, 0, 3*sizeof(lit_dir));}
+	void set_Mat(const material &mat)					{m_Mat->SetRawValue(&mat, 0, sizeof(material));}
 	void set_HeightScale(float f)						{m_HeightScale->SetFloat(f);}
 	void set_MaxTessDistance(float f)					{m_MaxTessDistance->SetFloat(f);}
 	void set_MinTessDistance(float f)					{m_MinTessDistance->SetFloat(f);}
@@ -314,6 +314,7 @@ public:
 	static ssao_normal_depth_effect *m_SsaoNormalDepthFX;
 	static ssao_effect *m_SsaoFX;
 	static ssao_blur_effect *m_SsaoBlurFX;
+	static color_effect *m_ColorFX;
 };
 basic_effect *effects::m_BasicFX = 0;
 normal_map_effect *effects::m_NormalMapFX = 0;
@@ -327,6 +328,7 @@ debug_tex_effect *effects::m_DebugTexFX = 0;
 ssao_normal_depth_effect *effects::m_SsaoNormalDepthFX = 0;
 ssao_effect *effects::m_SsaoFX = 0;
 ssao_blur_effect *effects::m_SsaoBlurFX = 0;
+color_effect *effects::m_ColorFX = 0;
 void effects::destroy_all()
 {
 	SafeDelete(m_BasicFX);
@@ -341,6 +343,7 @@ void effects::destroy_all()
 	SafeDelete(m_SsaoNormalDepthFX);
 	SafeDelete(m_SsaoFX);
 	SafeDelete(m_SsaoBlurFX);
+	SafeDelete(m_ColorFX);
 }
 //
 void effects::init_all(ID3D11Device *device)
@@ -358,6 +361,7 @@ void effects::init_all(ID3D11Device *device)
 	m_SsaoNormalDepthFX = new ssao_normal_depth_effect(device, path+L"ssao_normal_depth.fxo");
 	m_SsaoFX = new ssao_effect(device, path+L"ssao.fxo");
 	m_SsaoBlurFX = new ssao_blur_effect(device, path+L"ssao_blur.fxo");
+	m_ColorFX = new color_effect(device, path+L"color.fxo");
 }
 }
 #endif

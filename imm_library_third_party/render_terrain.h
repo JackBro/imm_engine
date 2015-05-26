@@ -45,7 +45,7 @@ public:
 	XMMATRIX get_World()const;
 	void set_World(CXMMATRIX M);
 	void init(ID3D11Device *device, ID3D11DeviceContext *dc, const init_info &init_info1);
-	void draw(ID3D11DeviceContext *dc, const imm::camera &cam1, imm::lit_dir lights[3]);
+	void draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3]);
 private:
 	void load_heightmap();
 	void smooth();
@@ -71,7 +71,7 @@ private:
 	UINT m_NumPatchVertRows;
 	UINT m_NumPatchVertCols;
 	XMFLOAT4X4 m_World;
-	imm::material m_Mat;
+	material m_Mat;
 	std::vector<XMFLOAT2> m_PatchBoundsY;
 	std::vector<float> m_Heightmap;
 };
@@ -162,39 +162,39 @@ void terrain::init(ID3D11Device *device, ID3D11DeviceContext *dc, const init_inf
 	layer_filenames.push_back(m_Info.layer_map_filename2);
 	layer_filenames.push_back(m_Info.layer_map_filename3);
 	layer_filenames.push_back(m_Info.layer_map_filename4);
-	m_LayerMapArraySRV = imm::create_Texture2DArraySRV(device, dc, layer_filenames);
+	m_LayerMapArraySRV = create_Texture2DArraySRV(device, dc, layer_filenames);
 	HR(CreateDDSTextureFromFile(device, m_Info.blend_map_filename.c_str(), 0, &m_BlendMapSRV, 0));
 }
 //
-void terrain::draw(ID3D11DeviceContext *dc, const imm::camera &cam1, imm::lit_dir lights[3])
+void terrain::draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3])
 {
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
-	dc->IASetInputLayout(imm::input_layouts::m_Terrain);
-	UINT stride = sizeof(imm::stru_terrain);
+	dc->IASetInputLayout(input_layouts::m_Terrain);
+	UINT stride = sizeof(vertex_terrain);
     UINT offset = 0;
     dc->IASetVertexBuffers(0, 1, &m_QuadPatchVB, &stride, &offset);
 	dc->IASetIndexBuffer(m_QuadPatchIB, DXGI_FORMAT_R16_UINT, 0);
 	XMMATRIX view_proj = cam1.get_ViewProj();
 	XMMATRIX world  = XMLoadFloat4x4(&m_World);
 	XMFLOAT4 world_planes[6];
-	imm::extract_frustum_planes(world_planes, view_proj);
+	extract_frustum_planes(world_planes, view_proj);
 	// Set per frame constants.
-	imm::effects::m_TerrainFX->set_ViewProj(view_proj);
-	imm::effects::m_TerrainFX->set_EyePosW(cam1.get_Position());
-	imm::effects::m_TerrainFX->set_DirLights(lights);
-	imm::effects::m_TerrainFX->set_MinDist(20.0f);
-	imm::effects::m_TerrainFX->set_MaxDist(500.0f);
-	imm::effects::m_TerrainFX->set_MinTess(0.0f);
-	imm::effects::m_TerrainFX->set_MaxTess(6.0f);
-	imm::effects::m_TerrainFX->set_TexelCellSpaceU(1.0f / m_Info.heightmap_width);
-	imm::effects::m_TerrainFX->set_TexelCellSpaceV(1.0f / m_Info.heightmap_height);
-	imm::effects::m_TerrainFX->set_WorldCellSpace(m_Info.cell_spacing);
-	imm::effects::m_TerrainFX->set_WorldFrustumPlanes(world_planes);
-	imm::effects::m_TerrainFX->set_LayerMapArray(m_LayerMapArraySRV);
-	imm::effects::m_TerrainFX->set_BlendMap(m_BlendMapSRV);
-	imm::effects::m_TerrainFX->set_HeightMap(m_HeightMapSRV);
-	imm::effects::m_TerrainFX->set_Material(m_Mat);
-	ID3DX11EffectTechnique *tech = imm::effects::m_TerrainFX->m_Light3Tech;
+	effects::m_TerrainFX->set_ViewProj(view_proj);
+	effects::m_TerrainFX->set_EyePosW(cam1.get_Position());
+	effects::m_TerrainFX->set_DirLights(lights);
+	effects::m_TerrainFX->set_MinDist(20.0f);
+	effects::m_TerrainFX->set_MaxDist(500.0f);
+	effects::m_TerrainFX->set_MinTess(0.0f);
+	effects::m_TerrainFX->set_MaxTess(6.0f);
+	effects::m_TerrainFX->set_TexelCellSpaceU(1.0f / m_Info.heightmap_width);
+	effects::m_TerrainFX->set_TexelCellSpaceV(1.0f / m_Info.heightmap_height);
+	effects::m_TerrainFX->set_WorldCellSpace(m_Info.cell_spacing);
+	effects::m_TerrainFX->set_WorldFrustumPlanes(world_planes);
+	effects::m_TerrainFX->set_LayerMapArray(m_LayerMapArraySRV);
+	effects::m_TerrainFX->set_BlendMap(m_BlendMapSRV);
+	effects::m_TerrainFX->set_HeightMap(m_HeightMapSRV);
+	effects::m_TerrainFX->set_Material(m_Mat);
+	ID3DX11EffectTechnique *tech = effects::m_TerrainFX->m_Light3Tech;
     D3DX11_TECHNIQUE_DESC tech_desc;
     tech->GetDesc(&tech_desc);
     for(UINT i = 0; i < tech_desc.Passes; ++i) {
@@ -298,8 +298,8 @@ void terrain::calc_PatchBoundsY(UINT i, UINT j)
 		for(UINT x = x0; x <= x1; ++x)
 		{
 			UINT k = y*m_Info.heightmap_width + x;
-			min_y = imm::calc_min(min_y, m_Heightmap[k]);
-			max_y = imm::calc_max(max_y, m_Heightmap[k]);
+			min_y = calc_min(min_y, m_Heightmap[k]);
+			max_y = calc_max(max_y, m_Heightmap[k]);
 		}
 	}
 	UINT patch_id = i*(m_NumPatchVertCols-1)+j;
@@ -308,7 +308,7 @@ void terrain::calc_PatchBoundsY(UINT i, UINT j)
 //
 void terrain::build_QuadPatchVB(ID3D11Device *device)
 {
-	std::vector<imm::stru_terrain> patch_vertices(m_NumPatchVertRows*m_NumPatchVertCols);
+	std::vector<vertex_terrain> patch_vertices(m_NumPatchVertRows*m_NumPatchVertCols);
 	float half_width = 0.5f*get_Width();
 	float half_depth = 0.5f*get_Depth();
 	float patch_width = get_Width() / (m_NumPatchVertCols-1);
@@ -334,7 +334,7 @@ void terrain::build_QuadPatchVB(ID3D11Device *device)
 	}
     D3D11_BUFFER_DESC vbd;
     vbd.Usage				= D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth			= static_cast<UINT>(sizeof(imm::stru_terrain) * patch_vertices.size());
+	vbd.ByteWidth			= static_cast<UINT>(sizeof(vertex_terrain) * patch_vertices.size());
     vbd.BindFlags			= D3D11_BIND_VERTEX_BUFFER;
     vbd.CPUAccessFlags		= 0;
     vbd.MiscFlags			= 0;

@@ -84,9 +84,9 @@ bool m3d_loader::load_m3d(
 		return true;
 	}
 	else {
-		std::wostringstream os;
-		os << ".m3d file load error: " << filename.c_str();
-		ERROR_MES(os.str().c_str());
+		std::string err_str(".m3d file load error: ");
+		err_str += filename;
+		ERROR_MESA(err_str.c_str());
 	}
 	return false;
 }
@@ -128,9 +128,9 @@ bool m3d_loader::load_m3d(
 		return true;
 	}
 	else {
-		std::wostringstream os;
-		os << ".m3d file load error: " << filename.c_str();
-		ERROR_MES(os.str().c_str());
+		std::string err_str(".m3d file load error: ");
+		err_str += filename;
+		ERROR_MESA(err_str.c_str());
 	}
 	return false;
 }

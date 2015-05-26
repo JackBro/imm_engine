@@ -7,8 +7,8 @@
 ////////////////
 #ifndef AUDIO_DXTK_H
 #define AUDIO_DXTK_H
-#include <Audio.h>
 #include "stru_scene_help.h"
+#include <Audio.h>
 ////////////////
 // audio_dxtk
 ////////////////
@@ -89,9 +89,9 @@ void audio_dxtk::play_bgm(const std::string &name)
 {
 	if (name != current_bgm_name) {
 		if (!map_bgm.count(name)) {
-			bool map_bgm_not_found_name = false;
-			assert(map_bgm_not_found_name);
-			abort();
+			std::string err_str("Audio bgm file not found: ");
+			err_str += name;
+			ERROR_MESA(err_str.c_str());
 		}
 		data_check_file_exist(map_bgm[name]);
 		sound_effect = std::unique_ptr<SoundEffect>(new SoundEffect(aud_engine.get(), map_bgm[name].c_str()));

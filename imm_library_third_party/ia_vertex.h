@@ -16,11 +16,11 @@ namespace imm
 struct basic32
 {
 	basic32():
-		pos(0.0f, 0.0f, 0.0f), normal(0.0f, 0.0f, 0.0f), tex(0.0f, 0.0f) {}
+		pos(0.0f, 0.0f, 0.0f), normal(0.0f, 0.0f, 0.0f), tex(0.0f, 0.0f) {;}
 	basic32(const XMFLOAT3 &p, const XMFLOAT3 &n, const XMFLOAT2 &uv):
-		pos(p), normal(n), tex(uv) {}
+		pos(p), normal(n), tex(uv) {;}
 	basic32(float px, float py, float pz, float nx, float ny, float nz, float u, float v):
-		pos(px, py, pz), normal(nx, ny, nz), tex(u,v) {}
+		pos(px, py, pz), normal(nx, ny, nz), tex(u,v) {;}
 	XMFLOAT3 pos;
 	XMFLOAT3 normal;
 	XMFLOAT2 tex;
@@ -42,14 +42,14 @@ struct pos_normal_tex_tan2
 	XMFLOAT4 tangent_u;
 };
 //
-struct stru_terrain
+struct vertex_terrain
 {
 	XMFLOAT3 pos;
 	XMFLOAT2 tex;
 	XMFLOAT2 bounds_y;
 };
 //
-struct stru_particle
+struct vertex_particle
 {
 	XMFLOAT3 init_pos;
 	XMFLOAT3 init_vel;
@@ -67,6 +67,12 @@ struct pos_normal_tex_tan_skinned
 	XMFLOAT3 weights;
 	BYTE bone_indices[4];
 };
+//
+struct vertex_color
+{
+	XMFLOAT3 pos;
+	XMFLOAT4 color;
+};
 ////////////////
 // input_layout_desc
 ////////////////
@@ -82,10 +88,11 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC m_PosNormalTexTanSkinned[6];
 	static const D3D11_INPUT_ELEMENT_DESC m_Terrain[3];
 	static const D3D11_INPUT_ELEMENT_DESC m_Particle[5];
+	static const D3D11_INPUT_ELEMENT_DESC m_Color[2];
 };
 const D3D11_INPUT_ELEMENT_DESC input_layout_desc::m_Pos[1] =
 {
-	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
 };
 const D3D11_INPUT_ELEMENT_DESC input_layout_desc::m_Basic32[3] =
 {
@@ -128,7 +135,12 @@ const D3D11_INPUT_ELEMENT_DESC input_layout_desc::m_Particle[5] =
 	{"VELOCITY", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	{"SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	{"AGE", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	{"TYPE", 0, DXGI_FORMAT_R32_UINT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"TYPE", 0, DXGI_FORMAT_R32_UINT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0}
+};
+const D3D11_INPUT_ELEMENT_DESC input_layout_desc::m_Color[2] =
+{
+	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
 };
 ////////////////
 // input_layouts
@@ -146,6 +158,7 @@ public:
 	static ID3D11InputLayout *m_PosNormalTexTanSkinned;
 	static ID3D11InputLayout *m_Terrain;
 	static ID3D11InputLayout *m_Particle;
+	static ID3D11InputLayout *m_Color;
 };
 //
 ID3D11InputLayout *input_layouts::m_Pos = 0;
@@ -155,6 +168,7 @@ ID3D11InputLayout *input_layouts::m_PosNormalTexTan2 = 0;
 ID3D11InputLayout *input_layouts::m_PosNormalTexTanSkinned = 0;
 ID3D11InputLayout *input_layouts::m_Terrain = 0;
 ID3D11InputLayout *input_layouts::m_Particle = 0;
+ID3D11InputLayout *input_layouts::m_Color = 0;
 //
 void input_layouts::destroy_all()
 {
@@ -171,33 +185,69 @@ void input_layouts::init_all(ID3D11Device *device)
 {
 	D3DX11_PASS_DESC pass_desc;
 	// m_Pos
-	imm::effects::m_SkyFX->m_SkyTech->GetPassByIndex(0)->GetDesc(&pass_desc);
+	effects::m_SkyFX->m_SkyTech->GetPassByIndex(0)->GetDesc(&pass_desc);
 	HR(device->CreateInputLayout(
-		input_layout_desc::m_Pos, 1, pass_desc.pIAInputSignature, pass_desc.IAInputSignatureSize, &m_Pos));
+		input_layout_desc::m_Pos,
+		1,
+		pass_desc.pIAInputSignature,
+		pass_desc.IAInputSignatureSize,
+		&m_Pos));
 	// m_Basic32
-	imm::effects::m_BasicFX->m_Light3Tech->GetPassByIndex(0)->GetDesc(&pass_desc);
+	effects::m_BasicFX->m_Light3Tech->GetPassByIndex(0)->GetDesc(&pass_desc);
 	HR(device->CreateInputLayout(
-		input_layout_desc::m_Basic32, 3, pass_desc.pIAInputSignature, pass_desc.IAInputSignatureSize, &m_Basic32));
+		input_layout_desc::m_Basic32,
+		3,
+		pass_desc.pIAInputSignature,
+		pass_desc.IAInputSignatureSize,
+		&m_Basic32));
 	// m_PosNormalTexTan
-	imm::effects::m_NormalMapFX->m_Light3Tech->GetPassByIndex(0)->GetDesc(&pass_desc);
+	effects::m_NormalMapFX->m_Light3Tech->GetPassByIndex(0)->GetDesc(&pass_desc);
 	HR(device->CreateInputLayout(
-		input_layout_desc::m_PosNormalTexTan, 4, pass_desc.pIAInputSignature, pass_desc.IAInputSignatureSize, &m_PosNormalTexTan));
+		input_layout_desc::m_PosNormalTexTan,
+		4,
+		pass_desc.pIAInputSignature,
+		pass_desc.IAInputSignatureSize,
+		&m_PosNormalTexTan));
 	// m_PosNormalTexTan2
-	imm::effects::m_NormalMapFX->m_Light3Tech->GetPassByIndex(0)->GetDesc(&pass_desc);
+	effects::m_NormalMapFX->m_Light3Tech->GetPassByIndex(0)->GetDesc(&pass_desc);
 	HR(device->CreateInputLayout(
-		input_layout_desc::m_PosNormalTexTan2, 4, pass_desc.pIAInputSignature, pass_desc.IAInputSignatureSize, &m_PosNormalTexTan2));
+		input_layout_desc::m_PosNormalTexTan2,
+		4,
+		pass_desc.pIAInputSignature,
+		pass_desc.IAInputSignatureSize,
+		&m_PosNormalTexTan2));
 	// m_PosNormalTexTanSkinned
-	imm::effects::m_NormalMapFX->m_Light3TexSkinnedTech->GetPassByIndex(0)->GetDesc(&pass_desc);
+	effects::m_NormalMapFX->m_Light3TexSkinnedTech->GetPassByIndex(0)->GetDesc(&pass_desc);
 	HR(device->CreateInputLayout(
-		input_layout_desc::m_PosNormalTexTanSkinned, 6, pass_desc.pIAInputSignature, pass_desc.IAInputSignatureSize, &m_PosNormalTexTanSkinned));
+		input_layout_desc::m_PosNormalTexTanSkinned,
+		6,
+		pass_desc.pIAInputSignature,
+		pass_desc.IAInputSignatureSize,
+		&m_PosNormalTexTanSkinned));
 	// m_Terrain
-	imm::effects::m_TerrainFX->m_Light3Tech->GetPassByIndex(0)->GetDesc(&pass_desc);
+	effects::m_TerrainFX->m_Light3Tech->GetPassByIndex(0)->GetDesc(&pass_desc);
 	HR(device->CreateInputLayout(
-		input_layout_desc::m_Terrain, 3, pass_desc.pIAInputSignature, pass_desc.IAInputSignatureSize, &m_Terrain));
+		input_layout_desc::m_Terrain,
+		3,
+		pass_desc.pIAInputSignature,
+		pass_desc.IAInputSignatureSize,
+		&m_Terrain));
 	// m_Particle
-	imm::effects::m_FireFX->m_StreamOutTech->GetPassByIndex(0)->GetDesc(&pass_desc);
+	effects::m_FireFX->m_StreamOutTech->GetPassByIndex(0)->GetDesc(&pass_desc);
 	HR(device->CreateInputLayout(
-		input_layout_desc::m_Particle, 5, pass_desc.pIAInputSignature, pass_desc.IAInputSignatureSize, &m_Particle));
+		input_layout_desc::m_Particle,
+		5,
+		pass_desc.pIAInputSignature,
+		pass_desc.IAInputSignatureSize,
+		&m_Particle));
+	// m_Color
+	effects::m_ColorFX->m_ColorTech->GetPassByIndex(0)->GetDesc(&pass_desc);
+	HR(device->CreateInputLayout(
+		input_layout_desc::m_Color,
+		2,
+		pass_desc.pIAInputSignature,
+		pass_desc.IAInputSignatureSize,
+		&m_Color));
 }
 }
 #endif

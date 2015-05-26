@@ -8,6 +8,7 @@
 #ifndef STRU_INSTANCE_MGR_H
 #define STRU_INSTANCE_MGR_H
 #include "stru_model_mgr.h"
+#include "imm_cmd_util.h"
 namespace imm
 {
 ////////////////

@@ -13,6 +13,8 @@
 #include <string>
 #include <d2d1_1.h>
 #include "imm_core.h"
+namespace imm
+{
 ////////////////
 // base_win
 ////////////////
@@ -58,7 +60,7 @@ public:
 	FLOAT m_DpiY;
 	std::wstring m_WindowName;
 	std::wstring m_Fps;
-	imm::timer m_Timer;
+	timer m_Timer;
 	ID3D11Device			*m_D3DDevice;
 	ID3D11DeviceContext 	*m_D3DDC;
 	IDXGISwapChain1			*m_SwapChain;
@@ -533,5 +535,6 @@ void base_win<DERIVED_TYPE>::calc_frmae_stats()
 		frame_cnt = 0;
 		time_elapsed += 1.0f;
 	}
+}
 }
 #endif

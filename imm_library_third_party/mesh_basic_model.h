@@ -209,9 +209,9 @@ void skinned_model_instance::update(float dt)
 void skinned_model_instance::set_ClipName(const std::string &c_name)
 {
 	if (!model->m_SkinnedData.check_clip_name(c_name)) {
-		std::wostringstream os;
-		os << ".m3d file clip name error: " << c_name.c_str();
-		ERROR_MES(os.str().c_str());
+		std::string err_str(".m3d file clip name error: ");
+		err_str += c_name;
+		ERROR_MESA(err_str.c_str());
 	}
 	else clip_name = c_name;
 }

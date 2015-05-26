@@ -30,9 +30,11 @@ ID3D11ShaderResourceView *create_Texture2DArraySRV
 			D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ, 0, 0,
 			(ID3D11Resource**)&src_tex[i], 0);
 		if FAILED(hr) {
-			std::wostringstream os;
-			os << "Texture file load error: " << filenames[i] << "\nHRESULT: " << hr;
-			ERROR_MES(os.str().c_str());
+			std::string err_str("Texture file load error: ");
+			err_str += wstr_to_str(filenames[i]);
+			err_str += "\nHRESULT: ";
+			err_str += std::to_string(hr);		
+			ERROR_MESA(err_str.c_str());
 		}
 	}
 	// Create the texture array.  Each element in the texture
@@ -93,10 +95,10 @@ ID3D11ShaderResourceView *create_RandomTexture1DSRV(ID3D11Device* device)
 	// Create the random data.
 	XMFLOAT4 random_values[1024];
 	for(int i = 0; i < 1024; ++i) {
-		random_values[i].x = imm::calc_randf(-1.0f, 1.0f);
-		random_values[i].y = imm::calc_randf(-1.0f, 1.0f);
-		random_values[i].z = imm::calc_randf(-1.0f, 1.0f);
-		random_values[i].w = imm::calc_randf(-1.0f, 1.0f);
+		random_values[i].x = calc_randf(-1.0f, 1.0f);
+		random_values[i].y = calc_randf(-1.0f, 1.0f);
+		random_values[i].z = calc_randf(-1.0f, 1.0f);
+		random_values[i].w = calc_randf(-1.0f, 1.0f);
 	}
 	D3D11_SUBRESOURCE_DATA init_data;
 	init_data.pSysMem			= random_values;

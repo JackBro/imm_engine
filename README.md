@@ -7,7 +7,7 @@ Quick-and-dirty
 Introduction:
 -------------
 A small game engine. All features tend to be minimized.
-The engine platform only supports Microsoft Windows.
+The engine platform only supports M$ Windows.
 The fundamental 3D rendering technique is derived from the textbook 
 Introduction to 3D Game Programming with DirectX 11 by Frank Luna. 
 This engine development methodology is Quick-and-dirty, no traditional API design, casual style. 

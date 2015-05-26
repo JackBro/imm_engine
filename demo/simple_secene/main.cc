@@ -5,9 +5,9 @@
 #ifndef UNICODE
 #define UNICODE
 #endif
+#include "control_mov.h"
 #include "imm_cmd.h"
 #include "ui_mgr.h"
-#include "control_mov_logic.h"
 #include "stru_scene_mgr.h"
 #include "stru_draw_instance.h"
 #include "ia_render.h"

@@ -7,6 +7,8 @@
 ////////////////
 #ifndef CONTROL_KEY_DEFINE_H
 #define CONTROL_KEY_DEFINE_H
+// include "Windows.h" before "XInput.h"
+#include "Windows.h"
 #include "XInput.h"
 namespace imm
 {

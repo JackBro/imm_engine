@@ -32,6 +32,26 @@
 #include "debug_console.h"
 using namespace DirectX;
 ////////////////
+// DEBUG, IUnknown
+////////////////
+////////////////
+#if defined(DEBUG) | defined(_DEBUG)
+	#ifndef HR 
+	#define HR(x) {HRESULT hr = (x); if (FAILED(hr))\
+		{std::string hrs(std::to_string(hr)); MessageBoxA(0, hrs.c_str(), "HRESULT", MB_OK); assert(false); abort();}}
+	#endif
+#else
+	#ifndef HR
+	#define HR(x) (x)
+	#endif
+#endif
+#define ReleaseCOM(x) {if (x) {x->Release(); x = nullptr;}}
+#define SafeDelete(x) {delete x; x = nullptr;}
+// do nothing
+#define DUMMY(x) (x)
+// error messagebox
+#define ERROR_MESA(x) {MessageBoxA(0, x, "ERROR", MB_OK); assert(false); abort();}
+////////////////
 // timer
 ////////////////
 ////////////////
@@ -125,30 +145,6 @@ void timer::tick()
 	// processor, then m_DeltaTime can be negative.
 	if (m_DeltaTime < 0.0) m_DeltaTime = 0.0;
 }
-}
-////////////////
-// DEBUG, IUnknown
-////////////////
-////////////////
-#if defined(DEBUG) | defined(_DEBUG)
-	#ifndef HR 
-	#define HR(x) {HRESULT hr = (x); if (FAILED(hr))\
-		{std::wostringstream os; os << hr; MessageBox(0, os.str().c_str(), L"HRESULT", MB_OK); assert(false); abort();}}
-	#endif
-#else
-	#ifndef HR
-	#define HR(x) (x)
-	#endif
-#endif
-#define ReleaseCOM(x) {if (x) {x->Release(); x = nullptr;}}
-#define SafeDelete(x) {delete x; x = nullptr;}
-// do nothing
-#define DUMMY(x) (x)
-// error messagebox
-// some error condition MessageBox will not work, if it is, not use ERROR_MES
-#define ERROR_MES(x) {MessageBox(0, x, L"ERROR", MB_OK); assert(false); abort();}
-namespace imm
-{
 ////////////////
 // math
 ////////////////
@@ -284,6 +280,21 @@ struct material
 	XMFLOAT4 reflect;
 };
 ////////////////
+// str_to_wstr
+////////////////
+////////////////
+std::wstring str_to_wstr(const std::string &str)
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+	return convert.from_bytes(str);
+}
+//
+std::string wstr_to_str(const std::wstring &wstr)
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+	return convert.to_bytes(wstr);
+}
+////////////////
 // effect
 ////////////////
 ////////////////
@@ -304,9 +315,9 @@ effect::effect(ID3D11Device *device, const std::wstring &filename):
 {
 	std::ifstream fin(filename, std::ios::binary);
 	if (!fin.is_open()) {
-		std::wostringstream os;
-		os << "Effect file load error: " << filename;
-		ERROR_MES(os.str().c_str());
+		std::string err_str("Effect file load error: ");
+		err_str += wstr_to_str(filename);
+		ERROR_MESA(err_str.c_str());
 	}
 	fin.seekg(0, std::ios_base::end);
 	int size = (int)fin.tellg();
@@ -329,15 +340,6 @@ static std::map<std::string, std::string> GLOBAL {
 	{"path_out", "misc\\output\\"},
 	{"path_inp", "misc\\input\\"},
 };
-////////////////
-// convert_string_to_wstring
-////////////////
-////////////////
-std::wstring str_to_wstr(const std::string &str)
-{
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
-	return convert.from_bytes(str);
-}
 ////////////////
 // REF_RESOLUTION_WIDTH, REF_RESOLUTION_HEIGHT
 // for calclate UI size with factor

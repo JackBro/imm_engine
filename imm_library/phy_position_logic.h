@@ -7,7 +7,7 @@
 ////////////////
 #ifndef PHY_POSITION_LOGIC_H
 #define PHY_POSITION_LOGIC_H
-#include "phy_prepare.h"
+#include "phy_auxiliary.h"
 namespace imm
 {
 // note if every delta time is not equal, simulation will be some distortion

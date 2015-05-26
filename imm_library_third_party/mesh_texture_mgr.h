@@ -50,9 +50,11 @@ ID3D11ShaderResourceView *texture_mgr::create_texture(std::wstring filename)
 	else {
 		HRESULT hr = CreateDDSTextureFromFile(m_D3DDevice, filename.c_str(), 0, &srv, 0);
 		if (FAILED(hr)) {
-			std::wostringstream os;
-			os << "Texture file load error: " << filename << "\nHRESULT: " << hr;
-			ERROR_MES(os.str().c_str());
+			std::string err_str("Texture file load error: ");
+			err_str += wstr_to_str(filename);
+			err_str += "\nHRESULT: ";
+			err_str += std::to_string(hr);		
+			ERROR_MESA(err_str.c_str());
 		}
 		m_TextureSRV[filename] = srv;
 	}

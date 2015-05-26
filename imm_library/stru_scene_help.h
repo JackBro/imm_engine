@@ -82,9 +82,9 @@ void data_check_file_exist(const std::wstring &path_file)
 		return;
 	}
 	infile.close();
-	std::wostringstream os;
-	os << "file not found: " << path_file.c_str();
-	ERROR_MES(os.str().c_str());
+	std::string err_str("file not found: ");
+	err_str += wstr_to_str(path_file);
+	ERROR_MESA(err_str.c_str());
 	return;
 }
 ////////////////
@@ -109,9 +109,9 @@ void model_load_simple_b32(simple_model<basic32> &model, const std::string &mode
 {
 	std::ifstream fin(model_file);
 	if (!fin) {
-		std::wostringstream os;
-		os << "simple_b32 file load error: " << model_file.c_str();
-		ERROR_MES(os.str().c_str());
+		std::string err_str("simple_b32 file load error: ");
+		err_str += model_file;
+		ERROR_MESA(err_str.c_str());
 	}
 	UINT vcount = 0;
 	UINT tcount = 0;
@@ -324,9 +324,9 @@ void bin_m3d::write_to_bin(basic_model &model, const std::string &file_name)
 	set_bin_info(model);
 	std::ofstream outfile (file_name, std::ofstream::binary);
 	if (!outfile.is_open()) {
-		std::wostringstream os;
-		os << ".bm3 write fail: " << file_name.c_str();
-		ERROR_MES(os.str().c_str());
+		std::string err_str(".bm3 write fail: ");
+		err_str += file_name;
+		ERROR_MESA(err_str.c_str());
 	}
 	write_to_bin_basic(model, outfile);
 	outfile.close();
@@ -337,9 +337,9 @@ void bin_m3d::write_to_bin(skinned_model &model, const std::string &file_name)
 	set_bin_info(model);
 	std::ofstream outfile (file_name, std::ofstream::binary);
 	if (!outfile.is_open()) {
-		std::wostringstream os;
-		os << ".bm3 write fail: " << file_name.c_str();
-		ERROR_MES(os.str().c_str());
+		std::string err_str(".bm3 write fail: ");
+		err_str += file_name;
+		ERROR_MESA(err_str.c_str());
 	}
 	write_to_bin_basic(model, outfile);
 	//
@@ -378,9 +378,9 @@ void bin_m3d::read_from_bin_basic(T_model &model, const std::string &file_name, 
 	infile.read(reinterpret_cast<char*>(&bin_info[0]), size);
 	// check file
 	if (bin_info[8] != 0 || bin_info[9] != 0) {
-		std::wostringstream os;
-		os << ".bm3 file load error: " << file_name.c_str();
-		ERROR_MES(os.str().c_str());
+		std::string err_str(".bm3 file load error: ");
+		err_str += file_name;
+		ERROR_MESA(err_str.c_str());
 	}
 	size = bin_info[0];
 	model.m_Mat.resize(size/sizeof(model.m_Mat[0]));
@@ -412,9 +412,9 @@ void bin_m3d::read_from_bin(basic_model &model, const std::string &file_name)
 {
 	std::ifstream infile(file_name, std::ifstream::binary);
 	if (!infile.is_open()) {
-		std::wostringstream os;
-		os << ".bm3 file not found: " << file_name.c_str();
-		ERROR_MES(os.str().c_str());
+		std::string err_str(".bm3 file not found: ");
+		err_str += file_name;
+		ERROR_MESA(err_str.c_str());
 	}
 	read_from_bin_basic(model, file_name, infile);
 	infile.close();
@@ -425,8 +425,9 @@ void bin_m3d::read_from_bin(skinned_model &model, const std::string &file_name)
 	std::ifstream infile(file_name, std::ifstream::binary);
 	if (!infile.is_open()) {
 		std::wostringstream os;
-		os << ".bm3 file not found: " << file_name.c_str();
-		ERROR_MES(os.str().c_str());
+		std::string err_str(".bm3 file not found: ");
+		err_str += file_name;
+		ERROR_MESA(err_str.c_str());
 	}
 	read_from_bin_basic(model, file_name, infile);
 	int size = bin_info[5];

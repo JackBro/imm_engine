@@ -140,7 +140,7 @@ void imm_app::draw_scene_d3d()
 	ID3DX11EffectTechnique *tech_simple_b32 = fx_basic->m_Light3Tech;
 	ID3DX11EffectTechnique *tech_skinned = fx_normal->m_Light3TexSkinnedTech;
 	D3DX11_TECHNIQUE_DESC tech_desc;
-	XMMATRIX view_proj = m_Cam.get_ViewProj();	
+	XMMATRIX view_proj = m_Cam.get_ViewProj();
 	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
 	XMMATRIX to_tex_space(
 		0.5f, 0.0f, 0.0f, 0.0f,

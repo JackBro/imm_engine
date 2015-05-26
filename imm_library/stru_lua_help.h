@@ -15,7 +15,6 @@ namespace imm
 {
 ////////////////
 // lua_reader
-// can not use ERROR_MES(), often fail
 ////////////////
 ////////////////	
 class lua_reader
@@ -54,9 +53,9 @@ void lua_reader::loadfile(const std::string &fname)
 	L = luaL_newstate();
 	luaL_openlibs(L);
 	if (luaL_loadfile(L, file_name.c_str()) || lua_pcall(L, 0, 0, 0)) {
-		bool lua_read_file_error = false;
-		assert(lua_read_file_error);
-		abort();
+		std::string err_str("Lua error: ");
+		err_str += lua_tostring(L, -1);
+		ERROR_MESA(err_str.c_str());
 		return;
 	}
 }
@@ -76,9 +75,11 @@ void lua_reader::map_from_global(std::map<std::string, std::string> &map_str)
 		lua_getglobal(L, map_it->first.c_str());
 		if (lua_isstring(L, -1)) map_it->second = (lua_tostring(L, -1));
 		else {
-			bool lua_read_map_global_error = false;
-			assert(lua_read_map_global_error);
-			abort();
+			std::string err_str("Lua load ");
+			err_str += file_name;
+			err_str += " error: ";
+			err_str += map_it->first;
+			ERROR_MESA(err_str.c_str());
 			return;
 		}
 	}
@@ -94,9 +95,9 @@ void lua_reader::vec2d_str_from_global(
 	int ix_1 = 1;
 	lua_getglobal(L, table_name.c_str());
 	if (lua_isnil(L, -1)) {
-		bool lua_read_vec2d_str_error = false;
-		assert(lua_read_vec2d_str_error);
-		abort();
+		std::string err_str("Lua table name error: ");
+		err_str += table_name;
+		ERROR_MESA(err_str.c_str());
 	}
 	lua_pushstring(L, "dummy");
 	while (!lua_isnil(L, -1)) {

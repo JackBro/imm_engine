@@ -265,7 +265,7 @@ void geometry::subdivide(mesh_data &mesh_data_o)
 void geometry::create_geosphere(float radius, UINT num_subdivisions, mesh_data &mesh_data_o)
 {
 	// Put a cap on the number of subdivisions.
-	num_subdivisions = imm::calc_min(num_subdivisions, 5u);
+	num_subdivisions = calc_min(num_subdivisions, 5u);
 	// Approximate a sphere by tessellating an icosahedron.
 	const float x = 0.525731f;
 	const float z = 0.850651f;
@@ -297,7 +297,7 @@ void geometry::create_geosphere(float radius, UINT num_subdivisions, mesh_data &
 		XMStoreFloat3(&mesh_data_o.vertices[i].position, p);
 		XMStoreFloat3(&mesh_data_o.vertices[i].normal, n);
 		// Derive texture coordinates from spherical coordinates.
-		float theta = imm::angle_from_xy(
+		float theta = angle_from_xy(
 			mesh_data_o.vertices[i].position.x,
 			mesh_data_o.vertices[i].position.z);
 		float phi = acosf(mesh_data_o.vertices[i].position.y/radius);

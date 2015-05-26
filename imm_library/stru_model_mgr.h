@@ -7,8 +7,8 @@
 ////////////////
 #ifndef STRU_MODEL_MGR_H
 #define STRU_MODEL_MGR_H
-#include "stru_scene_help.h"
 #include "phy_position_logic.h"
+#include "stru_scene_help.h"
 #include "mesh_basic_model.h"
 #include <thread>
 namespace imm

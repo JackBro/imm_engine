@@ -144,11 +144,11 @@ template <typename T_app>
 void ui_mgr<T_app>::reload_active(const std::string &ui_class, const std::string &ui_group)
 {
 	reset();
-	bool ui_group_error = false;
 	if (ui_class == "welcome") {
 		if (!welcome.m_MapGroup.count(ui_group)) {
-			assert(ui_group_error);
-			abort();
+			std::string err_str("UI group not found: ");
+			err_str += ui_group;
+			ERROR_MESA(err_str.c_str());
 		}
 		main_menu.m_IsMute = true;
 		welcome.m_IsMute = false;

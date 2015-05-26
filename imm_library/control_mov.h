@@ -1,12 +1,12 @@
 ////////////////
-// control_mov_logic.h
+// control_mov.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef CONTROL_MOV_LOGIC_H
-#define CONTROL_MOV_LOGIC_H
+#ifndef CONTROL_MOV_H
+#define CONTROL_MOV_H
 #include "stru_instance_mgr.h"
 #include "imm_camera.h"
 #include "phy_prepare.h"
