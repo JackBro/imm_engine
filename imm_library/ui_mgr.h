@@ -43,6 +43,7 @@ struct ui_mgr
 template <typename T_app>
 void ui_mgr<T_app>::init(T_app *app_in)
 {
+	app = app_in;
 	main_menu.init(app_in);
 	welcome.init(app_in);
 }
@@ -73,6 +74,10 @@ void ui_mgr<T_app>::draw_d3d()
 {
 	main_menu.draw_d3d();
 	welcome.draw_d3d();
+	// Restore default states.
+	app->m_D3DDC->RSSetState(0);
+	app->m_D3DDC->OMSetDepthStencilState(0, 0);
+	app->m_D3DDC->OMSetBlendState(0, BLEND_FACTOR_ZERO, 0xffffffff);
 }
 //
 template <typename T_app>

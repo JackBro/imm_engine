@@ -52,6 +52,24 @@ using namespace DirectX;
 // error messagebox
 #define ERROR_MESA(x) {MessageBoxA(0, x, "ERROR", MB_OK); assert(false); abort();}
 ////////////////
+// static
+////////////////
+////////////////
+static std::map<std::string, std::string> GLOBAL {
+	{"path_fx", "ass_shader\\"},
+	{"path_mod", "ass_model\\"},
+	{"path_tex", "ass_texture\\"},
+	{"path_med", "ass_media\\"},
+	{"path_lua", "script\\"},
+	{"path_out", "misc\\output\\"},
+	{"path_inp", "misc\\input\\"},
+};
+// for calclate UI size with factor
+static const float REF_RESOLUTION_WIDTH = 1366.0f;
+static const float REF_RESOLUTION_HEIGHT = 768.0f;
+// OMSetBlendState, BLEND_FACTOR_ZERO
+static const float BLEND_FACTOR_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
+////////////////
 // timer
 ////////////////
 ////////////////
@@ -327,26 +345,6 @@ effect::effect(ID3D11Device *device, const std::wstring &filename):
 	fin.close();
 	HR(D3DX11CreateEffectFromMemory(&compiled_shader[0], size, 0, device, &m_FX));
 }
-////////////////
-// GLOBAL
-////////////////
-////////////////
-static std::map<std::string, std::string> GLOBAL {
-	{"path_fx", "ass_shader\\"},
-	{"path_mod", "ass_model\\"},
-	{"path_tex", "ass_texture\\"},
-	{"path_med", "ass_media\\"},
-	{"path_lua", "script\\"},
-	{"path_out", "misc\\output\\"},
-	{"path_inp", "misc\\input\\"},
-};
-////////////////
-// REF_RESOLUTION_WIDTH, REF_RESOLUTION_HEIGHT
-// for calclate UI size with factor
-////////////////
-////////////////
-static const float REF_RESOLUTION_WIDTH = 1366.0f;
-static const float REF_RESOLUTION_HEIGHT = 768.0f;
 //
 }
 #endif

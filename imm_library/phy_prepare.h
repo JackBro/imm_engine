@@ -115,7 +115,10 @@ public:
 };
 //
 phy_bound_mgr::phy_bound_mgr():
-	b1(), b2(), b3(), map()
+	b1(),
+	b2(),
+	b3(),
+	map()
 {
 	;
 }

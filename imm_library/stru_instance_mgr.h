@@ -63,6 +63,7 @@ void instance_mgr::load(
 	std::atomic<bool> &is_preparing,
 	atomic_wstring &input)
 {
+	assert(!m_IsLoading);
 	m_IsLoading = true;
 	is_preparing = m_IsLoading;
 	std::wstring load_done(scene_ix.begin(), scene_ix.end());

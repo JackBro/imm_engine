@@ -110,5 +110,6 @@ void sky::draw(ID3D11DeviceContext* dc, const camera& cam1)
 		dc->DrawIndexed(m_ISize, 0, 0);
 	}
 }
+//
 }
 #endif

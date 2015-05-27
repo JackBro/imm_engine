@@ -122,7 +122,6 @@ void imm_app::draw_scene_d3d()
 	m_D3DDC->ClearRenderTargetView(m_RenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 	m_D3DDC->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//
-	m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	auto *fx_basic = effects::m_BasicFX;
 	auto *fx_normal = effects::m_NormalMapFX;
 	// Set per frame constants.
@@ -134,7 +133,6 @@ void imm_app::draw_scene_d3d()
 	fx_normal->set_EyePosW(m_Cam.get_Position());
 	fx_normal->set_CubeMap(m_Scene.skybox->get_CubeMapSRV());
 	fx_normal->set_ShadowMap(m_Smap->get_DepthMapSRV());
-	m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	ID3DX11EffectTechnique *tech_basic = fx_normal->m_Light3TexTech;
 	ID3DX11EffectTechnique *tech_basic_alpha = fx_normal->m_Light3TexAlphaClipTech;
 	ID3DX11EffectTechnique *tech_simple_b32 = fx_basic->m_Light3Tech;
@@ -148,6 +146,7 @@ void imm_app::draw_scene_d3d()
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 	XMMATRIX shadow_transform = XMLoadFloat4x4(&m_ShadowTransform);
+	m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// Draw simple b32
 	m_D3DDC->IASetInputLayout(input_layouts::m_Basic32);
 	draw_inst_simple_b32(
@@ -210,20 +209,9 @@ void imm_app::draw_scene_d3d()
 		shadow_transform,
 		to_tex_space
 	);
-	// Draw sky
-	m_Scene.skybox->draw(m_D3DDC, m_Cam);
-	// Restore default states, as the SkyFX changes them in the effect file.
-	m_D3DDC->RSSetState(0);
-	m_D3DDC->OMSetDepthStencilState(0, 0);
-	// Draw UI sprite
+	// Draw the others
+	m_Scene.draw_d3d_atmosphere();
 	m_UiMgr.draw_d3d();
-	// Draw particle systems last so it is blended with scene.
-	m_Scene.aura.draw(m_D3DDC, m_Cam);
-	// Restore default states.
-	float blend_factor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-	m_D3DDC->RSSetState(0);
-	m_D3DDC->OMSetDepthStencilState(0, 0);
-	m_D3DDC->OMSetBlendState(0, blend_factor, 0xffffffff);
 	// Unbind shadow map and AmbientMap as a shader input because we are going to render
 	// To it next frame.  These textures can be at any slot, so clear all slots.
 	ID3D11ShaderResourceView *null_srv[16] = {0};
