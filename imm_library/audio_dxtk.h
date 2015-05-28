@@ -19,6 +19,7 @@ struct audio_dxtk
 {
 	audio_dxtk();
 	void init_load();
+	void update();
 	void play_bgm(const std::string &name);
 	void stop_bgm();
 	void play_effect(const std::string &name);
@@ -73,6 +74,11 @@ void audio_dxtk::init_load()
 				 std::unique_ptr<WaveBank>(new WaveBank(aud_engine.get(), path_wave_bank.c_str()));
 		}
 	}
+}
+//
+void audio_dxtk::update()
+{
+	aud_engine->Update();
 }
 //
 void audio_dxtk::set_effect_inst_volume(float volume)

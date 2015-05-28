@@ -67,7 +67,8 @@ template <typename T_app>
 void scene_mgr<T_app>::update_atmosphere(float dt)
 {
 	aura.update(dt, app->m_Timer.total_time());
-	audio.aud_engine->Update();
+	audio.update();
+	phy_wire.build_buffer_update();
 }
 //
 template <typename T_app>
@@ -129,6 +130,9 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	if (!csv_value_is_empty(misc_info["play_bgm"])) audio.play_bgm(misc_info["play_bgm"]);
 	// UI
 	app->m_UiMgr.reload_active(misc_info["ui_class"], misc_info["ui_group"]);
+	// Physics Wireframe
+	phy_wire.reset();
+	phy_wire.is_drawing = false;
 }
 //
 }

@@ -42,6 +42,7 @@ struct instance_mgr
 	void remove_bound_stat();
 	model_mgr m_Model;
 	std::vector<instance_stat> m_Stat;
+	// Bounding only use BoundingBox for lazy develop!!
 	phy_bound_mgr m_BoundL;
 	phy_bound_mgr m_BoundW;
 	bool m_IsLoading;
