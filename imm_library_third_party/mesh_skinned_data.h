@@ -25,6 +25,7 @@ struct keyframe
 //
 keyframe::~keyframe()
 {
+	;
 }
 //
 keyframe::keyframe():
@@ -33,6 +34,7 @@ keyframe::keyframe():
 	scale(1.0f, 1.0f, 1.0f),
 	rotation_quat(0.0f, 0.0f, 0.0f, 1.0f)
 {
+	;
 }
 ////////////////
 // bone_animation

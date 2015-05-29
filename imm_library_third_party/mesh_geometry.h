@@ -23,8 +23,7 @@ public:
 			vertex_count(0),
 			face_start(0),
 			face_count(0)
-		{
-		}
+		{;}
 		UINT id;
 		UINT vertex_start;
 		UINT vertex_count;

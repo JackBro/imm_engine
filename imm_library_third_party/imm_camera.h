@@ -92,6 +92,7 @@ camera::camera():
 //
 camera::~camera()
 {
+	;
 }
 //
 XMVECTOR camera::get_PositionXM() const {return XMLoadFloat3(&m_Position);}

@@ -18,6 +18,9 @@ class basic_model
 {
 public:
 	basic_model() {;}
+	// base class must have virtual destructor
+	// tex_mgr will kill ID3D11ShaderResourceView*
+	virtual ~basic_model() {;}
 	void set(
 		ID3D11Device *device,
 		texture_mgr &tex_mgr,
@@ -27,9 +30,6 @@ public:
 		ID3D11Device *device,
 		texture_mgr &tex_mgr,
 		const std::wstring &texture_path);
-	// base class must have virtual destructor
-	// tex_mgr will kill ID3D11ShaderResourceView*
-	virtual ~basic_model() {;}
 	std::pair<size_t, size_t> get_VertexRange(UINT sub_id);
 	size_t m_SubsetCount;
 	std::vector<material> m_Mat;
@@ -48,17 +48,20 @@ public:
 ////////////////
 struct basic_model_instance
 {
-	basic_model_instance():
-		model(nullptr),
-		is_appear(true) {
-			XMStoreFloat4x4(&world, XMMatrixIdentity());
-			XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
-		}
+	basic_model_instance();
 	basic_model *model;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 rot_front;
 	bool is_appear;
 };
+//
+basic_model_instance::basic_model_instance():
+	model(nullptr),
+	is_appear(true)
+{
+	XMStoreFloat4x4(&world, XMMatrixIdentity());
+	XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
+}
 //
 void basic_model::set(
 	ID3D11Device *device,
@@ -132,15 +135,7 @@ public:
 ////////////////
 struct skinned_model_instance
 {
-	skinned_model_instance():
-		model(nullptr),
-		clip_name(),
-		final_transforms(),
-		time_pos(0.0f),
-		is_appear(true) {
-			XMStoreFloat4x4(&world, XMMatrixIdentity());
-			XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
-		}
+	skinned_model_instance();
 	skinned_model *model;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 rot_front;
@@ -152,6 +147,17 @@ struct skinned_model_instance
 	void set_ClipName(const std::string &clip_name);
 	void check_set_ClipName(const std::string &clip_name);
 };
+//
+skinned_model_instance::skinned_model_instance():
+	model(nullptr),
+	clip_name(),
+	final_transforms(),
+	time_pos(0.0f),
+	is_appear(true)
+{
+	XMStoreFloat4x4(&world, XMMatrixIdentity());
+	XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
+}
 //
 void skinned_model::set(
 	ID3D11Device *device,
@@ -246,15 +252,7 @@ class simple_model: public basic_model
 template <typename vertex_type>
 struct simple_model_instance
 {
-	simple_model_instance():
-		model(nullptr),
-		subid(0),
-		is_textrue(true),
-		is_appear(true) {
-			XMStoreFloat4x4(&world, XMMatrixIdentity());
-			XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
-			XMStoreFloat4x4(&tex_transform, XMMatrixIdentity());
-		}
+	simple_model_instance();
 	simple_model<vertex_type> *model;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 rot_front;	
@@ -263,6 +261,18 @@ struct simple_model_instance
 	bool is_textrue;
 	bool is_appear;
 };
+//
+template <typename vertex_type>
+simple_model_instance<vertex_type>::simple_model_instance():
+	model(nullptr),
+	subid(0),
+	is_textrue(true),
+	is_appear(true)
+{
+	XMStoreFloat4x4(&world, XMMatrixIdentity());
+	XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
+	XMStoreFloat4x4(&tex_transform, XMMatrixIdentity());
+}
 //
 template <typename vertex_type>
 void simple_model<vertex_type>::set_MeshBuffer(ID3D11Device *device)

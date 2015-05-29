@@ -251,9 +251,7 @@ void instance_assign_csv_basic(
 ////////////////
 struct bin_m3d
 {
-	bin_m3d():
-		bin_info(10, 0)
-		{;}
+	bin_m3d();
 	template <typename T_model>
 	void set_bin_info_basic(const T_model &model);
 	void set_bin_info(const basic_model &model);
@@ -271,6 +269,12 @@ struct bin_m3d
 	//
 	std::vector<int> bin_info;
 };
+//
+bin_m3d::bin_m3d():
+	bin_info(10, 0)
+{
+	;
+}
 //
 template <typename T_model>
 void bin_m3d::set_bin_info_basic(const T_model &model)

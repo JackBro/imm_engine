@@ -18,7 +18,7 @@ namespace imm
 template <typename T_app>
 struct ui_mgr
 {
-	ui_mgr() {;}
+	ui_mgr();
 	void init(T_app *app_in);
 	void on_resize();
 	void define_update();
@@ -39,6 +39,15 @@ struct ui_mgr
 	ui_main_menu<T_app> main_menu;
 	ui_welcome<T_app> welcome;
 };
+//
+template <typename T_app>
+ui_mgr<T_app>::ui_mgr():
+	app(nullptr),
+	main_menu(),
+	welcome()
+{
+	;
+}
 //
 template <typename T_app>
 void ui_mgr<T_app>::init(T_app *app_in)

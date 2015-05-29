@@ -32,6 +32,7 @@ private:
 texture_mgr::texture_mgr():
 	m_D3DDevice(0)
 {
+	;
 }
 //
 texture_mgr::~texture_mgr()

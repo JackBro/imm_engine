@@ -51,7 +51,7 @@ struct octree_node
 		is_leaf = false;
 	}
 	~octree_node() {
-		for (int i = 0; i < 8; ++i) {delete children[i]; children[i] = nullptr;};
+		for (int i = 0; i < 8; ++i) {delete children[i]; children[i] = nullptr;}
 	}
 	// subdivides the bounding box of this node into eight subboxes (vMin[i], vMax[i]) for i = 0:7.
 	void subdivide(BoundingBox box[8]) {
@@ -107,11 +107,13 @@ struct octree_node
 octree_tri::octree_tri()
 	: m_Root(0)
 {
+	;
 }
 //
 octree_tri::~octree_tri()
 {
-	delete m_Root; m_Root = nullptr;
+	delete m_Root;
+	m_Root = nullptr;
 }
 //
 void octree_tri::build(const std::vector<XMFLOAT3>& vertices, const std::vector<UINT>& indices)

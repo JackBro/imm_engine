@@ -116,8 +116,8 @@ public:
 	ID3DX11EffectShaderResourceVariable *m_InputImage;
 };
 //
-ssao_blur_effect::ssao_blur_effect(ID3D11Device *device, const std::wstring &filename)
-	: effect(device, filename)
+ssao_blur_effect::ssao_blur_effect(ID3D11Device *device, const std::wstring &filename):
+	effect(device, filename)
 {
 	m_HorzBlurTech	= m_FX->GetTechniqueByName("HorzBlur");
 	m_VertBlurTech	= m_FX->GetTechniqueByName("VertBlur");

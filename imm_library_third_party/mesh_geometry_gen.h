@@ -25,17 +25,16 @@ class geometry
 {
 public:
 	struct vertex {
-		vertex() {}
+		vertex() {;}
 		vertex(const XMFLOAT3 &p, const XMFLOAT3 &n, const XMFLOAT3 &t, const XMFLOAT2 &uv):
-			position(p), normal(n), tangent_u(t), tex_c(uv) {}
+			position(p), normal(n), tangent_u(t), tex_c(uv) {;}
 		vertex(
 			float px, float py, float pz,
 			float nx, float ny, float nz,
 			float tx, float ty, float tz,
 			float u, float v
 		):
-			position(px, py, pz), normal(nx, ny, nz),
-			tangent_u(tx, ty, tz), tex_c(u, v) {}
+			position(px, py, pz), normal(nx, ny, nz), tangent_u(tx, ty, tz), tex_c(u, v) {;}
 		XMFLOAT3 position;
 		XMFLOAT3 normal;
 		XMFLOAT3 tangent_u;

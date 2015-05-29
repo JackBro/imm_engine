@@ -19,18 +19,7 @@ namespace imm
 ////////////////
 struct phy_property
 {
-	phy_property():
-		velocity(0.0f, 0.0f, 0.0f),
-		velocity_nm(0.0f, 0.0f, 0.0f),
-		acceleration(0.0f, 0.0f, 0.0f),
-		mass(0.0f),
-		friction_rev(0.3f),
-		bounce(0.3f),
-		stand_from(-1),
-		is_ground(false),
-		is_touch_ground(false),
-		is_abnormal(false)
-		{;}
+	phy_property();
 	XMFLOAT3 velocity;
 	XMFLOAT3 velocity_nm; // velcoity of no direct mechanical motion, for example: walk, run
 	XMFLOAT3 acceleration;
@@ -42,6 +31,21 @@ struct phy_property
 	bool is_touch_ground;
 	bool is_abnormal;
 };
+//
+phy_property::phy_property():
+	velocity(0.0f, 0.0f, 0.0f),
+	velocity_nm(0.0f, 0.0f, 0.0f),
+	acceleration(0.0f, 0.0f, 0.0f),
+	mass(0.0f),
+	friction_rev(0.3f),
+	bounce(0.3f),
+	stand_from(-1),
+	is_ground(false),
+	is_touch_ground(false),
+	is_abnormal(false)
+{
+	;
+}
 ////////////////
 // phy_set_aabb
 ////////////////

@@ -20,11 +20,7 @@ namespace imm
 class lua_reader
 {
 public:
-	lua_reader():
-		mutex1(),
-		L(nullptr),
-		file_name("")
-		{;}
+	lua_reader();
 	~lua_reader() {if (L) lua_close(L);}
 	std::recursive_mutex mutex1;
 	lua_State *L;
@@ -44,6 +40,14 @@ private:
 	lua_reader(const lua_reader &rhs);
 	lua_reader &operator=(const lua_reader &rhs);
 };
+//
+lua_reader::lua_reader():
+	mutex1(),
+	L(nullptr),
+	file_name("")
+{
+	;
+}
 //
 void lua_reader::loadfile(const std::string &fname)
 {

@@ -7,10 +7,11 @@
 ////////////////
 #ifndef STRU_SCENE_MGR_H
 #define STRU_SCENE_MGR_H
-#include "audio_dxtk.h"
 #include "stru_element.h"
 #include "stru_instance_mgr.h"
 #include "render_sky.h"
+#include "audio_dxtk.h"
+#include "phy_auxiliary.h"
 namespace imm
 {
 ////////////////
@@ -40,7 +41,8 @@ template <typename T_app>
 scene_mgr<T_app>::scene_mgr():
 	skybox(nullptr),
 	aura(),
-	audio()
+	audio(),
+	phy_wire()
 {
 	scene_dir_lights_common(dir_lights);
 	bounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -132,7 +134,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	app->m_UiMgr.reload_active(misc_info["ui_class"], misc_info["ui_group"]);
 	// Physics Wireframe
 	phy_wire.reset();
-	phy_wire.is_drawing = false;
+	phy_wire.is_drawing = true;
 }
 //
 }

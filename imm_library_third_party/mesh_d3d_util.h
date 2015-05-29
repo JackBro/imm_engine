@@ -13,8 +13,8 @@ namespace imm
 // create_Texture2DArraySRV
 ////////////////
 ////////////////
-ID3D11ShaderResourceView *create_Texture2DArraySRV
-	(ID3D11Device *device, ID3D11DeviceContext *context, std::vector<std::wstring> &filenames)
+ID3D11ShaderResourceView *create_Texture2DArraySRV(
+	ID3D11Device *device, ID3D11DeviceContext *context, std::vector<std::wstring> &filenames)
 {
 	// Load the texture elements individually from file.  These textures
 	// won't be used by the GPU (0 bind flags), they are just used to

@@ -30,11 +30,7 @@ enum instance_type
 ////////////////
 struct instance_stat
 {
-	instance_stat():
-		p(nullptr),
-		phy(),
-		type(basic)
-		{;}
+	instance_stat();
 	const void *p;
 	phy_property phy;
 	instance_type type;
@@ -46,6 +42,14 @@ struct instance_stat
 	void set_ClipName(const std::string &clip_name);
 	void check_set_ClipName(const std::string &clip_name);
 };
+//
+instance_stat::instance_stat():
+	p(nullptr),
+	phy(),
+	type(basic)
+{
+	;	
+}
 //
 XMFLOAT4X4 *instance_stat::get_World()
 {
