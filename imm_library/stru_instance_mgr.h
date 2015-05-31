@@ -51,6 +51,9 @@ struct instance_mgr
 };
 //
 instance_mgr::instance_mgr():
+	m_Model(),
+	m_BoundL(),
+	m_BoundW(),
 	m_IsLoading(false),
 	m_SceneGroundIx(0)
 {

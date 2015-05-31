@@ -1,12 +1,12 @@
 ////////////////
-// stru_element.h
+// stru_particle.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef STRU_ELEMENT_H
-#define STRU_ELEMENT_H
+#ifndef STRU_PARTICLE_H
+#define STRU_PARTICLE_H
 #include "render_particle.h"
 #include "mesh_d3d_util.h"
 namespace imm

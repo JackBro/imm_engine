@@ -5,6 +5,7 @@
 #ifndef UNICODE
 #define UNICODE
 #endif
+#include "phy_attack_box.h"
 #include "control_mov.h"
 #include "imm_cmd.h"
 #include "ui_mgr.h"
@@ -55,6 +56,7 @@ public:
 	shadow_map *m_Smap;
 	scene_mgr<imm_app> m_Scene;
 	instance_mgr m_Inst;
+	phy_attack_box<imm_app> m_Attack;
 	ui_mgr<imm_app> m_UiMgr;
 	lua_config<imm_app> m_Config;
 	control_mov<imm_app> m_Control;
@@ -89,7 +91,8 @@ imm_app::imm_app():
 	m_Cam(),
 	m_Smap(0),
 	m_Scene(),
-	m_Inst(),	
+	m_Inst(),
+	m_Attack(),
 	m_UiMgr(),
 	m_Config(this),
 	m_Control()

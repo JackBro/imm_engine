@@ -52,11 +52,13 @@ struct basic_model_instance
 	basic_model *model;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 rot_front;
+	std::string model_name;
 	bool is_appear;
 };
 //
 basic_model_instance::basic_model_instance():
 	model(nullptr),
+	model_name(),
 	is_appear(true)
 {
 	XMStoreFloat4x4(&world, XMMatrixIdentity());
@@ -139,7 +141,8 @@ struct skinned_model_instance
 	skinned_model *model;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 rot_front;
-	std::string clip_name;	
+	std::string model_name;
+	std::string clip_name;
 	std::vector<XMFLOAT4X4> final_transforms;
 	float time_pos;
 	bool is_appear;
@@ -150,6 +153,7 @@ struct skinned_model_instance
 //
 skinned_model_instance::skinned_model_instance():
 	model(nullptr),
+	model_name(),
 	clip_name(),
 	final_transforms(),
 	time_pos(0.0f),
@@ -257,6 +261,7 @@ struct simple_model_instance
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 rot_front;	
 	XMFLOAT4X4 tex_transform;
+	std::string model_name;
 	UINT subid;
 	bool is_textrue;
 	bool is_appear;
@@ -265,6 +270,7 @@ struct simple_model_instance
 template <typename vertex_type>
 simple_model_instance<vertex_type>::simple_model_instance():
 	model(nullptr),
+	model_name(),
 	subid(0),
 	is_textrue(true),
 	is_appear(true)

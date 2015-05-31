@@ -1,12 +1,12 @@
 ////////////////
-// ui_welcome_rect.h
+// ui_welcome.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef UI_WELCOME_RECT_H
-#define UI_WELCOME_RECT_H
+#ifndef UI_WELCOME_H
+#define UI_WELCOME_H
 #include "ui_base.h"
 namespace imm
 {

@@ -70,6 +70,7 @@ void phy_wireframe<T_app>::reset()
 	is_initialized = false;
 	vec_box_vb.clear();
 	vec_box_vb.shrink_to_fit();
+	map_attack_box.clear();
 }
 //
 template <typename T_app>
@@ -201,7 +202,7 @@ void phy_wireframe<T_app>::draw()
 	for (auto it = map_attack_box.begin(); it != map_attack_box.end(); ++it) {
 		XMFLOAT4X4 *inst_world = app->m_Inst.m_Stat[it->first].get_World();
 		XMMATRIX bone_trans = XMLoadFloat4x4(
-			&((skinned_model_instance*)app->m_Inst.m_Stat[it->first].p)->final_transforms[it->second]
+			app->m_Inst.m_Stat[it->first].get_FinalTransform(it->second)
 		);
 		// 9 -1.859f, 0.316f, 0.383f
 		XMMATRIX offset = XMMatrixTranslation(-1.859f, 0.316f, 0.383f);

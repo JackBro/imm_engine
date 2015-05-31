@@ -7,7 +7,7 @@
 ////////////////
 #ifndef STRU_SCENE_MGR_H
 #define STRU_SCENE_MGR_H
-#include "stru_element.h"
+#include "stru_particle.h"
 #include "stru_instance_mgr.h"
 #include "render_sky.h"
 #include "audio_dxtk.h"

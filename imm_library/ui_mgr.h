@@ -7,8 +7,8 @@
 ////////////////
 #ifndef UI_MGR_H
 #define UI_MGR_H
-#include "ui_main_menu_rect.h"
-#include "ui_welcome_rect.h"
+#include "ui_main_menu.h"
+#include "ui_welcome.h"
 namespace imm
 {
 ////////////////

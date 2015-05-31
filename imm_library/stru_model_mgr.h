@@ -37,6 +37,8 @@ struct instance_stat
 	//
 	XMFLOAT4X4 *get_World();
 	XMFLOAT4X4 *get_RotFront();
+	XMFLOAT4X4 *get_FinalTransform(size_t ix);
+	std::string *get_ModelName();
 	void set_World(const XMFLOAT4X4 world);
 	void set_IsAppear(const bool is_appear);
 	void set_ClipName(const std::string &clip_name);
@@ -76,6 +78,26 @@ XMFLOAT4X4 *instance_stat::get_RotFront()
 	// bad
 	return &(((basic_model_instance*)p)->rot_front);
 }
+//
+XMFLOAT4X4 *instance_stat::get_FinalTransform(size_t ix)
+{
+	assert(type == skinned);
+	return &((skinned_model_instance*)p)->final_transforms[ix];
+}
+//
+std::string *instance_stat::get_ModelName()
+{
+	switch(type) {
+		case basic: return &(((basic_model_instance*)p)->model_name);
+		case skinned: return &(((skinned_model_instance*)p)->model_name);
+		case simple_b32: return &(((simple_model_instance<basic32>*)p)->model_name);
+		case simple_pntt: return &(((simple_model_instance<pos_normal_tex_tan>*)p)->model_name);
+	}
+	assert(false);
+	// bad
+	return &(((basic_model_instance*)p)->model_name);
+}
+
 //
 void instance_stat::set_World(const XMFLOAT4X4 world)
 {
@@ -243,6 +265,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 		// iterator to the last instance
 		--it;
 		it->model = &m_PNTT["default"];
+		it->model_name = model_name;
 		it->subid = model_index[model_name];
 		instance_assign_csv_basic(
 			it,
@@ -288,6 +311,7 @@ void model_mgr::skinned_init(ID3D11Device *device, lua_reader &l_reader)
 		// iterator to the last instance
 		--it;
 		it->model = &m_Skinned[model_name];
+		it->model_name = model_name;
 		instance_assign_csv_basic(
 			it,
 			ix,
@@ -338,6 +362,7 @@ void model_mgr::basic_init(ID3D11Device *device, lua_reader &l_reader)
 		// iterator to the last instance
 		--it;
 		it->model = &m_Basic[model_name];
+		it->model_name = model_name;
 		instance_assign_csv_basic(
 			it,
 			ix,
