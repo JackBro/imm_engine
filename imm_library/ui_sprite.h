@@ -55,8 +55,8 @@ void sprite_simple::init(ID3D11Device *device, ID3D11DeviceContext *device_conte
 	states = std::unique_ptr<CommonStates>(new CommonStates(device));
 	tex_mgr.init(device);
 	std::wstring tex_path = str_to_wstr(GLOBAL["path_tex"]);
-	tex_path += L"hello_world_BC7.dds";
-	if (data_is_file_exist(wstr_to_str(tex_path))) map_tex["test"] = tex_mgr.create_texture(tex_path);
+	//tex_path += L"hello_world_BC7.dds";
+	//if (data_is_file_exist(wstr_to_str(tex_path))) map_tex["test"] = tex_mgr.create_texture(tex_path);
 }
 //
 void sprite_simple::draw_d3d()

@@ -55,8 +55,8 @@ public:
 	camera m_Cam;
 	shadow_map *m_Smap;
 	scene_mgr<imm_app> m_Scene;
-	instance_mgr m_Inst;
-	phy_attack_box<imm_app> m_Attack;
+	instance_mgr<imm_app> m_Inst;
+	phy_attack_arrange<imm_app> m_Attack;
 	ui_mgr<imm_app> m_UiMgr;
 	lua_config<imm_app> m_Config;
 	control_mov<imm_app> m_Control;
@@ -122,6 +122,7 @@ bool imm_app::init_imm()
 	m_UiMgr.init(this);
 	m_Cmd.init(this);
 	m_Cmd.is_slient = false;
+	m_Inst.init(this);
 	m_Scene.init_load(this);
 	m_Control.init(this);
 	m_Config.additional1();

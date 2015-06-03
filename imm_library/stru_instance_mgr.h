@@ -8,22 +8,22 @@
 #ifndef STRU_INSTANCE_MGR_H
 #define STRU_INSTANCE_MGR_H
 #include "stru_model_mgr.h"
-#include "imm_cmd_util.h"
 namespace imm
 {
 ////////////////
 // instance_mgr
 ////////////////
 ////////////////
+template <typename T_app>
 struct instance_mgr
 {
 	instance_mgr();
+	void init(T_app *app_in);
 	void load(
 		ID3D11Device *device,
 		const std::string &scene_ix,
-		const std::string &scene_ground,
-		std::atomic<bool> &is_preparing,
-		atomic_wstring &input);
+		const std::string &scene_ground);
+	void load_scene_atmosphere();
 	template <typename instance, typename get_pos>
 	void push_back(
 		const std::vector<instance> &v_inst, instance_stat &inst_stat, size_t &k,
@@ -48,36 +48,44 @@ struct instance_mgr
 	bool m_IsLoading;
 	std::map<std::string, std::size_t> m_NameMap;
 	int m_SceneGroundIx;
+	T_app *m_App;
 };
 //
-instance_mgr::instance_mgr():
+template <typename T_app>
+instance_mgr<T_app>::instance_mgr():
 	m_Model(),
 	m_BoundL(),
 	m_BoundW(),
 	m_IsLoading(false),
-	m_SceneGroundIx(0)
+	m_SceneGroundIx(0),
+	m_App(nullptr)
 {
 	;
 }
 //
-void instance_mgr::load(
+template <typename T_app>
+void instance_mgr<T_app>::init(T_app *app_in)
+{
+	m_App = app_in;
+}
+//
+template <typename T_app>
+void instance_mgr<T_app>::load(
 	ID3D11Device *device,
 	const std::string &scene_ix,
-	const std::string &scene_ground,	
-	std::atomic<bool> &is_preparing,
-	atomic_wstring &input)
+	const std::string &scene_ground)
 {
 	assert(!m_IsLoading);
 	m_IsLoading = true;
-	is_preparing = m_IsLoading;
+	m_App->m_Cmd.is_preparing = m_IsLoading;
 	std::wstring load_done(scene_ix.begin(), scene_ix.end());
 	if (!m_Model.load(device, scene_ix)) {
 		load_done = L"> Scene "+load_done+L" not found.\n";
-		input += load_done;
+		m_App->m_Cmd.input += load_done;
 		return;
 	}
-	input += L"> Loading...\n";
-	input += L"> Please wait...\n";	
+	m_App->m_Cmd.input += L"> Loading...\n";
+	m_App->m_Cmd.input += L"> Please wait...\n";	
 	remove_bound_stat();
 	instance_stat inst_stat;
 	size_t k = 0;
@@ -105,16 +113,26 @@ void instance_mgr::load(
 		m_Model.m_InstPNTT, inst_stat, k,
 		[](const pos_normal_tex_tan &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
+	//
+	load_scene_atmosphere();
 	m_IsLoading = false;
-	is_preparing = m_IsLoading;
+	m_App->m_Cmd.is_preparing = m_IsLoading;
 	load_done = L"> Scene "+load_done+L" load done\n";
-	input.assign(load_done);
+	m_App->m_Cmd.input.assign(load_done);
 	// scene
 	m_SceneGroundIx = get_index(scene_ground);
 }
 //
+template <typename T_app>
+void instance_mgr<T_app>::load_scene_atmosphere()
+{
+	m_App->m_Attack.build_bbox_from_instance();
+	m_App->m_Scene.phy_wire.build_buffer();
+}
+//
+template <typename T_app>
 template <typename instance, typename get_pos>
-void instance_mgr::push_back(
+void instance_mgr<T_app>::push_back(
 	const std::vector<instance> &v_inst, instance_stat &inst_stat, size_t &k,
 	const get_pos &get_pos_f,
 	std::vector<std::string> &name)
@@ -133,8 +151,9 @@ void instance_mgr::push_back(
 	}
 }
 //
+template <typename T_app>
 template <typename instance, typename get_pos>
-void instance_mgr::push_back_pntt(
+void instance_mgr<T_app>::push_back_pntt(
 	const std::vector<instance> &v_inst, instance_stat &inst_stat, size_t &k,
 	const get_pos &get_pos_f,
 	std::vector<std::string> &name)
@@ -156,7 +175,8 @@ void instance_mgr::push_back_pntt(
 	}
 }
 //
-instance_stat &instance_mgr::get(int ix)
+template <typename T_app>
+instance_stat &instance_mgr<T_app>::get(int ix)
 {
 	if (m_IsLoading) assert(false);
 	size_t sz_ix = 0;
@@ -164,13 +184,15 @@ instance_stat &instance_mgr::get(int ix)
 	return m_Stat[sz_ix];
 }
 //
-int instance_mgr::get_index(const std::string &name)
+template <typename T_app>
+int instance_mgr<T_app>::get_index(const std::string &name)
 {
 	if (!m_NameMap.count(name)) return -1;
 	return static_cast<int>(m_NameMap[name]);
 }
 //
-void instance_mgr::bound_update()
+template <typename T_app>
+void instance_mgr<T_app>::bound_update()
 {
 	if (m_IsLoading) return;
 	XMMATRIX world;
@@ -180,7 +202,8 @@ void instance_mgr::bound_update()
 	}
 }
 // should use octree, temporary not implement
-void instance_mgr::collision_update(float dt_every)
+template <typename T_app>
+void instance_mgr<T_app>::collision_update(float dt_every)
 {
 	if (m_IsLoading) return;
 	if (m_SceneGroundIx == -1) return;
@@ -216,14 +239,16 @@ void instance_mgr::collision_update(float dt_every)
 	}
 }
 //
-void instance_mgr::update_skinned(const float &dt)
+template <typename T_app>
+void instance_mgr<T_app>::update_skinned(const float &dt)
 {
 	if (m_IsLoading) return;
 	// should be multithread
 	for (auto &skinned: m_Model.m_InstSkinned) skinned.update(dt);
 }
 //
-void instance_mgr::remove_bound_stat()
+template <typename T_app>
+void instance_mgr<T_app>::remove_bound_stat()
 {
 	m_BoundL.remove_all();
 	m_BoundW.remove_all();

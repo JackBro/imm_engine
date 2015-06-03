@@ -32,7 +32,7 @@ struct scene_mgr
 	lit_dir dir_lights[3];
 	BoundingSphere bounds;
 	sky *skybox;
-	bright_aura aura;
+	state_plasma plasma;
 	audio_dxtk audio;
 	phy_wireframe<T_app> phy_wire;
 };
@@ -40,7 +40,7 @@ struct scene_mgr
 template <typename T_app>
 scene_mgr<T_app>::scene_mgr():
 	skybox(nullptr),
-	aura(),
+	plasma(),
 	audio(),
 	phy_wire()
 {
@@ -58,19 +58,20 @@ template <typename T_app>
 void scene_mgr<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
-	//aura.init_load(app->m_D3DDevice, app->m_D3DDC);
-	aura.is_active = false;
+	//plasma.init_load(app->m_D3DDevice, app->m_D3DDC);
+	plasma.is_active = false;
 	audio.init_load();
 	phy_wire.init(app);
+	app->m_Attack.init_load(app);
 	reload(L"00");
 }
 //
 template <typename T_app>
 void scene_mgr<T_app>::update_atmosphere(float dt)
 {
-	aura.update(dt, app->m_Timer.total_time());
+	plasma.update(dt, app->m_Timer.total_time());
 	audio.update();
-	phy_wire.build_buffer_update();
+	app->m_Attack.update();	
 }
 //
 template <typename T_app>
@@ -84,7 +85,7 @@ void scene_mgr<T_app>::draw_d3d_atmosphere()
 	app->m_D3DDC->RSSetState(0);
 	app->m_D3DDC->OMSetDepthStencilState(0, 0);
 	// Draw particle systems last so it is blended with scene.
-	aura.draw(app->m_D3DDC, app->m_Cam);
+	plasma.draw(app->m_D3DDC, app->m_Cam);
 	// Restore default states.
 	app->m_D3DDC->RSSetState(0);
 	app->m_D3DDC->OMSetDepthStencilState(0, 0);
@@ -109,13 +110,11 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	// Instance
 	app->m_Control.reset();
 	std::thread(
-		&instance_mgr::load,
+		&instance_mgr<T_app>::load,
 		std::ref(app->m_Inst),
 		app->m_D3DDevice,
 		scene_ix_str,
-		misc_info["ground"],
-		std::ref(app->m_Cmd.is_preparing),
-		std::ref(app->m_Cmd.input)).detach();
+		misc_info["ground"]).detach();
 	// Skybox
 	if (skybox != nullptr) delete skybox;
 	if (csv_value_is_empty(misc_info["skybox_file"])) {
@@ -132,9 +131,6 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	if (!csv_value_is_empty(misc_info["play_bgm"])) audio.play_bgm(misc_info["play_bgm"]);
 	// UI
 	app->m_UiMgr.reload_active(misc_info["ui_class"], misc_info["ui_group"]);
-	// Physics Wireframe
-	phy_wire.reset();
-	phy_wire.is_drawing = true;
 }
 //
 }

@@ -106,6 +106,7 @@ void cmd_shell<T_app>::apply()
 		input += L"\n> slient               Switches between slient and normal.";
 		input += L"\n> util                 Development tools.";
 		input += L"\n> reload               Reload scene.";
+		input += L"\n> draw_wire            Draw BoundingBox wireframe or not.";
 		input += L"\n";
 		return;
 	}
@@ -218,6 +219,13 @@ void cmd_shell<T_app>::apply()
 			is_active = false;
 		}
 		return;
+	}
+	if (cmd_get == L"draw_wire") {
+		app->m_Scene.phy_wire.is_drawing = !app->m_Scene.phy_wire.is_drawing;
+		std::wstring info_mes = L"off.";
+		if (app->m_Scene.phy_wire.is_drawing) info_mes = L"on.";
+		input += L"\n> Drawing BoundingBox wireframe is "+info_mes;
+		input += L"\n";
 	}
 }
 //
