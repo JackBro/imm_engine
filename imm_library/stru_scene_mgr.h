@@ -28,7 +28,7 @@ struct scene_mgr
 	void draw_d3d_atmosphere();
 	void reload(const std::wstring &scene_ix);
 	T_app *app;
-	std::map<std::string, std::string> misc_info;
+	std::map<std::string, std::string> get_misc;
 	lit_dir dir_lights[3];
 	BoundingSphere bounds;
 	sky *skybox;
@@ -58,8 +58,7 @@ template <typename T_app>
 void scene_mgr<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
-	//plasma.init_load(app->m_D3DDevice, app->m_D3DDC);
-	plasma.is_active = false;
+	plasma.init_load(app->m_D3DDevice, app->m_D3DDC);
 	audio.init_load();
 	phy_wire.init(app);
 	app->m_Attack.init_load(app);
@@ -97,16 +96,16 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 {
 	assert(!app->m_Inst.m_IsLoading);
 	std::string scene_ix_str(scene_ix.begin(), scene_ix.end());
-	misc_info["ground"] = "";
-	misc_info["player1"] = "";
-	misc_info["skybox_file"] = "";
-	misc_info["play_bgm"] = "";
-	misc_info["ui_class"] = "";
-	misc_info["ui_group"] = "";
+	get_misc["ground"] = "";
+	get_misc["player1"] = "";
+	get_misc["skybox_dds"] = "";
+	get_misc["play_bgm"] = "";
+	get_misc["ui_class"] = "";
+	get_misc["ui_group"] = "";
 	lua_reader l_reader;
 	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix_str+"\\describe_instance.lua";
 	l_reader.loadfile(describe);
-	l_reader.map_from_global(misc_info);
+	l_reader.map_from_global(get_misc);
 	// Instance
 	app->m_Control.reset();
 	std::thread(
@@ -114,23 +113,23 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 		std::ref(app->m_Inst),
 		app->m_D3DDevice,
 		scene_ix_str,
-		misc_info["ground"]).detach();
+		get_misc["ground"]).detach();
 	// Skybox
 	if (skybox != nullptr) delete skybox;
-	if (csv_value_is_empty(misc_info["skybox_file"])) {
+	if (csv_value_is_empty(get_misc["skybox_dds"])) {
 		// Empty sky no draw
 		skybox = new sky();
 	}
 	else {
 		std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
-		path_tex += str_to_wstr(misc_info["skybox_file"]);
+		path_tex += str_to_wstr(get_misc["skybox_dds"]);
 		skybox = new sky(app->m_D3DDevice, path_tex, 5000.0f);
 	}
 	// Audio
 	audio.stop_bgm();
-	if (!csv_value_is_empty(misc_info["play_bgm"])) audio.play_bgm(misc_info["play_bgm"]);
+	if (!csv_value_is_empty(get_misc["play_bgm"])) audio.play_bgm(get_misc["play_bgm"]);
 	// UI
-	app->m_UiMgr.reload_active(misc_info["ui_class"], misc_info["ui_group"]);
+	app->m_UiMgr.reload_active(get_misc["ui_class"], get_misc["ui_group"]);
 }
 //
 }

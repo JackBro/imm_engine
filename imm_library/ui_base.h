@@ -23,7 +23,8 @@ struct ui_rect
 		background	= 0,
 		button		= 1,
 		text_pure	= 2,
-		text_layout	= 3
+		text_layout	= 3,
+		sprite      = 4
 	};
 	type tp;
 	std::string brush_ix;
@@ -84,6 +85,7 @@ struct ui_base
 	std::map<std::string, std::vector<size_t>> m_MapGroup;
 	std::map<std::string, std::vector<size_t>> m_MapButton;
 	std::map<std::string, std::vector<size_t>> m_MapTextLayout;
+	std::map<std::string, size_t> m_MapSprite;
 	std::map<std::string, int> m_MapID;
 	std::map<std::string, dwrite_simple> m_Dwrite;
 	sprite_simple m_Sprite;
@@ -153,6 +155,7 @@ void ui_base<T_app>::build_rect_map()
 			m_MapTextLayout[m_Rect[ix].group].emplace_back(ix);
 			on_resize_TextLayout(ix);
 		}
+		if (m_Rect[ix].tp == ui_rect::type::sprite) m_MapSprite[m_Rect[ix].id_str] = ix;
 	}
 }
 //
@@ -264,6 +267,7 @@ void ui_base<T_app>::draw_d2d()
 template <typename T_app>
 void ui_base<T_app>::draw_d3d()
 {
+	m_MapSprite;
 	m_Sprite.draw_d3d();
 }
 //

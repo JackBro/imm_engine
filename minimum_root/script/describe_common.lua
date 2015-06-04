@@ -4,7 +4,10 @@
 -- require
 require "script\\library\\csv_dump"
 
--- audio
-csv_audio_bgm       = read_csv("script\\scene_common\\audio_bgm.csv")
-csv_audio_effect    = read_csv("script\\scene_common\\audio_effect.csv")
-csv_attack_box      = read_csv("script\\scene_common\\attack_box.csv")
+-- csv
+csv_audio_bgm    = read_csv("script\\scene_common\\audio_bgm.csv")
+csv_audio_effect = read_csv("script\\scene_common\\audio_effect.csv")
+csv_attack_box   = read_csv("script\\scene_common\\attack_box.csv")
+
+-- state_plasma
+plasma_flame_dds = ""

@@ -23,17 +23,16 @@ struct state_plasma
 	void update(float dt, float total_time);
 	void draw(ID3D11DeviceContext *context, const camera &cam);
 	void reset();
-	particle fragment;
-	int instance_ix;
+	particle flame;
+	std::vector<XMFLOAT3> flame_emit_pos;
 	bool is_active;
-	ID3D11ShaderResourceView *state_plasma_tex_srv;
+	ID3D11ShaderResourceView *flame_tex_srv;
 	ID3D11ShaderResourceView *random_tex_srv;
 };
 //
 state_plasma::state_plasma():
-	instance_ix(-1),
 	is_active(true),
-	state_plasma_tex_srv(nullptr),
+	flame_tex_srv(nullptr),
 	random_tex_srv(nullptr)
 {
 	;
@@ -41,37 +40,51 @@ state_plasma::state_plasma():
 //
 state_plasma::~state_plasma()
 {
-	ReleaseCOM(state_plasma_tex_srv);
+	ReleaseCOM(flame_tex_srv);
 	ReleaseCOM(random_tex_srv);
 }
 //
 void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 {
-	std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
+	// Flame
+	std::string describe = GLOBAL["path_lua"]+"describe_common.lua";
+	std::map<std::string, std::string> get_dds;
+	get_dds["plasma_flame_dds"] = "";
+	lua_reader l_reader;
+	l_reader.loadfile(describe);
+	l_reader.map_from_global(get_dds);
+	if (csv_value_is_empty(get_dds["plasma_flame_dds"])) {
+		is_active = false;
+		return;
+	}
+	std::wstring path_tex = str_to_wstr(GLOBAL["path_tex"]);
 	random_tex_srv = create_RandomTexture1DSRV(device);
 	std::vector<std::wstring> flares;
-	flares.push_back(path_tex+L"flare1_BC7.dds");
-	state_plasma_tex_srv = create_Texture2DArraySRV(device, context, flares);
-	fragment.init(device, effects::m_FireFX, state_plasma_tex_srv, random_tex_srv, 500);
-	fragment.set_EmitPos(XMFLOAT3(2.0f, 1.0f, -7.0f));
+	flares.push_back(path_tex+str_to_wstr(get_dds["plasma_flame_dds"]));
+	flame_tex_srv = create_Texture2DArraySRV(device, context, flares);
+	flame.init(device, effects::m_FireFX, flame_tex_srv, random_tex_srv, 500);
+	// Dummy set
+	flame.set_EmitPos(XMFLOAT3(0.0f, 0.0f, 0.0f));
 }
 //
 void state_plasma::update(float dt, float total_time)
 {
 	if (!is_active) return;
-	fragment.update(dt, total_time);
+	flame.update(dt, total_time);
 }
 //
 void state_plasma::draw(ID3D11DeviceContext *context, const camera &cam)
 {
 	if (!is_active) return;
-	fragment.set_EyePos(cam.get_Position());
-	fragment.draw(context, cam);
+	flame.set_EyePos(cam.get_Position());
+	flame.draw_list(context, cam, flame_emit_pos);
+	
 }
 //
 void state_plasma::reset()
 {
-	fragment.reset();
+	if (!is_active) return;
+	flame.reset();
 }
 //
 }
