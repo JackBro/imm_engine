@@ -47,7 +47,7 @@ state_plasma::~state_plasma()
 void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 {
 	// Flame
-	std::string describe = GLOBAL["path_lua"]+"describe_common.lua";
+	std::string describe = GLOBAL["path_lua"]+"scene_common\\state_plasma.lua";
 	std::map<std::string, std::string> get_dds;
 	get_dds["plasma_flame_dds"] = "";
 	lua_reader l_reader;

@@ -26,6 +26,8 @@ struct ui_welcome: public ui_base<T_app>
 	void define_update();
 	void define_deactivate_all_default();
 	void define_deactivate_all_cmd_slient();
+	void define_sprite_build_buffer();
+	void define_on_resize_sprite();
 	void define_txt_str();
 };
 //
@@ -279,13 +281,13 @@ template <typename T_app>
 void ui_welcome<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	DUMMY(l_param);
-	w_param;
+	DUMMY(w_param);
 }
 //
 template <typename T_app>
 void ui_welcome<T_app>::define_on_pad_keydown(const WORD &vkey)
 {
-	vkey;
+	DUMMY(vkey);
 }
 //
 template <typename T_app>
@@ -304,6 +306,18 @@ template <typename T_app>
 void ui_welcome<T_app>::define_deactivate_all_cmd_slient()
 {
 	deactivate_all();
+}
+//
+template <typename T_app>
+void ui_welcome<T_app>::define_sprite_build_buffer()
+{
+	;
+}
+//
+template <typename T_app>
+void ui_welcome<T_app>::define_on_resize_sprite()
+{
+	;
 }
 //
 template <typename T_app>

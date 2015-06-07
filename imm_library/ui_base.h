@@ -10,35 +10,10 @@
 #include "ui_sprite.h"
 #include "ui_dwrite.h"
 #include "control_key_define.h"
+#include "stru_lua_help.h"
 #include <algorithm>
 namespace imm
 {
-////////////////
-// ui_rect
-////////////////
-////////////////
-struct ui_rect
-{
-	enum type {
-		background	= 0,
-		button		= 1,
-		text_pure	= 2,
-		text_layout	= 3,
-		sprite      = 4
-	};
-	type tp;
-	std::string brush_ix;
-	std::vector<std::string> brush_sel;
-	D2D1_RECT_F rc;
-	std::wstring text;
-	std::string id_str;
-	std::string parent_str;
-	std::string group;
-	std::string dwrite_ix;
-	XMFLOAT4 margin;
-	int parent;
-	bool active;
-};
 ////////////////
 // ui_base
 ////////////////
@@ -71,6 +46,7 @@ struct ui_base
 	bool is_ui_appear();
 	void deactivate_all();
 	bool apply_ix(int &index);
+	bool is_should_be_quiet();
 	// virtual
 	virtual void define_style() = 0;
 	virtual bool define_apply_ix_if(int &index) = 0;
@@ -79,6 +55,8 @@ struct ui_base
 	virtual void define_update() = 0;
 	virtual void define_deactivate_all_default() = 0;
 	virtual void define_deactivate_all_cmd_slient() = 0;
+	virtual void define_sprite_build_buffer() {;}
+	virtual void define_on_resize_sprite() {;}
 	virtual void define_txt_str() = 0;
 	std::map<std::string, ID2D1SolidColorBrush*> m_Brush;
 	std::vector<ui_rect> m_Rect;
@@ -92,7 +70,9 @@ struct ui_base
 	int m_ClickIxMouse;
 	int m_ClickIxPad;
 	bool m_IsMute;
+	bool m_IsOtherUIAppear;
 	bool m_IsPadUsing;
+	bool m_IsInitialized;
 	FLOAT m_TitleFontFactor;
 	D2D1_POINT_2F m_TextLayoutOrigin;
 	RECT m_RcHWND;
@@ -110,7 +90,9 @@ ui_base<T_app>::ui_base():
 	m_ClickIxMouse(-1),
 	m_ClickIxPad(-1),
 	m_IsMute(false),
+	m_IsOtherUIAppear(false),
 	m_IsPadUsing(false),
+	m_IsInitialized(false),
 	m_TitleFontFactor(32.0f),
 	m_RcHWND(),
 	m_ClickableActived("none"),
@@ -134,6 +116,8 @@ void ui_base<T_app>::init(T_app *app_in)
 	//
 	define_txt_str();
 	define_style();
+	define_sprite_build_buffer();
+	m_IsInitialized = true;
 	on_resize();
 }
 //
@@ -227,11 +211,11 @@ template <typename T_app>
 void ui_base<T_app>::on_resize()
 {
 	// if not init, no resize
-	if (m_MapGroup.size() == 0) return;
+	if (!m_IsInitialized) return;
 	GetClientRect(m_App->m_hwnd, &m_RcHWND);
 	for (auto &dwrite: m_Dwrite) dwrite.second.on_resize_CreateTextFormat(m_App->m_hwnd);
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
-		if (m_Rect[ix].tp < 3) {
+		if (m_Rect[ix].tp < 3 || m_Rect[ix].tp == 4) {
 			if (m_Rect[ix].parent < 0) on_resize_RectFromHWND(ix);
 			else on_resize_RectFromRect(ix, m_Rect[ix].parent);
 		}
@@ -239,6 +223,8 @@ void ui_base<T_app>::on_resize()
 			on_resize_TextLayout(ix, true);
 		}
 	}
+	// sprite on resize
+	define_on_resize_sprite();
 }
 //
 template <typename T_app>
@@ -256,7 +242,7 @@ void ui_base<T_app>::draw_d2d()
 	for (auto it = m_Rect.begin(); it != m_Rect.end(); ++it) {
 		if (!it->active) continue;
 		if (it->tp < 2) m_App->m_D2DDC->FillRectangle(&it->rc, m_Brush[it->brush_ix]);
-		if (it->tp < 3) m_Dwrite[it->dwrite_ix].draw_Rect(m_App->m_D2DDC, it->text, it->rc);
+		if (it->tp < 3 || it->tp == 4) m_Dwrite[it->dwrite_ix].draw_Rect(m_App->m_D2DDC, it->text, it->rc);
 		if (it->tp == 3) {
 			m_TextLayoutOrigin.x = it->margin.y;
 			m_Dwrite[it->dwrite_ix].draw_TextLayout(m_App->m_D2DDC, m_TextLayoutOrigin, it-m_Rect.begin());
@@ -267,14 +253,14 @@ void ui_base<T_app>::draw_d2d()
 template <typename T_app>
 void ui_base<T_app>::draw_d3d()
 {
-	m_MapSprite;
-	m_Sprite.draw_d3d();
+	if (!m_IsInitialized) return;
+	m_Sprite.draw_d3d(m_MapSprite, m_Rect);
 }
 //
 template <typename T_app>
 bool ui_base<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if (m_IsMute) return false;
+	if (is_should_be_quiet()) return false;
 	if (btn_state & MOUSE_UI_PICK) {
 		m_IsPadUsing = false;
 		mouse_pick(pos_x, pos_y);
@@ -286,7 +272,7 @@ bool ui_base<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int
 template <typename T_app>
 bool ui_base<T_app>::on_mouse_wheel(const short &z_delta)
 {
-	if (m_IsMute) return false;
+	if (is_should_be_quiet()) return false;
 	for (auto &map: m_MapTextLayout) {
 		if (m_Rect[map.second[0]].active) {
 			float restrict_y = -m_Rect[map.second[0]].margin.w+100.0f;
@@ -302,7 +288,7 @@ bool ui_base<T_app>::on_mouse_wheel(const short &z_delta)
 template <typename T_app>
 void ui_base<T_app>::on_mouse_over(const int &pos_x, const int &pos_y)
 {
-	if (m_IsMute) return;
+	if (is_should_be_quiet()) return;
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		if (m_Rect[ix].tp == ui_rect::type::button && m_Rect[ix].active &&
 			pos_y > m_Rect[ix].rc.top && pos_y < m_Rect[ix].rc.bottom &&
@@ -316,7 +302,7 @@ void ui_base<T_app>::on_mouse_over(const int &pos_x, const int &pos_y)
 template <typename T_app>
 void ui_base<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 {
-	if (m_IsMute) return;
+	if (is_should_be_quiet()) return;
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		if (m_Rect[ix].tp == ui_rect::type::button && m_Rect[ix].active &&
 			pos_y > m_Rect[ix].rc.top && pos_y < m_Rect[ix].rc.bottom &&
@@ -330,7 +316,7 @@ void ui_base<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 template <typename T_app>
 void ui_base<T_app>::on_pad_keydown(const WORD &vkey)
 {
-	if (m_IsMute) return;
+	if (is_should_be_quiet()) return;
 	m_IsPadUsing = true;
 	define_on_pad_keydown(vkey);
 	if (vkey == PAD_UI_DWON1 || vkey == PAD_UI_DWON2) {
@@ -353,7 +339,7 @@ void ui_base<T_app>::on_pad_keydown(const WORD &vkey)
 template <typename T_app>
 void ui_base<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
-	if (m_IsMute) return;
+	if (is_should_be_quiet()) return;
 	m_IsPadUsing = false;
 	define_on_input_keydown(w_param, l_param);
 }
@@ -479,5 +465,13 @@ bool ui_base<T_app>::apply_ix(int &index)
 	}
 	return false;
 }
+//
+template <typename T_app>
+bool ui_base<T_app>::is_should_be_quiet()
+{
+	if (m_IsMute | m_IsOtherUIAppear) return true;
+	return false;
+}
+//
 }
 #endif

@@ -207,17 +207,23 @@ void cmd_shell<T_app>::apply()
 		return;
 	}
 	if (cmd_get.substr(0, 6) == L"reload") {
-		
-		if (cmd_get.size() < 9 || cmd_get.size() > 11) {
+		if (cmd_get.size() < 9) {
 			input += L"\n> Usage: reload [scene_index]";
-			input += L"\n> scene_index must be two characters.";
+			input += L"\n> scene_index is a number or string.";
 			input += L"\n";
+			return;
 		}
-		else {
-			std::wstring scene_ix = cmd_get.substr(7, 2);
+		std::wstring scene_ix = cmd_get.substr(7);
+		std::string describe = GLOBAL["path_lua"]+"scene"+wstr_to_str(scene_ix)+"\\describe_instance.lua";
+		if (data_is_file_exist(describe)) {
 			app->m_Scene.reload(scene_ix);
+			is_slient = false;
 			is_active = false;
 		}
+		else {
+			input += L"\n> reload scene_index not found";
+			input += L"\n";
+		}			
 		return;
 	}
 	if (cmd_get == L"draw_wire") {

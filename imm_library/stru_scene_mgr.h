@@ -26,7 +26,7 @@ struct scene_mgr
 	void init_load(T_app *app_in);
 	void update_atmosphere(float dt);
 	void draw_d3d_atmosphere();
-	void reload(const std::wstring &scene_ix);
+	void reload(const std::wstring &scene_ix_in);
 	T_app *app;
 	std::map<std::string, std::string> get_misc;
 	lit_dir dir_lights[3];
@@ -35,6 +35,8 @@ struct scene_mgr
 	state_plasma plasma;
 	audio_dxtk audio;
 	phy_wireframe<T_app> phy_wire;
+	std::string scene_ix;
+	float begin_time;
 };
 //
 template <typename T_app>
@@ -42,7 +44,9 @@ scene_mgr<T_app>::scene_mgr():
 	skybox(nullptr),
 	plasma(),
 	audio(),
-	phy_wire()
+	phy_wire(),
+	scene_ix(),
+	begin_time(0.0f)
 {
 	scene_dir_lights_common(dir_lights);
 	bounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -92,10 +96,11 @@ void scene_mgr<T_app>::draw_d3d_atmosphere()
 }
 //
 template <typename T_app>
-void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
+void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 {
 	assert(!app->m_Inst.m_IsLoading);
-	std::string scene_ix_str(scene_ix.begin(), scene_ix.end());
+	scene_ix = wstr_to_str(scene_ix_in);
+	begin_time = app->m_Timer.total_time();
 	get_misc["ground"] = "";
 	get_misc["player1"] = "";
 	get_misc["skybox_dds"] = "";
@@ -103,7 +108,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 	get_misc["ui_class"] = "";
 	get_misc["ui_group"] = "";
 	lua_reader l_reader;
-	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix_str+"\\describe_instance.lua";
+	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix+"\\describe_instance.lua";
 	l_reader.loadfile(describe);
 	l_reader.map_from_global(get_misc);
 	// Instance
@@ -112,7 +117,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix)
 		&instance_mgr<T_app>::load,
 		std::ref(app->m_Inst),
 		app->m_D3DDevice,
-		scene_ix_str,
+		scene_ix,
 		get_misc["ground"]).detach();
 	// Skybox
 	if (skybox != nullptr) delete skybox;

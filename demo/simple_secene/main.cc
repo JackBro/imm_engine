@@ -5,6 +5,7 @@
 #ifndef UNICODE
 #define UNICODE
 #endif
+#include "condition_trigger.h"
 #include "phy_attack_box.h"
 #include "control_mov.h"
 #include "imm_cmd.h"
@@ -58,6 +59,7 @@ public:
 	instance_mgr<imm_app> m_Inst;
 	phy_attack_arrange<imm_app> m_Attack;
 	ui_mgr<imm_app> m_UiMgr;
+	condition_trigger<imm_app> m_Condition;
 	lua_config<imm_app> m_Config;
 	control_mov<imm_app> m_Control;
 	XMFLOAT4X4 m_LightView;
@@ -94,6 +96,7 @@ imm_app::imm_app():
 	m_Inst(),
 	m_Attack(),
 	m_UiMgr(),
+	m_Condition(),
 	m_Config(this),
 	m_Control()
 {
@@ -124,8 +127,9 @@ bool imm_app::init_imm()
 	m_Cmd.is_slient = false;
 	m_Inst.init(this);
 	m_Scene.init_load(this);
+	m_Condition.init(this);
 	m_Control.init(this);
-	m_Config.additional1();
+	m_Config.init_additional();
 	return true;
 }
 //
@@ -145,6 +149,7 @@ void imm_app::update_scene(float dt)
 	if (!m_Cmd.is_active) update_scene_keydown(dt);
 	build_shadow_transform();
 	m_Cam.update_view_matrix();
+	m_Condition.update();
 	m_Control.update_scene(dt);
 	m_Scene.update_atmosphere(dt);
 }

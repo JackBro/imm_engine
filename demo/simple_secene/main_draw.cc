@@ -224,8 +224,6 @@ void imm_app::draw_scene_d3d_slient()
 	assert(m_SwapChain);
 	m_D3DDC->ClearRenderTargetView(m_RenderTargetView, reinterpret_cast<const float*>(&m_Cmd.back_color));
 	m_D3DDC->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
-	// Draw UI sprite
-	m_UiMgr.draw_d3d();
 }
 //
 void imm_app::draw_scene_d2d()
@@ -233,7 +231,7 @@ void imm_app::draw_scene_d2d()
 	assert(m_D2DDC);
 	m_D2DDC->BeginDraw();
 	m_D2DDC->SetTransform(D2D1::IdentityMatrix());
-	m_Cmd.draw();
 	m_UiMgr.draw_d2d();
+	m_Cmd.draw();
 	HR(m_D2DDC->EndDraw());
 }

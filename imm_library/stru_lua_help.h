@@ -156,17 +156,21 @@ void lua_reader::assign_bool(T_bool &b_out, const std::string &str_in)
 ////////////////
 struct rotation_xyz
 {
-	rotation_xyz():
-		x(0.0f),
-		y(0.0f),
-		z(0.0f)
-		{;}
+	rotation_xyz();
 	rotation_xyz(const std::string &xyz);
 	float x;
 	float y;
 	float z;
 	XMMATRIX get_Matrix();
 };
+//
+rotation_xyz::rotation_xyz():
+	x(0.0f),
+	y(0.0f),
+	z(0.0f)
+{
+	;
+}
 //
 rotation_xyz::rotation_xyz(const std::string &xyz)
 {
@@ -237,7 +241,7 @@ struct lua_config
 {
 	lua_config();
 	lua_config(T_app *app_in);
-	void additional1();
+	void init_additional();
 	T_app *m_App;
 };
 //
@@ -264,7 +268,7 @@ lua_config<T_app>::lua_config(T_app *app_in)
 	l_reader.assign_bool(m_App->m_IsSyncInterval, g_map["is_sync_iterval"]);
 }
 template <typename T_app>
-void lua_config<T_app>::additional1()
+void lua_config<T_app>::init_additional()
 {
 	std::map<std::string, std::string> g_map;
 	g_map["is_slient"] = "";
