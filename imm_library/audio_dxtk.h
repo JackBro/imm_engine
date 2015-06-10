@@ -20,7 +20,7 @@ struct audio_dxtk
 	audio_dxtk();
 	void init_load();
 	void update();
-	void play_bgm(const std::string &name);
+	void play_bgm(const std::string &name, const bool &is_loop);
 	void stop_bgm();
 	void play_effect(const std::string &name);
 	void set_effect_inst_volume(float volume);
@@ -57,13 +57,13 @@ void audio_dxtk::init_load()
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	std::vector<std::vector<std::string>> vec2d_audio_bgm;
-	l_reader.vec2d_str_from_global("csv_audio_bgm", vec2d_audio_bgm);
+	l_reader.vec2d_str_from_table("csv_audio_bgm", vec2d_audio_bgm);
 	std::wstring path_med(GLOBAL["path_med"].begin(), GLOBAL["path_med"].end());
 	for (size_t ix = 1; ix < vec2d_audio_bgm.size(); ++ix) {
 		map_bgm[vec2d_audio_bgm[ix][0]] = path_med+str_to_wstr(vec2d_audio_bgm[ix][1]);
 	}
 	std::vector<std::vector<std::string>> vec2d_audio_effect;
-	l_reader.vec2d_str_from_global("csv_audio_effect", vec2d_audio_effect);
+	l_reader.vec2d_str_from_table("csv_audio_effect", vec2d_audio_effect);
 	for (size_t ix = 1; ix < vec2d_audio_effect.size(); ++ix) {
 		map_effect_bank[vec2d_audio_effect[ix][0]] = vec2d_audio_effect[ix][1];
 		map_effect_ix[vec2d_audio_effect[ix][0]] = std::stoi(vec2d_audio_effect[ix][2]);
@@ -91,7 +91,7 @@ void audio_dxtk::set_wave_bank_volume(float volume)
 	wave_bank_volume = volume;
 }
 //
-void audio_dxtk::play_bgm(const std::string &name)
+void audio_dxtk::play_bgm(const std::string &name, const bool &is_loop = false)
 {
 	if (name != current_bgm_name) {
 		if (!map_bgm.count(name)) {
@@ -105,7 +105,7 @@ void audio_dxtk::play_bgm(const std::string &name)
 		current_bgm_name = name;
 	}
 	if (effect_inst == nullptr) return;
-	effect_inst->Play(true);
+	effect_inst->Play(is_loop);
 }
 //
 void audio_dxtk::stop_bgm()

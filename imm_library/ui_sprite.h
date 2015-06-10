@@ -25,7 +25,7 @@ struct ui_rect
 		button		= 1,
 		text_pure	= 2,
 		text_layout	= 3,
-		sprite      = 4
+		sprite      = 4,
 	};
 	ui_rect();
 	type tp;

@@ -63,6 +63,7 @@ static std::map<std::string, std::string> GLOBAL {
 	{"path_lua", "script\\"},
 	{"path_out", "misc\\output\\"},
 	{"path_inp", "misc\\input\\"},
+	{"path_txt", "script\\text_en\\"},
 };
 // for calclate UI size with factor
 static const float REF_RESOLUTION_WIDTH = 1366.0f;

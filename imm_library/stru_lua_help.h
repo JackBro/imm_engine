@@ -27,15 +27,17 @@ public:
 	std::string file_name;
 	void loadfile(const std::string &fname);
 	void clear_stack();
-	void map_from_global(std::map<std::string, std::string> &map_str);
-	void vec2d_str_from_global(
+	void map_from_string(std::map<std::string, std::string> &map_str);
+	void map_from_table(std::map<std::string, std::string> &map_str, const std::string &table_name);
+	void vec2d_str_from_table(
 		const std::string &table_name,
 		std::vector<std::vector<std::string>> &vec2d_str);
-	void vec2d_str_from_global_wstr(
+	void vec2d_str_from_table_wstr(
 		const std::string &table_name,
 		std::vector<std::vector<std::wstring>> &vec2d_wstr);
 	template <typename T_bool>
 	void assign_bool(T_bool &b_out, const std::string &str_in);
+	bool is_not_nil(const std::string &var_name);
 private:
 	lua_reader(const lua_reader &rhs);
 	lua_reader &operator=(const lua_reader &rhs);
@@ -71,13 +73,13 @@ void lua_reader::clear_stack()
 	lua_pop(L, n);
 }
 //
-void lua_reader::map_from_global(std::map<std::string, std::string> &map_str)
+void lua_reader::map_from_string(std::map<std::string, std::string> &map_str)
 {
 	std::lock_guard<std::recursive_mutex> lock(mutex1);
-	if (!L) {assert(false); abort(); return;}
+	if (!L) {assert(false); abort();}
 	for (auto map_it = map_str.begin(); map_it != map_str.end(); ++map_it) {
 		lua_getglobal(L, map_it->first.c_str());
-		if (lua_isstring(L, -1)) map_it->second = (lua_tostring(L, -1));
+		if (lua_type(L, -1) == LUA_TSTRING) map_it->second = (lua_tostring(L, -1));
 		else {
 			std::string err_str("Lua load ");
 			err_str += file_name;
@@ -89,16 +91,38 @@ void lua_reader::map_from_global(std::map<std::string, std::string> &map_str)
 	}
 }
 //
-void lua_reader::vec2d_str_from_global(
+void lua_reader::map_from_table(std::map<std::string, std::string> &map_str, const std::string &table_name)
+{
+	std::lock_guard<std::recursive_mutex> lock(mutex1);
+	if (!L) {assert(false); abort();}
+	map_str.clear();
+	lua_getglobal(L, table_name.c_str());
+	if (!lua_istable(L, -1)) {assert(false); abort();}
+	int l_ix = lua_gettop(L);
+	lua_pushnil(L);
+	while (lua_next(L, l_ix) != 0) {
+		if (!(lua_type(L, -2) == LUA_TSTRING || lua_type(L, -2) == LUA_TNUMBER)) {assert(false); abort();}
+		if (lua_type(L, -1) != LUA_TSTRING) {assert(false); abort();}
+		if (lua_type(L, -2) == LUA_TNUMBER) {
+			map_str[std::to_string(static_cast<int>(lua_tonumber(L, -2)))] = lua_tostring(L, -1);
+		}
+		else {
+			map_str[lua_tostring(L, -2)] = lua_tostring(L, -1);
+		}
+		lua_pop(L, 1);
+	}
+}
+//
+void lua_reader::vec2d_str_from_table(
 	const std::string &table_name,
 	std::vector<std::vector<std::string>> &vec2d_str)
 {
 	std::lock_guard<std::recursive_mutex> lock(mutex1);
-	if (!L) {assert(false); abort(); return;}
+	if (!L) {assert(false); abort();}
 	vec2d_str = std::vector<std::vector<std::string>>();
 	int ix_1 = 1;
 	lua_getglobal(L, table_name.c_str());
-	if (lua_isnil(L, -1)) {
+	if (!lua_istable(L, -1)) {
 		std::string err_str("Lua table name error: ");
 		err_str += table_name;
 		ERROR_MESA(err_str.c_str());
@@ -128,27 +152,34 @@ void lua_reader::vec2d_str_from_global(
 	vec2d_str.pop_back();
 }
 //
-void lua_reader::vec2d_str_from_global_wstr(
+void lua_reader::vec2d_str_from_table_wstr(
 	const std::string &table_name,
 	std::vector<std::vector<std::wstring>> &vec2d_wstr)
 {
 	vec2d_wstr = std::vector<std::vector<std::wstring>>();
 	std::vector<std::vector<std::string>> vec2d_str;
-	vec2d_str_from_global(table_name, vec2d_str);
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+	vec2d_str_from_table(table_name, vec2d_str);
 	for (size_t ix = 0; ix < vec2d_str.size(); ++ix) {
 		vec2d_wstr.push_back(std::vector<std::wstring>());
 		for (size_t ix_2 = 0; ix_2 < vec2d_str[ix].size(); ++ix_2)
-			vec2d_wstr[ix].push_back(convert.from_bytes(vec2d_str[ix][ix_2]));
+			vec2d_wstr[ix].push_back(str_to_wstr(vec2d_str[ix][ix_2]));
 	}	
 }
 //
 template <typename T_bool>
 void lua_reader::assign_bool(T_bool &b_out, const std::string &str_in)
 {
-	if (str_in == "true" || str_in == "1")
-		b_out = true;
+	if (str_in == "true" || str_in == "1") b_out = true;
 	else b_out = false;
+}
+//
+bool lua_reader::is_not_nil(const std::string &var_name)
+{
+	std::lock_guard<std::recursive_mutex> lock(mutex1);
+	if (!L) {assert(false); abort();}
+	lua_getglobal(L, var_name.c_str());
+	if (lua_isnil(L, -1)) return false;
+	return true;
 }
 ////////////////
 // rotation_xyz
@@ -262,7 +293,7 @@ lua_config<T_app>::lua_config(T_app *app_in)
 	g_map["is_sync_iterval"] = "";
 	lua_reader l_reader;
 	l_reader.loadfile(GLOBAL["path_lua"]+"imm_config.lua");
-	l_reader.map_from_global(g_map);
+	l_reader.map_from_string(g_map);
 	l_reader.assign_bool(m_App->m_FullScreen, g_map["is_fullscreen"]);
 	l_reader.assign_bool(m_App->m_Enable4xMsaa, g_map["is_4xmsaa"]);
 	l_reader.assign_bool(m_App->m_IsSyncInterval, g_map["is_sync_iterval"]);
@@ -274,7 +305,7 @@ void lua_config<T_app>::init_additional()
 	g_map["is_slient"] = "";
 	lua_reader l_reader;
 	l_reader.loadfile(GLOBAL["path_lua"]+"imm_config.lua");
-	l_reader.map_from_global(g_map);
+	l_reader.map_from_string(g_map);
 	l_reader.assign_bool(m_App->m_Cmd.is_slient, g_map["is_slient"]);
 }
 }

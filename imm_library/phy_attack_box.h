@@ -47,7 +47,7 @@ struct phy_attack_arrange
 {
 	phy_attack_arrange();
 	~phy_attack_arrange();
-	void reset();
+	void remove_all();
 	void init_load(T_app *app_in);
 	void read_lua();
 	void build_bbox_from_instance();
@@ -74,7 +74,7 @@ phy_attack_arrange<T_app>::~phy_attack_arrange()
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::reset()
+void phy_attack_arrange<T_app>::remove_all()
 {
 	map.clear();
 	bbox_l.clear();
@@ -97,7 +97,7 @@ void phy_attack_arrange<T_app>::read_lua()
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	std::vector<std::vector<std::string>> vec2d;
-	l_reader.vec2d_str_from_global("csv_attack_box", vec2d);
+	l_reader.vec2d_str_from_table("csv_attack_box", vec2d);
 	for (size_t ix = 1; ix < vec2d.size(); ++ix) {
 		model[vec2d[ix][0]].box[vec2d[ix][1]].bone_ix = stoi(vec2d[ix][2]);
 		XMMATRIX offset = XMMatrixTranslation(
@@ -120,7 +120,7 @@ void phy_attack_arrange<T_app>::read_lua()
 template <typename T_app>
 void phy_attack_arrange<T_app>::build_bbox_from_instance()
 {
-	reset();
+	remove_all();
 	for (size_t ix = 0; ix != app->m_Inst.m_Stat.size(); ++ix) {
 		if (app->m_Inst.m_Stat[ix].type != skinned) continue;
 		std::string *model_name = app->m_Inst.m_Stat[ix].get_ModelName();

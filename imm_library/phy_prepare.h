@@ -97,7 +97,7 @@ public:
 	std::vector<BoundingOrientedBox> b2;
 	std::vector<BoundingSphere> b3;
 	std::vector<std::pair<phy_bound_type, size_t>> map;
-	void push_empty(const phy_bound_type &type);
+	void push_back_empty(const phy_bound_type &type);
 	void transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world);
 	bool intersects(const size_t &ixA, const size_t &ixB);
 	bool intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &direction, float &dist);
@@ -127,7 +127,7 @@ phy_bound_mgr::phy_bound_mgr():
 	;
 }
 //
-void phy_bound_mgr::push_empty(const phy_bound_type &type)
+void phy_bound_mgr::push_back_empty(const phy_bound_type &type)
 {
 	switch(type) {
 		case box:

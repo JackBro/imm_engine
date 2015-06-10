@@ -39,7 +39,7 @@ struct instance_mgr
 	void bound_update();
 	void collision_update(float dt_every);
 	void update_skinned(const float &dt);
-	void remove_bound_stat();
+	void remove_all();
 	model_mgr m_Model;
 	std::vector<instance_stat> m_Stat;
 	// Bounding only use BoundingBox for lazy develop!!
@@ -86,7 +86,7 @@ void instance_mgr<T_app>::load(
 	}
 	m_App->m_Cmd.input += L"> Loading...\n";
 	m_App->m_Cmd.input += L"> Please wait...\n";	
-	remove_bound_stat();
+	remove_all();
 	instance_stat inst_stat;
 	size_t k = 0;
 	inst_stat.type = basic;
@@ -128,6 +128,9 @@ void instance_mgr<T_app>::load_scene_atmosphere()
 {
 	m_App->m_Attack.build_bbox_from_instance();
 	m_App->m_Scene.phy_wire.build_buffer();
+	m_App->m_UiMgr.dialogue.build_text();
+	// last
+	m_App->m_Scene.begin_time = m_App->m_Timer.total_time();
 }
 //
 template <typename T_app>
@@ -141,8 +144,8 @@ void instance_mgr<T_app>::push_back(
 		m_NameMap[name[ix]] = k;
 		inst_stat.p = &v_inst[ix];
 		m_Stat.push_back(inst_stat);
-		m_BoundL.push_empty(phy_bound_type::box);
-		m_BoundW.push_empty(phy_bound_type::box);
+		m_BoundL.push_back_empty(phy_bound_type::box);
+		m_BoundW.push_back_empty(phy_bound_type::box);
 		phy_set_aabb(
 			m_BoundL.b1[k],
 			v_inst[ix].model->m_Vertices,
@@ -162,8 +165,8 @@ void instance_mgr<T_app>::push_back_pntt(
 		m_NameMap[name[ix]] = k;
 		inst_stat.p = &v_inst[ix];
 		m_Stat.push_back(inst_stat);
-		m_BoundL.push_empty(phy_bound_type::box);
-		m_BoundW.push_empty(phy_bound_type::box);
+		m_BoundL.push_back_empty(phy_bound_type::box);
+		m_BoundW.push_back_empty(phy_bound_type::box);
 		auto vert_range = v_inst[ix].model->get_VertexRange(v_inst[ix].subid);
 		phy_set_aabb(
 			m_BoundL.b1[k],
@@ -248,7 +251,7 @@ void instance_mgr<T_app>::update_skinned(const float &dt)
 }
 //
 template <typename T_app>
-void instance_mgr<T_app>::remove_bound_stat()
+void instance_mgr<T_app>::remove_all()
 {
 	m_BoundL.remove_all();
 	m_BoundW.remove_all();

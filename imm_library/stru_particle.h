@@ -52,7 +52,7 @@ void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 	get_dds["plasma_flame_dds"] = "";
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
-	l_reader.map_from_global(get_dds);
+	l_reader.map_from_string(get_dds);
 	if (csv_value_is_empty(get_dds["plasma_flame_dds"])) {
 		is_active = false;
 		return;

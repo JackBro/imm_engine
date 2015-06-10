@@ -29,7 +29,7 @@ public:
 	BOOL init_win();
 	bool init_d3d();
 	HWND get_hwnd() const {return m_hwnd;}
-	float aspect_ratio() const {return static_cast<float>(m_ClientWidth)/m_ClientHeight;}
+	float aspect_ratio() const {return static_cast<float>(m_ClientWidth)/static_cast<float>(m_ClientHeight);}
 	int run();
 	virtual void on_resize();
 	virtual void update_scene(float dt) = 0;
@@ -56,6 +56,7 @@ public:
 	UINT m_4xMsaaQuality;
 	int m_ClientWidth;
 	int m_ClientHeight;
+	float m_AspectRatio;
 	FLOAT m_DpiX;
 	FLOAT m_DpiY;
 	std::wstring m_WindowName;
@@ -95,6 +96,7 @@ base_win<DERIVED_TYPE>::base_win():
 	m_4xMsaaQuality(0),
 	m_ClientWidth(800),
 	m_ClientHeight(600),
+	m_AspectRatio(0.0f),
 	m_DpiX(96.0f),
 	m_DpiY(96.0f),
 	m_WindowName(L"D3D11 Demo"),
@@ -336,6 +338,7 @@ void base_win<DERIVED_TYPE>::on_resize()
 	assert(m_D3DDC);
 	assert(m_D3DDevice);
 	assert(m_SwapChain);
+	m_AspectRatio = aspect_ratio();
 	// Release the old views, as they hold references to the buffers we
 	// will be destroying.	Also release the old depth/stencil buffer.
 	ReleaseCOM(m_RenderTargetView);

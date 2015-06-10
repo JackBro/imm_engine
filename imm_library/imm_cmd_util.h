@@ -106,7 +106,7 @@ void misc_util_b3m(ID3D11Device *d3d_device, T_wstring &input_str, std::atomic<b
 	l_reader.loadfile(GLOBAL["path_lua"]+"cmd_util_b3m.lua");
 	bin_m3d model_bin;
 	std::vector<std::vector<std::string>> model_m3d;
-	l_reader.vec2d_str_from_global("csv_model_input", model_m3d);
+	l_reader.vec2d_str_from_table("csv_model_input", model_m3d);
 	std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
 	auto it = model_m3d.begin()+1;
 	while (it != model_m3d.end()) {

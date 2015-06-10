@@ -28,7 +28,8 @@ struct ui_dialogue: public ui_base<T_app>
 	void define_deactivate_all_cmd_slient();
 	void define_sprite_build_buffer();
 	void define_on_resize_sprite();
-	void define_txt_str();
+	void define_text();
+	void build_text();
 };
 //
 template <typename T_app>
@@ -67,7 +68,7 @@ void ui_dialogue<T_app>::define_style()
 	m_Rect.back().group = "test";
 	m_Rect.back().tp = ui_rect::type::background;
 	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = L"Test!!!";
+	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.75f, 0.0f, 0.0f);
 	////////////////
@@ -132,7 +133,7 @@ void ui_dialogue<T_app>::define_sprite_build_buffer()
 	std::string describe = GLOBAL["path_lua"]+"scene_common\\ui_dialogue.lua";
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
-	l_reader.map_from_global(get_dds);
+	l_reader.map_from_string(get_dds);
 	m_Sprite.build_buffer(get_dds);
 }
 //
@@ -148,9 +149,35 @@ void ui_dialogue<T_app>::define_on_resize_sprite()
 }
 //
 template <typename T_app>
-void ui_dialogue<T_app>::define_txt_str()
+void ui_dialogue<T_app>::define_text()
 {
 	;
+}
+//
+template <typename T_app>
+void ui_dialogue<T_app>::build_text()
+{
+	std::map<std::string, std::string> get_scene;
+	std::string describe = GLOBAL["path_txt"]+"dialogue_index.lua";
+	lua_reader l_reader;
+	l_reader.loadfile(describe);
+	std::string scene_ix = "scene"+m_App->m_Scene.scene_ix;
+	if (!l_reader.is_not_nil(scene_ix)) return;
+	// build dialogue chunk
+	m_TxtChunk.remove_all();
+	l_reader.map_from_table(get_scene, scene_ix);
+	for (auto it = get_scene.begin(); it != get_scene.end(); ++it) {
+		describe = GLOBAL["path_txt"]+it->second;
+		l_reader.loadfile(describe);
+		std::map<std::string, std::string> get_chunk_info;
+		l_reader.map_from_table(get_chunk_info, "chunk");
+		for (auto &chunk: get_chunk_info) {
+			std::map<std::string, std::string> chunk_raw;
+			l_reader.map_from_table(chunk_raw, chunk.second);
+			m_TxtChunk.insert_chunk(chunk.second, chunk_raw);
+		}
+	}
+	m_Rect.back().text = m_TxtChunk.map["test"].lines["00_abelia"][0];
 }
 //
 }

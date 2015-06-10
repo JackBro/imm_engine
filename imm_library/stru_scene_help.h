@@ -199,7 +199,7 @@ void model_load_csv_basic(
 	std::map<std::string, int> &model_alpha)
 {
 	// build model
-	l_reader.vec2d_str_from_global(csv_name, csv_model);
+	l_reader.vec2d_str_from_table(csv_name, csv_model);
 	for (size_t ix = 1; ix < csv_model.size(); ++ix) {
 		std::string model_file = model_path+csv_model[ix][1];
 		std::string model_name = csv_model[ix][0];

@@ -72,6 +72,7 @@ See minimum_root\, represents following tree.
 	     |--library
 	     |--scene_common
 	     |--scene00
+	     |--text_en
 
 
 Asset Tools:

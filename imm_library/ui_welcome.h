@@ -28,7 +28,7 @@ struct ui_welcome: public ui_base<T_app>
 	void define_deactivate_all_cmd_slient();
 	void define_sprite_build_buffer();
 	void define_on_resize_sprite();
-	void define_txt_str();
+	void define_text();
 };
 //
 template <typename T_app>
@@ -321,33 +321,18 @@ void ui_welcome<T_app>::define_on_resize_sprite()
 }
 //
 template <typename T_app>
-void ui_welcome<T_app>::define_txt_str()
+void ui_welcome<T_app>::define_text()
 {
-	// credit
-	m_DefineTxt["credit"] = L"\n";
-	m_DefineTxt["credit"] += L"Credit\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"The fundamental 3D rendering technique is derived from the textbook ";
-	m_DefineTxt["credit"] += L"Introduction to 3D Game Programming with DirectX 11 by Frank Luna.\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"Sinon (Sword art Online) 3D model by Daniel Kreuter.\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"Low Poly Cactus 3D model by Richard Thorogood.\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"Hand-Painted Column 3D model by xrg.\n";
-	m_DefineTxt["credit"] += L"\n";
-	m_DefineTxt["credit"] += L"Ammo Box 3D model by mahesh.\n";
-	// about
-	m_DefineTxt["about"] = L"\n";
-	m_DefineTxt["about"] += L"About\n";
-	m_DefineTxt["about"] += L"\n";
-	m_DefineTxt["about"] += L"immature engine Demo 20150424\n";
-	m_DefineTxt["about"] += L"Copyright 2015 Huang Yiting (http://endrollex.com)\n";
-	m_DefineTxt["about"] += L"\n";
-	m_DefineTxt["about"] += L"This demo only has a menu scene, not game logic yet. ";
-	m_DefineTxt["about"] += L"You can manipulate an instance, just have a look.\n";
-	m_DefineTxt["about"] += L"\n";
-	m_DefineTxt["about"] += L"Notice the 3D model Sinon is a fan art, this work is noncommercial use.\n";
+	std::map<std::string, std::string> get_welcome;
+	std::string describe = GLOBAL["path_txt"]+"welcome.lua";
+	lua_reader l_reader;
+	l_reader.loadfile(describe);
+	std::string var_name = "welcome";
+	if (!l_reader.is_not_nil(var_name)) {assert(false); abort();}
+	l_reader.map_from_table(get_welcome, var_name);
+	for (auto it = get_welcome.begin(); it != get_welcome.end(); ++it) {
+		m_DefineTxt[it->first] = str_to_wstr(it->second);
+	}
 }
 //
 }

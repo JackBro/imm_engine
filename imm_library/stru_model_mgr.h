@@ -145,7 +145,7 @@ struct model_mgr
 	void pntt_init(ID3D11Device *device, lua_reader &l_reader);
 	void skinned_init(ID3D11Device *device, lua_reader &l_reader);
 	void basic_init(ID3D11Device *device, lua_reader &l_reader);
-	void remove_instance();
+	void remove_all();
 	texture_mgr m_TexMgr;
 	bool is_initialized;
 	std::map<std::string, simple_model<basic32>> m_B32;
@@ -183,7 +183,7 @@ bool model_mgr::load(ID3D11Device *device, const std::string& scene_ix)
 	init(device);
 	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix+"\\describe_instance.lua";
 	if (!data_is_file_exist(describe)) return false;
-	remove_instance();
+	remove_all();
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	std::thread(&model_mgr::b32_init, this, device, std::ref(l_reader)).join();
@@ -209,7 +209,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 	std::map<std::string, bool> model_is_tex;
 	std::map<std::string, std::string> model_tex_trans;
 	// build model
-	l_reader.vec2d_str_from_global("csv_model_geometry", vec2d_model);
+	l_reader.vec2d_str_from_table("csv_model_geometry", vec2d_model);
 	std::vector<geometry::mesh_data> geo_mesh;
 	geometry geo_gen;
 	m_PNTT["default"];
@@ -254,7 +254,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 	}
 	model_load_geo_mesh(device, m_PNTT["default"], geo_mesh);
 	// build instance
-	l_reader.vec2d_str_from_global("csv_instance_geometry", vec2d_instance);
+	l_reader.vec2d_str_from_table("csv_instance_geometry", vec2d_instance);
 	for (size_t ix = 1; ix < vec2d_instance.size(); ++ix) {
 		std::string model_name = vec2d_instance[ix][1];
 		m_NamePNTT.push_back(vec2d_instance[ix][0]);
@@ -300,7 +300,7 @@ void model_mgr::skinned_init(ID3D11Device *device, lua_reader &l_reader)
 		std::wstring(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end()),
 		dummy);
 	// build instance
-	l_reader.vec2d_str_from_global("csv_instance_skinned", vec2d_instance);
+	l_reader.vec2d_str_from_table("csv_instance_skinned", vec2d_instance);
 	for (size_t ix = 1; ix < vec2d_instance.size(); ++ix) {
 		std::string model_name = vec2d_instance[ix][1];
 		assert(m_Skinned.count(model_name));
@@ -344,7 +344,7 @@ void model_mgr::basic_init(ID3D11Device *device, lua_reader &l_reader)
 		std::wstring(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end()),
 		model_alpha);
 	// build instance
-	l_reader.vec2d_str_from_global("csv_instance_basic", vec2d_instance);
+	l_reader.vec2d_str_from_table("csv_instance_basic", vec2d_instance);
 	for (size_t ix = 1; ix < vec2d_instance.size(); ++ix) {
 		std::string model_name = vec2d_instance[ix][1];
 		assert(m_Basic.count(model_name));
@@ -372,7 +372,7 @@ void model_mgr::basic_init(ID3D11Device *device, lua_reader &l_reader)
 	}
 }
 //
-void model_mgr::remove_instance()
+void model_mgr::remove_all()
 {
 	m_B32.clear();
 	m_PNTT.clear();

@@ -120,40 +120,42 @@ void cmd_shell<T_app>::apply()
 		input += L"\n";
 		return;
 	}
-	if (cmd_get == L"color") {
-		input += L"\n> Specify following command to sets a color:";
-		input += L"\n> color 0              Font White";
-		input += L"\n> color 1              Font Black";
-		input += L"\n> color 2              Font Purple";
-		input += L"\n> color 3              Font Yellow";
-		input += L"\n> color a              Background Blue";
-		input += L"\n> color b              Background Black";
-		input += L"\n";
-		return;
-	}
-	if (cmd_get == L"color 0") {
-		dwrite.set_Brush(app->m_D2DDC, D2D1::ColorF::White);
-		return;
-	}
-	if (cmd_get == L"color 1") {
-		dwrite.set_Brush(app->m_D2DDC, D2D1::ColorF::Black);
-		return;
-	}
-	if (cmd_get == L"color 2") {
-		dwrite.set_Brush(app->m_D2DDC, D2D1::ColorF::Purple);
-		return;
-	}
-	if (cmd_get == L"color 3") {
-		dwrite.set_Brush(app->m_D2DDC, D2D1::ColorF::Yellow);
-		return;
-	}
-	if (cmd_get == L"color a") {
-		back_color = Colors::Blue;
-		return;
-	}
-	if (cmd_get == L"color b") {
-		back_color = Colors::Black;
-		return;
+	if (cmd_get.substr(0, 5) == L"color") {
+		if (cmd_get.size() < 7) {
+			input += L"\n> Specify following command to sets a color:";
+			input += L"\n> color 0              Font White";
+			input += L"\n> color 1              Font Black";
+			input += L"\n> color 2              Font Purple";
+			input += L"\n> color 3              Font Yellow";
+			input += L"\n> color a              Background Blue";
+			input += L"\n> color b              Background Black";
+			input += L"\n";
+			return;
+		}
+		if (cmd_get == L"color 0") {
+			dwrite.set_Brush(app->m_D2DDC, D2D1::ColorF::White);
+			return;
+		}
+		if (cmd_get == L"color 1") {
+			dwrite.set_Brush(app->m_D2DDC, D2D1::ColorF::Black);
+			return;
+		}
+		if (cmd_get == L"color 2") {
+			dwrite.set_Brush(app->m_D2DDC, D2D1::ColorF::Purple);
+			return;
+		}
+		if (cmd_get == L"color 3") {
+			dwrite.set_Brush(app->m_D2DDC, D2D1::ColorF::Yellow);
+			return;
+		}
+		if (cmd_get == L"color a") {
+			back_color = Colors::Blue;
+			return;
+		}
+		if (cmd_get == L"color b") {
+			back_color = Colors::Black;
+			return;
+		}
 	}
 	if (cmd_get == L"slient") {
 		is_slient = !is_slient;
@@ -164,50 +166,53 @@ void cmd_shell<T_app>::apply()
 		else is_active = false;
 		return;
 	}
-	if (cmd_get == L"util") {
-		input += L"\n> Specify following command to use a tool:";
-		input += L"\n> util b3m             Convert .m3d file to binary file.";
-		input += L"\n";
-		return;
-	}
-	if (cmd_get == L"util b3m") {
-		std::wstring path_lua(GLOBAL["path_lua"].begin(), GLOBAL["path_lua"].end());
-		std::wstring path_out(GLOBAL["path_out"].begin(), GLOBAL["path_out"].end());
-		input += L"\n> #############################################";
-		input += L"\n> [util b3m] is a tool convert .m3d file to binary file .b3m, the .m3d ";
-		input += L"\n> file is a custom text file format to store meshes. For more ";
-		input += L"\n> information about .m3d, see d3dcoder.net, DirectX 11 Book by Frank ";
-		input += L"\n> Luna.";
-		input += L"\n>";
-		input += L"\n> To use this tool, you need prepare lua script tell tool which files ";
-		input += L"\n> to convert, the lua script is on "+path_lua;
-		input += L"cmd_util_b3m.lua, ";
-		input += L"\n> it should be writen correct data according a sample from the demo.";
-		input += L"\n>";
-		input += L"\n> The convert process will spend a lot of time depends files size. If ";
-		input += L"\n> any error occur, the program will be abort, you need figure out the ";
-		input += L"\n> problem and try again.";
-		input += L"\n>";
-		input += L"\n> The output folder is on "+path_out;
-		input += L"\n> #############################################";
-		input += L"\n>";
-		input += L"\n> Specify following command to use util b3m:";
-		input += L"\n> util b3m start       Start converting.";
-		input += L"\n";
-		return;
-	}
-	if (cmd_get == L"util b3m start") {
-		is_slient = true;
-		input += L"\n> util b3m processing...";
-		if (!is_busying) {
-			std::thread(
-			misc_util_b3m<atomic_wstring>,
-			app->m_D3DDevice, std::ref(input), std::ref(is_busying)).detach();
+	if (cmd_get.substr(0, 4) == L"util") {
+		if (cmd_get.size() < 6) {
+			input += L"\n> Specify following command to use a tool:";
+			input += L"\n> util b3m             util b3m manual.";
+			input += L"\n> util b3m start       Convert .m3d file to binary file.";
+			input += L"\n";
+			return;
 		}
-		return;
+		if (cmd_get == L"util b3m") {
+			std::wstring path_lua(GLOBAL["path_lua"].begin(), GLOBAL["path_lua"].end());
+			std::wstring path_out(GLOBAL["path_out"].begin(), GLOBAL["path_out"].end());
+			
+			input += L"\n> #####################################################################";
+			input += L"\n> ## util b3m manual";
+			input += L"\n> #####################################################################";
+			input += L"\n> [util b3m] is a tool convert .m3d file to binary file .b3m, the .m3d ";
+			input += L"\n> file is a custom text file format to store meshes. For more ";
+			input += L"\n> information about .m3d, see d3dcoder.net, DirectX 11 Book by Frank ";
+			input += L"\n> Luna.";
+			input += L"\n>";
+			input += L"\n> To use this tool, you need prepare lua script tell tool which files ";
+			input += L"\n> to convert, the lua script is on "+path_lua;
+			input += L"cmd_util_b3m.lua, ";
+			input += L"\n> it should be writen correct data according a sample from the demo.";
+			input += L"\n>";
+			input += L"\n> The convert process will spend a lot of time depends files size. If ";
+			input += L"\n> any error occur, the program will be abort, you need figure out the ";
+			input += L"\n> problem and try again.";
+			input += L"\n>";
+			input += L"\n> The output folder is on "+path_out;
+			input += L"\n> #####################################################################";
+			input += L"\n";
+			return;
+		}
+		if (cmd_get == L"util b3m start") {
+			is_slient = true;
+			input += L"\n> util b3m processing...";
+			if (!is_busying) {
+				std::thread(
+				misc_util_b3m<atomic_wstring>,
+				app->m_D3DDevice, std::ref(input), std::ref(is_busying)).detach();
+			}
+			return;
+		}
 	}
 	if (cmd_get.substr(0, 6) == L"reload") {
-		if (cmd_get.size() < 9) {
+		if (cmd_get.size() < 8) {
 			input += L"\n> Usage: reload [scene_index]";
 			input += L"\n> scene_index is a number or string.";
 			input += L"\n";
@@ -221,7 +226,7 @@ void cmd_shell<T_app>::apply()
 			is_active = false;
 		}
 		else {
-			input += L"\n> reload scene_index not found";
+			input += L"\n> Scene "+scene_ix+L" not found.";
 			input += L"\n";
 		}			
 		return;

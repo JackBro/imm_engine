@@ -100,7 +100,6 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 {
 	assert(!app->m_Inst.m_IsLoading);
 	scene_ix = wstr_to_str(scene_ix_in);
-	begin_time = app->m_Timer.total_time();
 	get_misc["ground"] = "";
 	get_misc["player1"] = "";
 	get_misc["skybox_dds"] = "";
@@ -110,7 +109,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	lua_reader l_reader;
 	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix+"\\describe_instance.lua";
 	l_reader.loadfile(describe);
-	l_reader.map_from_global(get_misc);
+	l_reader.map_from_string(get_misc);
 	// Instance
 	app->m_Control.reset();
 	std::thread(
@@ -135,6 +134,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	if (!csv_value_is_empty(get_misc["play_bgm"])) audio.play_bgm(get_misc["play_bgm"]);
 	// UI
 	app->m_UiMgr.reload_active(get_misc["ui_class"], get_misc["ui_group"]);
+	app->m_Condition.reset();
 }
 //
 }

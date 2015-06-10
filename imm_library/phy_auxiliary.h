@@ -21,8 +21,8 @@ struct phy_wireframe
 {
 	phy_wireframe();
 	~phy_wireframe();
-	void remove();
-	void reset();
+	void remove_buffer();
+	void remove_all();
 	void init(T_app *appin);
 	void build_buffer();
 	void draw();
@@ -46,20 +46,20 @@ phy_wireframe<T_app>::phy_wireframe():
 template <typename T_app>
 phy_wireframe<T_app>::~phy_wireframe()
 {
-	remove();
+	remove_buffer();
 	ReleaseCOM(box_ib);
 }
 //
 template <typename T_app>
-void phy_wireframe<T_app>::remove()
+void phy_wireframe<T_app>::remove_buffer()
 {
 	for (auto &vb: box_collision) ReleaseCOM(vb);
 }
 //
 template <typename T_app>
-void phy_wireframe<T_app>::reset()
+void phy_wireframe<T_app>::remove_all()
 {
-	remove();
+	remove_buffer();
 	box_collision.clear();
 	box_collision.shrink_to_fit();
 	box_attack.clear();
@@ -106,7 +106,7 @@ void phy_wireframe<T_app>::init(T_app *appin)
 template <typename T_app>
 void phy_wireframe<T_app>::build_buffer()
 {
-	reset();	
+	remove_all();	
 	// box_collision
 	for (size_t ix = 0; ix != app->m_Inst.m_BoundL.map.size(); ++ix) {
 		XMFLOAT3 corners[8];

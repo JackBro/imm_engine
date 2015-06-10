@@ -7,10 +7,10 @@
 ////////////////
 #ifndef UI_BASE_H
 #define UI_BASE_H
+#include "ui_text_help.h"
 #include "ui_sprite.h"
 #include "ui_dwrite.h"
 #include "control_key_define.h"
-#include "stru_lua_help.h"
 #include <algorithm>
 namespace imm
 {
@@ -57,7 +57,7 @@ struct ui_base
 	virtual void define_deactivate_all_cmd_slient() = 0;
 	virtual void define_sprite_build_buffer() {;}
 	virtual void define_on_resize_sprite() {;}
-	virtual void define_txt_str() = 0;
+	virtual void define_text() = 0;
 	std::map<std::string, ID2D1SolidColorBrush*> m_Brush;
 	std::vector<ui_rect> m_Rect;
 	std::map<std::string, std::vector<size_t>> m_MapGroup;
@@ -79,6 +79,7 @@ struct ui_base
 	// if a group has no button, it is no-clickable, otherwise it is clickable
 	std::string m_ClickableActived;
 	std::map<std::string, std::wstring> m_DefineTxt;
+	ui_text_chunk m_TxtChunk;
 	T_app *m_App;
 private:
 	ui_base(const ui_base &rhs);
@@ -96,6 +97,7 @@ ui_base<T_app>::ui_base():
 	m_TitleFontFactor(32.0f),
 	m_RcHWND(),
 	m_ClickableActived("none"),
+	m_TxtChunk(),
 	m_App(0)
 {
 	m_TextLayoutOrigin.x = 0.0f;
@@ -114,7 +116,7 @@ void ui_base<T_app>::init(T_app *app_in)
 	m_App = app_in;
 	m_Sprite.init(m_App->m_D3DDevice, m_App->m_D3DDC);
 	//
-	define_txt_str();
+	define_text();
 	define_style();
 	define_sprite_build_buffer();
 	m_IsInitialized = true;
@@ -173,7 +175,7 @@ void ui_base<T_app>::on_resize_TextLayout(const size_t &ix, const bool &is_resiz
 {
 	float height = static_cast<float>(m_RcHWND.bottom - m_RcHWND.top);
 	float width = static_cast<float>(m_RcHWND.right - m_RcHWND.left);
-	float txt_width = (1-m_Rect[ix].margin.x-m_Rect[ix].margin.z)*width;
+	float txt_width = (1.0f-m_Rect[ix].margin.x-m_Rect[ix].margin.z)*width;
 	// uses margin.y as origin.x
 	m_Rect[ix].margin.y = (width-txt_width)/2.0f;
 	auto rect = &m_Rect[ix];
@@ -244,6 +246,7 @@ void ui_base<T_app>::draw_d2d()
 		if (it->tp < 2) m_App->m_D2DDC->FillRectangle(&it->rc, m_Brush[it->brush_ix]);
 		if (it->tp < 3 || it->tp == 4) m_Dwrite[it->dwrite_ix].draw_Rect(m_App->m_D2DDC, it->text, it->rc);
 		if (it->tp == 3) {
+			// uses margin.y as origin.x
 			m_TextLayoutOrigin.x = it->margin.y;
 			m_Dwrite[it->dwrite_ix].draw_TextLayout(m_App->m_D2DDC, m_TextLayoutOrigin, it-m_Rect.begin());
 		}
