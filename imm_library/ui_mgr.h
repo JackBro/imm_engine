@@ -7,9 +7,9 @@
 ////////////////
 #ifndef UI_MGR_H
 #define UI_MGR_H
-#include "ui_main_menu.h"
-#include "ui_welcome.h"
-#include "ui_dialogue.h"
+#include "ui_def_main_menu.h"
+#include "ui_def_welcome.h"
+#include "ui_def_dialogue.h"
 namespace imm
 {
 ////////////////
@@ -36,11 +36,13 @@ struct ui_mgr
 	// Reload
 	void reload_active(const std::string &ui_class, const std::string &ui_group);
 	void reset();
+	void group_active(const std::string &ui_name, const std::string &g_name, const bool &is_act);
 	T_app *app;
-	ui_main_menu<T_app> main_menu;
-	ui_welcome<T_app> welcome;
-	ui_dialogue<T_app> dialogue;
+	ui_def_main_menu<T_app> main_menu;
+	ui_def_welcome<T_app> welcome;
+	ui_def_dialogue<T_app> dialogue;
 	std::vector<ui_base<T_app>*> ui_together;
+	std::map<std::string, size_t> map_name;
 	bool is_not_work;
 };
 //
@@ -64,6 +66,9 @@ void ui_mgr<T_app>::init(T_app *app_in)
 	ui_together.push_back(&main_menu);
 	ui_together.push_back(&welcome);
 	ui_together.push_back(&dialogue);
+	map_name["main_menu"] = 0;
+	map_name["welcome"] = 1;
+	map_name["dialogue"] = 2;
 }
 //
 template <typename T_app>
@@ -89,8 +94,8 @@ void ui_mgr<T_app>::define_update()
 			if (!ui->is_ui_appear()) ui->m_IsOtherUIAppear = true;
 		}
 	}
-	// If aspect ratio over range
-	if (app->m_AspectRatio < 1.32f || app->m_AspectRatio > 2.3f) is_not_work = true;
+	// If aspect ratio over range, 4:3 - 21:9
+	if (app->m_AspectRatio < 1.32f || app->m_AspectRatio > 2.34f) is_not_work = true;
 	else is_not_work = false;
 }
 //
@@ -201,6 +206,15 @@ void ui_mgr<T_app>::reset()
 	main_menu.m_IsMute = false;
 	welcome.m_IsMute = true;
 	define_deactivate_all_default();
+	for (auto &ui: ui_together) ui->reset();
+}
+//
+template <typename T_app>
+void ui_mgr<T_app>::group_active(const std::string &ui_name, const std::string &g_name, const bool &is_act)
+{
+	assert(map_name.count(ui_name));
+	define_deactivate_all_default();
+	ui_together[map_name[ui_name]]->group_active(g_name, is_act);
 }
 //
 }

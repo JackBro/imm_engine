@@ -99,7 +99,7 @@ template <typename T_app>
 void condition_trigger<T_app>::update_scene01()
 {
 	if  (app->m_Scene.scene_ix != "01") return;
-	if (trigger("01_test")) app->m_UiMgr.dialogue.group_active("test", true);
+	if (trigger("01_test")) app->m_UiMgr.group_active("dialogue", "test", true);
 }
 }
 #endif

@@ -59,7 +59,10 @@ struct sprite_simple
 	~sprite_simple();
 	void init(ID3D11Device *device, ID3D11DeviceContext *device_context);
 	void build_buffer(const std::map<std::string, std::string> &get_dds);
-	void draw_d3d(const std::map<std::string, size_t> &map_sprite, const std::vector<ui_rect> &rect);
+	void draw_d3d(
+		const std::map<std::string, size_t> &map_sprite_rect,
+		const std::vector<ui_rect> &rect,
+		const std::map<std::string, std::string> &map_sprite_name);
 	void on_resize(float scale_in, const std::map<std::string, XMFLOAT2> &get_resize);
 	std::unique_ptr<SpriteBatch> sprite_batch;
 	std::unique_ptr<SpriteFont> sprite_font;
@@ -105,18 +108,23 @@ void sprite_simple::build_buffer(const std::map<std::string, std::string> &get_d
 	if (map_tex.size() > 0) is_built = true;
 }
 //
-void sprite_simple::draw_d3d(const std::map<std::string, size_t> &map_sprite, const std::vector<ui_rect> &rect)
+void sprite_simple::draw_d3d(
+	const std::map<std::string, size_t> &map_sprite_rect, 
+	const std::vector<ui_rect> &rect,
+	const std::map<std::string, std::string> &map_sprite_name)
 {
 	if (!is_built) return;
 	sprite_batch->Begin(
 		SpriteSortMode_Deferred,
 		states->NonPremultiplied());
-	// Draw sprite if active
-	for (auto it = map_sprite.begin(); it != map_sprite.end(); ++it) {
-		if (rect[it->second].active) {
+	// Draw sprite according UI rect active
+	for (auto &map: map_sprite_rect) {
+		if (rect[map.second].active) {
+			const std::string *s_name = &map_sprite_name.at(map.first);
+			if (!map_tex.count(*s_name)) continue;
 			sprite_batch->Draw(
-				map_tex[it->first],
-				map_pos[it->first],
+				map_tex[*s_name],
+				map_pos[*s_name],
 				nullptr,
 				Colors::White,
 				0,

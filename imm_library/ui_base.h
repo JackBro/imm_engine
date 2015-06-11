@@ -24,6 +24,7 @@ struct ui_base
 	ui_base();
 	virtual ~ui_base();
 	void init(T_app *app_in);
+	void reset();
 	void build_rect_map();
 	void set_Brush(D2D1::ColorF::Enum color, const float &opacity, const std::string index);
 	void on_resize_RectFromHWND(const size_t &ix);
@@ -63,7 +64,8 @@ struct ui_base
 	std::map<std::string, std::vector<size_t>> m_MapGroup;
 	std::map<std::string, std::vector<size_t>> m_MapButton;
 	std::map<std::string, std::vector<size_t>> m_MapTextLayout;
-	std::map<std::string, size_t> m_MapSprite;
+	std::map<std::string, size_t> m_MapSpriteRect;
+	std::map<std::string, std::string> m_MapSpriteName;
 	std::map<std::string, int> m_MapID;
 	std::map<std::string, dwrite_simple> m_Dwrite;
 	sprite_simple m_Sprite;
@@ -73,6 +75,7 @@ struct ui_base
 	bool m_IsOtherUIAppear;
 	bool m_IsPadUsing;
 	bool m_IsInitialized;
+	float m_LastUiActive;
 	FLOAT m_TitleFontFactor;
 	D2D1_POINT_2F m_TextLayoutOrigin;
 	RECT m_RcHWND;
@@ -124,6 +127,12 @@ void ui_base<T_app>::init(T_app *app_in)
 }
 //
 template <typename T_app>
+void ui_base<T_app>::reset()
+{
+	m_TxtChunk.reset();
+}
+//
+template <typename T_app>
 void ui_base<T_app>::build_rect_map()
 {
 	// map rect id_str for search parent
@@ -141,7 +150,7 @@ void ui_base<T_app>::build_rect_map()
 			m_MapTextLayout[m_Rect[ix].group].emplace_back(ix);
 			on_resize_TextLayout(ix);
 		}
-		if (m_Rect[ix].tp == ui_rect::type::sprite) m_MapSprite[m_Rect[ix].id_str] = ix;
+		if (m_Rect[ix].tp == ui_rect::type::sprite) m_MapSpriteRect[m_Rect[ix].id_str] = ix;
 	}
 }
 //
@@ -244,12 +253,13 @@ void ui_base<T_app>::draw_d2d()
 	for (auto it = m_Rect.begin(); it != m_Rect.end(); ++it) {
 		if (!it->active) continue;
 		if (it->tp < 2) m_App->m_D2DDC->FillRectangle(&it->rc, m_Brush[it->brush_ix]);
-		if (it->tp < 3 || it->tp == 4) m_Dwrite[it->dwrite_ix].draw_Rect(m_App->m_D2DDC, it->text, it->rc);
+		if (it->tp < 3) m_Dwrite[it->dwrite_ix].draw_Rect(m_App->m_D2DDC, it->text, it->rc);
 		if (it->tp == 3) {
 			// uses margin.y as origin.x
 			m_TextLayoutOrigin.x = it->margin.y;
 			m_Dwrite[it->dwrite_ix].draw_TextLayout(m_App->m_D2DDC, m_TextLayoutOrigin, it-m_Rect.begin());
 		}
+		// tp == 4 no draw dwrite, it->text for sprite uses
 	}
 }
 //
@@ -257,7 +267,7 @@ template <typename T_app>
 void ui_base<T_app>::draw_d3d()
 {
 	if (!m_IsInitialized) return;
-	m_Sprite.draw_d3d(m_MapSprite, m_Rect);
+	m_Sprite.draw_d3d(m_MapSpriteRect, m_Rect, m_MapSpriteName);
 }
 //
 template <typename T_app>
@@ -365,6 +375,7 @@ void ui_base<T_app>::group_active(const std::string &name, const bool &is_act, c
 	if (!is_switched) for (auto &ix: m_MapGroup[name]) m_Rect[ix].active = is_act;
 	if (m_Rect[m_MapGroup[name][0]].active) {
 		m_ClickIxPad = -1;
+		m_LastUiActive = m_App->m_Timer.total_time();
 		if (m_MapButton[name].size() > 0) {
 			m_ClickableActived = name;
 			pad_loop_button(true, name);

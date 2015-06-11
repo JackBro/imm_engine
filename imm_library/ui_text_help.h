@@ -27,27 +27,40 @@ void text_split(const std::string &s, char delim, std::vector<std::string> &elem
 ////////////////
 struct ui_text_lines
 {
+	ui_text_lines();
 	std::map<std::string, std::string> speaker;
 	std::map<std::string, std::vector<std::wstring>> lines;
 };
+//
+ui_text_lines::ui_text_lines()
+{
+	;
+}
 ////////////////
-// 
+// ui_text_chunk
 ////////////////
 ////////////////
 struct ui_text_chunk
 {
 	ui_text_chunk();
 	void remove_all();
+	void reset();
 	void insert_chunk(
 		const std::string &chunk_name,
 		const std::map<std::string, std::string> &chunk_raw);
-	std::wstring &get_lines(
+	bool get_lines(
 		const std::string &chunk_name,
-		const std::string &dialogue_id);
+		std::string &speaker,
+		std::wstring &out_wstr);
 	std::map<std::string, ui_text_lines> map;
+	std::map<std::string, std::vector<std::wstring>>::iterator it_dialogue;
+	bool it_dialogue_is_null;
+	size_t dialogue_ix;
 };
 //
-ui_text_chunk::ui_text_chunk()
+ui_text_chunk::ui_text_chunk():
+	it_dialogue_is_null(true),
+	dialogue_ix(0)
 {
 	;
 }
@@ -55,6 +68,12 @@ ui_text_chunk::ui_text_chunk()
 void ui_text_chunk::remove_all()
 {
 	map.clear();
+}
+//
+void ui_text_chunk::reset()
+{
+	it_dialogue_is_null = true;
+	dialogue_ix = 0;
 }
 //
 void ui_text_chunk::insert_chunk(
@@ -82,11 +101,26 @@ void ui_text_chunk::insert_chunk(
 	}
 }
 //
-std::wstring &ui_text_chunk::get_lines(
+bool ui_text_chunk::get_lines(
 	const std::string &chunk_name,
-	const std::string &dialogue_id)
+	std::string &speaker,
+	std::wstring &out_wstr)
 {
-	return map[chunk_name].lines[dialogue_id][0];	
+	size_t *ix = &dialogue_ix;
+	if (it_dialogue_is_null) {
+		it_dialogue = map[chunk_name].lines.begin();
+		it_dialogue_is_null = false;
+	}
+	if (it_dialogue == map[chunk_name].lines.end()) return false;
+	assert(*ix < it_dialogue->second.size());
+	out_wstr = it_dialogue->second[*ix];
+	speaker = map[chunk_name].speaker[it_dialogue->first];
+	++(*ix);
+	if (*ix >= it_dialogue->second.size()) {
+		*ix = 0;
+		++it_dialogue;
+	}
+	return true;
 }
 //
 }
