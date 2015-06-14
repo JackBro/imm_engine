@@ -10,6 +10,7 @@
 #include "stru_particle.h"
 #include "stru_instance_mgr.h"
 #include "render_sky.h"
+#include "render_terrain.h"
 #include "audio_dxtk.h"
 #include "phy_auxiliary.h"
 namespace imm
@@ -25,28 +26,40 @@ struct scene_mgr
 	~scene_mgr();
 	void init_load(T_app *app_in);
 	void update_atmosphere(float dt);
+	void update_listen_thread_for_reload();
 	void draw_d3d_atmosphere();
 	void reload(const std::wstring &scene_ix_in);
+	void reload_instance();
+	void reload_skybox();
+	void reload_terrain(lua_reader &l_reader);
+	void relaod_terrain_after_instance();
+	void reload_media();
 	T_app *app;
 	std::map<std::string, std::string> get_misc;
 	lit_dir dir_lights[3];
 	BoundingSphere bounds;
 	sky *skybox;
+	terrain terrain1;
 	state_plasma plasma;
 	audio_dxtk audio;
 	phy_wireframe<T_app> phy_wire;
 	std::string scene_ix;
 	float begin_time;
+	bool is_loading;
+	bool is_all_done;
 };
 //
 template <typename T_app>
 scene_mgr<T_app>::scene_mgr():
 	skybox(nullptr),
+	terrain1(),
 	plasma(),
 	audio(),
 	phy_wire(),
 	scene_ix(),
-	begin_time(0.0f)
+	begin_time(FLT_MAX),
+	is_loading(false),
+	is_all_done(false)
 {
 	scene_dir_lights_common(dir_lights);
 	bounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -87,6 +100,8 @@ void scene_mgr<T_app>::draw_d3d_atmosphere()
 	// Restore default states, as the SkyFX changes them in the effect file.
 	app->m_D3DDC->RSSetState(0);
 	app->m_D3DDC->OMSetDepthStencilState(0, 0);
+	// Draw terrain
+	terrain1.draw(app->m_D3DDC, app->m_Cam, dir_lights);
 	// Draw particle systems last so it is blended with scene.
 	plasma.draw(app->m_D3DDC, app->m_Cam);
 	// Restore default states.
@@ -96,8 +111,23 @@ void scene_mgr<T_app>::draw_d3d_atmosphere()
 }
 //
 template <typename T_app>
+void scene_mgr<T_app>::update_listen_thread_for_reload()
+{
+	if (!is_all_done && !app->m_Inst.m_IsLoading && !is_loading) {
+		relaod_terrain_after_instance();
+		app->m_Cmd.is_preparing = false;
+		begin_time = app->m_Timer.total_time();
+		is_all_done = true;
+	}
+}
+//
+template <typename T_app>
 void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 {
+	is_loading = true;
+	is_all_done = false;
+	begin_time = FLT_MAX;
+	app->m_Cmd.is_preparing = true;
 	assert(!app->m_Inst.m_IsLoading);
 	scene_ix = wstr_to_str(scene_ix_in);
 	get_misc["ground"] = "";
@@ -106,35 +136,94 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	get_misc["play_bgm"] = "";
 	get_misc["ui_class"] = "";
 	get_misc["ui_group"] = "";
+	get_misc["ui_group"] = "";
+	get_misc["terrain_info"] = "";
 	lua_reader l_reader;
 	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix+"\\describe_instance.lua";
 	l_reader.loadfile(describe);
 	l_reader.map_from_string(get_misc);
-	// Instance
+	reload_instance();
+	reload_skybox();
+	reload_terrain(l_reader);
+	reload_media();
+	is_loading = false;
+}
+//
+template <typename T_app>
+void scene_mgr<T_app>::reload_instance()
+{
+	// Stop control first
 	app->m_Control.reset();
-	std::thread(
-		&instance_mgr<T_app>::load,
-		std::ref(app->m_Inst),
-		app->m_D3DDevice,
-		scene_ix,
-		get_misc["ground"]).detach();
-	// Skybox
+	std::thread(&instance_mgr<T_app>::reload, std::ref(app->m_Inst)).detach();
+}
+//
+template <typename T_app>
+void scene_mgr<T_app>::reload_skybox()
+{
 	if (skybox != nullptr) delete skybox;
 	if (csv_value_is_empty(get_misc["skybox_dds"])) {
 		// Empty sky no draw
 		skybox = new sky();
 	}
 	else {
-		std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
+		std::wstring path_tex(str_to_wstr(GLOBAL["path_tex"]));
+		path_tex += L"skybox\\";
 		path_tex += str_to_wstr(get_misc["skybox_dds"]);
 		skybox = new sky(app->m_D3DDevice, path_tex, 5000.0f);
 	}
+}
+//
+template <typename T_app>
+void scene_mgr<T_app>::reload_terrain(lua_reader &l_reader)
+{
+	terrain1 = terrain();
+	if (get_misc["terrain_info"] == "") return;
+	std::map<std::string, std::string> tii_map;
+	l_reader.map_from_table(tii_map, get_misc["terrain_info"]);
+	assert(tii_map.size() > 10);
+	auto it = tii_map.begin();
+	terrain::init_info tii;
+	std::wstring path_tex(str_to_wstr(GLOBAL["path_tex"]));
+	path_tex += L"terrain\\";
+	tii.height_map_filename = path_tex+str_to_wstr(it++->second);
+	tii.layer_map_filename0 = path_tex+str_to_wstr(it++->second);
+	tii.layer_map_filename1 = path_tex+str_to_wstr(it++->second);
+	tii.layer_map_filename2 = path_tex+str_to_wstr(it++->second);
+	tii.layer_map_filename3 = path_tex+str_to_wstr(it++->second);
+	tii.layer_map_filename4 = path_tex+str_to_wstr(it++->second);
+	tii.blend_map_filename  = path_tex+str_to_wstr(it++->second);
+	tii.height_scale        = stof(it++->second);
+	tii.heightmap_width     = stoi(it++->second);
+	tii.heightmap_height    = stoi(it++->second);
+	tii.cell_spacing        = stof(it++->second);
+	terrain1.init(app->m_D3DDevice, app->m_D3DDC, tii);
+}
+template <typename T_app>
+void scene_mgr<T_app>::relaod_terrain_after_instance()
+{
+	if (!terrain1.is_initialized()) return;
+	// fix instance height
+	size_t ix = 0;
+	for (auto &inst: app->m_Inst.m_Stat) {
+		XMFLOAT4X4 *world = inst.get_World();
+		XMMATRIX W = XMLoadFloat4x4(world);
+		app->m_Inst.m_BoundL.transform(ix, app->m_Inst.m_BoundW, W);
+		float half_y = app->m_Inst.m_BoundW.half_y(ix);
+		float height = terrain1.get_Height(world->_41, world->_43) + half_y*2.0f;
+		if (world->_42 < height) world->_42 = height+10.0f;
+		ix++;
+	}
+}
+template <typename T_app>
+void scene_mgr<T_app>::reload_media()
+{
 	// Audio
 	audio.stop_bgm();
 	if (!csv_value_is_empty(get_misc["play_bgm"])) audio.play_bgm(get_misc["play_bgm"]);
 	// UI
 	app->m_UiMgr.reload_active(get_misc["ui_class"], get_misc["ui_group"]);
 	app->m_Condition.reset();
+	app->m_UiMgr.dialogue.rebuild_text();
 }
 //
 }

@@ -108,17 +108,18 @@ struct control_stop
 	bool contains(const XMFLOAT3 &center);
 	bool is_stop;
 	BoundingBox bbox;
-	BoundingBox bbox_inst;
 	XMFLOAT3 plane_pos;
 	float dt_cd;
 	float speed;
+	float bbox_half_y;
 };
 //
 control_stop::control_stop():
 	is_stop(true),
 	plane_pos(0.0f, 0.0f, 0.0f),
 	dt_cd(0.0f),
-	speed(0.0f)
+	speed(0.0f),
+	bbox_half_y(100.0f)
 {
 	;
 }
@@ -205,7 +206,7 @@ struct control_mov
 	// logic fuction
 	void init(T_app *app_in);
 	void reset();
-	void update_loading_stat();
+	void rebuild_player();
 	void mouse_instance_move(const int &pos_x, const int &pos_y);
 	void pad_instance_move_update();
 	void common_jump();
@@ -219,10 +220,24 @@ struct control_mov
 	void on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_mouse_wheel(const short &z_delta);
 	// math function
-	void math_mouse_move_toward_hit(CXMVECTOR &plane_pos, const size_t &index, const float &speed = -1.0f);
-	void math_mouse_face_rot_y(XMMATRIX &W, XMMATRIX &RF, CXMVECTOR &direction);
-	void math_pad_face_rot_y(XMMATRIX &W, XMMATRIX &RF, XMVECTOR &direction, const float &rot_cam);
-	void math_mouse_hit_plane_y0(const int &pos_x, const int &pos_y, XMVECTOR &plane_pos);
+	void math_mouse_move_toward_hit(
+		CXMVECTOR &plane_pos,
+		const size_t &index,
+		const float &speed = -1.0f);
+	void math_mouse_face_rot_y(
+		XMMATRIX &W,
+		XMMATRIX &RF,
+		CXMVECTOR &direction);
+	void math_pad_face_rot_y(
+		XMMATRIX &W,
+		XMMATRIX &RF,
+		XMVECTOR &direction,
+		const float &rot_cam);
+	void math_mouse_hit_plane_y0(
+		const int &pos_x,
+		const int &pos_y,
+		XMVECTOR &plane_pos_out,
+		const float &plane_y);
 	void math_pad_move_toward();
 	// cam function
 	void pad_camera_free_update(const float &dt);
@@ -277,14 +292,9 @@ void control_mov<T_app>::reset()
 }
 //
 template <typename T_app>
-void control_mov<T_app>::update_loading_stat()
+void control_mov<T_app>::rebuild_player()
 {
-	if (player1 < 0 && !app->m_Cmd.is_preparing) {
-		player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.get_misc["player1"]));
-	}
-	if (app->m_Cmd.is_preparing && player1 != -1) {
-		reset();
-	}
+	player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.get_misc["player1"]));
 }
 //
 template <typename T_app>
@@ -293,7 +303,8 @@ void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 	if (player1 < 0) return;
 	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
 	XMVECTOR plane_pos;
-	math_mouse_hit_plane_y0(pos_x, pos_y, plane_pos);
+	XMFLOAT4X4 *world = app->m_Inst.m_Stat[app->m_Inst.m_SceneGroundIx].get_World();
+	math_mouse_hit_plane_y0(pos_x, pos_y, plane_pos, world->_42);
 	math_mouse_move_toward_hit(plane_pos, player1);
 	//
 	map_stop[player1].is_stop = false;
@@ -348,7 +359,6 @@ void control_mov<T_app>::update_scene(const float &dt)
 	app->m_Inst.update_skinned(dt);
 	app->m_Inst.bound_update();
 	app->m_Inst.collision_update(dt);
-	update_loading_stat();
 	update_stop(dt);
 	// camera follow update even m_Cmd.is_active()
 	cam_follow_update();

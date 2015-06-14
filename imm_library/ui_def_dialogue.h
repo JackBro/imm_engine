@@ -29,7 +29,7 @@ struct ui_def_dialogue: public ui_base<T_app>
 	void define_sprite_build_buffer();
 	void define_on_resize_sprite();
 	void define_text();
-	void build_text();
+	void rebuild_text();
 };
 //
 template <typename T_app>
@@ -173,7 +173,7 @@ void ui_def_dialogue<T_app>::define_text()
 }
 //
 template <typename T_app>
-void ui_def_dialogue<T_app>::build_text()
+void ui_def_dialogue<T_app>::rebuild_text()
 {
 	std::map<std::string, std::string> get_scene;
 	std::string describe = GLOBAL["path_txt"]+"dialogue_index.lua";

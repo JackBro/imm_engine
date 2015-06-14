@@ -4,6 +4,8 @@
 ////////////////
 void imm_app::draw_scene()
 {
+	// ID3D11DeviceContext is not thread-safe, loading terrain will uses ID3D11DeviceContext
+	if (m_Cmd.is_preparing) return;
 	if (!m_Cmd.is_should_be_quiet()) draw_scene_d3d();
 	else draw_scene_d3d_slient();
 	draw_scene_d2d();

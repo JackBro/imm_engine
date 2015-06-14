@@ -214,7 +214,7 @@ void cmd_shell<T_app>::apply()
 	if (cmd_get.substr(0, 6) == L"reload") {
 		if (cmd_get.size() < 8) {
 			input += L"\n> Usage: reload [scene_index]";
-			input += L"\n> scene_index is a number or string.";
+			input += L"\n> scene_index is a string indicate which scene.";
 			input += L"\n";
 			return;
 		}

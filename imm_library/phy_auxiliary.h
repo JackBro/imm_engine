@@ -24,7 +24,7 @@ struct phy_wireframe
 	void remove_buffer();
 	void remove_all();
 	void init(T_app *appin);
-	void build_buffer();
+	void rebuild_buffer();
 	void draw();
 	bool is_drawing;
 	// Notice Bounding only use BoundingBox for lazy develop!!
@@ -104,7 +104,7 @@ void phy_wireframe<T_app>::init(T_app *appin)
 }
 //
 template <typename T_app>
-void phy_wireframe<T_app>::build_buffer()
+void phy_wireframe<T_app>::rebuild_buffer()
 {
 	remove_all();	
 	// box_collision

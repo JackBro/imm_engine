@@ -43,7 +43,7 @@ struct ui_mgr
 	ui_def_dialogue<T_app> dialogue;
 	std::vector<ui_base<T_app>*> ui_together;
 	std::map<std::string, size_t> map_name;
-	bool is_not_work;
+	bool is_not_draw_response;
 };
 //
 template <typename T_app>
@@ -51,7 +51,7 @@ ui_mgr<T_app>::ui_mgr():
 	app(nullptr),
 	main_menu(),
 	welcome(),
-	is_not_work(false)
+	is_not_draw_response(false)
 {
 	;
 }
@@ -95,21 +95,21 @@ void ui_mgr<T_app>::define_update()
 		}
 	}
 	// If aspect ratio over range, 4:3 - 21:9
-	if (app->m_AspectRatio < 1.32f || app->m_AspectRatio > 2.34f) is_not_work = true;
-	else is_not_work = false;
+	if (app->m_AspectRatio < 1.32f || app->m_AspectRatio > 2.34f) is_not_draw_response = true;
+	else is_not_draw_response = false;
 }
 //
 template <typename T_app>
 void ui_mgr<T_app>::draw_d2d()
 {
-	if (is_not_work) return;
+	if (is_not_draw_response) return;
 	for (auto &ui: ui_together) ui->draw_d2d();
 }
 //
 template <typename T_app>
 void ui_mgr<T_app>::draw_d3d()
 {
-	if (is_not_work) return;
+	if (is_not_draw_response) return;
 	for (auto &ui: ui_together) ui->draw_d3d();
 	// Restore default states.
 	app->m_D3DDC->RSSetState(0);
@@ -120,7 +120,7 @@ void ui_mgr<T_app>::draw_d3d()
 template <typename T_app>
 bool ui_mgr<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if (is_not_work) false;
+	if (is_not_draw_response) false;
 	bool rt_bool = false;
 	for (auto &ui: ui_together) {
 		rt_bool = ui->on_mouse_down(btn_state, pos_x, pos_y);
@@ -132,7 +132,7 @@ bool ui_mgr<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int 
 template <typename T_app>
 bool ui_mgr<T_app>::on_mouse_wheel(const short &z_delta)
 {
-	if (is_not_work) false;
+	if (is_not_draw_response) false;
 	bool rt_bool = false;
 	for (auto &ui: ui_together) {
 		rt_bool = ui->on_mouse_wheel(z_delta);
@@ -161,14 +161,14 @@ bool ui_mgr<T_app>::is_ui_appear()
 template <typename T_app>
 void ui_mgr<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
-	if (is_not_work) return;
+	if (is_not_draw_response) return;
 	for (auto &ui: ui_together) ui->on_input_keydown(w_param, l_param);
 }
 //
 template <typename T_app>
 void ui_mgr<T_app>::on_pad_keydown(const WORD &vkey)
 {
-	if (is_not_work) return;
+	if (is_not_draw_response) return;
 	for (auto &ui: ui_together) ui->on_pad_keydown(vkey);
 }
 //

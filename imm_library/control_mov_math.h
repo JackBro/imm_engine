@@ -6,7 +6,10 @@
 ////////////////
 ////////////////
 template <typename T_app>
-void control_mov<T_app>::math_mouse_move_toward_hit(CXMVECTOR &plane_pos, const size_t &index, const float &speed = -1.0f)
+void control_mov<T_app>::math_mouse_move_toward_hit(
+	CXMVECTOR &plane_pos,
+	const size_t &index,
+	const float &speed = -1.0f)
 {
 	XMFLOAT4X4 &world = *app->m_Inst.m_Stat[index].get_World();
 	XMFLOAT4X4 &rot_front = *app->m_Inst.m_Stat[index].get_RotFront();
@@ -27,7 +30,10 @@ void control_mov<T_app>::math_mouse_move_toward_hit(CXMVECTOR &plane_pos, const 
 }
 //
 template <typename T_app>
-void control_mov<T_app>::math_mouse_face_rot_y(XMMATRIX &W, XMMATRIX &RF, CXMVECTOR &direction)
+void control_mov<T_app>::math_mouse_face_rot_y(
+	XMMATRIX &W,
+	XMMATRIX &RF,
+	CXMVECTOR &direction)
 {
 	// Decompose the matrix into its individual parts.
 	XMVECTOR scale, rot_quat, translation;
@@ -43,7 +49,11 @@ void control_mov<T_app>::math_mouse_face_rot_y(XMMATRIX &W, XMMATRIX &RF, CXMVEC
 }
 //
 template <typename T_app>
-void control_mov<T_app>::math_pad_face_rot_y(XMMATRIX &W, XMMATRIX &RF, XMVECTOR &direction, const float &rot_cam)
+void control_mov<T_app>::math_pad_face_rot_y(
+	XMMATRIX &W,
+	XMMATRIX &RF,
+	XMVECTOR &direction,
+	const float &rot_cam)
 {
 	// Decompose the matrix into its individual parts.
 	XMVECTOR scale, rot_quat, translation;
@@ -64,7 +74,11 @@ void control_mov<T_app>::math_pad_face_rot_y(XMMATRIX &W, XMMATRIX &RF, XMVECTOR
 }
 //
 template <typename T_app>
-void control_mov<T_app>::math_mouse_hit_plane_y0(const int &pos_x, const int &pos_y, XMVECTOR &plane_pos)
+void control_mov<T_app>::math_mouse_hit_plane_y0(
+	const int &pos_x,
+	const int &pos_y,
+	XMVECTOR &plane_pos_out,
+	const float &plane_y)
 {
 	CXMMATRIX cam_proj = app->m_Cam.get_Proj();
 	CXMMATRIX cam_view = app->m_Cam.get_View();
@@ -82,12 +96,11 @@ void control_mov<T_app>::math_mouse_hit_plane_y0(const int &pos_x, const int &po
 	// Make the ray direction unit length for the intersection tests.
 	ray_dir = XMVector3Normalize(ray_dir);
 	// Ray hit y=value plane at plane_p
-	float plane_y_value = 0.0f;
-	plane_pos = ray_origin;
-	float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+plane_y_value;
-	plane_pos = XMVectorSetY(plane_pos, plane_y_value);
-	plane_pos = XMVectorSetX(plane_pos, XMVectorGetX(plane_pos)+ratio_y*XMVectorGetX(ray_dir));
-	plane_pos = XMVectorSetZ(plane_pos, XMVectorGetZ(plane_pos)+ratio_y*XMVectorGetZ(ray_dir));
+	plane_pos_out = ray_origin;
+	float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+(plane_y/XMVectorGetY(ray_dir));
+	plane_pos_out = XMVectorSetY(plane_pos_out, plane_y);
+	plane_pos_out = XMVectorSetX(plane_pos_out, XMVectorGetX(plane_pos_out)+ratio_y*XMVectorGetX(ray_dir));
+	plane_pos_out = XMVectorSetZ(plane_pos_out, XMVectorGetZ(plane_pos_out)+ratio_y*XMVectorGetZ(ray_dir));
 }
 //
 template <typename T_app>

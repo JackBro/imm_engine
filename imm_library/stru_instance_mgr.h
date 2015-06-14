@@ -19,11 +19,8 @@ struct instance_mgr
 {
 	instance_mgr();
 	void init(T_app *app_in);
-	void load(
-		ID3D11Device *device,
-		const std::string &scene_ix,
-		const std::string &scene_ground);
-	void load_scene_atmosphere();
+	void reload();
+	void reload_scene_instance_relate();
 	template <typename instance, typename get_pos>
 	void push_back(
 		const std::vector<instance> &v_inst, instance_stat &inst_stat, size_t &k,
@@ -70,16 +67,13 @@ void instance_mgr<T_app>::init(T_app *app_in)
 }
 //
 template <typename T_app>
-void instance_mgr<T_app>::load(
-	ID3D11Device *device,
-	const std::string &scene_ix,
-	const std::string &scene_ground)
+void instance_mgr<T_app>::reload()
 {
 	assert(!m_IsLoading);
 	m_IsLoading = true;
-	m_App->m_Cmd.is_preparing = m_IsLoading;
-	std::wstring load_done(scene_ix.begin(), scene_ix.end());
-	if (!m_Model.load(device, scene_ix)) {
+	std::string scene_ix(m_App->m_Scene.scene_ix);
+	std::wstring load_done(str_to_wstr(scene_ix));
+	if (!m_Model.load(m_App->m_D3DDevice, scene_ix)) {
 		load_done = L"> Scene "+load_done+L" not found.\n";
 		m_App->m_Cmd.input += load_done;
 		return;
@@ -114,23 +108,19 @@ void instance_mgr<T_app>::load(
 		[](const pos_normal_tex_tan &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
 	//
-	load_scene_atmosphere();
+	m_SceneGroundIx = get_index(m_App->m_Scene.get_misc["ground"]);
+	reload_scene_instance_relate();
 	m_IsLoading = false;
-	m_App->m_Cmd.is_preparing = m_IsLoading;
 	load_done = L"> Scene "+load_done+L" load done\n";
 	m_App->m_Cmd.input.assign(load_done);
-	// scene
-	m_SceneGroundIx = get_index(scene_ground);
 }
 //
 template <typename T_app>
-void instance_mgr<T_app>::load_scene_atmosphere()
+void instance_mgr<T_app>::reload_scene_instance_relate()
 {
-	m_App->m_Attack.build_bbox_from_instance();
-	m_App->m_Scene.phy_wire.build_buffer();
-	m_App->m_UiMgr.dialogue.build_text();
-	// last
-	m_App->m_Scene.begin_time = m_App->m_Timer.total_time();
+	m_App->m_Control.rebuild_player();
+	m_App->m_Attack.rebuild_bbox_from_instance();
+	m_App->m_Scene.phy_wire.rebuild_buffer();
 }
 //
 template <typename T_app>
@@ -181,7 +171,7 @@ void instance_mgr<T_app>::push_back_pntt(
 template <typename T_app>
 instance_stat &instance_mgr<T_app>::get(int ix)
 {
-	if (m_IsLoading) assert(false);
+	if (m_App->m_Cmd.is_preparing) assert(false);
 	size_t sz_ix = 0;
 	if (ix > 0) sz_ix = ix;
 	return m_Stat[sz_ix];
@@ -197,7 +187,7 @@ int instance_mgr<T_app>::get_index(const std::string &name)
 template <typename T_app>
 void instance_mgr<T_app>::bound_update()
 {
-	if (m_IsLoading) return;
+	if (m_App->m_Cmd.is_preparing) return;
 	XMMATRIX world;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		world = XMLoadFloat4x4(m_Stat[ix].get_World());
@@ -208,7 +198,7 @@ void instance_mgr<T_app>::bound_update()
 template <typename T_app>
 void instance_mgr<T_app>::collision_update(float dt_every)
 {
-	if (m_IsLoading) return;
+	if (m_App->m_Cmd.is_preparing) return;
 	if (m_SceneGroundIx == -1) return;
 	// if runtime stun
 	if (dt_every > PHY_MAX_DELTA_TIME) dt_every = PHY_MAX_DELTA_TIME;
@@ -245,7 +235,7 @@ void instance_mgr<T_app>::collision_update(float dt_every)
 template <typename T_app>
 void instance_mgr<T_app>::update_skinned(const float &dt)
 {
-	if (m_IsLoading) return;
+	if (m_App->m_Cmd.is_preparing) return;
 	// should be multithread
 	for (auto &skinned: m_Model.m_InstSkinned) skinned.update(dt);
 }

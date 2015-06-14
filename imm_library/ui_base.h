@@ -253,13 +253,12 @@ void ui_base<T_app>::draw_d2d()
 	for (auto it = m_Rect.begin(); it != m_Rect.end(); ++it) {
 		if (!it->active) continue;
 		if (it->tp < 2) m_App->m_D2DDC->FillRectangle(&it->rc, m_Brush[it->brush_ix]);
-		if (it->tp < 3) m_Dwrite[it->dwrite_ix].draw_Rect(m_App->m_D2DDC, it->text, it->rc);
+		if (it->tp < 3 || it->tp == 4) m_Dwrite[it->dwrite_ix].draw_Rect(m_App->m_D2DDC, it->text, it->rc);
 		if (it->tp == 3) {
 			// uses margin.y as origin.x
 			m_TextLayoutOrigin.x = it->margin.y;
 			m_Dwrite[it->dwrite_ix].draw_TextLayout(m_App->m_D2DDC, m_TextLayoutOrigin, it-m_Rect.begin());
 		}
-		// tp == 4 no draw dwrite, it->text for sprite uses
 	}
 }
 //
@@ -399,7 +398,11 @@ void ui_base<T_app>::pad_loop_button(const bool &is_down, const std::string &sel
 	if (select_none != "") {
 		assert(m_MapButton[select_none].size() > 0);
 		for (auto &ix: m_MapButton[select_none]) m_Rect[ix].brush_ix = m_Rect[ix].brush_sel[0];
-		if (m_IsPadUsing) pad_loop_button(true);
+		// if a button brush_sel[0] == brush_sel[1], it is not need to do a hit test,
+		// the button invisible, thus force to select first
+		// pad always select first
+		auto *button = &m_Rect[m_MapButton[select_none][0]];
+		if (m_IsPadUsing || button->brush_sel[0] == button->brush_sel[1]) pad_loop_button(true);
 		return;
 	}
 	// select first

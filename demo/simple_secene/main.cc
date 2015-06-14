@@ -126,9 +126,9 @@ bool imm_app::init_imm()
 	m_Cmd.init(this);
 	m_Cmd.is_slient = false;
 	m_Inst.init(this);
+	m_Control.init(this);
 	m_Scene.init_load(this);
 	m_Condition.init(this);
-	m_Control.init(this);
 	m_Config.init_additional();
 	return true;
 }
@@ -143,6 +143,7 @@ void imm_app::on_resize()
 //
 void imm_app::update_scene(float dt)
 {
+	m_Scene.update_listen_thread_for_reload();
 	// m_UiMgr before m_Cmd, always update, m_Cmd will close m_UiMgr
 	m_UiMgr.define_update();
 	if (m_Cmd.is_should_be_quiet()) return;

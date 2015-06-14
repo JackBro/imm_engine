@@ -22,7 +22,7 @@ namespace imm
 class terrain
 {
 public:
-	struct init_info
+	struct init_info 
 	{
 		std::wstring height_map_filename;
 		std::wstring layer_map_filename0;
@@ -46,6 +46,7 @@ public:
 	void set_World(CXMMATRIX M);
 	void init(ID3D11Device *device, ID3D11DeviceContext *dc, const init_info &init_info1);
 	void draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3]);
+	bool is_initialized();
 private:
 	void load_heightmap();
 	void smooth();
@@ -85,12 +86,12 @@ terrain::~terrain()
 	ReleaseCOM(m_HeightMapSRV);
 }
 //
-terrain::terrain() : 
-	m_QuadPatchVB(0), 
-	m_QuadPatchIB(0), 
-	m_LayerMapArraySRV(0), 
-	m_BlendMapSRV(0), 
-	m_HeightMapSRV(0),
+terrain::terrain(): 
+	m_QuadPatchVB(nullptr), 
+	m_QuadPatchIB(nullptr), 
+	m_LayerMapArraySRV(nullptr), 
+	m_BlendMapSRV(nullptr), 
+	m_HeightMapSRV(nullptr),
 	m_NumPatchVertices(0),
 	m_NumPatchQuadFaces(0),
 	m_NumPatchVertRows(0),
@@ -168,6 +169,7 @@ void terrain::init(ID3D11Device *device, ID3D11DeviceContext *dc, const init_inf
 //
 void terrain::draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3])
 {
+	if (m_QuadPatchVB == nullptr) return;
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	dc->IASetInputLayout(input_layouts::m_Terrain);
 	UINT stride = sizeof(vertex_terrain);
@@ -206,6 +208,11 @@ void terrain::draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3
 	// to turn off tessellation.
 	dc->HSSetShader(0, 0, 0);
 	dc->DSSetShader(0, 0, 0);
+}
+//
+bool terrain::is_initialized()
+{
+	return (m_QuadPatchVB != nullptr);
 }
 //
 void terrain::load_heightmap()
@@ -404,5 +411,6 @@ void terrain::build_HeightmapSRV(ID3D11Device *device)
 	// SRV saves reference.
 	ReleaseCOM(hmap_tex);
 }
+//
 }
 #endif

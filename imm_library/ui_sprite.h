@@ -30,7 +30,7 @@ struct ui_rect
 	ui_rect();
 	type tp;
 	std::string brush_ix;
-	std::vector<std::string> brush_sel;
+	std::vector<std::string> brush_sel; // button has two brush, for represents selected or not
 	D2D1_RECT_F rc;
 	std::wstring text;
 	std::string id_str;

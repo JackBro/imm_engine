@@ -50,7 +50,7 @@ struct phy_attack_arrange
 	void remove_all();
 	void init_load(T_app *app_in);
 	void read_lua();
-	void build_bbox_from_instance();
+	void rebuild_bbox_from_instance();
 	void update();
 	std::vector<BoundingBox> bbox_l;
 	std::vector<BoundingBox> bbox_w;
@@ -118,7 +118,7 @@ void phy_attack_arrange<T_app>::read_lua()
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::build_bbox_from_instance()
+void phy_attack_arrange<T_app>::rebuild_bbox_from_instance()
 {
 	remove_all();
 	for (size_t ix = 0; ix != app->m_Inst.m_Stat.size(); ++ix) {

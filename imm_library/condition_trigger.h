@@ -81,7 +81,7 @@ void condition_trigger<T_app>::init(T_app *app_in)
 {
 	app = app_in;
 	task.emplace("clear_cmd", condition_task());
-	task["clear_cmd"].certain_time = 2.0f;
+	task["clear_cmd"].certain_time = 3.0f;
 	task.emplace("01_test", condition_task());
 	task["01_test"].certain_time = 5.0f;
 }
