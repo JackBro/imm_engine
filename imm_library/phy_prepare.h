@@ -101,6 +101,8 @@ public:
 	void transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world);
 	bool intersects(const size_t &ixA, const size_t &ixB);
 	bool intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &direction, float &dist);
+	template <typename T_object>
+	ContainmentType contains(const size_t &ix, const T_object &object);
 	template <typename T_bound>
 	bool intersects(const size_t &ix, const T_bound &bound);
 	void pick(
@@ -205,6 +207,18 @@ bool phy_bound_mgr::intersects(const size_t &ix, const T_bound &bound)
 	}
 	assert(false);
 	return false;
+}
+//
+template <typename T_object>
+ContainmentType phy_bound_mgr::contains(const size_t &ix, const T_object &object)
+{
+	switch(map[ix].first) {
+		case box: return b1[map[ix].second].Contains(object);
+		case ori_box: return b2[map[ix].second].Contains(object);
+		case sphere: return b3[map[ix].second].Contains(object);
+	}
+	assert(false);
+	return ContainmentType::DISJOINT;
 }
 //
 void phy_bound_mgr::pick(

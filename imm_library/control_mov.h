@@ -212,6 +212,7 @@ struct control_mov
 	void common_jump();
 	void mouse_pick(const int &pos_x, const int &pos_y);
 	void update_scene(const float &dt);
+	void update_scene_bounds();
 	void update_stop(const float &dt);
 	void update_keydown_and_pad(const float &dt);
 	void on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y);
@@ -233,14 +234,17 @@ struct control_mov
 		XMMATRIX &RF,
 		XMVECTOR &direction,
 		const float &rot_cam);
-	void math_mouse_hit_plane_y0(
+	void math_mouse_hit_plane_y(
 		const int &pos_x,
 		const int &pos_y,
-		XMVECTOR &plane_pos_out,
-		const float &plane_y);
+		XMVECTOR &plane_pos_out);
+	void math_mouse_hit_terrain(
+		const int &pos_x,
+		const int &pos_y,
+		XMVECTOR &plane_pos_out);		
 	void math_pad_move_toward();
 	// cam function
-	void pad_camera_free_update(const float &dt);
+	void pad_camera_update(const float &dt);
 	void on_pad_camera_follow(const WORD &vkey);
 	void key_camera_free_update(const float &dt);
 	void mouse_camera_wheel(const short &z_delta);
@@ -252,6 +256,8 @@ struct control_mov
 	int player1;
 	int style_p1;
 	bool is_pad_cam_follow_reset;
+	float cam_follow_walk_def;
+	float cam_follow_up_def;
 	float cam_follow_walk;
 	float cam_follow_up;
 	float wait_ui_disappear;
@@ -268,12 +274,13 @@ control_mov<T_app>::control_mov():
 	player1(-1),
 	style_p1(CONTORL_MOVE_BY_MOUSE),
 	is_pad_cam_follow_reset(false),
-	cam_follow_walk(-30.0f),
-	cam_follow_up(4.0f),
+	cam_follow_walk_def(-30.0f),
+	cam_follow_up_def(3.0f),
 	wait_ui_disappear(0.0f),
 	pad()
 {
-	;
+	cam_follow_walk = cam_follow_walk_def;
+	cam_follow_up = cam_follow_up_def;
 }
 //
 template <typename T_app>
@@ -303,8 +310,8 @@ void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 	if (player1 < 0) return;
 	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
 	XMVECTOR plane_pos;
-	XMFLOAT4X4 *world = app->m_Inst.m_Stat[app->m_Inst.m_SceneGroundIx].get_World();
-	math_mouse_hit_plane_y0(pos_x, pos_y, plane_pos, world->_42);
+	if (app->m_Inst.m_IsTerrainUse) math_mouse_hit_terrain(pos_x, pos_y, plane_pos);
+	else math_mouse_hit_plane_y(pos_x, pos_y, plane_pos);
 	math_mouse_move_toward_hit(plane_pos, player1);
 	//
 	map_stop[player1].is_stop = false;
@@ -349,7 +356,8 @@ void control_mov<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 		app->m_Cam.get_Proj(),
 		app->m_Cam.get_View(),
 		picked1);
-	//	
+	//
+	if (picked1 < 0) return;
 	player1 = picked1;
 }
 //
@@ -359,9 +367,24 @@ void control_mov<T_app>::update_scene(const float &dt)
 	app->m_Inst.update_skinned(dt);
 	app->m_Inst.bound_update();
 	app->m_Inst.collision_update(dt);
+	update_scene_bounds();
 	update_stop(dt);
 	// camera follow update even m_Cmd.is_active()
 	cam_follow_update();
+}
+//
+template <typename T_app>
+void control_mov<T_app>::update_scene_bounds()
+{
+	XMFLOAT3 p1_center = app->m_Inst.m_BoundW.center(player1);
+	XMVECTOR p1_center_len = XMLoadFloat3(&p1_center);
+	XMVECTOR scene_center_len = XMLoadFloat3(&app->m_Scene.bounds.Center);
+	p1_center_len = XMVector3LengthEst(p1_center_len);
+	scene_center_len = XMVector3LengthEst(scene_center_len);
+	// bounds follow player, if distance too far, update
+	if (abs(XMVectorGetX(p1_center_len) - XMVectorGetX(scene_center_len)) > 10.0f) {
+		app->m_Scene.bounds.Center = app->m_Inst.m_BoundW.center(player1);
+	}
 }
 //
 template <typename T_app>
@@ -395,7 +418,7 @@ void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 	if (pad.is_enable()) {
 		on_pad_down(dt);
 		pad_instance_move_update();
-		pad_camera_free_update(dt);
+		pad_camera_update(dt);
 	}
 	key_camera_free_update(dt);
 }

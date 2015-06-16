@@ -18,7 +18,7 @@ void imm_app::build_shadow_transform()
 {
 	// Only the first "main" light casts a shadow.
 	XMVECTOR light_dir = XMLoadFloat3(&m_Scene.dir_lights[0].direction);
-	XMVECTOR light_pos = -2.0f*m_Scene.bounds.Radius*light_dir;
+	XMVECTOR light_pos = -2.0f*m_Scene.bounds.Radius*m_Scene.shadow_light_pos_far*light_dir;
 	XMVECTOR target_pos = XMLoadFloat3(&m_Scene.bounds.Center);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMMATRIX V = XMMatrixLookAtLH(light_pos, target_pos, up);

@@ -6,7 +6,7 @@
 ////////////////
 ////////////////
 template <typename T_app>
-void control_mov<T_app>::pad_camera_free_update(const float &dt)
+void control_mov<T_app>::pad_camera_update(const float &dt)
 {
 	if (pad.is_R_active()) {
 		float dx = XMConvertToRadians(50.0f*pad.state.Gamepad.sThumbRX/32767*dt);
@@ -27,7 +27,7 @@ void control_mov<T_app>::pad_camera_free_update(const float &dt)
 		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FOLLOW_FORWARD) cam_follow_walk += 10.0f*dt;
 		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FOLLOW_BACKWARD) cam_follow_walk += -10.0f*dt;
 		cam_follow_walk = calc_clamp(cam_follow_walk, -50.0f, -10.0f);
-		cam_follow_up = cam_follow_walk * -0.133f;
+		cam_follow_up = cam_follow_walk * (cam_follow_up_def/cam_follow_walk_def);
 	}
 }
 //
@@ -57,7 +57,7 @@ void control_mov<T_app>::mouse_camera_wheel(const short &z_delta)
 	else {
 		cam_follow_walk += z_delta/120*1.0f;
 		cam_follow_walk = calc_clamp(cam_follow_walk, -50.0f, -10.0f);
-		cam_follow_up = cam_follow_walk * -0.133f;
+		cam_follow_up = cam_follow_walk * (cam_follow_up_def/cam_follow_walk_def);
 	}
 }
 //
@@ -92,7 +92,7 @@ void control_mov<T_app>::cam_follow_update()
 	if (GetKeyState(KEY_CAM_FOLLOW_RESET) & 0x8000 || is_pad_cam_follow_reset) {
 		is_pad_cam_follow_reset = false;
 		// reset
-		cam_follow_walk = -30.0f;
+		cam_follow_walk = cam_follow_walk_def;
 		if (!map_rot_front_c.count(picked1)) {
 			XMMATRIX RF = XMLoadFloat4x4(app->m_Inst.m_Stat[player1].get_RotFront());
 			// L as dummy
@@ -110,7 +110,7 @@ void control_mov<T_app>::cam_follow_update()
 		U = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 		R = XMVector3Normalize(XMVector3Cross(U, L));
 		U = XMVector3Cross(L, R);
-		// pitch
+		// pitch, rotate cam to default angle, about 0.34f
 		XMMATRIX M_R = XMMatrixRotationAxis(R, 0.34f);
 		U = XMVector3TransformNormal(U, M_R);
 		L = XMVector3TransformNormal(L, M_R);

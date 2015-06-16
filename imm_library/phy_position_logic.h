@@ -42,7 +42,7 @@ void phy_position_update(
 	const XMFLOAT3 &center,
 	const bool &is_touch_ground,
 	const float &half_y,
-	const float &ground = 0.0f)
+	const float &ground_y)
 {	
 	if (prop.is_abnormal) return;
 	if (!is_touch_ground) {
@@ -66,7 +66,7 @@ void phy_position_update(
 		// stand_adjust keep object full stand on ground
 		// guarantee object.intersects(ground) return true, exclude if they have a little gap
 		float stand_adjust = -0.01f;
-		float stand = half_y+ground+stand_adjust;
+		float stand = half_y+ground_y+stand_adjust;
 		center_y += prop.velocity.y*dt + prop.velocity_nm.y*dt;
 		world._41 += prop.velocity.x*dt + prop.velocity_nm.x*dt;
 		world._43 += prop.velocity.z*dt + prop.velocity_nm.z*dt;

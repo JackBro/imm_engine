@@ -36,13 +36,12 @@ public:
 		UINT heightmap_height;
 		float cell_spacing;
 	};
-public:
 	terrain();
 	~terrain();
-	float get_Width()const;
-	float get_Depth()const;
-	float get_Height(float x, float z)const;
-	XMMATRIX get_World()const;
+	float get_Width() const;
+	float get_Depth() const;
+	float get_Height(float x, float z) const;
+	XMMATRIX get_World() const;
 	void set_World(CXMMATRIX M);
 	void init(ID3D11Device *device, ID3D11DeviceContext *dc, const init_info &init_info1);
 	void draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3]);
@@ -57,6 +56,9 @@ private:
 	void build_QuadPatchVB(ID3D11Device *device);
 	void build_QuadPatchIB(ID3D11Device *device);
 	void build_HeightmapSRV(ID3D11Device *device);
+public:
+	init_info m_Info;
+private:
 	// Divide heightmap into patches such that each patch has CellsPerPatch cells
 	// and CellsPerPatch+1 vertices.  Use 64 so that if we tessellate all the way
 	// to 64, we use all the data from the heightmap.
@@ -66,7 +68,6 @@ private:
 	ID3D11ShaderResourceView *m_LayerMapArraySRV;
 	ID3D11ShaderResourceView *m_BlendMapSRV;
 	ID3D11ShaderResourceView *m_HeightMapSRV;
-	init_info m_Info;
 	UINT m_NumPatchVertices;
 	UINT m_NumPatchQuadFaces;
 	UINT m_NumPatchVertRows;
@@ -117,6 +118,11 @@ float terrain::get_Height(float x, float z) const
 	// Get the row and column we are in.
 	int row = (int)floorf(d);
 	int col = (int)floorf(c);
+	//
+	if (row < 0 ||
+		col < 0 ||
+		row > (int)m_Info.heightmap_height -2 ||
+		col > (int)m_Info.heightmap_width -2) return 0.0f;
 	// Grab the heights of the cell we are in.
 	// A*--*B
 	//  | /|

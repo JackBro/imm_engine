@@ -74,11 +74,41 @@ void control_mov<T_app>::math_pad_face_rot_y(
 }
 //
 template <typename T_app>
-void control_mov<T_app>::math_mouse_hit_plane_y0(
+void control_mov<T_app>::math_mouse_hit_plane_y(
 	const int &pos_x,
 	const int &pos_y,
-	XMVECTOR &plane_pos_out,
-	const float &plane_y)
+	XMVECTOR &plane_pos_out)
+{
+	CXMMATRIX cam_proj = app->m_Cam.get_Proj();
+	CXMMATRIX cam_view = app->m_Cam.get_View();
+	// Compute picking ray in view space.
+	float vx = (+2.0f*pos_x/app->m_ClientWidth - 1.0f)/cam_proj.r[0].m128_f32[0];
+	float vy = (-2.0f*pos_y/app->m_ClientHeight + 1.0f)/cam_proj.r[1].m128_f32[1];
+	// Ray definition in view space.
+	XMVECTOR ray_origin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	XMVECTOR ray_dir = XMVectorSet(vx, vy, 1.0f, 0.0f);
+	// Tranform ray to world.
+	XMVECTOR det_view = XMMatrixDeterminant(cam_view);
+	XMMATRIX inv_view = XMMatrixInverse(&det_view, cam_view);
+	ray_origin = XMVector3TransformCoord(ray_origin, inv_view);
+	ray_dir = XMVector3TransformNormal(ray_dir, inv_view);
+	// Make the ray direction unit length for the intersection tests.
+	ray_dir = XMVector3Normalize(ray_dir);
+	// Ray hit y=value plane at plane_p
+	XMFLOAT4X4 *world = app->m_Inst.m_Stat[app->m_Inst.m_PlaneGroundIx].get_World();
+	float plane_y = world->_42;
+	plane_pos_out = ray_origin;
+	float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+(plane_y/XMVectorGetY(ray_dir));
+	plane_pos_out = XMVectorSetY(plane_pos_out, plane_y);
+	plane_pos_out = XMVectorSetX(plane_pos_out, XMVectorGetX(ray_origin)+ratio_y*XMVectorGetX(ray_dir));
+	plane_pos_out = XMVectorSetZ(plane_pos_out, XMVectorGetZ(ray_origin)+ratio_y*XMVectorGetZ(ray_dir));
+}
+//
+template <typename T_app>
+void control_mov<T_app>::math_mouse_hit_terrain(
+	const int &pos_x,
+	const int &pos_y,
+	XMVECTOR &plane_pos_out)
 {
 	CXMMATRIX cam_proj = app->m_Cam.get_Proj();
 	CXMMATRIX cam_view = app->m_Cam.get_View();
@@ -97,10 +127,18 @@ void control_mov<T_app>::math_mouse_hit_plane_y0(
 	ray_dir = XMVector3Normalize(ray_dir);
 	// Ray hit y=value plane at plane_p
 	plane_pos_out = ray_origin;
-	float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+(plane_y/XMVectorGetY(ray_dir));
-	plane_pos_out = XMVectorSetY(plane_pos_out, plane_y);
-	plane_pos_out = XMVectorSetX(plane_pos_out, XMVectorGetX(plane_pos_out)+ratio_y*XMVectorGetX(ray_dir));
-	plane_pos_out = XMVectorSetZ(plane_pos_out, XMVectorGetZ(plane_pos_out)+ratio_y*XMVectorGetZ(ray_dir));
+	float plane_y = app->m_Scene.terrain1.m_Info.height_scale;
+	float p_step = plane_y / 50.0f;
+	while (plane_y > 0.0f) {
+		float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+(plane_y/XMVectorGetY(ray_dir));
+		plane_pos_out = XMVectorSetY(plane_pos_out, plane_y);
+		plane_pos_out = XMVectorSetX(plane_pos_out, XMVectorGetX(ray_origin)+ratio_y*XMVectorGetX(ray_dir));
+		plane_pos_out = XMVectorSetZ(plane_pos_out, XMVectorGetZ(ray_origin)+ratio_y*XMVectorGetZ(ray_dir));
+		float height = app->m_Scene.terrain1.get_Height(XMVectorGetX(plane_pos_out), XMVectorGetZ(plane_pos_out));
+		if (plane_y < height) return;
+		plane_y -= p_step;
+	}
+	plane_pos_out = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 }
 //
 template <typename T_app>

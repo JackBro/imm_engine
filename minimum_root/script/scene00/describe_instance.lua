@@ -14,7 +14,7 @@ csv_model_geometry    = read_csv("script\\scene00\\model_geometry.csv")
 csv_model_skinned     = read_csv("script\\scene00\\model_skinned.csv")
 
 -- misc
-ground = "grid"
+plane_ground = "grid"
 player1 = "cylinder"
 skybox_dds = ""
 play_bgm = ""

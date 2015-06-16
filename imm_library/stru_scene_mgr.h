@@ -37,14 +37,17 @@ struct scene_mgr
 	T_app *app;
 	std::map<std::string, std::string> get_misc;
 	lit_dir dir_lights[3];
+	XMFLOAT3 dir_lights_orignial[3];
 	BoundingSphere bounds;
 	sky *skybox;
 	terrain terrain1;
+	phy_property terrain1_phy;
 	state_plasma plasma;
 	audio_dxtk audio;
 	phy_wireframe<T_app> phy_wire;
 	std::string scene_ix;
 	float begin_time;
+	float shadow_light_pos_far;
 	bool is_loading;
 	bool is_all_done;
 };
@@ -53,15 +56,20 @@ template <typename T_app>
 scene_mgr<T_app>::scene_mgr():
 	skybox(nullptr),
 	terrain1(),
+	terrain1_phy(),
 	plasma(),
 	audio(),
 	phy_wire(),
 	scene_ix(),
 	begin_time(FLT_MAX),
+	shadow_light_pos_far(100.0f),
 	is_loading(false),
 	is_all_done(false)
 {
 	scene_dir_lights_common(dir_lights);
+	dir_lights_orignial[0] = dir_lights[0].direction;
+	dir_lights_orignial[1] = dir_lights[1].direction;
+	dir_lights_orignial[2] = dir_lights[2].direction;
 	bounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	bounds.Radius = sqrtf(80.0f*80.0f + 80.0f*80.0f);
 }
@@ -130,7 +138,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	app->m_Cmd.is_preparing = true;
 	assert(!app->m_Inst.m_IsLoading);
 	scene_ix = wstr_to_str(scene_ix_in);
-	get_misc["ground"] = "";
+	get_misc["plane_ground"] = "";
 	get_misc["player1"] = "";
 	get_misc["skybox_dds"] = "";
 	get_misc["play_bgm"] = "";
