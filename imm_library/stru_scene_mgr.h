@@ -137,6 +137,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	begin_time = FLT_MAX;
 	app->m_Cmd.is_preparing = true;
 	assert(!app->m_Inst.m_IsLoading);
+	app->m_Inst.m_IsLoading = true;
 	scene_ix = wstr_to_str(scene_ix_in);
 	get_misc["plane_ground"] = "";
 	get_misc["player1"] = "";

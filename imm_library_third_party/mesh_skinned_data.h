@@ -80,7 +80,7 @@ void bone_animation::interpolate(float t, XMFLOAT4X4 &M) const
 		XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
 	}
 	else {
-		for (UINT i = 0; i < keyframes.size()-1; ++i) {
+		for (UINT i = 0; i < static_cast<int>(keyframes.size()-1); ++i) {
 			if (t >= keyframes[i].time_pos && t <= keyframes[i+1].time_pos) {
 				float lerpPercent = (t - keyframes[i].time_pos) / (keyframes[i+1].time_pos - keyframes[i].time_pos);
 				XMVECTOR s0 = XMLoadFloat3(&keyframes[i].scale);

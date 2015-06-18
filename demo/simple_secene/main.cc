@@ -124,7 +124,6 @@ bool imm_app::init_imm()
 	m_Cam.set_Lens(0.25f*XM_PI, aspect_ratio(), 1.0f, 1000.0f);
 	m_UiMgr.init(this);
 	m_Cmd.init(this);
-	m_Cmd.is_slient = false;
 	m_Inst.init(this);
 	m_Control.init(this);
 	m_Scene.init_load(this);

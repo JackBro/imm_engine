@@ -126,17 +126,22 @@ void control_mov<T_app>::math_mouse_hit_terrain(
 	// Make the ray direction unit length for the intersection tests.
 	ray_dir = XMVector3Normalize(ray_dir);
 	// Ray hit y=value plane at plane_p
+	// This solution has a problem, the result of ray hit test is not unique, maybe get wrong one
 	plane_pos_out = ray_origin;
+	float p1_y = app->m_Inst.m_BoundW.center(player1).y;
+	size_t steps = 50;
 	float plane_y = app->m_Scene.terrain1.m_Info.height_scale;
-	float p_step = plane_y / 50.0f;
-	while (plane_y > 0.0f) {
+	float step_y = plane_y / steps;
+	plane_y = p1_y;
+	for (size_t ix = 0; ix != steps+2; ++ix) {
 		float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+(plane_y/XMVectorGetY(ray_dir));
 		plane_pos_out = XMVectorSetY(plane_pos_out, plane_y);
 		plane_pos_out = XMVectorSetX(plane_pos_out, XMVectorGetX(ray_origin)+ratio_y*XMVectorGetX(ray_dir));
 		plane_pos_out = XMVectorSetZ(plane_pos_out, XMVectorGetZ(ray_origin)+ratio_y*XMVectorGetZ(ray_dir));
 		float height = app->m_Scene.terrain1.get_Height(XMVectorGetX(plane_pos_out), XMVectorGetZ(plane_pos_out));
 		if (plane_y < height) return;
-		plane_y -= p_step;
+		if (ix%2 == 0) plane_y = p1_y + step_y*(ix/2);
+		else plane_y = p1_y - step_y*((ix+1)/2);
 	}
 	plane_pos_out = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 }

@@ -73,8 +73,6 @@ void instance_mgr<T_app>::init(T_app *app_in)
 template <typename T_app>
 void instance_mgr<T_app>::reload()
 {
-	assert(!m_IsLoading);
-	m_IsLoading = true;
 	std::string scene_ix(m_App->m_Scene.scene_ix);
 	std::wstring load_done(str_to_wstr(scene_ix));
 	if (!m_Model.load(m_App->m_D3DDevice, scene_ix)) {
@@ -188,7 +186,6 @@ int instance_mgr<T_app>::get_index(const std::string &name)
 template <typename T_app>
 void instance_mgr<T_app>::bound_update()
 {
-	if (m_App->m_Cmd.is_preparing) return;
 	XMMATRIX world;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		world = XMLoadFloat4x4(m_Stat[ix].get_World());
@@ -199,7 +196,6 @@ void instance_mgr<T_app>::bound_update()
 template <typename T_app>
 void instance_mgr<T_app>::collision_update(float dt_every)
 {
-	if (m_App->m_Cmd.is_preparing) return;
 	// if runtime stun
 	if (dt_every > PHY_MAX_DELTA_TIME) dt_every = PHY_MAX_DELTA_TIME;
 	if (m_IsTerrainUse) collision_update_terrain(dt_every);
@@ -248,13 +244,18 @@ void instance_mgr<T_app>::collision_update_terrain(float dt_every)
 			m_Stat[ix].phy.is_touch_ground,
 			m_BoundW.half_y(ix),
 			terrain_height);
+		// inaccuracy touch ground, logically assume it touches gourond, because terrain is not flat
+		// this is not for physics
+		float half_y = m_BoundW.half_y(ix);
+		if (world->_42 - half_y - terrain_height < 0.3f) m_Stat[ix].phy.is_touch_ground = true;
+		else m_Stat[ix].phy.is_touch_ground = false;
 	}
 }
 //
 template <typename T_app>
 void instance_mgr<T_app>::collision_update_impulse(float dt_every)
 {
-	for (size_t ix = 0; ix != m_Stat.size()-1; ++ix) {
+	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
 		for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
 			if (static_cast<int>(ix) == m_PlaneGroundIx || static_cast<int>(ix2) == m_PlaneGroundIx) continue;
 			phy_impulse_casual(dt_every,

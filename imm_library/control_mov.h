@@ -364,6 +364,8 @@ void control_mov<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 template <typename T_app>
 void control_mov<T_app>::update_scene(const float &dt)
 {
+	// assert check update
+	assert(player1 > -1);
 	app->m_Inst.update_skinned(dt);
 	app->m_Inst.bound_update();
 	app->m_Inst.collision_update(dt);
@@ -376,13 +378,13 @@ void control_mov<T_app>::update_scene(const float &dt)
 template <typename T_app>
 void control_mov<T_app>::update_scene_bounds()
 {
-	XMFLOAT3 p1_center = app->m_Inst.m_BoundW.center(player1);
-	XMVECTOR p1_center_len = XMLoadFloat3(&p1_center);
-	XMVECTOR scene_center_len = XMLoadFloat3(&app->m_Scene.bounds.Center);
-	p1_center_len = XMVector3LengthEst(p1_center_len);
-	scene_center_len = XMVector3LengthEst(scene_center_len);
 	// bounds follow player, if distance too far, update
-	if (abs(XMVectorGetX(p1_center_len) - XMVectorGetX(scene_center_len)) > 10.0f) {
+	XMFLOAT3 p1_center_f = app->m_Inst.m_BoundW.center(player1);
+	XMVECTOR p1_center = XMLoadFloat3(&p1_center_f);
+	XMVECTOR scene_center = XMLoadFloat3(&app->m_Scene.bounds.Center);
+	XMVECTOR distance = XMVectorSubtract(p1_center, scene_center);
+	distance = XMVector3LengthEst(distance);
+	if (XMVectorGetX(distance) > 20.0f) {
 		app->m_Scene.bounds.Center = app->m_Inst.m_BoundW.center(player1);
 	}
 }

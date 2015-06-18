@@ -144,7 +144,7 @@ void scene_dir_lights_common(lit_dir dir_lights[]){
 	dir_lights[0].ambient	= XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	dir_lights[0].diffuse	= XMFLOAT4(1.0f, 0.9f, 0.9f, 1.0f);
 	dir_lights[0].specular	= XMFLOAT4(0.8f, 0.8f, 0.7f, 1.0f);
-	dir_lights[0].direction	= XMFLOAT3(-0.57735f, -0.57735f, 0.57735f);
+	dir_lights[0].direction	= XMFLOAT3(-0.457496f, -0.762493f, 0.457496f);
 	dir_lights[1].ambient	= XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	dir_lights[1].diffuse	= XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 	dir_lights[1].specular	= XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
