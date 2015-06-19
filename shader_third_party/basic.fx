@@ -26,7 +26,6 @@ cbuffer cbPerObject
 // Nonnumeric values cannot be added to a cbuffer.
 Texture2D gDiffuseMap;
 Texture2D gShadowMap;
-Texture2D gSsaoMap;
 TextureCube gCubeMap;
 SamplerState samLinear
 {
@@ -56,7 +55,6 @@ struct VertexOut
 	float3 NormalW	  : NORMAL;
 	float2 Tex		  : TEXCOORD0;
 	float4 ShadowPosH : TEXCOORD1;
-	float4 SsaoPosH   : TEXCOORD2;
 };
 VertexOut VS(VertexIn vin)
 {
@@ -70,8 +68,6 @@ VertexOut VS(VertexIn vin)
 	vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
 	// Generate projective tex-coords to project shadow map onto scene.
 	vout.ShadowPosH = mul(float4(vin.PosL, 1.0f), gShadowTransform);
-	// Generate projective tex-coords to project SSAO map onto scene.
-	vout.SsaoPosH = mul(float4(vin.PosL, 1.0f), gWorldViewProjTex);
 	return vout;
 }
 float4 PS(VertexOut pin,
@@ -113,16 +109,12 @@ float4 PS(VertexOut pin,
 		// Only the first light casts a shadow.
 		float3 shadow = float3(1.0f, 1.0f, 1.0f);
 		shadow[0] = CalcShadowFactor(samShadow, gShadowMap, pin.ShadowPosH);
-		// Finish texture projection and sample SSAO map.
-		pin.SsaoPosH /= pin.SsaoPosH.w;
-		float ambientAccess = gSsaoMap.SampleLevel(samLinear, pin.SsaoPosH.xy, 0.0f).r;
 		// Sum the light contribution from each light source.
 		[unroll]
 		for(int i = 0; i < gLightCount; ++i) {
 			float4 A, D, S;
-			ComputeDirectionalLight(gMaterial, gDirLights[i], pin.NormalW, toEye,
-				A, D, S);
-			ambient += ambientAccess*A;
+			ComputeDirectionalLight(gMaterial, gDirLights[i], pin.NormalW, toEye, A, D, S);
+			ambient += A;
 			diffuse += shadow[i]*D;
 			spec	+= shadow[i]*S;
 		}
@@ -168,29 +160,5 @@ technique11 Light3TexAlphaClip
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS(3, true, true, false, false)));
-	}
-}
-technique11 Light3Reflect
-{
-	pass P0 {
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, false, false, false, true)));
-	}
-}
-technique11 Light3TexReflect
-{
-	pass P0 {
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, true, false, false, true)));
-	}
-}
-technique11 Light3TexAlphaClipReflect
-{
-	pass P0 {
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, true, true, false, true)));
 	}
 }

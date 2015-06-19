@@ -43,6 +43,7 @@ public:
 	terrain_effect(ID3D11Device *device, const std::wstring &filename);
 	~terrain_effect() {;}
 	void set_ViewProj(CXMMATRIX M)							{m_ViewProj->SetMatrix(reinterpret_cast<const float*>(&M));}
+	void set_ShadowTransform(CXMMATRIX M)					{m_ShadowTransform->SetMatrix(reinterpret_cast<const float*>(&M));}
 	void set_EyePosW(const XMFLOAT3 &v) 					{m_EyePosW->SetRawValue(&v, 0, sizeof(XMFLOAT3));}
 	void set_DirLights(const lit_dir *lights)				{m_DirLights->SetRawValue(lights, 0, 3*sizeof(lit_dir));}
 	void set_Material(const material &mat)					{m_Mat->SetRawValue(&mat, 0, sizeof(material));}
@@ -57,11 +58,11 @@ public:
 	void set_LayerMapArray(ID3D11ShaderResourceView *tex)	{m_LayerMapArray->SetResource(tex);}
 	void set_BlendMap(ID3D11ShaderResourceView *tex)		{m_BlendMap->SetResource(tex);}
 	void set_HeightMap(ID3D11ShaderResourceView *tex)		{m_HeightMap->SetResource(tex);}
+	void set_ShadowMap(ID3D11ShaderResourceView* tex)		{m_ShadowMap->SetResource(tex);}
 	ID3DX11EffectTechnique *m_Light3Tech;
 	ID3DX11EffectMatrixVariable *m_ViewProj;
 	ID3DX11EffectMatrixVariable *m_World;
-	ID3DX11EffectMatrixVariable *m_WorldInvTranspose;
-	ID3DX11EffectMatrixVariable *m_TexTransform;
+	ID3DX11EffectMatrixVariable *m_ShadowTransform;
 	ID3DX11EffectVectorVariable *m_EyePosW;
 	ID3DX11EffectVariable *m_DirLights;
 	ID3DX11EffectVariable *m_Mat;
@@ -78,6 +79,7 @@ public:
 	ID3DX11EffectShaderResourceVariable *m_LayerMapArray;
 	ID3DX11EffectShaderResourceVariable *m_BlendMap;
 	ID3DX11EffectShaderResourceVariable *m_HeightMap;
+	ID3DX11EffectShaderResourceVariable *m_ShadowMap;
 };
 //
 terrain_effect::terrain_effect(ID3D11Device *device, const std::wstring &filename):
@@ -85,6 +87,7 @@ terrain_effect::terrain_effect(ID3D11Device *device, const std::wstring &filenam
 {
 	m_Light3Tech = m_FX->GetTechniqueByName("Light3");
 	m_ViewProj				= m_FX->GetVariableByName("gViewProj")->AsMatrix();
+	m_ShadowTransform		= m_FX->GetVariableByName("gShadowTransform")->AsMatrix();
 	m_EyePosW				= m_FX->GetVariableByName("gEyePosW")->AsVector();
 	m_DirLights 			= m_FX->GetVariableByName("gDirLights");
 	m_Mat					= m_FX->GetVariableByName("gMaterial");
@@ -99,6 +102,7 @@ terrain_effect::terrain_effect(ID3D11Device *device, const std::wstring &filenam
 	m_LayerMapArray 		= m_FX->GetVariableByName("gLayerMapArray")->AsShaderResource();
 	m_BlendMap				= m_FX->GetVariableByName("gBlendMap")->AsShaderResource();
 	m_HeightMap 			= m_FX->GetVariableByName("gHeightMap")->AsShaderResource();
+	m_ShadowMap 		= m_FX->GetVariableByName("gShadowMap")->AsShaderResource();
 }
 ////////////////
 // particle_effect

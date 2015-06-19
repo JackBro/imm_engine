@@ -32,11 +32,9 @@ public:
 	void set_DiffuseMap(ID3D11ShaderResourceView *tex)	{m_DiffuseMap->SetResource(tex);}
 	void set_CubeMap(ID3D11ShaderResourceView *tex) 	{m_CubeMap->SetResource(tex);}
 	void set_ShadowMap(ID3D11ShaderResourceView* tex)	{m_ShadowMap->SetResource(tex);}
-	void set_SsaoMap(ID3D11ShaderResourceView* tex) 	{m_SsaoMap->SetResource(tex);}
 	ID3DX11EffectTechnique *m_Light3Tech;
 	ID3DX11EffectTechnique *m_Light3TexTech;
 	ID3DX11EffectTechnique *m_Light3TexAlphaClipTech;
-	ID3DX11EffectTechnique *m_Light3ReflectTech;
 	ID3DX11EffectMatrixVariable *m_WorldViewProj;
 	ID3DX11EffectMatrixVariable *m_WorldViewProjTex;
 	ID3DX11EffectMatrixVariable *m_World;
@@ -49,7 +47,6 @@ public:
 	ID3DX11EffectShaderResourceVariable *m_DiffuseMap;
 	ID3DX11EffectShaderResourceVariable *m_CubeMap;
 	ID3DX11EffectShaderResourceVariable *m_ShadowMap;
-	ID3DX11EffectShaderResourceVariable *m_SsaoMap;
 };
 //
 basic_effect::basic_effect(ID3D11Device *device, const std::wstring &filename):
@@ -58,7 +55,6 @@ basic_effect::basic_effect(ID3D11Device *device, const std::wstring &filename):
 	m_Light3Tech				= m_FX->GetTechniqueByName("Light3");
 	m_Light3TexTech 			= m_FX->GetTechniqueByName("Light3Tex");
 	m_Light3TexAlphaClipTech	= m_FX->GetTechniqueByName("Light3TexAlphaClip");
-	m_Light3ReflectTech 		= m_FX->GetTechniqueByName("Light3Reflect");
 	m_WorldViewProj 	= m_FX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	m_WorldViewProjTex	= m_FX->GetVariableByName("gWorldViewProjTex")->AsMatrix();
 	m_World 			= m_FX->GetVariableByName("gWorld")->AsMatrix();
@@ -71,7 +67,6 @@ basic_effect::basic_effect(ID3D11Device *device, const std::wstring &filename):
 	m_DiffuseMap		= m_FX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 	m_CubeMap			= m_FX->GetVariableByName("gCubeMap")->AsShaderResource();
 	m_ShadowMap 		= m_FX->GetVariableByName("gShadowMap")->AsShaderResource();
-	m_SsaoMap			= m_FX->GetVariableByName("gSsaoMap")->AsShaderResource();
 }
 ////////////////
 // normal_map_effect
@@ -100,8 +95,8 @@ public:
 	ID3DX11EffectTechnique *m_Light3Tech;
 	ID3DX11EffectTechnique *m_Light3TexTech;
 	ID3DX11EffectTechnique *m_Light3TexAlphaClipTech;
-	ID3DX11EffectTechnique *m_Light3ReflectTech;
 	ID3DX11EffectTechnique *m_Light3TexSkinnedTech;
+	ID3DX11EffectTechnique *m_Light3TexAlphaClipSkinnedTech;
 	ID3DX11EffectMatrixVariable *m_WorldViewProj;
 	ID3DX11EffectMatrixVariable *m_WorldViewProjTex;
 	ID3DX11EffectMatrixVariable *m_World;
@@ -122,11 +117,11 @@ public:
 normal_map_effect::normal_map_effect(ID3D11Device *device, const std::wstring &filename):
 	effect(device, filename)
 {
-	m_Light3Tech				= m_FX->GetTechniqueByName("Light3");
-	m_Light3TexTech 			= m_FX->GetTechniqueByName("Light3Tex");
-	m_Light3TexAlphaClipTech	= m_FX->GetTechniqueByName("Light3TexAlphaClip");
-	m_Light3ReflectTech 		= m_FX->GetTechniqueByName("Light3Reflect");
-	m_Light3TexSkinnedTech		= m_FX->GetTechniqueByName("Light3TexSkinned");
+	m_Light3Tech					= m_FX->GetTechniqueByName("Light3");
+	m_Light3TexTech 				= m_FX->GetTechniqueByName("Light3Tex");
+	m_Light3TexAlphaClipTech		= m_FX->GetTechniqueByName("Light3TexAlphaClip");
+	m_Light3TexSkinnedTech			= m_FX->GetTechniqueByName("Light3TexSkinned");
+	m_Light3TexAlphaClipSkinnedTech = m_FX->GetTechniqueByName("Light3TexAlphaClipSkinned");
 	m_WorldViewProj 	= m_FX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	m_WorldViewProjTex	= m_FX->GetVariableByName("gWorldViewProjTex")->AsMatrix();
 	m_World 			= m_FX->GetVariableByName("gWorld")->AsMatrix();

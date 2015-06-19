@@ -30,7 +30,6 @@ cbuffer cbSkinned
 Texture2D gShadowMap;
 Texture2D gDiffuseMap;
 Texture2D gNormalMap;
-Texture2D gSsaoMap;
 TextureCube gCubeMap;
 SamplerState samLinear
 {
@@ -71,7 +70,6 @@ struct VertexOut
 	float4 TangentW   : TANGENT;
 	float2 Tex        : TEXCOORD0;
 	float4 ShadowPosH : TEXCOORD1;
-	float4 SsaoPosH   : TEXCOORD2;
 };
 VertexOut VS(VertexIn vin)
 {
@@ -86,8 +84,6 @@ VertexOut VS(VertexIn vin)
 	vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
 	// Generate projective tex-coords to project shadow map onto scene.
 	vout.ShadowPosH = mul(float4(vin.PosL, 1.0f), gShadowTransform);
-	// Generate projective tex-coords to project SSAO map onto scene.
-	vout.SsaoPosH = mul(float4(vin.PosL, 1.0f), gWorldViewProjTex);
 	return vout;
 }
 VertexOut SkinnedVS(SkinnedVertexIn vin)
@@ -129,8 +125,6 @@ VertexOut SkinnedVS(SkinnedVertexIn vin)
 	vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
 	// Generate projective tex-coords to project shadow map onto scene.
 	vout.ShadowPosH = mul(float4(posL, 1.0f), gShadowTransform);
-	// Generate projective tex-coords to project SSAO map onto scene.
-	vout.SsaoPosH = mul(float4(posL, 1.0f), gWorldViewProjTex);
 	return vout;
 }
 float4 PS(VertexOut pin,
@@ -181,8 +175,7 @@ float4 PS(VertexOut pin,
 		[unroll]
 		for (int i = 0; i < gLightCount; ++i) {
 			float4 A, D, S;
-			ComputeDirectionalLight(gMaterial, gDirLights[i], bumpedNormalW, toEye,
-				A, D, S);
+			ComputeDirectionalLight(gMaterial, gDirLights[i], bumpedNormalW, toEye, A, D, S);
 			ambient += A;
 			diffuse += shadow[i]*D;
 			spec    += shadow[i]*S;
@@ -231,30 +224,6 @@ technique11 Light3TexAlphaClip
 		SetPixelShader(CompileShader(ps_5_0, PS(3, true, true, false, false)));
 	}
 }
-technique11 Light3Reflect
-{
-	pass P0 {
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, false, false, false, true)));
-	}
-}
-technique11 Light3TexReflect
-{
-	pass P0 {
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, true, false, false, true)));
-	}
-}
-technique11 Light3TexAlphaClipReflect
-{
-	pass P0 {
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, true, true, false, true)));
-	}
-}
 technique11 Light3Skinned
 {
 	pass P0 {
@@ -277,29 +246,5 @@ technique11 Light3TexAlphaClipSkinned
 		SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS(3, true, true, false, false)));
-	}
-}
-technique11 Light3ReflectSkinned
-{
-	pass P0 {
-		SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, false, false, false, true)));
-	}
-}
-technique11 Light3TexReflectSkinned
-{
-	pass P0 {
-		SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, true, false, false, true)));
-	}
-}
-technique11 Light3TexAlphaClipReflectSkinned
-{
-	pass P0 {
-		SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, true, true, false, true)));
 	}
 }
