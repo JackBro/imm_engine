@@ -99,11 +99,10 @@ void instance_mgr<T_app>::reload()
 		m_Model.m_InstSkinned, inst_stat, k,
 		[](const pos_normal_tex_tan_skinned &x) {return &x.pos;},
 		m_Model.m_NameSkinned);
-	inst_stat.type = simple_b32;
 	push_back(
-		m_Model.m_InstB32, inst_stat, k,
-		[](const basic32 &x) {return &x.pos;}, 
-		m_Model.m_NameB32);
+		m_Model.m_InstSkinnedAlpha, inst_stat, k,
+		[](const pos_normal_tex_tan_skinned &x) {return &x.pos;},
+		m_Model.m_NameSkinnedAlpha);
 	inst_stat.type = simple_pntt;
 	push_back_pntt(
 		m_Model.m_InstPNTT, inst_stat, k,
@@ -274,8 +273,9 @@ template <typename T_app>
 void instance_mgr<T_app>::update_skinned(const float &dt)
 {
 	if (m_App->m_Cmd.is_preparing) return;
-	// should be multithread
+	// should be multithread?
 	for (auto &skinned: m_Model.m_InstSkinned) skinned.update(dt);
+	for (auto &skinned: m_Model.m_InstSkinnedAlpha) skinned.update(dt);
 }
 //
 template <typename T_app>

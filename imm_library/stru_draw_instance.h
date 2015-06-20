@@ -152,6 +152,7 @@ void draw_inst_skinned_shadow(
 	D3DX11_TECHNIQUE_DESC &tech_desc,
 	fx_type &fx,
 	std::vector<model_type> &model_inst,
+	bool is_alpha,
 	XMMATRIX &view_proj
 )
 {
@@ -172,79 +173,12 @@ void draw_inst_skinned_shadow(
 			fx->set_BoneTransforms(
 				&model_inst[ix].final_transforms[0],
 				static_cast<int>(model_inst[ix].final_transforms.size()));
-			tech->GetPassByIndex(p)->Apply(0, D3DDC);
+			if (!is_alpha) tech->GetPassByIndex(p)->Apply(0, D3DDC);
 			for(UINT subset = 0; subset < model_inst[ix].model->m_SubsetCount; ++subset) {
-				model_inst[ix].model->m_ModelMesh.draw(D3DDC, subset);
-			}
-		}
-	}	
-}
-////////////////
-// draw_inst_simple_b32
-////////////////
-////////////////
-template <typename fx_type, typename model_type>
-void draw_inst_simple_b32(
-	ID3D11DeviceContext *D3DDC,
-	ID3DX11EffectTechnique *tech,
-	D3DX11_TECHNIQUE_DESC &tech_desc,
-	fx_type &fx,
-	std::vector<model_type> &model_inst,
-	XMMATRIX &view_proj,
-	XMMATRIX &shadow_transform
-)
-{
-	XMMATRIX world;
-	XMMATRIX world_inv_transpose;
-	XMMATRIX world_view_proj;
-	tech->GetDesc(&tech_desc);
-	for(UINT p = 0; p < tech_desc.Passes; ++p) {
-		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
-			if (!model_inst[ix].is_appear) continue;
-			world = XMLoadFloat4x4(&model_inst[ix].world);
-			world_inv_transpose = inverse_transpose(world);
-			world_view_proj = world*view_proj;
-			fx->set_World(world);
-			fx->set_WorldInvTranspose(world_inv_transpose);
-			fx->set_WorldViewProj(world_view_proj);
-			fx->set_ShadowTransform(world*shadow_transform);
-			for(UINT subset = 0; subset < model_inst[ix].model->m_SubsetCount; ++subset) {
-				fx->set_Material(model_inst[ix].model->m_Mat[subset]);
-				tech->GetPassByIndex(p)->Apply(0, D3DDC);
-				model_inst[ix].model->m_ModelMesh.draw(D3DDC, subset);
-			}
-		}
-	}
-}
-////////////////
-// draw_inst_simple_b32_shadow
-////////////////
-////////////////
-template <typename fx_type, typename model_type>
-void draw_inst_simple_b32_shadow(
-	ID3D11DeviceContext *D3DDC,
-	ID3DX11EffectTechnique *tech,
-	D3DX11_TECHNIQUE_DESC &tech_desc,
-	fx_type &fx,
-	std::vector<model_type> &model_inst,
-	XMMATRIX &view_proj	
-)
-{
-	XMMATRIX world;
-	XMMATRIX world_inv_transpose;
-	XMMATRIX world_view_proj;
-	tech->GetDesc(&tech_desc);
-	for(UINT p = 0; p < tech_desc.Passes; ++p) {
-		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
-			if (!model_inst[ix].is_appear) continue;
-			world = XMLoadFloat4x4(&model_inst[ix].world);
-			world_inv_transpose = inverse_transpose(world);
-			world_view_proj = world*view_proj;
-			fx->set_World(world);
-			fx->set_WorldInvTranspose(world_inv_transpose);
-			fx->set_WorldViewProj(world_view_proj);
-			tech->GetPassByIndex(p)->Apply(0, D3DDC);
-			for(UINT subset = 0; subset < model_inst[ix].model->m_SubsetCount; ++subset) {
+				if (is_alpha) {
+					fx->set_DiffuseMap(model_inst[ix].model->m_DiffuseMapSRV[subset]);
+					tech->GetPassByIndex(p)->Apply(0, D3DDC);
+				}
 				model_inst[ix].model->m_ModelMesh.draw(D3DDC, subset);
 			}
 		}

@@ -102,47 +102,12 @@ bool data_is_file_exist(const std::string &path_file)
 	return false;
 }
 ////////////////
-// model_load_simple_b32
-////////////////
-////////////////
-void model_load_simple_b32(simple_model<basic32> &model, const std::string &model_file)
-{
-	std::ifstream fin(model_file);
-	if (!fin) {
-		std::string err_str("simple_b32 file load error: ");
-		err_str += model_file;
-		ERROR_MESA(err_str.c_str());
-	}
-	UINT vcount = 0;
-	UINT tcount = 0;
-	std::string ignore;
-	fin >> ignore >> vcount;
-	fin >> ignore >> tcount;
-	fin >> ignore >> ignore >> ignore >> ignore;
-	//
-	std::vector<basic32> &vertices = model.m_Vertices;
-	vertices.resize(vcount);
-	for(UINT i = 0; i < vcount; ++i) {
-		fin >> vertices[i].pos.x >> vertices[i].pos.y >> vertices[i].pos.z;
-		fin >> vertices[i].normal.x >> vertices[i].normal.y >> vertices[i].normal.z;
-	}
-	fin >> ignore;
-	fin >> ignore;
-	fin >> ignore;
-	//
-	UINT isize = 3*tcount;
-	std::vector<UINT> &indices = model.m_Indices;
-	indices.resize(isize);
-	for(UINT i = 0; i < tcount; ++i) {
-		fin >> indices[i*3+0] >> indices[i*3+1] >> indices[i*3+2];
-	}
-	fin.close();
-}
-////////////////
 // model_load_geo_mesh
 ////////////////
 ////////////////
-void model_load_geo_mesh(ID3D11Device *device, simple_model<pos_normal_tex_tan> &model_shape,
+void model_load_geo_mesh(
+	ID3D11Device *device,
+	simple_model<pos_normal_tex_tan> &model_shape,
 	const std::vector<geometry::mesh_data> &geo)
 {
 	size_t size = geo.size();
@@ -212,7 +177,7 @@ void model_load_csv_basic(
 			model[model_name].set(device, tex_mgr, texture_path);
 		}
 		rot_front[model_name] = rotation_xyz(csv_model[ix][2]);
-		// assign alpha if basic model
+		// assign alpha
 		if (csv_model[0].size() > 3) {
 			if (csv_model[0][3] == "is_alpha") model_alpha[model_name] = stoi(csv_model[ix][3]);
 		}

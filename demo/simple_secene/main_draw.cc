@@ -56,18 +56,9 @@ void imm_app::draw_scene_d3d_shadow()
 	ID3DX11EffectTechnique *tech_shadow = fx_shadow->m_BuildShadowMapTech;
 	ID3DX11EffectTechnique *tech_shadow_alpha = fx_shadow->m_BuildShadowMapAlphaClipTech;
 	ID3DX11EffectTechnique *tech_shadow_skinned = fx_shadow->m_BuildShadowMapSkinnedTech;
+	ID3DX11EffectTechnique *tech_shadow_skinned_alpha = fx_shadow->m_BuildShadowMapAlphaClipSkinnedTech;
 	D3DX11_TECHNIQUE_DESC tech_desc;
 	m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	// Draw simple b32
-	m_D3DDC->IASetInputLayout(input_layouts::m_Basic32);
-	draw_inst_simple_pntt_shadow(
-		m_D3DDC,
-		tech_shadow,
-		tech_desc,
-		fx_shadow,
-		m_Inst.m_Model.m_InstB32,
-		view_proj
-	);
 	// Draw simple pntt
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan);
 	draw_inst_simple_pntt_shadow(
@@ -107,6 +98,17 @@ void imm_app::draw_scene_d3d_shadow()
 		tech_desc,
 		fx_shadow,
 		m_Inst.m_Model.m_InstSkinned,
+		false,
+		view_proj
+	);
+	// Draw skinned alpha
+	draw_inst_skinned_shadow(
+		m_D3DDC,
+		tech_shadow_skinned_alpha,
+		tech_desc,
+		fx_shadow,
+		m_Inst.m_Model.m_InstSkinnedAlpha,
+		true,
 		view_proj
 	);
 }
@@ -135,10 +137,11 @@ void imm_app::draw_scene_d3d()
 	fx_normal->set_EyePosW(m_Cam.get_Position());
 	fx_normal->set_CubeMap(m_Scene.skybox->get_CubeMapSRV());
 	fx_normal->set_ShadowMap(m_Smap->get_DepthMapSRV());
+	ID3DX11EffectTechnique *tech_simple = fx_basic->m_Light3Tech;
 	ID3DX11EffectTechnique *tech_basic = fx_normal->m_Light3TexTech;
 	ID3DX11EffectTechnique *tech_basic_alpha = fx_normal->m_Light3TexAlphaClipTech;
-	ID3DX11EffectTechnique *tech_simple_b32 = fx_basic->m_Light3Tech;
 	ID3DX11EffectTechnique *tech_skinned = fx_normal->m_Light3TexSkinnedTech;
+	ID3DX11EffectTechnique *tech_skinned_alpha = fx_normal->m_Light3TexAlphaClipSkinnedTech;
 	D3DX11_TECHNIQUE_DESC tech_desc;
 	XMMATRIX view_proj = m_Cam.get_ViewProj();
 	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
@@ -149,23 +152,12 @@ void imm_app::draw_scene_d3d()
 		0.5f, 0.5f, 0.0f, 1.0f);
 	XMMATRIX shadow_transform = XMLoadFloat4x4(&m_ShadowTransform);
 	m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	// Draw simple b32
-	m_D3DDC->IASetInputLayout(input_layouts::m_Basic32);
-	draw_inst_simple_b32(
-		m_D3DDC,
-		tech_simple_b32,
-		tech_desc,
-		fx_basic,
-		m_Inst.m_Model.m_InstB32,
-		view_proj,
-		shadow_transform
-	);
 	// Draw simple pntt
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan);
 	draw_inst_simple_pntt(
 		m_D3DDC,
 		tech_basic,
-		tech_simple_b32,
+		tech_simple,
 		tech_desc,
 		fx_normal,
 		fx_basic,
@@ -198,9 +190,20 @@ void imm_app::draw_scene_d3d()
 		shadow_transform,
 		to_tex_space
 	);
+	// Draw skinned alpha
+	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTanSkinned);
+	draw_inst_skinned(
+		m_D3DDC,
+		tech_skinned_alpha,
+		tech_desc,
+		fx_normal,
+		m_Inst.m_Model.m_InstSkinnedAlpha,
+		view_proj,
+		shadow_transform,
+		to_tex_space
+	);
 	m_D3DDC->RSSetState(0);
 	// Draw skinned
-	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTanSkinned);
 	draw_inst_skinned(
 		m_D3DDC,
 		tech_skinned,

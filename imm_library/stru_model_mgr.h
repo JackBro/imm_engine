@@ -21,7 +21,6 @@ enum instance_type
 {
 	basic,
 	skinned,
-	simple_b32,
 	simple_pntt
 };
 ////////////////
@@ -58,7 +57,6 @@ XMFLOAT4X4 *instance_stat::get_World()
 	switch(type) {
 		case basic: return &(((basic_model_instance*)p)->world);
 		case skinned: return &(((skinned_model_instance*)p)->world);
-		case simple_b32: return &(((simple_model_instance<basic32>*)p)->world);
 		case simple_pntt: return &(((simple_model_instance<pos_normal_tex_tan>*)p)->world);
 	}
 	assert(false);
@@ -71,7 +69,6 @@ XMFLOAT4X4 *instance_stat::get_RotFront()
 	switch(type) {
 		case basic: return &(((basic_model_instance*)p)->rot_front);
 		case skinned: return &(((skinned_model_instance*)p)->rot_front);
-		case simple_b32: return &(((simple_model_instance<basic32>*)p)->rot_front);
 		case simple_pntt: return &(((simple_model_instance<pos_normal_tex_tan>*)p)->rot_front);
 	}
 	assert(false);
@@ -90,7 +87,6 @@ std::string *instance_stat::get_ModelName()
 	switch(type) {
 		case basic: return &(((basic_model_instance*)p)->model_name);
 		case skinned: return &(((skinned_model_instance*)p)->model_name);
-		case simple_b32: return &(((simple_model_instance<basic32>*)p)->model_name);
 		case simple_pntt: return &(((simple_model_instance<pos_normal_tex_tan>*)p)->model_name);
 	}
 	assert(false);
@@ -104,7 +100,6 @@ void instance_stat::set_World(const XMFLOAT4X4 world)
 	switch(type) {
 		case basic: ((basic_model_instance*)p)->world = world; return;
 		case skinned: ((skinned_model_instance*)p)->world = world; return;
-		case simple_b32: ((simple_model_instance<basic32>*)p)->world = world; return;
 		case simple_pntt: ((simple_model_instance<pos_normal_tex_tan>*)p)->world = world; return;
 	}
 	assert(false);
@@ -115,7 +110,6 @@ void instance_stat::set_IsAppear(const bool is_appear)
 	switch(type) {
 		case basic: ((basic_model_instance*)p)->is_appear = is_appear; return;
 		case skinned: ((skinned_model_instance*)p)->is_appear = is_appear; return;
-		case simple_b32: ((simple_model_instance<basic32>*)p)->is_appear = is_appear; return;
 		case simple_pntt: ((simple_model_instance<pos_normal_tex_tan>*)p)->is_appear = is_appear; return;
 	}
 	assert(false);
@@ -141,24 +135,22 @@ struct model_mgr
 	model_mgr();
 	void init(ID3D11Device *device);
 	bool load(ID3D11Device *device, const std::string& scene_ix);
-	void b32_init(ID3D11Device *device, lua_reader &l_reader);
 	void pntt_init(ID3D11Device *device, lua_reader &l_reader);
 	void skinned_init(ID3D11Device *device, lua_reader &l_reader);
 	void basic_init(ID3D11Device *device, lua_reader &l_reader);
 	void remove_all();
 	texture_mgr m_TexMgr;
 	bool is_initialized;
-	std::map<std::string, simple_model<basic32>> m_B32;
 	std::map<std::string, simple_model<pos_normal_tex_tan>> m_PNTT;
 	std::map<std::string, skinned_model> m_Skinned;
 	std::map<std::string, basic_model> m_Basic;
-	std::vector<simple_model_instance<basic32>> m_InstB32;
-	std::vector<simple_model_instance<pos_normal_tex_tan>> m_InstPNTT;	
+	std::vector<simple_model_instance<pos_normal_tex_tan>> m_InstPNTT;
+	std::vector<skinned_model_instance> m_InstSkinnedAlpha;
 	std::vector<skinned_model_instance> m_InstSkinned;
 	std::vector<basic_model_instance> m_InstBasicAlpha;
 	std::vector<basic_model_instance> m_InstBasic;
-	std::vector<std::string> m_NameB32;
 	std::vector<std::string> m_NamePNTT;
+	std::vector<std::string> m_NameSkinnedAlpha;
 	std::vector<std::string> m_NameSkinned;
 	std::vector<std::string> m_NameBasicAlpha;
 	std::vector<std::string> m_NameBasic;
@@ -186,19 +178,12 @@ bool model_mgr::load(ID3D11Device *device, const std::string& scene_ix)
 	remove_all();
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
-	std::thread(&model_mgr::b32_init, this, device, std::ref(l_reader)).join();
 	std::thread(&model_mgr::pntt_init, this, device, std::ref(l_reader)).join();
 	std::thread(&model_mgr::skinned_init, this, device, std::ref(l_reader)).join();
 	std::thread(&model_mgr::basic_init, this, device, std::ref(l_reader)).join();
 	return true;
 }
 //
-void model_mgr::b32_init(ID3D11Device *device, lua_reader &l_reader)
-{
-	// simple_b32 not implement
-	DUMMY(device);
-	DUMMY(l_reader);
-}
 //
 void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 {
@@ -286,7 +271,7 @@ void model_mgr::skinned_init(ID3D11Device *device, lua_reader &l_reader)
 	std::vector<std::vector<std::string>> vec2d_model;
 	std::vector<std::vector<std::string>> vec2d_instance;
 	std::map<std::string, rotation_xyz> model_rot_front;
-	std::map<std::string, int> dummy;
+	std::map<std::string, int> model_alpha;
 	// build model
 	model_load_csv_basic(
 		device,
@@ -298,16 +283,23 @@ void model_mgr::skinned_init(ID3D11Device *device, lua_reader &l_reader)
 		"csv_model_skinned",
 		GLOBAL["path_mod"],
 		std::wstring(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end()),
-		dummy);
+		model_alpha);
 	// build instance
 	l_reader.vec2d_str_from_table("csv_instance_skinned", vec2d_instance);
 	for (size_t ix = 1; ix < vec2d_instance.size(); ++ix) {
 		std::string model_name = vec2d_instance[ix][1];
 		assert(m_Skinned.count(model_name));
-		m_NameSkinned.push_back(vec2d_instance[ix][0]);
 		std::vector<skinned_model_instance>::iterator it;
-		m_InstSkinned.push_back(skinned_model_instance());
-		it = m_InstSkinned.end();
+		if (model_alpha[model_name]) {
+			m_NameSkinnedAlpha.push_back(vec2d_instance[ix][0]);
+			m_InstSkinnedAlpha.push_back(skinned_model_instance());
+			it = m_InstSkinnedAlpha.end();
+		}
+		else {
+			m_NameSkinned.push_back(vec2d_instance[ix][0]);
+			m_InstSkinned.push_back(skinned_model_instance());
+			it = m_InstSkinned.end();
+		}
 		// iterator to the last instance
 		--it;
 		it->model = &m_Skinned[model_name];
@@ -374,26 +366,25 @@ void model_mgr::basic_init(ID3D11Device *device, lua_reader &l_reader)
 //
 void model_mgr::remove_all()
 {
-	m_B32.clear();
 	m_PNTT.clear();
 	// continue to have m_Skinned m_Basic model
-	m_InstB32.clear();
 	m_InstPNTT.clear();
+	m_InstSkinnedAlpha.clear();
 	m_InstSkinned.clear();
 	m_InstBasicAlpha.clear();
 	m_InstBasic.clear();
-	m_NameB32.clear();
 	m_NamePNTT.clear();
+	m_NameSkinnedAlpha.clear();
 	m_NameSkinned.clear();
 	m_NameBasicAlpha.clear();
 	m_NameBasic.clear();
-	m_InstB32.shrink_to_fit();
 	m_InstPNTT.shrink_to_fit();
+	m_InstSkinnedAlpha.shrink_to_fit();
 	m_InstSkinned.shrink_to_fit();
 	m_InstBasicAlpha.shrink_to_fit();
 	m_InstBasic.shrink_to_fit();
-	m_NameB32.shrink_to_fit();
 	m_NamePNTT.shrink_to_fit();
+	m_NameSkinnedAlpha.shrink_to_fit();
 	m_NameSkinned.shrink_to_fit();
 	m_NameBasicAlpha.shrink_to_fit();
 	m_NameBasic.shrink_to_fit();
