@@ -9,6 +9,7 @@
 #include "mesh_d3d_util.h"
 #include "ia_vertex.h"
 #include "imm_camera.h"
+#include "render_shadow.h"
 #include "DDSTextureLoader.h"
 #include <DirectXPackedVector.h>
 using namespace DirectX::PackedVector;
@@ -43,8 +44,16 @@ public:
 	float get_Height(float x, float z) const;
 	XMMATRIX get_World() const;
 	void set_World(CXMMATRIX M);
-	void init(ID3D11Device *device, ID3D11DeviceContext *dc, const init_info &init_info1);
-	void draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3]);
+	void init(
+		ID3D11Device *device,
+		ID3D11DeviceContext *dc,
+		const init_info &init_info1);
+	void draw(
+		ID3D11DeviceContext *dc,
+		const camera &cam1,
+		lit_dir lights[3],
+		shadow_map *shadow,
+		XMMATRIX &shadow_transform);
 	bool is_initialized();
 private:
 	void load_heightmap();
@@ -149,7 +158,10 @@ float terrain::get_Height(float x, float z) const
 	}
 }
 //
-void terrain::init(ID3D11Device *device, ID3D11DeviceContext *dc, const init_info &init_info1)
+void terrain::init(
+	ID3D11Device *device,
+	ID3D11DeviceContext *dc,
+	const init_info &init_info1)
 {
 	m_Info = init_info1;
 	// Divide heightmap into patches such that each patch has CellsPerPatch.
@@ -173,7 +185,12 @@ void terrain::init(ID3D11Device *device, ID3D11DeviceContext *dc, const init_inf
 	HR(CreateDDSTextureFromFile(device, m_Info.blend_map_filename.c_str(), 0, &m_BlendMapSRV, 0));
 }
 //
-void terrain::draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3])
+void terrain::draw(
+	ID3D11DeviceContext *dc,
+	const camera &cam1,
+	lit_dir lights[3],
+	shadow_map *shadow,
+	XMMATRIX &shadow_transform)
 {
 	if (m_QuadPatchVB == nullptr) return;
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
@@ -188,6 +205,7 @@ void terrain::draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3
 	extract_frustum_planes(world_planes, view_proj);
 	// Set per frame constants.
 	effects::m_TerrainFX->set_ViewProj(view_proj);
+	effects::m_TerrainFX->set_ShadowTransform(world*shadow_transform);
 	effects::m_TerrainFX->set_EyePosW(cam1.get_Position());
 	effects::m_TerrainFX->set_DirLights(lights);
 	effects::m_TerrainFX->set_MinDist(20.0f);
@@ -201,6 +219,7 @@ void terrain::draw(ID3D11DeviceContext *dc, const camera &cam1, lit_dir lights[3
 	effects::m_TerrainFX->set_LayerMapArray(m_LayerMapArraySRV);
 	effects::m_TerrainFX->set_BlendMap(m_BlendMapSRV);
 	effects::m_TerrainFX->set_HeightMap(m_HeightMapSRV);
+	effects::m_TerrainFX->set_ShadowMap(shadow->get_DepthMapSRV());
 	effects::m_TerrainFX->set_Material(m_Mat);
 	ID3DX11EffectTechnique *tech = effects::m_TerrainFX->m_Light3Tech;
     D3DX11_TECHNIQUE_DESC tech_desc;
@@ -306,10 +325,8 @@ void terrain::calc_PatchBoundsY(UINT i, UINT j)
 	UINT y1 = (i+1)*m_CellsPerPatch;
 	float min_y = +FLT_MAX;
 	float max_y = -FLT_MAX;
-	for(UINT y = y0; y <= y1; ++y)
-	{
-		for(UINT x = x0; x <= x1; ++x)
-		{
+	for(UINT y = y0; y <= y1; ++y) {
+		for(UINT x = x0; x <= x1; ++x) {
 			UINT k = y*m_Info.heightmap_width + x;
 			min_y = calc_min(min_y, m_Heightmap[k]);
 			max_y = calc_max(max_y, m_Heightmap[k]);

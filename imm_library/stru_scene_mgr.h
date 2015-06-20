@@ -27,7 +27,7 @@ struct scene_mgr
 	void init_load(T_app *app_in);
 	void update_atmosphere(float dt);
 	void update_listen_thread_for_reload();
-	void draw_d3d_atmosphere();
+	void draw_d3d_atmosphere(XMMATRIX &shadow_transform);
 	void reload(const std::wstring &scene_ix_in);
 	void reload_instance();
 	void reload_skybox();
@@ -99,7 +99,7 @@ void scene_mgr<T_app>::update_atmosphere(float dt)
 }
 //
 template <typename T_app>
-void scene_mgr<T_app>::draw_d3d_atmosphere()
+void scene_mgr<T_app>::draw_d3d_atmosphere(XMMATRIX &shadow_transform)
 {
 	// Draw phy_wireframe
 	phy_wire.draw();
@@ -109,7 +109,7 @@ void scene_mgr<T_app>::draw_d3d_atmosphere()
 	app->m_D3DDC->RSSetState(0);
 	app->m_D3DDC->OMSetDepthStencilState(0, 0);
 	// Draw terrain
-	terrain1.draw(app->m_D3DDC, app->m_Cam, dir_lights);
+	terrain1.draw(app->m_D3DDC, app->m_Cam, dir_lights, app->m_Smap, shadow_transform);
 	// Draw particle systems last so it is blended with scene.
 	plasma.draw(app->m_D3DDC, app->m_Cam);
 	// Restore default states.

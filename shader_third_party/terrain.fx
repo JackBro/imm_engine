@@ -32,12 +32,14 @@ cbuffer cbPerObject
 	// Terrain coordinate specified directly 
 	// at center of world space.
 	float4x4 gViewProj;
+	float4x4 gShadowTransform;
 	Material gMaterial;
 };
 // Nonnumeric values cannot be added to a cbuffer.
 Texture2DArray gLayerMapArray;
 Texture2D gBlendMap;
 Texture2D gHeightMap;
+Texture2D gShadowMap;
 SamplerState samLinear
 {
 	Filter = MIN_MAG_MIP_LINEAR;
@@ -50,17 +52,26 @@ SamplerState samHeightmap
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 };
+SamplerComparisonState samShadow
+{
+	Filter   = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	AddressU = BORDER;
+	AddressV = BORDER;
+	AddressW = BORDER;
+	BorderColor = float4(1.0f, 1.0f, 1.0f, 0.0f);
+	ComparisonFunc = LESS_EQUAL;
+};
 struct VertexIn
 {
-	float3 PosL     : POSITION;
-	float2 Tex      : TEXCOORD0;
-	float2 BoundsY  : TEXCOORD1;
+	float3 PosL    : POSITION;
+	float2 Tex     : TEXCOORD0;
+	float2 BoundsY : TEXCOORD1;
 };
 struct VertexOut
 {
-	float3 PosW     : POSITION;
-	float2 Tex      : TEXCOORD0;
-	float2 BoundsY  : TEXCOORD1;
+	float3 PosW    : POSITION;
+	float2 Tex     : TEXCOORD0;
+	float2 BoundsY : TEXCOORD1;
 };
 VertexOut VS(VertexIn vin)
 {
@@ -71,8 +82,8 @@ VertexOut VS(VertexIn vin)
 	// the eye to patch distance calculation more accurate.
 	vout.PosW.y = gHeightMap.SampleLevel(samHeightmap, vin.Tex, 0).r;
 	// Output vertex attributes to next stage.
-	vout.Tex      = vin.Tex;
-	vout.BoundsY  = vin.BoundsY;
+	vout.Tex     = vin.Tex;
+	vout.BoundsY = vin.BoundsY;
 	return vout;
 }
 float CalcTessFactor(float3 p)
@@ -99,12 +110,10 @@ bool AabbBehindPlaneTest(float3 center, float3 extents, float4 plane)
 // Returns true if the box is completely outside the frustum.
 bool AabbOutsideFrustumTest(float3 center, float3 extents, float4 frustumPlanes[6])
 {
-	for(int i = 0; i < 6; ++i)
-	{
+	for(int i = 0; i < 6; ++i) {
 		// If the box is completely behind any of the frustum planes
 		// then it is outside the frustum.
-		if (AabbBehindPlaneTest(center, extents, frustumPlanes[i]))
-		{
+		if (AabbBehindPlaneTest(center, extents, frustumPlanes[i])) {
 			return true;
 		}
 	}
@@ -130,8 +139,7 @@ PatchTess ConstantHS(InputPatch<VertexOut, 4> patch, uint patchID : SV_Primitive
 	float3 vMax = float3(patch[1].PosW.x, maxY, patch[1].PosW.z);
 	float3 boxCenter  = 0.5f*(vMin + vMax);
 	float3 boxExtents = 0.5f*(vMax - vMin);
-	if (AabbOutsideFrustumTest(boxCenter, boxExtents, gWorldFrustumPlanes))
-	{
+	if (AabbOutsideFrustumTest(boxCenter, boxExtents, gWorldFrustumPlanes)) {
 		pt.EdgeTess[0] = 0.0f;
 		pt.EdgeTess[1] = 0.0f;
 		pt.EdgeTess[2] = 0.0f;
@@ -143,8 +151,7 @@ PatchTess ConstantHS(InputPatch<VertexOut, 4> patch, uint patchID : SV_Primitive
 	//
 	// Do normal tessellation based on distance.
 	//
-	else 
-	{
+	else  {
 		// It is important to do the tess factor calculation based on the
 		// edge properties so that edges shared by more than one patch will
 		// have the same tessellation factor.  Otherwise, gaps can appear.
@@ -165,8 +172,8 @@ PatchTess ConstantHS(InputPatch<VertexOut, 4> patch, uint patchID : SV_Primitive
 }
 struct HullOut
 {
-	float3 PosW     : POSITION;
-	float2 Tex      : TEXCOORD0;
+	float3 PosW : POSITION;
+	float2 Tex  : TEXCOORD0;
 };
 [domain("quad")]
 [partitioning("fractional_even")]
@@ -180,16 +187,17 @@ HullOut HS(InputPatch<VertexOut, 4> p,
 {
 	HullOut hout;
 	// Pass through shader.
-	hout.PosW     = p[i].PosW;
-	hout.Tex      = p[i].Tex;
+	hout.PosW = p[i].PosW;
+	hout.Tex  = p[i].Tex;
 	return hout;
 }
 struct DomainOut
 {
-	float4 PosH     : SV_POSITION;
-    float3 PosW     : POSITION;
-	float2 Tex      : TEXCOORD0;
-	float2 TiledTex : TEXCOORD1;
+	float4 PosH       : SV_POSITION;
+    float3 PosW       : POSITION;
+	float2 Tex        : TEXCOORD0;
+	float2 TiledTex   : TEXCOORD1;
+	float4 ShadowPosH : TEXCOORD2;
 };
 // The domain shader is called for every vertex created by the tessellator.  
 // It is like the vertex shader after tessellation.
@@ -217,7 +225,9 @@ DomainOut DS(PatchTess patchTess,
 	// noticable light shimmering artifacts as the normal changes.  Therefore,
 	// we moved the calculation to the pixel shader.  
 	// Project to homogeneous clip space.
-	dout.PosH    = mul(float4(dout.PosW, 1.0f), gViewProj);
+	dout.PosH = mul(float4(dout.PosW, 1.0f), gViewProj);
+	// Generate projective tex-coords to project shadow map onto scene.
+	dout.ShadowPosH = mul(float4(dout.PosW, 1.0f), gShadowTransform);
 	return dout;
 }
 float4 PS(DomainOut pin, 
@@ -265,30 +275,29 @@ float4 PS(DomainOut pin,
 	// Lighting.
 	//
 	float4 litColor = texColor;
-	if (gLightCount > 0 )
-	{  
+	if (gLightCount > 0) {
 		// Start with a sum of zero. 
 		float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 		float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 		float4 spec    = float4(0.0f, 0.0f, 0.0f, 0.0f);
-		// Sum the light contribution from each light source.  
+		// Only the first light casts a shadow.
+		float3 shadow = float3(1.0f, 1.0f, 1.0f);
+		shadow[0] = CalcShadowFactor(samShadow, gShadowMap, pin.ShadowPosH);
+		// Sum the light contribution from each light source.
 		[unroll]
-		for(int i = 0; i < gLightCount; ++i)
-		{
+		for(int i = 0; i < gLightCount; ++i) {
 			float4 A, D, S;
-			ComputeDirectionalLight(gMaterial, gDirLights[i], normalW, toEye, 
-				A, D, S);
+			ComputeDirectionalLight(gMaterial, gDirLights[i], normalW, toEye, A, D, S);
 			ambient += A;
-			diffuse += D;
-			spec    += S;
+			diffuse += shadow[i]*D;
+			spec    += shadow[i]*S;
 		}
 		litColor = texColor*(ambient + diffuse) + spec;
 	}
 	//
 	// Fogging
 	//
-	if (gFogEnabled)
-	{
+	if (gFogEnabled) {
 		float fogLerp = saturate((distToEye - gFogStart) / gFogRange); 
 		// Blend the fog color and the lit color.
 		litColor = lerp(litColor, gFogColor, fogLerp);
@@ -297,8 +306,7 @@ float4 PS(DomainOut pin,
 }
 technique11 Light1
 {
-    pass P0
-    {
+    pass P0 {
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
         SetDomainShader(CompileShader(ds_5_0, DS()));
@@ -308,8 +316,7 @@ technique11 Light1
 }
 technique11 Light2
 {
-    pass P0
-    {
+    pass P0 {
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
         SetDomainShader(CompileShader(ds_5_0, DS()));
@@ -319,8 +326,7 @@ technique11 Light2
 }
 technique11 Light3
 {
-    pass P0
-    {
+    pass P0 {
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
         SetDomainShader(CompileShader(ds_5_0, DS()));
@@ -330,8 +336,7 @@ technique11 Light3
 }
 technique11 Light1Fog
 {
-    pass P0
-    {
+    pass P0 {
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
         SetDomainShader(CompileShader(ds_5_0, DS()));
@@ -341,8 +346,7 @@ technique11 Light1Fog
 }
 technique11 Light2Fog
 {
-    pass P0
-    {
+    pass P0 {
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
         SetDomainShader(CompileShader(ds_5_0, DS()));
@@ -352,8 +356,7 @@ technique11 Light2Fog
 }
 technique11 Light3Fog
 {
-    pass P0
-    {
+    pass P0 {
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
         SetDomainShader(CompileShader(ds_5_0, DS()));

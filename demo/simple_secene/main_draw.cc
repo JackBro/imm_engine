@@ -215,7 +215,7 @@ void imm_app::draw_scene_d3d()
 		to_tex_space
 	);
 	// Draw the others
-	m_Scene.draw_d3d_atmosphere();
+	m_Scene.draw_d3d_atmosphere(shadow_transform);
 	m_UiMgr.draw_d3d();
 	// Unbind shadow map and AmbientMap as a shader input because we are going to render
 	// To it next frame.  These textures can be at any slot, so clear all slots.
