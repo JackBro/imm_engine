@@ -138,6 +138,7 @@ void imm_app::on_resize()
 	m_UiMgr.on_resize();
 	base_win<imm_app>::on_resize();
 	m_Cam.set_Lens(0.25f*XM_PI, aspect_ratio(), 1.0f, 1000.0f);
+	m_Inst.on_resize();
 }
 //
 void imm_app::update_scene(float dt)

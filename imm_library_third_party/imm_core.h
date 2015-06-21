@@ -55,15 +55,16 @@ using namespace DirectX;
 // static
 ////////////////
 ////////////////
-static std::map<std::string, std::string> GLOBAL {
-	{"path_fx", "ass_shader\\"},
-	{"path_mod", "ass_model\\"},
-	{"path_tex", "ass_texture\\"},
-	{"path_med", "ass_media\\"},
-	{"path_lua", "script\\"},
-	{"path_out", "misc\\output\\"},
-	{"path_inp", "misc\\input\\"},
-	{"path_txt", "script\\text_en\\"},
+static std::map<std::string, std::string> IMM_PATH
+{
+	{"shader", "ass_shader\\"},
+	{"model", "ass_model\\"},
+	{"texture", "ass_texture\\"},
+	{"media", "ass_media\\"},
+	{"script", "script\\"},
+	{"output", "misc\\output\\"},
+	{"input", "misc\\input\\"},
+	{"text", "script\\text_en\\"},
 };
 // for calclate UI size with factor
 static const float REF_RESOLUTION_WIDTH = 1366.0f;

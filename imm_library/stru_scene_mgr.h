@@ -148,7 +148,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	get_misc["ui_group"] = "";
 	get_misc["terrain_info"] = "";
 	lua_reader l_reader;
-	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix+"\\describe_instance.lua";
+	std::string describe = IMM_PATH["script"]+"scene"+scene_ix+"\\describe_instance.lua";
 	l_reader.loadfile(describe);
 	l_reader.map_from_string(get_misc);
 	reload_instance();
@@ -175,7 +175,7 @@ void scene_mgr<T_app>::reload_skybox()
 		skybox = new sky();
 	}
 	else {
-		std::wstring path_tex(str_to_wstr(GLOBAL["path_tex"]));
+		std::wstring path_tex(str_to_wstr(IMM_PATH["texture"]));
 		path_tex += L"skybox\\";
 		path_tex += str_to_wstr(get_misc["skybox_dds"]);
 		skybox = new sky(app->m_D3DDevice, path_tex, 5000.0f);
@@ -192,7 +192,7 @@ void scene_mgr<T_app>::reload_terrain(lua_reader &l_reader)
 	assert(tii_map.size() > 10);
 	auto it = tii_map.begin();
 	terrain::init_info tii;
-	std::wstring path_tex(str_to_wstr(GLOBAL["path_tex"]));
+	std::wstring path_tex(str_to_wstr(IMM_PATH["texture"]));
 	path_tex += L"terrain\\";
 	tii.height_map_filename = path_tex+str_to_wstr(it++->second);
 	tii.layer_map_filename0 = path_tex+str_to_wstr(it++->second);

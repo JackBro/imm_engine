@@ -250,7 +250,7 @@ void effects::destroy_all()
 //
 void effects::init_all(ID3D11Device *device)
 {
-	std::wstring path(str_to_wstr(GLOBAL["path_fx"]));
+	std::wstring path(str_to_wstr(IMM_PATH["shader"]));
 	m_BasicFX = new basic_effect(device, path+L"basic.fxo");
 	m_NormalMapFX = new normal_map_effect(device, path+L"normal_map.fxo");
 	m_BuildShadowMapFX = new build_shadow_map_effect(device, path+L"build_shadow_map.fxo");

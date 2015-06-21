@@ -175,8 +175,8 @@ void cmd_shell<T_app>::apply()
 			return;
 		}
 		if (cmd_get == L"util b3m") {
-			std::wstring path_lua(GLOBAL["path_lua"].begin(), GLOBAL["path_lua"].end());
-			std::wstring path_out(GLOBAL["path_out"].begin(), GLOBAL["path_out"].end());
+			std::wstring path_lua(str_to_wstr(IMM_PATH["script"]));
+			std::wstring path_out(str_to_wstr(IMM_PATH["output"]));
 			
 			input += L"\n> #####################################################################";
 			input += L"\n> ## util b3m manual";
@@ -219,7 +219,7 @@ void cmd_shell<T_app>::apply()
 			return;
 		}
 		std::wstring scene_ix = cmd_get.substr(7);
-		std::string describe = GLOBAL["path_lua"]+"scene"+wstr_to_str(scene_ix)+"\\describe_instance.lua";
+		std::string describe = IMM_PATH["script"]+"scene"+wstr_to_str(scene_ix)+"\\describe_instance.lua";
 		if (data_is_file_exist(describe)) {
 			app->m_Scene.reload(scene_ix);
 			is_slient = false;

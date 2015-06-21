@@ -93,7 +93,7 @@ void phy_attack_arrange<T_app>::init_load(T_app *app_in)
 template <typename T_app>
 void phy_attack_arrange<T_app>::read_lua()
 {
-	std::string describe = GLOBAL["path_lua"]+"describe_common.lua";
+	std::string describe = IMM_PATH["script"]+"describe_common.lua";
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	std::vector<std::vector<std::string>> vec2d;

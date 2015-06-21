@@ -47,7 +47,7 @@ state_plasma::~state_plasma()
 void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 {
 	// Flame
-	std::string describe = GLOBAL["path_lua"]+"scene_common\\state_plasma.lua";
+	std::string describe = IMM_PATH["script"]+"scene_common\\state_plasma.lua";
 	std::map<std::string, std::string> get_dds;
 	get_dds["plasma_flame_dds"] = "";
 	lua_reader l_reader;
@@ -57,7 +57,7 @@ void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 		is_active = false;
 		return;
 	}
-	std::wstring path_tex = str_to_wstr(GLOBAL["path_tex"]);
+	std::wstring path_tex = str_to_wstr(IMM_PATH["texture"]);
 	random_tex_srv = create_RandomTexture1DSRV(device);
 	std::vector<std::wstring> flares;
 	flares.push_back(path_tex+str_to_wstr(get_dds["plasma_flame_dds"]));

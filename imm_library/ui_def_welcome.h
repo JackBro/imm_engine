@@ -324,7 +324,7 @@ template <typename T_app>
 void ui_def_welcome<T_app>::define_text()
 {
 	std::map<std::string, std::string> get_welcome;
-	std::string describe = GLOBAL["path_txt"]+"welcome.lua";
+	std::string describe = IMM_PATH["text"]+"welcome.lua";
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	std::string var_name = "welcome";

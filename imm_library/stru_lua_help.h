@@ -292,7 +292,7 @@ lua_config<T_app>::lua_config(T_app *app_in)
 	g_map["is_4xmsaa"] = "";
 	g_map["is_sync_iterval"] = "";
 	lua_reader l_reader;
-	l_reader.loadfile(GLOBAL["path_lua"]+"imm_config.lua");
+	l_reader.loadfile(IMM_PATH["script"]+"imm_config.lua");
 	l_reader.map_from_string(g_map);
 	l_reader.assign_bool(m_App->m_FullScreen, g_map["is_fullscreen"]);
 	l_reader.assign_bool(m_App->m_Enable4xMsaa, g_map["is_4xmsaa"]);
@@ -304,7 +304,7 @@ void lua_config<T_app>::init_additional()
 	std::map<std::string, std::string> g_map;
 	g_map["is_slient"] = "";
 	lua_reader l_reader;
-	l_reader.loadfile(GLOBAL["path_lua"]+"imm_config.lua");
+	l_reader.loadfile(IMM_PATH["script"]+"imm_config.lua");
 	l_reader.map_from_string(g_map);
 	l_reader.assign_bool(m_App->m_Cmd.is_slient, g_map["is_slient"]);
 }

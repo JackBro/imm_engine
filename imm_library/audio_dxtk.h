@@ -53,12 +53,12 @@ audio_dxtk::audio_dxtk():
 //
 void audio_dxtk::init_load()
 {
-	std::string describe = GLOBAL["path_lua"]+"describe_common.lua";
+	std::string describe = IMM_PATH["script"]+"describe_common.lua";
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	std::vector<std::vector<std::string>> vec2d_audio_bgm;
 	l_reader.vec2d_str_from_table("csv_audio_bgm", vec2d_audio_bgm);
-	std::wstring path_med(GLOBAL["path_med"].begin(), GLOBAL["path_med"].end());
+	std::wstring path_med(str_to_wstr(IMM_PATH["media"]));
 	for (size_t ix = 1; ix < vec2d_audio_bgm.size(); ++ix) {
 		map_bgm[vec2d_audio_bgm[ix][0]] = path_med+str_to_wstr(vec2d_audio_bgm[ix][1]);
 	}

@@ -99,7 +99,7 @@ void sprite_simple::init(ID3D11Device *device, ID3D11DeviceContext *device_conte
 }
 void sprite_simple::build_buffer(const std::map<std::string, std::string> &get_dds)
 {
-	std::wstring tex_path = str_to_wstr(GLOBAL["path_tex"]);
+	std::wstring tex_path = str_to_wstr(IMM_PATH["texture"]);
 	for (auto it = get_dds.begin(); it != get_dds.end(); ++it) {
 		if (it->second == "") return;
 		std::wstring tex_path_dds = tex_path + str_to_wstr(it->second);

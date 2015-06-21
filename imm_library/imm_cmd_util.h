@@ -103,11 +103,11 @@ void misc_util_b3m(ID3D11Device *d3d_device, T_wstring &input_str, std::atomic<b
 	texture_mgr tex_mgr;
 	tex_mgr.init(d3d_device);
 	lua_reader l_reader;
-	l_reader.loadfile(GLOBAL["path_lua"]+"cmd_util_b3m.lua");
+	l_reader.loadfile(IMM_PATH["script"]+"cmd_util_b3m.lua");
 	bin_m3d model_bin;
 	std::vector<std::vector<std::string>> model_m3d;
 	l_reader.vec2d_str_from_table("csv_model_input", model_m3d);
-	std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
+	std::wstring path_tex(str_to_wstr(IMM_PATH["texture"]));
 	auto it = model_m3d.begin()+1;
 	while (it != model_m3d.end()) {
 		basic_model model_bas;
@@ -115,12 +115,12 @@ void misc_util_b3m(ID3D11Device *d3d_device, T_wstring &input_str, std::atomic<b
 		bool is_skinned = false;
 		l_reader.assign_bool(is_skinned, (*it)[2]);
 		if (is_skinned) {
-			model_ski.set(d3d_device, tex_mgr, GLOBAL["path_inp"]+(*it)[1], path_tex);
-			model_bin.write_to_bin(model_ski, GLOBAL["path_out"]+(*it)[0]+".b3m");
+			model_ski.set(d3d_device, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
+			model_bin.write_to_bin(model_ski, IMM_PATH["output"]+(*it)[0]+".b3m");
 		}
 		else {
-			model_bas.set(d3d_device, tex_mgr, GLOBAL["path_inp"]+(*it)[1], path_tex);
-			model_bin.write_to_bin(model_bas, GLOBAL["path_out"]+(*it)[0]+".b3m");
+			model_bas.set(d3d_device, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
+			model_bin.write_to_bin(model_bas, IMM_PATH["output"]+(*it)[0]+".b3m");
 		}
 		std::wstring temp((*it)[1].begin(), (*it)[1].end());
 		input_str += L"\n> ";

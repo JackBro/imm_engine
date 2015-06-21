@@ -78,7 +78,7 @@ void phy_position_update(
 	if (abs(prop.velocity.x) > 1000.0f ||
 		abs(prop.velocity.y) > 1000.0f ||
 		abs(prop.velocity.z) > 1000.0f) {
-		prop.is_abnormal = true;		
+		prop.is_abnormal = true;
 	}
 	return;
 }

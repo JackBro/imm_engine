@@ -173,7 +173,7 @@ void model_mgr::init(ID3D11Device *device)
 bool model_mgr::load(ID3D11Device *device, const std::string& scene_ix)
 {
 	init(device);
-	std::string describe = GLOBAL["path_lua"]+"scene"+scene_ix+"\\describe_instance.lua";
+	std::string describe = IMM_PATH["script"]+"scene"+scene_ix+"\\describe_instance.lua";
 	if (!data_is_file_exist(describe)) return false;
 	remove_all();
 	lua_reader l_reader;
@@ -198,7 +198,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 	std::vector<geometry::mesh_data> geo_mesh;
 	geometry geo_gen;
 	m_PNTT["default"];
-	std::wstring path_tex(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end());
+	std::wstring path_tex(str_to_wstr(IMM_PATH["texture"]));
 	for (size_t ix = 1; ix < vec2d_model.size(); ++ix) {
 		std::string model_name = vec2d_model[ix][0];
 		model_index[model_name] = static_cast<UINT>(ix-1);
@@ -281,8 +281,8 @@ void model_mgr::skinned_init(ID3D11Device *device, lua_reader &l_reader)
 		l_reader,
 		m_TexMgr,
 		"csv_model_skinned",
-		GLOBAL["path_mod"],
-		std::wstring(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end()),
+		IMM_PATH["model"],
+		str_to_wstr(IMM_PATH["texture"]),
 		model_alpha);
 	// build instance
 	l_reader.vec2d_str_from_table("csv_instance_skinned", vec2d_instance);
@@ -332,8 +332,8 @@ void model_mgr::basic_init(ID3D11Device *device, lua_reader &l_reader)
 		l_reader,
 		m_TexMgr,
 		"csv_model_basic",
-		GLOBAL["path_mod"],
-		std::wstring(GLOBAL["path_tex"].begin(), GLOBAL["path_tex"].end()),
+		IMM_PATH["model"],
+		str_to_wstr(IMM_PATH["texture"]),
 		model_alpha);
 	// build instance
 	l_reader.vec2d_str_from_table("csv_instance_basic", vec2d_instance);

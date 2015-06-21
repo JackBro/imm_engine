@@ -32,17 +32,22 @@ struct instance_mgr
 		const get_pos &get_pos_f,
 		std::vector<std::string> &name);
 	int get_index(const std::string &name);
+	void on_resize();
+	void update(const float &dt);
 	void bound_update();
 	void collision_update(float dt_every);
 	void collision_update_plane(float dt_every);
 	void collision_update_terrain(float dt_every);
 	void collision_update_impulse(float dt_every);
 	void update_skinned(const float &dt);
+	void update_frustum_culling();
 	void remove_all();
 	model_mgr m_Model;
 	// Bounding only use BoundingBox for lazy develop
 	phy_bound_mgr m_BoundL;
-	phy_bound_mgr m_BoundW;	
+	phy_bound_mgr m_BoundW;
+	BoundingFrustum m_CamFrustumL;
+	BoundingFrustum m_CamFrustumW;
 	std::vector<instance_stat> m_Stat;
 	std::map<std::string, std::size_t> m_NameMap;
 	bool m_IsLoading;
@@ -109,6 +114,7 @@ void instance_mgr<T_app>::reload()
 		[](const pos_normal_tex_tan &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
 	reload_scene_instance_relate();
+	on_resize();
 	m_IsLoading = false;
 	load_done = L"> Scene "+load_done+L" load done\n";
 	m_App->m_Cmd.input.assign(load_done);
@@ -180,6 +186,23 @@ int instance_mgr<T_app>::get_index(const std::string &name)
 {
 	if (!m_NameMap.count(name)) return -1;
 	return static_cast<int>(m_NameMap[name]);
+}
+//
+template <typename T_app>
+void instance_mgr<T_app>::on_resize()
+{
+	if (m_App == nullptr) return;
+	XMMATRIX proj = m_App->m_Cam.get_Proj();
+	BoundingFrustum::CreateFromMatrix(m_CamFrustumL, proj);
+}
+//
+template <typename T_app>
+void instance_mgr<T_app>::update(const float &dt)
+{
+	update_skinned(dt);
+	bound_update();
+	collision_update(dt);
+	update_frustum_culling();
 }
 //
 template <typename T_app>
@@ -276,6 +299,22 @@ void instance_mgr<T_app>::update_skinned(const float &dt)
 	// should be multithread?
 	for (auto &skinned: m_Model.m_InstSkinned) skinned.update(dt);
 	for (auto &skinned: m_Model.m_InstSkinnedAlpha) skinned.update(dt);
+}
+//
+template <typename T_app>
+void instance_mgr<T_app>::update_frustum_culling()
+{
+	XMVECTOR det_view = XMMatrixDeterminant(m_App->m_Cam.get_View());
+	XMMATRIX inv_view = XMMatrixInverse(&det_view, m_App->m_Cam.get_View());
+	m_CamFrustumL.Transform(m_CamFrustumW, inv_view);
+	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
+		if (m_CamFrustumW.Intersects(m_BoundW.b1[m_BoundW.map[ix].second])) {
+			m_Stat[ix].set_IsAppear(true);
+		}
+		else {
+			m_Stat[ix].set_IsAppear(false);
+		}
+	}
 }
 //
 template <typename T_app>

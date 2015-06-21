@@ -304,26 +304,6 @@ float4 PS(DomainOut pin,
 	}
     return litColor;
 }
-technique11 Light1
-{
-    pass P0 {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS(1, false)));
-    }
-}
-technique11 Light2
-{
-    pass P0 {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS(2, false)));
-    }
-}
 technique11 Light3
 {
     pass P0 {
@@ -332,35 +312,5 @@ technique11 Light3
         SetDomainShader(CompileShader(ds_5_0, DS()));
 		SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS(3, false)));
-    }
-}
-technique11 Light1Fog
-{
-    pass P0 {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS(1, true)));
-    }
-}
-technique11 Light2Fog
-{
-    pass P0 {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS(2, true)));
-    }
-}
-technique11 Light3Fog
-{
-    pass P0 {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS(3, true)));
     }
 }

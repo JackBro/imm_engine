@@ -61,7 +61,6 @@ public:
 	void set_ShadowMap(ID3D11ShaderResourceView* tex)		{m_ShadowMap->SetResource(tex);}
 	ID3DX11EffectTechnique *m_Light3Tech;
 	ID3DX11EffectMatrixVariable *m_ViewProj;
-	ID3DX11EffectMatrixVariable *m_World;
 	ID3DX11EffectMatrixVariable *m_ShadowTransform;
 	ID3DX11EffectVectorVariable *m_EyePosW;
 	ID3DX11EffectVariable *m_DirLights;

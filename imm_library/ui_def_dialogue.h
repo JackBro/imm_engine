@@ -147,7 +147,7 @@ void ui_def_dialogue<T_app>::define_sprite_build_buffer()
 {
 	std::map<std::string, std::string> get_dds;
 	get_dds["abelia"] = "";
-	std::string describe = GLOBAL["path_lua"]+"scene_common\\ui_def_dialogue.lua";
+	std::string describe = IMM_PATH["script"]+"scene_common\\ui_def_dialogue.lua";
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	l_reader.map_from_string(get_dds);
@@ -176,7 +176,7 @@ template <typename T_app>
 void ui_def_dialogue<T_app>::rebuild_text()
 {
 	std::map<std::string, std::string> get_scene;
-	std::string describe = GLOBAL["path_txt"]+"dialogue_index.lua";
+	std::string describe = IMM_PATH["text"]+"dialogue_index.lua";
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	std::string scene_ix = "scene"+m_App->m_Scene.scene_ix;
@@ -185,7 +185,7 @@ void ui_def_dialogue<T_app>::rebuild_text()
 	m_TxtChunk.remove_all();
 	l_reader.map_from_table(get_scene, scene_ix);
 	for (auto it = get_scene.begin(); it != get_scene.end(); ++it) {
-		describe = GLOBAL["path_txt"]+it->second;
+		describe = IMM_PATH["text"]+it->second;
 		l_reader.loadfile(describe);
 		std::map<std::string, std::string> get_chunk_info;
 		l_reader.map_from_table(get_chunk_info, "chunk");
