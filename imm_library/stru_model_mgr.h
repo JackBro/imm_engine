@@ -49,7 +49,7 @@ instance_stat::instance_stat():
 	phy(),
 	type(basic)
 {
-	;	
+	;
 }
 //
 XMFLOAT4X4 *instance_stat::get_World()

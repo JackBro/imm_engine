@@ -68,7 +68,7 @@ void imm_app::draw_scene_d3d_shadow()
 		m_Inst.m_Model.m_InstPNTT,
 		view_proj
 	);
-	// Draw basic 
+	// Draw basic
 	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan2);
 	draw_inst_basic_shadow(
 		m_D3DDC,

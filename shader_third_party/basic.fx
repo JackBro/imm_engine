@@ -35,7 +35,7 @@ SamplerState samLinear
 };
 SamplerComparisonState samShadow
 {
-	Filter	 = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	Filter   = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 	AddressU = BORDER;
 	AddressV = BORDER;
 	AddressW = BORDER;
@@ -46,21 +46,21 @@ struct VertexIn
 {
 	float3 PosL    : POSITION;
 	float3 NormalL : NORMAL;
-	float2 Tex	   : TEXCOORD;
+	float2 Tex     : TEXCOORD;
 };
 struct VertexOut
 {
-	float4 PosH 	  : SV_POSITION;
-	float3 PosW 	  : POSITION;
-	float3 NormalW	  : NORMAL;
-	float2 Tex		  : TEXCOORD0;
+	float4 PosH       : SV_POSITION;
+	float3 PosW       : POSITION;
+	float3 NormalW    : NORMAL;
+	float2 Tex        : TEXCOORD0;
 	float4 ShadowPosH : TEXCOORD1;
 };
 VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
 	// Transform to world space space.
-	vout.PosW	 = mul(float4(vin.PosL, 1.0f), gWorld).xyz;
+	vout.PosW    = mul(float4(vin.PosL, 1.0f), gWorld).xyz;
 	vout.NormalW = mul(vin.NormalL, (float3x3)gWorldInvTranspose);
 	// Transform to homogeneous clip space.
 	vout.PosH = mul(float4(vin.PosL, 1.0f), gWorldViewProj);
@@ -116,13 +116,13 @@ float4 PS(VertexOut pin,
 			ComputeDirectionalLight(gMaterial, gDirLights[i], pin.NormalW, toEye, A, D, S);
 			ambient += A;
 			diffuse += shadow[i]*D;
-			spec	+= shadow[i]*S;
+			spec    += shadow[i]*S;
 		}
 		litColor = texColor*(ambient + diffuse) + spec;
 		if (gReflectionEnabled) {
 			float3 incident = -toEye;
 			float3 reflectionVector = reflect(incident, pin.NormalW);
-			float4 reflectionColor	= gCubeMap.Sample(samLinear, reflectionVector);
+			float4 reflectionColor  = gCubeMap.Sample(samLinear, reflectionVector);
 			litColor += gMaterial.Reflect*reflectionColor;
 		}
 	}

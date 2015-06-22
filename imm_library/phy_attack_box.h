@@ -80,7 +80,7 @@ void phy_attack_arrange<T_app>::remove_all()
 	bbox_l.clear();
 	bbox_w.clear();
 	bbox_l.shrink_to_fit();
-	bbox_w.shrink_to_fit();	
+	bbox_w.shrink_to_fit();
 }
 //
 template <typename T_app>

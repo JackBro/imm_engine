@@ -49,7 +49,7 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Brush["red"];
 	set_Brush(D2D1::ColorF::Red, 0.5f, "red");
 	////////////////
-	// 
+	//
 	////////////////
 	////////////////
 	m_Rect.emplace_back(ui_rect());

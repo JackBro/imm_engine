@@ -112,7 +112,7 @@ void basic_model::set(
 std::pair<size_t, size_t> basic_model::get_VertexRange(UINT sub_id){
 	std::pair<size_t, size_t> range(
 		m_Subsets[sub_id].vertex_start, m_Subsets[sub_id].vertex_start+m_Subsets[sub_id].vertex_count);
-	return range;	
+	return range;
 }
 ////////////////
 // skinned_model
@@ -259,7 +259,7 @@ struct simple_model_instance
 	simple_model_instance();
 	simple_model<vertex_type> *model;
 	XMFLOAT4X4 world;
-	XMFLOAT4X4 rot_front;	
+	XMFLOAT4X4 rot_front;
 	XMFLOAT4X4 tex_transform;
 	std::string model_name;
 	UINT subid;

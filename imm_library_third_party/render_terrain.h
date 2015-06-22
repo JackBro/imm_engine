@@ -23,7 +23,7 @@ namespace imm
 class terrain
 {
 public:
-	struct init_info 
+	struct init_info
 	{
 		std::wstring height_map_filename;
 		std::wstring layer_map_filename0;
@@ -96,11 +96,11 @@ terrain::~terrain()
 	ReleaseCOM(m_HeightMapSRV);
 }
 //
-terrain::terrain(): 
-	m_QuadPatchVB(nullptr), 
-	m_QuadPatchIB(nullptr), 
-	m_LayerMapArraySRV(nullptr), 
-	m_BlendMapSRV(nullptr), 
+terrain::terrain():
+	m_QuadPatchVB(nullptr),
+	m_QuadPatchIB(nullptr),
+	m_LayerMapArraySRV(nullptr),
+	m_BlendMapSRV(nullptr),
 	m_HeightMapSRV(nullptr),
 	m_NumPatchVertices(0),
 	m_NumPatchQuadFaces(0),
@@ -108,10 +108,10 @@ terrain::terrain():
 	m_NumPatchVertCols(0)
 {
 	XMStoreFloat4x4(&m_World, XMMatrixIdentity());
-	m_Mat.ambient	= XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Mat.diffuse	= XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Mat.specular	= XMFLOAT4(0.0f, 0.0f, 0.0f, 64.0f);
-	m_Mat.reflect	= XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	m_Mat.ambient   = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Mat.diffuse   = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Mat.specular  = XMFLOAT4(0.0f, 0.0f, 0.0f, 64.0f);
+	m_Mat.reflect   = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 }
 //
 float terrain::get_Width() const {return (m_Info.heightmap_width-1)*m_Info.cell_spacing;}
@@ -196,8 +196,8 @@ void terrain::draw(
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	dc->IASetInputLayout(input_layouts::m_Terrain);
 	UINT stride = sizeof(vertex_terrain);
-    UINT offset = 0;
-    dc->IASetVertexBuffers(0, 1, &m_QuadPatchVB, &stride, &offset);
+	UINT offset = 0;
+	dc->IASetVertexBuffers(0, 1, &m_QuadPatchVB, &stride, &offset);
 	dc->IASetIndexBuffer(m_QuadPatchIB, DXGI_FORMAT_R16_UINT, 0);
 	XMMATRIX view_proj = cam1.get_ViewProj();
 	XMMATRIX world  = XMLoadFloat4x4(&m_World);
@@ -222,13 +222,13 @@ void terrain::draw(
 	effects::m_TerrainFX->set_ShadowMap(shadow->get_DepthMapSRV());
 	effects::m_TerrainFX->set_Material(m_Mat);
 	ID3DX11EffectTechnique *tech = effects::m_TerrainFX->m_Light3Tech;
-    D3DX11_TECHNIQUE_DESC tech_desc;
-    tech->GetDesc(&tech_desc);
-    for(UINT i = 0; i < tech_desc.Passes; ++i) {
-        ID3DX11EffectPass *pass = tech->GetPassByIndex(i);
+	D3DX11_TECHNIQUE_DESC tech_desc;
+	tech->GetDesc(&tech_desc);
+	for(UINT i = 0; i < tech_desc.Passes; ++i) {
+		ID3DX11EffectPass *pass = tech->GetPassByIndex(i);
 		pass->Apply(0, dc);
 		dc->DrawIndexed(m_NumPatchQuadFaces*4, 0, 0);
-	}	
+	}
 	// FX sets tessellation stages, but it does not disable them.  So do that here
 	// to turn off tessellation.
 	dc->HSSetShader(0, 0, 0);
@@ -362,16 +362,16 @@ void terrain::build_QuadPatchVB(ID3D11Device *device)
 			patch_vertices[i*m_NumPatchVertCols+j].bounds_y = m_PatchBoundsY[patch_id];
 		}
 	}
-    D3D11_BUFFER_DESC vbd;
-    vbd.Usage				= D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth			= static_cast<UINT>(sizeof(vertex_terrain) * patch_vertices.size());
-    vbd.BindFlags			= D3D11_BIND_VERTEX_BUFFER;
-    vbd.CPUAccessFlags		= 0;
-    vbd.MiscFlags			= 0;
-	vbd.StructureByteStride	= 0;
+	D3D11_BUFFER_DESC vbd;
+	vbd.Usage               = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth           = static_cast<UINT>(sizeof(vertex_terrain) * patch_vertices.size());
+	vbd.BindFlags           = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags      = 0;
+	vbd.MiscFlags           = 0;
+	vbd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA vinit_data;
-    vinit_data.pSysMem = &patch_vertices[0];
-    HR(device->CreateBuffer(&vbd, &vinit_data, &m_QuadPatchVB));
+	vinit_data.pSysMem = &patch_vertices[0];
+	HR(device->CreateBuffer(&vbd, &vinit_data, &m_QuadPatchVB));
 }
 //
 void terrain::build_QuadPatchIB(ID3D11Device *device)
@@ -391,45 +391,45 @@ void terrain::build_QuadPatchIB(ID3D11Device *device)
 		}
 	}
 	D3D11_BUFFER_DESC ibd;
-    ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth			= static_cast<UINT>(sizeof(USHORT) * indices.size());
-    ibd.BindFlags			= D3D11_BIND_INDEX_BUFFER;
-    ibd.CPUAccessFlags		= 0;
-    ibd.MiscFlags			= 0;
-	ibd.StructureByteStride	= 0;
-    D3D11_SUBRESOURCE_DATA iinit_data;
-    iinit_data.pSysMem = &indices[0];
-    HR(device->CreateBuffer(&ibd, &iinit_data, &m_QuadPatchIB));
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth           = static_cast<UINT>(sizeof(USHORT) * indices.size());
+	ibd.BindFlags           = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags      = 0;
+	ibd.MiscFlags           = 0;
+	ibd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA iinit_data;
+	iinit_data.pSysMem = &indices[0];
+	HR(device->CreateBuffer(&ibd, &iinit_data, &m_QuadPatchIB));
 }
 //
 void terrain::build_HeightmapSRV(ID3D11Device *device)
 {
 	D3D11_TEXTURE2D_DESC tex_desc;
-	tex_desc.Width				= m_Info.heightmap_width;
-	tex_desc.Height				= m_Info.heightmap_height;
-    tex_desc.MipLevels			= 1;
-	tex_desc.ArraySize			= 1;
-	tex_desc.Format				= DXGI_FORMAT_R16_FLOAT;
-	tex_desc.SampleDesc.Count	= 1;
-	tex_desc.SampleDesc.Quality	= 0;
-	tex_desc.Usage				= D3D11_USAGE_DEFAULT;
-	tex_desc.BindFlags			= D3D11_BIND_SHADER_RESOURCE;
-	tex_desc.CPUAccessFlags		= 0;
-	tex_desc.MiscFlags			= 0;
+	tex_desc.Width              = m_Info.heightmap_width;
+	tex_desc.Height             = m_Info.heightmap_height;
+	tex_desc.MipLevels          = 1;
+	tex_desc.ArraySize          = 1;
+	tex_desc.Format             = DXGI_FORMAT_R16_FLOAT;
+	tex_desc.SampleDesc.Count   = 1;
+	tex_desc.SampleDesc.Quality = 0;
+	tex_desc.Usage              = D3D11_USAGE_DEFAULT;
+	tex_desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE;
+	tex_desc.CPUAccessFlags     = 0;
+	tex_desc.MiscFlags          = 0;
 	// HALF is defined in xnamath.h, for storing 16-bit float.
 	std::vector<HALF> hmap(m_Heightmap.size());
 	std::transform(m_Heightmap.begin(), m_Heightmap.end(), hmap.begin(), XMConvertFloatToHalf);
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem			= &hmap[0];
-    data.SysMemPitch		= m_Info.heightmap_width*sizeof(HALF);
-    data.SysMemSlicePitch	= 0;
+	data.pSysMem            = &hmap[0];
+	data.SysMemPitch        = m_Info.heightmap_width*sizeof(HALF);
+	data.SysMemSlicePitch   = 0;
 	ID3D11Texture2D *hmap_tex = 0;
 	HR(device->CreateTexture2D(&tex_desc, &data, &hmap_tex));
 	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
-	srv_desc.Format						= tex_desc.Format;
-	srv_desc.ViewDimension				= D3D11_SRV_DIMENSION_TEXTURE2D;
-	srv_desc.Texture2D.MostDetailedMip	= 0;
-	srv_desc.Texture2D.MipLevels		= static_cast<UINT>(-1);
+	srv_desc.Format                     = tex_desc.Format;
+	srv_desc.ViewDimension              = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srv_desc.Texture2D.MostDetailedMip  = 0;
+	srv_desc.Texture2D.MipLevels        = static_cast<UINT>(-1);
 	HR(device->CreateShaderResourceView(hmap_tex, &srv_desc, &m_HeightMapSRV));
 	// SRV saves reference.
 	ReleaseCOM(hmap_tex);

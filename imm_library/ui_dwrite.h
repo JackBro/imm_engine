@@ -141,7 +141,7 @@ void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
 		case DWRITE_ALIG_STYLE_PAGE:
 			HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
 			HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
-			return;		
+			return;
 	}
 	assert(false);
 }
@@ -176,7 +176,7 @@ void dwrite_simple::init_without_rect(
 	HR(DWriteCreateFactory(
 		DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&m_WriteFactory)));
 	on_resize_CreateTextFormat(hwnd);
-	//	
+	//
 	HR(d2d_dc->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_Brush));
 }
 //

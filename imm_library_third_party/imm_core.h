@@ -36,7 +36,7 @@ using namespace DirectX;
 ////////////////
 ////////////////
 #if defined(DEBUG) | defined(_DEBUG)
-	#ifndef HR 
+	#ifndef HR
 	#define HR(x) {HRESULT hr = (x); if (FAILED(hr))\
 		{std::string hrs(std::to_string(hr)); MessageBoxA(0, hrs.c_str(), "HRESULT", MB_OK); assert(false); abort();}}
 	#endif
@@ -135,7 +135,7 @@ void timer::start()
 	__int64 start_time;
 	QueryPerformanceCounter((LARGE_INTEGER*)&start_time);
 	if (m_Stopped) {
-		m_PausedTime += (start_time-m_StopTime);	
+		m_PausedTime += (start_time-m_StopTime);
 		m_PrevTime = start_time;
 		m_StopTime = 0;
 		m_Stopped  = false;
@@ -160,7 +160,7 @@ void timer::tick()
 	m_DeltaTime = (m_CurrTime-m_PrevTime)*m_SecPerCount;
 	// Prepare for next frame.
 	m_PrevTime = m_CurrTime;
-	// Force nonnegative.  The DXSDK's CDXUTTimer mentions that if the 
+	// Force nonnegative.  The DXSDK's CDXUTTimer mentions that if the
 	// processor goes into a power save mode or we get shuffled to another
 	// processor, then m_DeltaTime can be negative.
 	if (m_DeltaTime < 0.0) m_DeltaTime = 0.0;

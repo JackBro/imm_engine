@@ -229,7 +229,7 @@ bool ui_def_main_menu<T_app>::define_apply_ix_if(int &index)
 	}
 	if (index == m_MapID["menu_options"]) {
 		return true;
-	}	
+	}
 	// exit
 	if (index == m_MapID["exit_yes"]) {
 		PostQuitMessage(0);
@@ -244,7 +244,7 @@ bool ui_def_main_menu<T_app>::define_apply_ix_if(int &index)
 		group_active("help", false);
 		return true;
 	}
-	return false;	
+	return false;
 }
 //
 template <typename T_app>

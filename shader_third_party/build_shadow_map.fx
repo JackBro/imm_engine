@@ -2,7 +2,7 @@
 // build_shadow_map.fx
 // BuildShadowMap.fx by Frank Luna (C) 2011 All Rights Reserved.
 // Effect used to build the shadow map.
-// A lot of code is copy and pasted from DisplacementMap.fx.  When drawing 
+// A lot of code is copy and pasted from DisplacementMap.fx.  When drawing
 // depth to shadow map, we need to tessellate the geometry the same way
 // when rendering from the eye so that the shadow map records the same
 // geometry the eye sees.
@@ -24,7 +24,7 @@ cbuffer cbPerObject
 	float4x4 gViewProj;
 	float4x4 gWorldViewProj;
 	float4x4 gTexTransform;
-}; 
+};
 cbuffer cbSkinned
 {
 	float4x4 gBoneTransforms[96];
@@ -67,7 +67,7 @@ VertexOut VS(VertexIn vin)
 }
 VertexOut SkinnedVS(SkinnedVertexIn vin)
 {
-    VertexOut vout;
+	VertexOut vout;
 	// Init array or else we get strange warnings about SV_POSITION.
 	float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	weights[0] = vin.Weights.x;
@@ -83,9 +83,9 @@ VertexOut SkinnedVS(SkinnedVertexIn vin)
 	}
 	else {
 		for(int i = 0; i < 4; ++i) {
-		    // Assume no nonuniform scaling when transforming normals, so 
+			// Assume no nonuniform scaling when transforming normals, so
 			// that we do not have to use the inverse-transpose.
-		    posL     += weights[i]*mul(float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]]).xyz;
+			posL     += weights[i]*mul(float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]]).xyz;
 		}
 	}
 	// Transform to homogeneous clip space.
@@ -108,10 +108,10 @@ TessVertexOut TessVS(VertexIn vin)
 	vout.NormalW  = mul(vin.NormalL, (float3x3)gWorldInvTranspose);
 	vout.Tex      = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
 	float d = distance(vout.PosW, gEyePosW);
-	// Normalized tessellation factor. 
-	// The tessellation is 
+	// Normalized tessellation factor.
+	// The tessellation is
 	//   0 if d >= gMinTessDistance and
-	//   1 if d <= gMaxTessDistance.  
+	//   1 if d <= gMaxTessDistance.
 	float tess = saturate((gMinTessDistance - d) / (gMinTessDistance - gMaxTessDistance));
 	// Rescale [0,1] --> [gMinTessFactor, gMaxTessFactor].
 	vout.TessFactor = gMinTessFactor + tess*(gMaxTessFactor-gMinTessFactor);
@@ -122,14 +122,14 @@ struct PatchTess
 	float EdgeTess[3] : SV_TessFactor;
 	float InsideTess  : SV_InsideTessFactor;
 };
-PatchTess PatchHS(InputPatch<TessVertexOut,3> patch, 
-                  uint patchID : SV_PrimitiveID)
+PatchTess PatchHS(InputPatch<TessVertexOut,3> patch,
+				  uint patchID : SV_PrimitiveID)
 {
 	PatchTess pt;
-	// Average tess factors along edges, and pick an edge tess factor for 
+	// Average tess factors along edges, and pick an edge tess factor for
 	// the interior tessellation.  It is important to do the tess factor
-	// calculation based on the edge properties so that edges shared by 
-	// more than one triangle will have the same tessellation factor.  
+	// calculation based on the edge properties so that edges shared by
+	// more than one triangle will have the same tessellation factor.
 	// Otherwise, gaps can appear.
 	pt.EdgeTess[0] = 0.5f*(patch[1].TessFactor + patch[2].TessFactor);
 	pt.EdgeTess[1] = 0.5f*(patch[2].TessFactor + patch[0].TessFactor);
@@ -140,7 +140,7 @@ PatchTess PatchHS(InputPatch<TessVertexOut,3> patch,
 struct HullOut
 {
 	float3 PosW     : POSITION;
-    float3 NormalW  : NORMAL;
+	float3 NormalW  : NORMAL;
 	float2 Tex      : TEXCOORD;
 };
 [domain("tri")]
@@ -148,9 +148,9 @@ struct HullOut
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(3)]
 [patchconstantfunc("PatchHS")]
-HullOut HS(InputPatch<TessVertexOut,3> p, 
-           uint i : SV_OutputControlPointID,
-           uint patchId : SV_PrimitiveID)
+HullOut HS(InputPatch<TessVertexOut,3> p,
+		   uint i : SV_OutputControlPointID,
+		   uint patchId : SV_PrimitiveID)
 {
 	HullOut hout;
 	// Pass through shader.
@@ -162,16 +162,16 @@ HullOut HS(InputPatch<TessVertexOut,3> p,
 struct DomainOut
 {
 	float4 PosH     : SV_POSITION;
-    float3 PosW     : POSITION;
-    float3 NormalW  : NORMAL;
+	float3 PosW     : POSITION;
+	float3 NormalW  : NORMAL;
 	float2 Tex      : TEXCOORD;
 };
-// The domain shader is called for every vertex created by the tessellator.  
+// The domain shader is called for every vertex created by the tessellator.
 // It is like the vertex shader after tessellation.
 [domain("tri")]
-DomainOut DS(PatchTess patchTess, 
-             float3 bary : SV_DomainLocation, 
-             const OutputPatch<HullOut,3> tri)
+DomainOut DS(PatchTess patchTess,
+			 float3 bary : SV_DomainLocation,
+			 const OutputPatch<HullOut,3> tri)
 {
 	DomainOut dout;
 	// Interpolate patch attributes to generated vertices.
@@ -195,7 +195,7 @@ DomainOut DS(PatchTess patchTess,
 	dout.PosH = mul(float4(dout.PosW, 1.0f), gViewProj);
 	return dout;
 }
-// This is only used for alpha cut out geometry, so that shadows 
+// This is only used for alpha cut out geometry, so that shadows
 // show up correctly.  Geometry that does not need to sample a
 // texture can use a NULL pixel shader for depth pass.
 void PS(VertexOut pin)
@@ -204,7 +204,7 @@ void PS(VertexOut pin)
 	// Don't write transparent pixels to the shadow map.
 	clip(diffuse.a - 0.15f);
 }
-// This is only used for alpha cut out geometry, so that shadows 
+// This is only used for alpha cut out geometry, so that shadows
 // show up correctly.  Geometry that does not need to sample a
 // texture can use a NULL pixel shader for depth pass.
 void TessPS(DomainOut pin)
@@ -217,79 +217,79 @@ RasterizerState Depth
 {
 	// [From MSDN]
 	// If the depth buffer currently bound to the output-merger stage has a UNORM format or
-	// no depth buffer is bound the bias value is calculated like this: 
+	// no depth buffer is bound the bias value is calculated like this:
 	//
 	// Bias = (float)DepthBias * r + SlopeScaledDepthBias * MaxDepthSlope;
 	//
 	// where r is the minimum representable value > 0 in the depth-buffer format converted to float32.
 	// [/End MSDN]
-	// 
+	//
 	// For a 24-bit depth buffer, r = 1 / 2^24.
 	//
 	// Example: DepthBias = 100000 ==> Actual DepthBias = 100000/2^24 = .006
 	// You need to experiment with these values for your scene.
 	DepthBias = 100000;
-    DepthBiasClamp = 0.0f;
+	DepthBiasClamp = 0.0f;
 	SlopeScaledDepthBias = 1.0f;
 };
 technique11 BuildShadowMapTech
 {
-    pass P0
-    {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetGeometryShader(NULL);
-        SetPixelShader(NULL);
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(NULL);
 		SetRasterizerState(Depth);
-    }
+	}
 }
 technique11 BuildShadowMapAlphaClipTech
 {
-    pass P0
-    {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS()));
-    }
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
 }
 technique11 BuildShadowMapSkinnedTech
 {
-    pass P0
-    {
-        SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
-        SetGeometryShader(NULL);
-        SetPixelShader(NULL);
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(NULL);
 		SetRasterizerState(Depth);
-    }
+	}
 }
 technique11 BuildShadowMapAlphaClipSkinnedTech
 {
-    pass P0
-    {
-        SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
-        SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS()));
-    }
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
 }
 technique11 TessBuildShadowMapTech
 {
-    pass P0
-    {
-        SetVertexShader(CompileShader(vs_5_0, TessVS()));
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, TessVS()));
 		SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
-        SetGeometryShader(NULL);
-        SetPixelShader(NULL);
+		SetDomainShader(CompileShader(ds_5_0, DS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(NULL);
 		SetRasterizerState(Depth);
-    }
+	}
 }
 technique11 TessBuildShadowMapAlphaClipTech
 {
-    pass P0
-    {
-        SetVertexShader(CompileShader(vs_5_0, TessVS()));
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, TessVS()));
 		SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
-        SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, TessPS()));
-    }
+		SetDomainShader(CompileShader(ds_5_0, DS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, TessPS()));
+	}
 }

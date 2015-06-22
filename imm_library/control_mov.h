@@ -241,7 +241,7 @@ struct control_mov
 	void math_mouse_hit_terrain(
 		const int &pos_x,
 		const int &pos_y,
-		XMVECTOR &plane_pos_out);		
+		XMVECTOR &plane_pos_out);
 	void math_pad_move_toward();
 	// cam function
 	void pad_camera_update(const float &dt);
@@ -250,7 +250,7 @@ struct control_mov
 	void mouse_camera_wheel(const short &z_delta);
 	void mouse_camera_move(const int &pos_x, const int &pos_y);
 	void cam_follow_update();
-	// member variable 
+	// member variable
 	T_app *app;
 	int picked1;
 	int player1;

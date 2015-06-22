@@ -177,7 +177,7 @@ void cmd_shell<T_app>::apply()
 		if (cmd_get == L"util b3m") {
 			std::wstring path_lua(str_to_wstr(IMM_PATH["script"]));
 			std::wstring path_out(str_to_wstr(IMM_PATH["output"]));
-			
+
 			input += L"\n> #####################################################################";
 			input += L"\n> ## util b3m manual";
 			input += L"\n> #####################################################################";
@@ -228,7 +228,7 @@ void cmd_shell<T_app>::apply()
 		else {
 			input += L"\n> Scene "+scene_ix+L" not found.";
 			input += L"\n";
-		}			
+		}
 		return;
 	}
 	if (cmd_get == L"draw_wire") {

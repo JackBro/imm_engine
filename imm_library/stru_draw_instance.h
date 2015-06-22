@@ -54,7 +54,7 @@ void draw_inst_basic(
 				model_inst[ix].model->m_ModelMesh.draw(D3DDC, subset);
 			}
 		}
-	}	
+	}
 }
 ////////////////
 // draw_inst_basic_shadow
@@ -94,7 +94,7 @@ void draw_inst_basic_shadow(
 				model_inst[ix].model->m_ModelMesh.draw(D3DDC, subset);
 			}
 		}
-	}	
+	}
 }
 ////////////////
 // draw_inst_skinned
@@ -139,7 +139,7 @@ void draw_inst_skinned(
 				model_inst[ix].model->m_ModelMesh.draw(D3DDC, subset);
 			}
 		}
-	}	
+	}
 }
 ////////////////
 // draw_inst_skinned_shadow
@@ -182,7 +182,7 @@ void draw_inst_skinned_shadow(
 				model_inst[ix].model->m_ModelMesh.draw(D3DDC, subset);
 			}
 		}
-	}	
+	}
 }
 ////////////////
 // draw_inst_simple_pntt
@@ -213,7 +213,7 @@ void draw_inst_simple_pntt(
 		world_view_proj = world*view_proj;
 		tex_transform = XMLoadFloat4x4(&model_inst[ix].tex_transform);
 		if (model_inst[ix].is_textrue) {
-		tech->GetDesc(&tech_desc);				
+		tech->GetDesc(&tech_desc);
 		for(UINT p = 0; p < tech_desc.Passes; ++p) {
 			fx->set_World(world);
 			fx->set_WorldInvTranspose(world_inv_transpose);

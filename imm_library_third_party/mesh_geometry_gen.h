@@ -2,9 +2,9 @@
 // mesh_geometry_gen.h
 // see 3D Game Programming with DirectX 11 by Frank Luna, GeometryGenerator.h
 // GeometryGenerator.h by Frank Luna (C) 2011 All Rights Reserved.
-// Defines a static class for procedurally generating the geometry of 
+// Defines a static class for procedurally generating the geometry of
 // common mathematical objects.
-// All triangles are generated "outward" facing.  If you want "inward" 
+// All triangles are generated "outward" facing.  If you want "inward"
 // facing triangles (for example, if you want to place the camera inside
 // a sphere to simulate a sky), you will need to:
 //   1. Change the Direct3D cull mode or manually reverse the winding order.
@@ -105,10 +105,10 @@ void geometry::create_box(float width, float height, float depth, mesh_data &mes
 	i[0] = 0; i[1] = 1; i[2] = 2;
 	i[3] = 0; i[4] = 2; i[5] = 3;
 	// Fill in the back face index data
-	i[6] = 4; i[7]	= 5; i[8]  = 6;
+	i[6] = 4; i[7]  = 5; i[8]  = 6;
 	i[9] = 4; i[10] = 6; i[11] = 7;
 	// Fill in the top face index data
-	i[12] = 8; i[13] =	9; i[14] = 10;
+	i[12] = 8; i[13] =  9; i[14] = 10;
 	i[15] = 8; i[16] = 10; i[17] = 11;
 	// Fill in the bottom face index data
 	i[18] = 12; i[19] = 13; i[20] = 14;
@@ -133,7 +133,7 @@ void geometry::create_sphere(float radius, UINT slice_count, UINT stack_count, m
 	vertex top_vertex(0.0f, +radius, 0.0f, 0.0f, +1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	vertex bottom_vertex(0.0f, -radius, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	mesh_data_o.vertices.push_back(top_vertex);
-	float phi_step	= XM_PI/stack_count;
+	float phi_step  = XM_PI/stack_count;
 	float theta_step = 2.0f*XM_PI/slice_count;
 	// Compute vertices for each stack ring (do not count the poles as rings).
 	for(UINT i = 1; i <= stack_count-1; ++i) {
@@ -201,15 +201,15 @@ void geometry::subdivide(mesh_data &mesh_data_o)
 	mesh_data input_copy = mesh_data_o;
 	mesh_data_o.vertices.resize(0);
 	mesh_data_o.indices.resize(0);
-	//		 v1
-	//		 *
-	//		/ \
-	//	   /   \
-	//	m0*-----*m1
-	//	 / \   / \
-	//	/	\ /   \
+	//       v1
+	//       *
+	//      / \
+	//     /   \
+	//  m0*-----*m1
+	//   / \   / \
+	//  /   \ /   \
 	// *-----*-----*
-	// v0	 m2 	v2
+	// v0    m2     v2
 	UINT num_tris = static_cast<UINT>(input_copy.indices.size()/3);
 	for(UINT i = 0; i < num_tris; ++i) {
 		vertex v0 = input_copy.vertices[ input_copy.indices[i*3+0] ];
@@ -219,7 +219,7 @@ void geometry::subdivide(mesh_data &mesh_data_o)
 		// Generate the midpoints.
 		//
 		vertex m0, m1, m2;
-		// For subdivision, we just care about the position component.	We derive the other
+		// For subdivision, we just care about the position component.  We derive the other
 		// vertex components in CreateGeosphere.
 		m0.position = XMFLOAT3(
 			0.5f*(v0.position.x+v1.position.x),
@@ -269,18 +269,18 @@ void geometry::create_geosphere(float radius, UINT num_subdivisions, mesh_data &
 	const float x = 0.525731f;
 	const float z = 0.850651f;
 	XMFLOAT3 pos[12] = {
-		XMFLOAT3(-x, 0.0f, z),	XMFLOAT3(x, 0.0f, z),
+		XMFLOAT3(-x, 0.0f, z),  XMFLOAT3(x, 0.0f, z),
 		XMFLOAT3(-x, 0.0f, -z), XMFLOAT3(x, 0.0f, -z),
-		XMFLOAT3(0.0f, z, x),	XMFLOAT3(0.0f, z, -x),
-		XMFLOAT3(0.0f, -z, x),	XMFLOAT3(0.0f, -z, -x),
-		XMFLOAT3(z, x, 0.0f),	XMFLOAT3(-z, x, 0.0f),
-		XMFLOAT3(z, -x, 0.0f),	XMFLOAT3(-z, -x, 0.0f)
+		XMFLOAT3(0.0f, z, x),   XMFLOAT3(0.0f, z, -x),
+		XMFLOAT3(0.0f, -z, x),  XMFLOAT3(0.0f, -z, -x),
+		XMFLOAT3(z, x, 0.0f),   XMFLOAT3(-z, x, 0.0f),
+		XMFLOAT3(z, -x, 0.0f),  XMFLOAT3(-z, -x, 0.0f)
 	};
 	DWORD k[60] = {
-		1,4,0,	4,9,0,	4,5,9,	8,5,4,	1,8,4,
-		1,10,8, 10,3,8, 8,3,5,	3,2,5,	3,7,2,
+		1,4,0,  4,9,0,  4,5,9,  8,5,4,  1,8,4,
+		1,10,8, 10,3,8, 8,3,5,  3,2,5,  3,7,2,
 		3,10,7, 10,6,7, 6,11,7, 6,0,11, 6,1,0,
-		10,1,6, 11,0,9, 2,11,9, 5,2,9,	11,2,7
+		10,1,6, 11,0,9, 2,11,9, 5,2,9,  11,2,7
 	};
 	mesh_data_o.vertices.resize(12);
 	mesh_data_o.indices.resize(60);
@@ -337,21 +337,21 @@ void geometry::create_cylinder(
 			// Cylinder can be parameterized as follows, where we introduce v
 			// parameter that goes in the same direction as the v tex-coord
 			// so that the bitangent goes in the same direction as the v tex-coord.
-			//	 Let r0 be the bottom radius and let r1 be the top radius.
-			//	 y(v) = h - hv for v in [0,1].
-			//	 r(v) = r1 + (r0-r1)v
+			//   Let r0 be the bottom radius and let r1 be the top radius.
+			//   y(v) = h - hv for v in [0,1].
+			//   r(v) = r1 + (r0-r1)v
 			//
-			//	 x(t, v) = r(v)*cos(t)
-			//	 y(t, v) = h - hv
-			//	 z(t, v) = r(v)*sin(t)
+			//   x(t, v) = r(v)*cos(t)
+			//   y(t, v) = h - hv
+			//   z(t, v) = r(v)*sin(t)
 			//
-			//	dx/dt = -r(v)*sin(t)
-			//	dy/dt = 0
-			//	dz/dt = +r(v)*cos(t)
+			//  dx/dt = -r(v)*sin(t)
+			//  dy/dt = 0
+			//  dz/dt = +r(v)*cos(t)
 			//
-			//	dx/dv = (r0-r1)*cos(t)
-			//	dy/dv = -h
-			//	dz/dv = (r0-r1)*sin(t)
+			//  dx/dv = (r0-r1)*cos(t)
+			//  dy/dv = -h
+			//  dz/dv = (r0-r1)*sin(t)
 			//
 			// This is unit length.
 			vertex.tangent_u = XMFLOAT3(-s, 0.0f, c);
@@ -438,7 +438,7 @@ void geometry::build_cylinder_bottom_cap(float bottom_radius, float height, UINT
 void geometry::create_grid(float width, float depth, UINT m, UINT n, mesh_data &mesh_data_o)
 {
 	UINT vertex_count = m*n;
-	UINT face_count	 = (m-1)*(n-1)*2;
+	UINT face_count  = (m-1)*(n-1)*2;
 	// Create the vertices.
 	float half_width = 0.5f*width;
 	float half_depth = 0.5f*depth;

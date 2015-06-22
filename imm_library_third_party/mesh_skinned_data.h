@@ -38,7 +38,7 @@ keyframe::keyframe():
 }
 ////////////////
 // bone_animation
-// A bone_animation is defined by a list of keyframes.	For time
+// A bone_animation is defined by a list of keyframes.  For time
 // values inbetween two keyframes, we interpolate between the
 // two nearest keyframes that bound the time.
 // We assume an animation always has two keyframes.

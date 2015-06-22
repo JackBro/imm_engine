@@ -86,7 +86,7 @@ void instance_mgr<T_app>::reload()
 		return;
 	}
 	m_App->m_Cmd.input += L"> Loading...\n";
-	m_App->m_Cmd.input += L"> Please wait...\n";	
+	m_App->m_Cmd.input += L"> Please wait...\n";
 	remove_all();
 	instance_stat inst_stat;
 	size_t k = 0;
@@ -122,7 +122,7 @@ void instance_mgr<T_app>::reload()
 //
 template <typename T_app>
 void instance_mgr<T_app>::reload_scene_instance_relate()
-{	
+{
 	if (csv_value_is_empty(m_App->m_Scene.get_misc["terrain_info"])) {
 		m_PlaneGroundIx = get_index(m_App->m_Scene.get_misc["plane_ground"]);
 		m_IsTerrainUse = false;

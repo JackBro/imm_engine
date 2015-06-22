@@ -29,7 +29,7 @@ cbuffer cbPerFrame
 };
 cbuffer cbPerObject
 {
-	// Terrain coordinate specified directly 
+	// Terrain coordinate specified directly
 	// at center of world space.
 	float4x4 gViewProj;
 	float4x4 gShadowTransform;
@@ -78,7 +78,7 @@ VertexOut VS(VertexIn vin)
 	VertexOut vout;
 	// Terrain specified directly in world space.
 	vout.PosW = vin.PosL;
-	// Displace the patch corners to world space.  This is to make 
+	// Displace the patch corners to world space.  This is to make
 	// the eye to patch distance calculation more accurate.
 	vout.PosW.y = gHeightMap.SampleLevel(samHeightmap, vin.Tex, 0).r;
 	// Output vertex attributes to next stage.
@@ -181,9 +181,9 @@ struct HullOut
 [outputcontrolpoints(4)]
 [patchconstantfunc("ConstantHS")]
 [maxtessfactor(64.0f)]
-HullOut HS(InputPatch<VertexOut, 4> p, 
-           uint i : SV_OutputControlPointID,
-           uint patchId : SV_PrimitiveID)
+HullOut HS(InputPatch<VertexOut, 4> p,
+		   uint i : SV_OutputControlPointID,
+		   uint patchId : SV_PrimitiveID)
 {
 	HullOut hout;
 	// Pass through shader.
@@ -194,44 +194,44 @@ HullOut HS(InputPatch<VertexOut, 4> p,
 struct DomainOut
 {
 	float4 PosH       : SV_POSITION;
-    float3 PosW       : POSITION;
+	float3 PosW       : POSITION;
 	float2 Tex        : TEXCOORD0;
 	float2 TiledTex   : TEXCOORD1;
 	float4 ShadowPosH : TEXCOORD2;
 };
-// The domain shader is called for every vertex created by the tessellator.  
+// The domain shader is called for every vertex created by the tessellator.
 // It is like the vertex shader after tessellation.
 [domain("quad")]
-DomainOut DS(PatchTess patchTess, 
-             float2 uv : SV_DomainLocation, 
-             const OutputPatch<HullOut, 4> quad)
+DomainOut DS(PatchTess patchTess,
+			 float2 uv : SV_DomainLocation,
+			 const OutputPatch<HullOut, 4> quad)
 {
 	DomainOut dout;
 	// Bilinear interpolation.
 	dout.PosW = lerp(
 		lerp(quad[0].PosW, quad[1].PosW, uv.x),
 		lerp(quad[2].PosW, quad[3].PosW, uv.x),
-		uv.y); 
+		uv.y);
 	dout.Tex = lerp(
 		lerp(quad[0].Tex, quad[1].Tex, uv.x),
 		lerp(quad[2].Tex, quad[3].Tex, uv.x),
-		uv.y); 
+		uv.y);
 	// Tile layer textures over terrain.
-	dout.TiledTex = dout.Tex*gTexScale; 
+	dout.TiledTex = dout.Tex*gTexScale;
 	// Displacement mapping
 	dout.PosW.y = gHeightMap.SampleLevel(samHeightmap, dout.Tex, 0).r;
-	// NOTE: We tried computing the normal in the shader using finite difference, 
+	// NOTE: We tried computing the normal in the shader using finite difference,
 	// but the vertices move continuously with fractional_even which creates
 	// noticable light shimmering artifacts as the normal changes.  Therefore,
-	// we moved the calculation to the pixel shader.  
+	// we moved the calculation to the pixel shader.
 	// Project to homogeneous clip space.
 	dout.PosH = mul(float4(dout.PosW, 1.0f), gViewProj);
 	// Generate projective tex-coords to project shadow map onto scene.
 	dout.ShadowPosH = mul(float4(dout.PosW, 1.0f), gShadowTransform);
 	return dout;
 }
-float4 PS(DomainOut pin, 
-          uniform int gLightCount, 
+float4 PS(DomainOut pin,
+		  uniform int gLightCount,
 		  uniform bool gFogEnabled) : SV_Target
 {
 	//
@@ -246,7 +246,7 @@ float4 PS(DomainOut pin,
 	float bottomY = gHeightMap.SampleLevel(samHeightmap, bottomTex, 0).r;
 	float topY    = gHeightMap.SampleLevel(samHeightmap, topTex, 0).r;
 	float3 tangent = normalize(float3(2.0f*gWorldCellSpace, rightY - leftY, 0.0f));
-	float3 bitan   = normalize(float3(0.0f, bottomY - topY, -2.0f*gWorldCellSpace)); 
+	float3 bitan   = normalize(float3(0.0f, bottomY - topY, -2.0f*gWorldCellSpace));
 	float3 normalW = cross(tangent, bitan);
 	// The toEye vector is used in lighting.
 	float3 toEye = gEyePosW - pin.PosW;
@@ -262,21 +262,21 @@ float4 PS(DomainOut pin,
 	float4 c1 = gLayerMapArray.Sample(samLinear, float3(pin.TiledTex, 1.0f));
 	float4 c2 = gLayerMapArray.Sample(samLinear, float3(pin.TiledTex, 2.0f));
 	float4 c3 = gLayerMapArray.Sample(samLinear, float3(pin.TiledTex, 3.0f));
-	float4 c4 = gLayerMapArray.Sample(samLinear, float3(pin.TiledTex, 4.0f)); 
+	float4 c4 = gLayerMapArray.Sample(samLinear, float3(pin.TiledTex, 4.0f));
 	// Sample the blend map.
-	float4 t  = gBlendMap.Sample(samLinear, pin.Tex); 
-    // Blend the layers on top of each other.
-    float4 texColor = c0;
-    texColor = lerp(texColor, c1, t.r);
-    texColor = lerp(texColor, c2, t.g);
-    texColor = lerp(texColor, c3, t.b);
-    texColor = lerp(texColor, c4, t.a);
+	float4 t  = gBlendMap.Sample(samLinear, pin.Tex);
+	// Blend the layers on top of each other.
+	float4 texColor = c0;
+	texColor = lerp(texColor, c1, t.r);
+	texColor = lerp(texColor, c2, t.g);
+	texColor = lerp(texColor, c3, t.b);
+	texColor = lerp(texColor, c4, t.a);
 	//
 	// Lighting.
 	//
 	float4 litColor = texColor;
 	if (gLightCount > 0) {
-		// Start with a sum of zero. 
+		// Start with a sum of zero.
 		float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 		float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 		float4 spec    = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -298,19 +298,19 @@ float4 PS(DomainOut pin,
 	// Fogging
 	//
 	if (gFogEnabled) {
-		float fogLerp = saturate((distToEye - gFogStart) / gFogRange); 
+		float fogLerp = saturate((distToEye - gFogStart) / gFogRange);
 		// Blend the fog color and the lit color.
 		litColor = lerp(litColor, gFogColor, fogLerp);
 	}
-    return litColor;
+	return litColor;
 }
 technique11 Light3
 {
-    pass P0 {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
+	pass P0 {
+		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetHullShader(CompileShader(hs_5_0, HS()));
+		SetDomainShader(CompileShader(ds_5_0, DS()));
 		SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS(3, false)));
-    }
+		SetPixelShader(CompileShader(ps_5_0, PS(3, false)));
+	}
 }

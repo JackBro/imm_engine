@@ -16,7 +16,7 @@ namespace imm
 ////////////////
 // lua_reader
 ////////////////
-////////////////	
+////////////////
 class lua_reader
 {
 public:
@@ -163,7 +163,7 @@ void lua_reader::vec2d_str_from_table_wstr(
 		vec2d_wstr.push_back(std::vector<std::wstring>());
 		for (size_t ix_2 = 0; ix_2 < vec2d_str[ix].size(); ++ix_2)
 			vec2d_wstr[ix].push_back(str_to_wstr(vec2d_str[ix][ix_2]));
-	}	
+	}
 }
 //
 template <typename T_bool>

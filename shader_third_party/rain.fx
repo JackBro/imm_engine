@@ -15,7 +15,7 @@ cbuffer cbPerFrame
 	float3 gEmitDirW;
 	float gGameTime;
 	float gTimeStep;
-	float4x4 gViewProj; 
+	float4x4 gViewProj;
 };
 cbuffer cbFixed
 {
@@ -79,18 +79,18 @@ Particle StreamOutVS(Particle vin)
 {
 	return vin;
 }
-// The stream-out GS is just responsible for emitting 
+// The stream-out GS is just responsible for emitting
 // new particles and destroying old particles.  The logic
 // programed here will generally vary from particle system
-// to particle system, as the destroy/spawn rules will be 
+// to particle system, as the destroy/spawn rules will be
 // different.
 [maxvertexcount(6)]
-void StreamOutGS(point Particle gin[1], 
+void StreamOutGS(point Particle gin[1],
 				 inout PointStream<Particle> ptStream)
-{	
+{
 	gin[0].Age += gTimeStep;
 	if( gin[0].Type == PT_EMITTER )
-	{	
+	{
 		// time to emit a new particle?
 		if( gin[0].Age > 0.002f )
 		{
@@ -118,10 +118,10 @@ void StreamOutGS(point Particle gin[1],
 		// Specify conditions to keep particle; this may vary from system to system.
 		if( gin[0].Age <= 3.0f )
 			ptStream.Append(gin[0]);
-	}		
+	}
 }
-GeometryShader gsStreamOut = ConstructGSWithSO( 
-	CompileShader( gs_5_0, StreamOutGS() ), 
+GeometryShader gsStreamOut = ConstructGSWithSO(
+	CompileShader( gs_5_0, StreamOutGS() ),
 	"POSITION.xyz; VELOCITY.xyz; SIZE.xy; AGE.x; TYPE.x" );
 technique11 StreamOutTech
 {
@@ -159,9 +159,9 @@ struct GeoOut
 };
 // The draw GS just expands points into lines.
 [maxvertexcount(2)]
-void DrawGS(point VertexOut gin[1], 
+void DrawGS(point VertexOut gin[1],
 			inout LineStream<GeoOut> lineStream)
-{	
+{
 	// do not draw emitter particles.
 	if( gin[0].Type != PT_EMITTER )
 	{

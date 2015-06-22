@@ -55,12 +55,12 @@ void mesh_geometry::set_Vertices(ID3D11Device *device, const vertex_type *vertic
 	ReleaseCOM(m_VB);
 	m_VertexStride = sizeof(vertex_type);
 	D3D11_BUFFER_DESC vbd;
-	vbd.Usage				= D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth			= sizeof(vertex_type) * count;
-	vbd.BindFlags			= D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags		= 0;
-	vbd.MiscFlags			= 0;
-	vbd.StructureByteStride	= 0;
+	vbd.Usage               = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth           = sizeof(vertex_type) * count;
+	vbd.BindFlags           = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags      = 0;
+	vbd.MiscFlags           = 0;
+	vbd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA vinit_data;
 	vinit_data.pSysMem = vertices;
 	HR(device->CreateBuffer(&vbd, &vinit_data, &m_VB));
@@ -84,11 +84,11 @@ void mesh_geometry::set_Indices(ID3D11Device *device, const UINT *indices, UINT 
 {
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth			= sizeof(UINT) * count;
-	ibd.BindFlags			= D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags		= 0;
-	ibd.MiscFlags			= 0;
-	ibd.StructureByteStride	= 0;
+	ibd.ByteWidth           = sizeof(UINT) * count;
+	ibd.BindFlags           = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags      = 0;
+	ibd.MiscFlags           = 0;
+	ibd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA iinit_data;
 	iinit_data.pSysMem = indices;
 	HR(device->CreateBuffer(&ibd, &iinit_data, &m_IB));

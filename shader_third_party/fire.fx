@@ -15,15 +15,15 @@ cbuffer cbPerFrame
 	float3 gEmitDirW;
 	float gGameTime;
 	float gTimeStep;
-	float4x4 gViewProj; 
+	float4x4 gViewProj;
 };
 cbuffer cbFixed
 {
 	// Net constant acceleration used to accerlate the particles.
 	float3 gAccelW = {0.0f, 7.8f, 0.0f};
-	// Texture coordinates used to stretch texture over quad 
+	// Texture coordinates used to stretch texture over quad
 	// when we expand point particle into a quad.
-	float2 gQuadTexC[4] = 
+	float2 gQuadTexC[4] =
 	{
 		float2(1.0f, 1.0f),
 		float2(1.0f, 0.0f),
@@ -43,25 +43,25 @@ SamplerState samLinear
 };
 DepthStencilState DisableDepth
 {
-    DepthEnable = FALSE;
-    DepthWriteMask = ZERO;
+	DepthEnable = FALSE;
+	DepthWriteMask = ZERO;
 };
 DepthStencilState NoDepthWrites
 {
-    DepthEnable = TRUE;
-    DepthWriteMask = ZERO;
+	DepthEnable = TRUE;
+	DepthWriteMask = ZERO;
 };
 BlendState AdditiveBlending
 {
-    AlphaToCoverageEnable = FALSE;
-    BlendEnable[0] = TRUE;
-    SrcBlend = SRC_ALPHA;
-    DestBlend = ONE;
-    BlendOp = ADD;
-    SrcBlendAlpha = ZERO;
-    DestBlendAlpha = ZERO;
-    BlendOpAlpha = ADD;
-    RenderTargetWriteMask[0] = 0x0F;
+	AlphaToCoverageEnable = FALSE;
+	BlendEnable[0] = TRUE;
+	SrcBlend = SRC_ALPHA;
+	DestBlend = ONE;
+	BlendOp = ADD;
+	SrcBlendAlpha = ZERO;
+	DestBlendAlpha = ZERO;
+	BlendOpAlpha = ADD;
+	RenderTargetWriteMask[0] = 0x0F;
 };
 //***********************************************
 // HELPER FUNCTIONS                             *
@@ -92,18 +92,18 @@ Particle StreamOutVS(Particle vin)
 {
 	return vin;
 }
-// The stream-out GS is just responsible for emitting 
+// The stream-out GS is just responsible for emitting
 // new particles and destroying old particles.  The logic
 // programed here will generally vary from particle system
-// to particle system, as the destroy/spawn rules will be 
+// to particle system, as the destroy/spawn rules will be
 // different.
 [maxvertexcount(2)]
-void StreamOutGS(point Particle gin[1], 
-                 inout PointStream<Particle> ptStream)
-{	
+void StreamOutGS(point Particle gin[1],
+				 inout PointStream<Particle> ptStream)
+{
 	gin[0].Age += gTimeStep;
 	if( gin[0].Type == PT_EMITTER )
-	{	
+	{
 		// time to emit a new particle?
 		if( gin[0].Age > 0.005f )
 		{
@@ -128,22 +128,22 @@ void StreamOutGS(point Particle gin[1],
 		// Specify conditions to keep particle; this may vary from system to system.
 		if( gin[0].Age <= 1.0f )
 			ptStream.Append(gin[0]);
-	}		
+	}
 }
-GeometryShader gsStreamOut = ConstructGSWithSO( 
-	CompileShader( gs_5_0, StreamOutGS() ), 
+GeometryShader gsStreamOut = ConstructGSWithSO(
+	CompileShader( gs_5_0, StreamOutGS() ),
 	"POSITION.xyz; VELOCITY.xyz; SIZE.xy; AGE.x; TYPE.x" );
 technique11 StreamOutTech
 {
-    pass P0
-    {
-        SetVertexShader( CompileShader( vs_5_0, StreamOutVS() ) );
-        SetGeometryShader( gsStreamOut );
-        // disable pixel shader for stream-out only
-        SetPixelShader(NULL);
-        // we must also disable the depth buffer for stream-out only
-        SetDepthStencilState( DisableDepth, 0 );
-    }
+	pass P0
+	{
+		SetVertexShader( CompileShader( vs_5_0, StreamOutVS() ) );
+		SetGeometryShader( gsStreamOut );
+		// disable pixel shader for stream-out only
+		SetPixelShader(NULL);
+		// we must also disable the depth buffer for stream-out only
+		SetDepthStencilState( DisableDepth, 0 );
+	}
 }
 //***********************************************
 // DRAW TECH                                    *
@@ -176,9 +176,9 @@ struct GeoOut
 };
 // The draw GS just expands points into camera facing quads.
 [maxvertexcount(4)]
-void DrawGS(point VertexOut gin[1], 
-            inout TriangleStream<GeoOut> triStream)
-{	
+void DrawGS(point VertexOut gin[1],
+			inout TriangleStream<GeoOut> triStream)
+{
 	// do not draw emitter particles.
 	if( gin[0].Type != PT_EMITTER )
 	{
@@ -199,7 +199,7 @@ void DrawGS(point VertexOut gin[1],
 		v[2] = float4(gin[0].PosW - halfWidth*right - halfHeight*up, 1.0f);
 		v[3] = float4(gin[0].PosW - halfWidth*right + halfHeight*up, 1.0f);
 		//
-		// Transform quad vertices to world space and output 
+		// Transform quad vertices to world space and output
 		// them as a triangle strip.
 		//
 		GeoOut gout;
@@ -210,7 +210,7 @@ void DrawGS(point VertexOut gin[1],
 			gout.Tex   = gQuadTexC[i];
 			gout.Color = gin[0].Color;
 			triStream.Append(gout);
-		}	
+		}
 	}
 }
 float4 DrawPS(GeoOut pin) : SV_TARGET
@@ -219,12 +219,12 @@ float4 DrawPS(GeoOut pin) : SV_TARGET
 }
 technique11 DrawTech
 {
-    pass P0
-    {
-        SetVertexShader(   CompileShader( vs_5_0, DrawVS() ) );
-        SetGeometryShader( CompileShader( gs_5_0, DrawGS() ) );
-        SetPixelShader(    CompileShader( ps_5_0, DrawPS() ) );
-        SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
-        SetDepthStencilState( NoDepthWrites, 0 );
-    }
+	pass P0
+	{
+		SetVertexShader(   CompileShader( vs_5_0, DrawVS() ) );
+		SetGeometryShader( CompileShader( gs_5_0, DrawGS() ) );
+		SetPixelShader(    CompileShader( ps_5_0, DrawPS() ) );
+		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( NoDepthWrites, 0 );
+	}
 }

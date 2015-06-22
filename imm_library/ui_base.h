@@ -140,7 +140,7 @@ void ui_base<T_app>::build_rect_map()
 	m_MapID["-1"] = -1;
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		m_MapID[m_Rect[ix].id_str] = static_cast<int>(ix);
-	}	
+	}
 	// map rect accroding group name
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		m_Rect[ix].parent = m_MapID[m_Rect[ix].parent_str];
@@ -198,7 +198,7 @@ void ui_base<T_app>::on_resize_TextLayout(const size_t &ix, const bool &is_resiz
 			height,
 			m_TitleFontFactor,
 			rect->group.size()+1);
-	}	
+	}
 	else {
 		m_Dwrite[rect->dwrite_ix].on_resize_TextLayout(
 			m_App->m_hwnd,
@@ -417,7 +417,7 @@ void ui_base<T_app>::pad_loop_button(const bool &is_down, const std::string &sel
 	if (m_ClickIxPad != -1 && m_ClickableActived != "none") {
 		m_Rect[m_ClickIxPad].brush_ix = m_Rect[m_ClickIxPad].brush_sel[0];
 		// point to next button
-		size_t pos = 
+		size_t pos =
 			find(m_MapButton[m_ClickableActived].begin(), m_MapButton[m_ClickableActived].end(),
 			m_ClickIxPad) - m_MapButton[m_ClickableActived].begin();
 		int next = static_cast<int>(pos);

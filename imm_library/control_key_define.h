@@ -16,8 +16,8 @@ namespace imm
 // keyborad static
 //
 // two methods:
-// GetKeyState					(in function suffix _update / combination key)
-// WM_KEYDOWN / WM_SYSKEYDOWN	(in function suffix _keydown)
+// GetKeyState                  (in function suffix _update / combination key)
+// WM_KEYDOWN / WM_SYSKEYDOWN   (in function suffix _keydown)
 //
 // Virtual-Key Codes:
 // https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
@@ -47,8 +47,8 @@ static int MOUSE_UI_PICK = MK_LBUTTON;
 // pad static
 //
 // two methods:
-// XINPUT_STATE structure		(in function suffix _update)
-// XINPUT_KEYSTROKE structure	(in function suffix _down)
+// XINPUT_STATE structure       (in function suffix _update)
+// XINPUT_KEYSTROKE structure   (in function suffix _down)
 ////////////////
 ////////////////
 static int PAD_P1_JUMP = VK_PAD_A;

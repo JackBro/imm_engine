@@ -54,7 +54,7 @@ ID3D11ShaderResourceView *texture_mgr::create_texture(std::wstring filename)
 			std::string err_str("Texture file load error: ");
 			err_str += wstr_to_str(filename);
 			err_str += "\nHRESULT: ";
-			err_str += std::to_string(hr);		
+			err_str += std::to_string(hr);
 			ERROR_MESA(err_str.c_str());
 		}
 		m_TextureSRV[filename] = srv;

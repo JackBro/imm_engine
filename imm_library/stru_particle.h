@@ -78,7 +78,7 @@ void state_plasma::draw(ID3D11DeviceContext *context, const camera &cam)
 	if (!is_active) return;
 	flame.set_EyePos(cam.get_Position());
 	flame.draw_list(context, cam, flame_emit_pos);
-	
+
 }
 //
 void state_plasma::reset()

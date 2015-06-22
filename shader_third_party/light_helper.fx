@@ -53,7 +53,7 @@ void ComputeDirectionalLight(Material mat, DirectionalLight L,
 	// Initialize outputs.
 	ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	spec	= float4(0.0f, 0.0f, 0.0f, 0.0f);
+	spec    = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	// The light vector aims opposite the direction the light rays travel.
 	float3 lightVec = -L.Direction;
 	// Add ambient term.
@@ -64,14 +64,14 @@ void ComputeDirectionalLight(Material mat, DirectionalLight L,
 	// Flatten to avoid dynamic branching.
 	[flatten]
 	if (diffuseFactor > 0.0f) {
-		float3 v		 = reflect(-lightVec, normal);
+		float3 v         = reflect(-lightVec, normal);
 		float specFactor = pow(max(dot(v, toEye), 0.0f), mat.Specular.w);
 		diffuse = diffuseFactor * mat.Diffuse * L.Diffuse;
-		spec	= specFactor * mat.Specular * L.Specular;
+		spec    = specFactor * mat.Specular * L.Specular;
 	}
 }
 // Computes the ambient, diffuse, and specular terms in the lighting equation
-// from a point light.	We need to output the terms separately because
+// from a point light.  We need to output the terms separately because
 // later we will modify the individual terms.
 void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, float3 toEye,
 				   out float4 ambient, out float4 diffuse, out float4 spec)
@@ -79,7 +79,7 @@ void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, fl
 	// Initialize outputs.
 	ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	spec	= float4(0.0f, 0.0f, 0.0f, 0.0f);
+	spec    = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	// The vector from the surface to the light.
 	float3 lightVec = L.Position - pos;
 	// The distance from surface to light.
@@ -96,15 +96,15 @@ void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, fl
 	// Flatten to avoid dynamic branching.
 	[flatten]
 	if (diffuseFactor > 0.0f) {
-		float3 v		 = reflect(-lightVec, normal);
+		float3 v         = reflect(-lightVec, normal);
 		float specFactor = pow(max(dot(v, toEye), 0.0f), mat.Specular.w);
 		diffuse = diffuseFactor * mat.Diffuse * L.Diffuse;
-		spec	= specFactor * mat.Specular * L.Specular;
+		spec    = specFactor * mat.Specular * L.Specular;
 	}
 	// Attenuate
 	float att = 1.0f / dot(L.Att, float3(1.0f, d, d*d));
 	diffuse *= att;
-	spec	*= att;
+	spec    *= att;
 }
 // Computes the ambient, diffuse, and specular terms in the lighting equation
 // from a spotlight.  We need to output the terms separately because
@@ -115,7 +115,7 @@ void ComputeSpotLight(Material mat, SpotLight L, float3 pos, float3 normal, floa
 	// Initialize outputs.
 	ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	spec	= float4(0.0f, 0.0f, 0.0f, 0.0f);
+	spec    = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	// The vector from the surface to the light.
 	float3 lightVec = L.Position - pos;
 	// The distance from surface to light.
@@ -132,10 +132,10 @@ void ComputeSpotLight(Material mat, SpotLight L, float3 pos, float3 normal, floa
 	// Flatten to avoid dynamic branching.
 	[flatten]
 	if (diffuseFactor > 0.0f) {
-		float3 v		 = reflect(-lightVec, normal);
+		float3 v         = reflect(-lightVec, normal);
 		float specFactor = pow(max(dot(v, toEye), 0.0f), mat.Specular.w);
 		diffuse = diffuseFactor * mat.Diffuse * L.Diffuse;
-		spec	= specFactor * mat.Specular * L.Specular;
+		spec    = specFactor * mat.Specular * L.Specular;
 	}
 	// Scale by spotlight factor and attenuate.
 	float spot = pow(max(dot(-lightVec, L.Direction), 0.0f), L.Spot);
@@ -143,7 +143,7 @@ void ComputeSpotLight(Material mat, SpotLight L, float3 pos, float3 normal, floa
 	float att = spot / dot(L.Att, float3(1.0f, d, d*d));
 	ambient *= spot;
 	diffuse *= att;
-	spec	*= att;
+	spec    *= att;
 }
 // Transforms a normal map sample to world space.
 float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float4 tangentW)

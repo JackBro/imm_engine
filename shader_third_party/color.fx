@@ -6,7 +6,7 @@
 ////////////////
 cbuffer cbPerObject
 {
-	float4x4 gWorldViewProj; 
+	float4x4 gWorldViewProj;
 };
 //
 struct VertexIn

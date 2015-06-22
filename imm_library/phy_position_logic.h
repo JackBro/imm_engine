@@ -43,7 +43,7 @@ void phy_position_update(
 	const bool &is_touch_ground,
 	const float &half_y,
 	const float &ground_y)
-{	
+{
 	if (prop.is_abnormal) return;
 	if (!is_touch_ground) {
 		prop.velocity.x += prop.acceleration.x*dt;
@@ -97,7 +97,7 @@ XMVECTORF32 phy_boxA_normal(const BoundingBox &bbox_A, const BoundingBox &bbox_B
 	// get boxB center
 	XMVECTOR bbox_B_center = XMLoadFloat3(&bbox_B.Center);
 	// boxA six face, calculate each midpoint
-	std::vector<XMVECTOR> bm(6);	
+	std::vector<XMVECTOR> bm(6);
 	bm[0] = XMVectorScale(XMVectorAdd(bv[0], bv[2]), 0.5f);
 	bm[1] = XMVectorScale(XMVectorAdd(bv[7], bv[2]), 0.5f);
 	bm[2] = XMVectorScale(XMVectorAdd(bv[4], bv[6]), 0.5f);

@@ -87,22 +87,22 @@ void simu_wave::init(UINT m, UINT n, float dx, float dt, float speed, float damp
 	m_NumCols  = n;
 	m_VertexCount   = m*n;
 	m_TriangleCount = (m-1)*(n-1)*2;
-	m_TimeStep	 = dt;
+	m_TimeStep   = dt;
 	m_SpatialStep = dx;
 	float d = damping*dt+2.0f;
 	float e = (speed*speed)*(dt*dt)/(dx*dx);
-	m_K1 	= (damping*dt-2.0f)/d;
-	m_K2 	= (4.0f-8.0f*e)/d;
-	m_K3 	= (2.0f*e)/d;
+	m_K1    = (damping*dt-2.0f)/d;
+	m_K2    = (4.0f-8.0f*e)/d;
+	m_K3    = (2.0f*e)/d;
 	// In case init() called again.
 	delete[] m_PrevSolution;
 	delete[] m_CurrSolution;
 	delete[] m_Normals;
 	delete[] m_TangentX;
-	m_PrevSolution	= new XMFLOAT3[m*n];
-	m_CurrSolution	= new XMFLOAT3[m*n];
-	m_Normals		= new XMFLOAT3[m*n];
-	m_TangentX		= new XMFLOAT3[m*n];
+	m_PrevSolution  = new XMFLOAT3[m*n];
+	m_CurrSolution  = new XMFLOAT3[m*n];
+	m_Normals       = new XMFLOAT3[m*n];
+	m_TangentX      = new XMFLOAT3[m*n];
 	// Generate grid vertices in system memory.
 	float halfwidth = (n-1)*dx*0.5f;
 	float halfdepth = (m-1)*dx*0.5f;
@@ -112,8 +112,8 @@ void simu_wave::init(UINT m, UINT n, float dx, float dt, float speed, float damp
 			float x = -halfwidth + j*dx;
 			m_PrevSolution[i*n+j] = XMFLOAT3(x, 0.0f, z);
 			m_CurrSolution[i*n+j] = XMFLOAT3(x, 0.0f, z);
-			m_Normals[i*n+j] 	 = XMFLOAT3(0.0f, 1.0f, 0.0f);
-			m_TangentX[i*n+j]	 = XMFLOAT3(1.0f, 0.0f, 0.0f);
+			m_Normals[i*n+j]     = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			m_TangentX[i*n+j]    = XMFLOAT3(1.0f, 0.0f, 0.0f);
 		}
 	}
 }
@@ -179,11 +179,11 @@ void simu_wave::disturb(UINT i, UINT j, float magnitude)
 	assert(j > 1 && j < m_NumCols-2);
 	float halfMag = 0.5f*magnitude;
 	// disturb the ijth vertex height and its neighbors.
-	m_CurrSolution[i*m_NumCols+j].y		+= magnitude;
-	m_CurrSolution[i*m_NumCols+j+1].y	+= halfMag;
-	m_CurrSolution[i*m_NumCols+j-1].y	+= halfMag;
-	m_CurrSolution[(i+1)*m_NumCols+j].y	+= halfMag;
-	m_CurrSolution[(i-1)*m_NumCols+j].y	+= halfMag;
+	m_CurrSolution[i*m_NumCols+j].y     += magnitude;
+	m_CurrSolution[i*m_NumCols+j+1].y   += halfMag;
+	m_CurrSolution[i*m_NumCols+j-1].y   += halfMag;
+	m_CurrSolution[(i+1)*m_NumCols+j].y += halfMag;
+	m_CurrSolution[(i-1)*m_NumCols+j].y += halfMag;
 }
 }
 #endif

@@ -106,7 +106,7 @@ void phy_wireframe<T_app>::init(T_app *appin)
 template <typename T_app>
 void phy_wireframe<T_app>::rebuild_buffer()
 {
-	remove_all();	
+	remove_all();
 	// box_collision
 	for (size_t ix = 0; ix != app->m_Inst.m_BoundL.map.size(); ++ix) {
 		XMFLOAT3 corners[8];
@@ -173,7 +173,7 @@ void phy_wireframe<T_app>::draw()
 	app->m_D3DDC->IASetInputLayout(input_layouts::m_Color);
 	app->m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	app->m_D3DDC->RSSetState(render::m_WireframeRS);
-	app->m_D3DDC->IASetIndexBuffer(box_ib, DXGI_FORMAT_R32_UINT, 0);	
+	app->m_D3DDC->IASetIndexBuffer(box_ib, DXGI_FORMAT_R32_UINT, 0);
 	XMMATRIX view_proj = app->m_Cam.get_ViewProj();
 	// Draw collision box
 	for (size_t ix = 0; ix != app->m_Inst.m_BoundL.map.size(); ++ix) {

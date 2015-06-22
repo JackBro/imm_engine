@@ -95,7 +95,7 @@ void scene_mgr<T_app>::update_atmosphere(float dt)
 {
 	plasma.update(dt, app->m_Timer.total_time());
 	audio.update();
-	app->m_Attack.update();	
+	app->m_Attack.update();
 }
 //
 template <typename T_app>

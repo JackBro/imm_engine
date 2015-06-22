@@ -118,7 +118,7 @@ void model_load_geo_mesh(
 	subset_table[0].vertex_start = 0;
 	subset_table[0].vertex_count = static_cast<UINT>(geo[0].vertices.size());
 	subset_table[0].face_start = 0;
-	subset_table[0].face_count = static_cast<UINT>(geo[0].indices.size()/3);	
+	subset_table[0].face_count = static_cast<UINT>(geo[0].indices.size()/3);
 	for (size_t ix = 1; ix < size; ++ix) {
 		subset_table[ix].vertex_start = subset_table[ix-1].vertex_start+subset_table[ix-1].vertex_count;
 		subset_table[ix].vertex_count = static_cast<UINT>(geo[ix].vertices.size());
@@ -133,10 +133,10 @@ void model_load_geo_mesh(
 	size_t k = 0;
 	for (size_t ix = 0; ix != size; ++ix) {
 		for(size_t i = 0; i < geo[ix].vertices.size(); ++i, ++k) {
-			vertices[k].pos			= geo[ix].vertices[i].position;
-			vertices[k].normal		= geo[ix].vertices[i].normal;
-			vertices[k].tex			= geo[ix].vertices[i].tex_c;
-			vertices[k].tangent_u	= geo[ix].vertices[i].tangent_u;
+			vertices[k].pos         = geo[ix].vertices[i].position;
+			vertices[k].normal      = geo[ix].vertices[i].normal;
+			vertices[k].tex         = geo[ix].vertices[i].tex_c;
+			vertices[k].tangent_u   = geo[ix].vertices[i].tangent_u;
 		}
 	}
 	//
@@ -155,7 +155,7 @@ void model_load_csv_basic(
 	ID3D11Device *device,
 	std::map<std::string, T_model> &model,
 	std::vector<std::vector<std::string>> csv_model,
-	std::map<std::string, rotation_xyz> &rot_front,	
+	std::map<std::string, rotation_xyz> &rot_front,
 	lua_reader &l_reader,
 	texture_mgr &tex_mgr,
 	const std::string &csv_name,

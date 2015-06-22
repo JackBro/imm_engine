@@ -70,7 +70,7 @@ particle::particle():
 	m_FirstRun = true;
 	m_GameTime = 0.0f;
 	m_TimeStep = 0.0f;
-	m_Age	  = 0.0f;
+	m_Age     = 0.0f;
 	m_EyePosW  = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_EmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_EmitDirW = XMFLOAT3(0.0f, 1.0f, 0.0f);
@@ -210,12 +210,12 @@ void particle::build_VB(ID3D11Device *device)
 {
 	// Create the buffer to kick-off the particle system.
 	D3D11_BUFFER_DESC vbd;
-	vbd.Usage				= D3D11_USAGE_DEFAULT;
-	vbd.ByteWidth			= sizeof(vertex_particle) * 1;
-	vbd.BindFlags			= D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags		= 0;
-	vbd.MiscFlags			= 0;
-	vbd.StructureByteStride	= 0;
+	vbd.Usage               = D3D11_USAGE_DEFAULT;
+	vbd.ByteWidth           = sizeof(vertex_particle) * 1;
+	vbd.BindFlags           = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags      = 0;
+	vbd.MiscFlags           = 0;
+	vbd.StructureByteStride = 0;
 	// The initial particle emitter has type 0 and age 0.  The rest
 	// of the particle attributes do not apply to an emitter.
 	vertex_particle p;

@@ -21,10 +21,10 @@ namespace imm
 struct ui_rect
 {
 	enum type {
-		background	= 0,
-		button		= 1,
-		text_pure	= 2,
-		text_layout	= 3,
+		background  = 0,
+		button      = 1,
+		text_pure   = 2,
+		text_layout = 3,
 		sprite      = 4,
 	};
 	ui_rect();
@@ -47,7 +47,7 @@ ui_rect::ui_rect():
 	parent(-1),
 	active(false)
 {
-	;	
+	;
 }
 ////////////////
 // sprite_simple
@@ -109,7 +109,7 @@ void sprite_simple::build_buffer(const std::map<std::string, std::string> &get_d
 }
 //
 void sprite_simple::draw_d3d(
-	const std::map<std::string, size_t> &map_sprite_rect, 
+	const std::map<std::string, size_t> &map_sprite_rect,
 	const std::vector<ui_rect> &rect,
 	const std::map<std::string, std::string> &map_sprite_name)
 {

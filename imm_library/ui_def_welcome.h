@@ -251,7 +251,7 @@ bool ui_def_welcome<T_app>::define_apply_ix_if(int &index)
 		group_active("entrance", false);
 		group_active("exit", true);
 		return true;
-	}	
+	}
 	// credit
 	if (index == m_MapID["credit_close"]) {
 		group_active("credit", false);
