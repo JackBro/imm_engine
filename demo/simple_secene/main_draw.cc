@@ -4,10 +4,17 @@
 ////////////////
 void imm_app::draw_scene()
 {
+	// ID3D11DeviceContext is not thread-safe, avoid loading conflict
+	// ID3D11Device::CreateBuffer has a bug with atidxx64.dll (because of the driver optimizing),
+	// avoid draw scene when loading
+	//
+	// Problem Url:
+	// ID3D11Device::CreateBuffer crashes, redux
+	// https://community.amd.com/thread/170834
+	if (m_Cmd.is_preparing) return;
 	if (!m_Cmd.is_should_be_quiet()) draw_scene_d3d();
 	else draw_scene_d3d_slient();
-	// ID3D11DeviceContext is not thread-safe, loading terrain will uses ID3D11DeviceContext
-	if (!m_Cmd.is_preparing) draw_scene_d2d();
+	draw_scene_d2d();
 	// Synchronize presentation
 	if (m_IsSyncInterval) m_SwapChain->Present1(1, 0, &m_DXGIPresentPara);
 	else m_SwapChain->Present(0, 0);

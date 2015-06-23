@@ -168,6 +168,13 @@ void model_load_csv_basic(
 	for (size_t ix = 1; ix < csv_model.size(); ++ix) {
 		std::string model_file = model_path+csv_model[ix][1];
 		std::string model_name = csv_model[ix][0];
+		rot_front[model_name] = rotation_xyz(csv_model[ix][2]);
+		// assign alpha
+		if (csv_model[0].size() > 3) {
+			if (csv_model[0][3] == "is_alpha") model_alpha[model_name] = stoi(csv_model[ix][3]);
+		}
+		// load model
+		if (model.count(model_name)) continue;
 		if (model_file.substr(model_file.size()-3) == "m3d") {
 			model[model_name].set(device, tex_mgr, model_file, texture_path);
 		}
@@ -175,11 +182,6 @@ void model_load_csv_basic(
 			bin_m3d model_bin;
 			model_bin.read_from_bin(model[model_name], model_file);
 			model[model_name].set(device, tex_mgr, texture_path);
-		}
-		rot_front[model_name] = rotation_xyz(csv_model[ix][2]);
-		// assign alpha
-		if (csv_model[0].size() > 3) {
-			if (csv_model[0][3] == "is_alpha") model_alpha[model_name] = stoi(csv_model[ix][3]);
 		}
 	}
 }

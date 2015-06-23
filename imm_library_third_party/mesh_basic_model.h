@@ -124,10 +124,14 @@ public:
 	skinned_model() {;}
 	~skinned_model() {;}
 	void set(
-		ID3D11Device *device, texture_mgr &tex_mgr, const std::string &model_filename,
+		ID3D11Device *device,
+		texture_mgr &tex_mgr,
+		const std::string &model_filename,
 		const std::wstring &texture_path);
 	void set(
-		ID3D11Device *device, texture_mgr &tex_mgr, const std::wstring &texture_path);
+		ID3D11Device *device,
+		texture_mgr &tex_mgr,
+		const std::wstring &texture_path);
 	std::vector<pos_normal_tex_tan_skinned> m_Vertices;
 	skinned_data m_SkinnedData;
 };

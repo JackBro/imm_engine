@@ -112,8 +112,8 @@ void simu_wave::init(UINT m, UINT n, float dx, float dt, float speed, float damp
 			float x = -halfwidth + j*dx;
 			m_PrevSolution[i*n+j] = XMFLOAT3(x, 0.0f, z);
 			m_CurrSolution[i*n+j] = XMFLOAT3(x, 0.0f, z);
-			m_Normals[i*n+j]     = XMFLOAT3(0.0f, 1.0f, 0.0f);
-			m_TangentX[i*n+j]    = XMFLOAT3(1.0f, 0.0f, 0.0f);
+			m_Normals[i*n+j]      = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			m_TangentX[i*n+j]     = XMFLOAT3(1.0f, 0.0f, 0.0f);
 		}
 	}
 }
@@ -140,9 +140,9 @@ void simu_wave::update(float dt)
 					m_K1*m_PrevSolution[i*m_NumCols+j].y+
 					m_K2*m_CurrSolution[i*m_NumCols+j].y+
 					m_K3*(m_CurrSolution[(i+1)*m_NumCols+j].y+
-						 m_CurrSolution[(i-1)*m_NumCols+j].y+
-						 m_CurrSolution[i*m_NumCols+j+1].y+
-						 m_CurrSolution[i*m_NumCols+j-1].y);
+						m_CurrSolution[(i-1)*m_NumCols+j].y+
+						m_CurrSolution[i*m_NumCols+j+1].y+
+						m_CurrSolution[i*m_NumCols+j-1].y);
 			}
 		}
 		// We just overwrote the previous buffer with the new data, so
