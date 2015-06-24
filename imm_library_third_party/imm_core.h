@@ -250,9 +250,9 @@ XMVECTOR rand_hemisphere_unit_vec3(XMVECTOR n)
 // cannot straddle a 4D vector boundary.
 ////////////////
 ////////////////
-struct lit_dir
+struct light_dir
 {
-	lit_dir() {ZeroMemory(this, sizeof(this));}
+	light_dir() {ZeroMemory(this, sizeof(this));}
 	XMFLOAT4 ambient;
 	XMFLOAT4 diffuse;
 	XMFLOAT4 specular;
@@ -260,9 +260,9 @@ struct lit_dir
 	float pad; // Pad the last float so we can set an array of lights if we wanted.
 };
 //
-struct lit_point
+struct light_point
 {
-	lit_point() {ZeroMemory(this, sizeof(this));}
+	light_point() {ZeroMemory(this, sizeof(this));}
 	XMFLOAT4 ambient;
 	XMFLOAT4 diffuse;
 	XMFLOAT4 specular;
@@ -274,9 +274,9 @@ struct lit_point
 	float pad; // Pad the last float so we can set an array of lights if we wanted.
 };
 //
-struct lit_spot
+struct light_spot
 {
-	lit_spot() {ZeroMemory(this, sizeof(this));}
+	light_spot() {ZeroMemory(this, sizeof(this));}
 	XMFLOAT4 ambient;
 	XMFLOAT4 diffuse;
 	XMFLOAT4 specular;

@@ -44,11 +44,14 @@ struct Material
 // Computes the ambient, diffuse, and specular terms in the lighting equation
 // from a directional light.  We need to output the terms separately because
 // later we will modify the individual terms.
-void ComputeDirectionalLight(Material mat, DirectionalLight L,
-							 float3 normal, float3 toEye,
-							 out float4 ambient,
-							 out float4 diffuse,
-							 out float4 spec)
+void ComputeDirectionalLight(
+	Material mat,
+	DirectionalLight L,
+	float3 normal,
+	float3 toEye,
+	out float4 ambient,
+	out float4 diffuse,
+	out float4 spec)
 {
 	// Initialize outputs.
 	ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -73,8 +76,15 @@ void ComputeDirectionalLight(Material mat, DirectionalLight L,
 // Computes the ambient, diffuse, and specular terms in the lighting equation
 // from a point light.  We need to output the terms separately because
 // later we will modify the individual terms.
-void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, float3 toEye,
-				   out float4 ambient, out float4 diffuse, out float4 spec)
+void ComputePointLight(
+	Material mat,
+	PointLight L,
+	float3 pos,
+	float3 normal,
+	float3 toEye,
+	out float4 ambient,
+	out float4 diffuse,
+	out float4 spec)
 {
 	// Initialize outputs.
 	ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -109,8 +119,15 @@ void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, fl
 // Computes the ambient, diffuse, and specular terms in the lighting equation
 // from a spotlight.  We need to output the terms separately because
 // later we will modify the individual terms.
-void ComputeSpotLight(Material mat, SpotLight L, float3 pos, float3 normal, float3 toEye,
-				  out float4 ambient, out float4 diffuse, out float4 spec)
+void ComputeSpotLight(
+	Material mat,
+	SpotLight L,
+	float3 pos,
+	float3 normal,
+	float3 toEye,
+	out float4 ambient,
+	out float4 diffuse,
+	out float4 spec)
 {
 	// Initialize outputs.
 	ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -162,9 +179,10 @@ float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, floa
 // Performs shadowmap test to determine if a pixel is in shadow.
 static const float SMAP_SIZE = 2048.0f;
 static const float SMAP_DX = 1.0f / SMAP_SIZE;
-float CalcShadowFactor(SamplerComparisonState samShadow,
-					   Texture2D shadowMap,
-					   float4 shadowPosH)
+float CalcShadowFactor(
+	SamplerComparisonState samShadow,
+	Texture2D shadowMap,
+	float4 shadowPosH)
 {
 	// Complete projection by doing division by w.
 	shadowPosH.xyz /= shadowPosH.w;

@@ -72,10 +72,10 @@ shadow_map::shadow_map(ID3D11Device *device, UINT width, UINT height):
 	dsv_desc.Texture2D.MipSlice = 0;
 	HR(device->CreateDepthStencilView(depth_map, &dsv_desc, &m_DepthMapDSV));
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format                      = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	srvDesc.ViewDimension               = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels         = tex_desc.MipLevels;
-	srvDesc.Texture2D.MostDetailedMip   = 0;
+	srvDesc.Format                    = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels       = tex_desc.MipLevels;
+	srvDesc.Texture2D.MostDetailedMip = 0;
 	HR(device->CreateShaderResourceView(depth_map, &srvDesc, &m_DepthMapSRV));
 	// View saves a reference to the texture so we can release our reference.
 	ReleaseCOM(depth_map);

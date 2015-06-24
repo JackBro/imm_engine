@@ -160,7 +160,7 @@ PatchTess ConstantHS(InputPatch<VertexOut, 4> patch, uint patchID : SV_Primitive
 		float3 e1 = 0.5f*(patch[0].PosW + patch[1].PosW);
 		float3 e2 = 0.5f*(patch[1].PosW + patch[3].PosW);
 		float3 e3 = 0.5f*(patch[2].PosW + patch[3].PosW);
-		float3  c = 0.25f*(patch[0].PosW + patch[1].PosW + patch[2].PosW + patch[3].PosW);
+		float3 c  = 0.25f*(patch[0].PosW + patch[1].PosW + patch[2].PosW + patch[3].PosW);
 		pt.EdgeTess[0] = CalcTessFactor(e0);
 		pt.EdgeTess[1] = CalcTessFactor(e1);
 		pt.EdgeTess[2] = CalcTessFactor(e2);
@@ -181,9 +181,10 @@ struct HullOut
 [outputcontrolpoints(4)]
 [patchconstantfunc("ConstantHS")]
 [maxtessfactor(64.0f)]
-HullOut HS(InputPatch<VertexOut, 4> p,
-		   uint i : SV_OutputControlPointID,
-		   uint patchId : SV_PrimitiveID)
+HullOut HS(
+	InputPatch<VertexOut, 4> p,
+	uint i : SV_OutputControlPointID,
+	uint patchId : SV_PrimitiveID)
 {
 	HullOut hout;
 	// Pass through shader.
@@ -202,9 +203,10 @@ struct DomainOut
 // The domain shader is called for every vertex created by the tessellator.
 // It is like the vertex shader after tessellation.
 [domain("quad")]
-DomainOut DS(PatchTess patchTess,
-			 float2 uv : SV_DomainLocation,
-			 const OutputPatch<HullOut, 4> quad)
+DomainOut DS(
+	PatchTess patchTess,
+	float2 uv : SV_DomainLocation,
+	const OutputPatch<HullOut, 4> quad)
 {
 	DomainOut dout;
 	// Bilinear interpolation.
@@ -230,9 +232,10 @@ DomainOut DS(PatchTess patchTess,
 	dout.ShadowPosH = mul(float4(dout.PosW, 1.0f), gShadowTransform);
 	return dout;
 }
-float4 PS(DomainOut pin,
-		  uniform int gLightCount,
-		  uniform bool gFogEnabled) : SV_Target
+float4 PS(
+	DomainOut pin,
+	uniform int gLightCount,
+	uniform bool gFogEnabled) : SV_Target
 {
 	//
 	// Estimate normal and tangent using central differences.

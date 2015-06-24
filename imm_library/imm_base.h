@@ -149,12 +149,12 @@ LRESULT CALLBACK base_win<DERIVED_TYPE>::WindowProc(HWND hwnd, UINT uMsg, WPARAM
 template <class DERIVED_TYPE>
 BOOL base_win<DERIVED_TYPE>::init_win()
 {
-	WNDCLASS wc         = {0};
-	wc.style            = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc      = DERIVED_TYPE::WindowProc;
-	wc.hInstance        = GetModuleHandle(NULL);
-	wc.lpszClassName    = class_name();
-	wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
+	WNDCLASS wc = {0};
+	wc.style         = CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc   = DERIVED_TYPE::WindowProc;
+	wc.hInstance     = GetModuleHandle(NULL);
+	wc.lpszClassName = class_name();
+	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	RegisterClassW(&wc);
 	// Rect
 	RECT rect = {0, 0, m_ClientWidth, m_ClientHeight};
@@ -249,26 +249,26 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 	assert(m_4xMsaaQuality > 0);
 	// Fill out a DXGI_SWAP_CHAIN_DESC to describe our swap chain.
 	DXGI_SWAP_CHAIN_DESC1 sd;
-	sd.Width                    = 0;
-	sd.Height                   = 0;
-	sd.Format                   = DXGI_FORMAT_B8G8R8A8_UNORM;
-	sd.Stereo                   = false;
+	sd.Width                  = 0;
+	sd.Height                 = 0;
+	sd.Format                 = DXGI_FORMAT_B8G8R8A8_UNORM;
+	sd.Stereo                 = false;
 	// Use 4X MSAA?
 	if (m_Enable4xMsaa) {
-		sd.SampleDesc.Count     = 4;
-		sd.SampleDesc.Quality   = m_4xMsaaQuality-1;
+		sd.SampleDesc.Count   = 4;
+		sd.SampleDesc.Quality = m_4xMsaaQuality-1;
 	}
 	// No MSAA
 	else {
-		sd.SampleDesc.Count     = 1;
-		sd.SampleDesc.Quality   = 0;
+		sd.SampleDesc.Count   = 1;
+		sd.SampleDesc.Quality = 0;
 	}
-	sd.BufferUsage              = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount              = 1;
-	sd.Scaling                  = DXGI_SCALING_STRETCH;
-	sd.SwapEffect               = DXGI_SWAP_EFFECT_DISCARD;
-	sd.AlphaMode                = DXGI_ALPHA_MODE_UNSPECIFIED;
-	sd.Flags                    = 0;
+	sd.BufferUsage            = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferCount            = 1;
+	sd.Scaling                = DXGI_SCALING_STRETCH;
+	sd.SwapEffect             = DXGI_SWAP_EFFECT_DISCARD;
+	sd.AlphaMode              = DXGI_ALPHA_MODE_UNSPECIFIED;
+	sd.Flags                  = 0;
 	// To correctly create the swap chain, we must use the IDXGIFactory that was
 	// used to create the device.  If we tried to use a different IDXGIFactory instance
 	// (by calling CreateDXGIFactory), we get an error: "IDXGIFactory::CreateSwapChain:
@@ -280,10 +280,10 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 	IDXGIFactory2 *dxgi_factory = 0;
 	HR(dxgi_adapter->GetParent(IID_PPV_ARGS(&dxgi_factory)));
 	HR(dxgi_factory->CreateSwapChainForHwnd(m_D3DDevice, m_hwnd, &sd, nullptr, nullptr, &m_SwapChain));
-	m_DXGIPresentPara.DirtyRectsCount   = 0;
-	m_DXGIPresentPara.pDirtyRects       = nullptr;
-	m_DXGIPresentPara.pScrollRect       = nullptr;
-	m_DXGIPresentPara.pScrollOffset     = nullptr;
+	m_DXGIPresentPara.DirtyRectsCount = 0;
+	m_DXGIPresentPara.pDirtyRects     = nullptr;
+	m_DXGIPresentPara.pScrollRect     = nullptr;
+	m_DXGIPresentPara.pScrollOffset   = nullptr;
 	// Disable alt-enter key, use full screen (windowed) for Microsoft IEM UI, otherwise full screen IEM will not work
 	// In addition, the alt-enter full screen can not use alt-tab correctly
 	dxgi_factory->MakeWindowAssociation(m_hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
@@ -371,36 +371,36 @@ void base_win<DERIVED_TYPE>::on_resize()
 	}
 	// Create the depth/stencil buffer and view.
 	D3D11_TEXTURE2D_DESC depth_stencil_desc;
-	depth_stencil_desc.Width                    = m_ClientWidth;
-	depth_stencil_desc.Height                   = m_ClientHeight;
-	depth_stencil_desc.MipLevels                = 1;
-	depth_stencil_desc.ArraySize                = 1;
-	depth_stencil_desc.Format                   = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depth_stencil_desc.Width                  = m_ClientWidth;
+	depth_stencil_desc.Height                 = m_ClientHeight;
+	depth_stencil_desc.MipLevels              = 1;
+	depth_stencil_desc.ArraySize              = 1;
+	depth_stencil_desc.Format                 = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	// Use 4X MSAA? --must match swap chain MSAA values.
 	if (m_Enable4xMsaa) {
-		depth_stencil_desc.SampleDesc.Count     = 4;
-		depth_stencil_desc.SampleDesc.Quality   = m_4xMsaaQuality-1;
+		depth_stencil_desc.SampleDesc.Count   = 4;
+		depth_stencil_desc.SampleDesc.Quality = m_4xMsaaQuality-1;
 	}
 	// No MSAA
 	else {
-		depth_stencil_desc.SampleDesc.Count     = 1;
-		depth_stencil_desc.SampleDesc.Quality   = 0;
+		depth_stencil_desc.SampleDesc.Count   = 1;
+		depth_stencil_desc.SampleDesc.Quality = 0;
 	}
-	depth_stencil_desc.Usage                    = D3D11_USAGE_DEFAULT;
-	depth_stencil_desc.BindFlags                = D3D11_BIND_DEPTH_STENCIL;
-	depth_stencil_desc.CPUAccessFlags           = 0;
-	depth_stencil_desc.MiscFlags                = 0;
+	depth_stencil_desc.Usage                  = D3D11_USAGE_DEFAULT;
+	depth_stencil_desc.BindFlags              = D3D11_BIND_DEPTH_STENCIL;
+	depth_stencil_desc.CPUAccessFlags         = 0;
+	depth_stencil_desc.MiscFlags              = 0;
 	HR(m_D3DDevice->CreateTexture2D(&depth_stencil_desc, 0, &m_DepthStencilBuffer));
 	HR(m_D3DDevice->CreateDepthStencilView(m_DepthStencilBuffer, 0, &m_DepthStencilView));
 	// Bind the render target view and depth/stencil view to the pipeline.
 	m_D3DDC->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 	// Set the viewport transform.
-	m_ScreenViewport.TopLeftX   = 0;
-	m_ScreenViewport.TopLeftY   = 0;
-	m_ScreenViewport.Width      = static_cast<float>(m_ClientWidth);
-	m_ScreenViewport.Height     = static_cast<float>(m_ClientHeight);
-	m_ScreenViewport.MinDepth   = 0.0f;
-	m_ScreenViewport.MaxDepth   = 1.0f;
+	m_ScreenViewport.TopLeftX = 0;
+	m_ScreenViewport.TopLeftY = 0;
+	m_ScreenViewport.Width    = static_cast<float>(m_ClientWidth);
+	m_ScreenViewport.Height   = static_cast<float>(m_ClientHeight);
+	m_ScreenViewport.MinDepth = 0.0f;
+	m_ScreenViewport.MaxDepth = 1.0f;
 	m_D3DDC->RSSetViewports(1, &m_ScreenViewport);
 }
 //

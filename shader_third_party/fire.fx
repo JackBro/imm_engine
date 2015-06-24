@@ -98,15 +98,14 @@ Particle StreamOutVS(Particle vin)
 // to particle system, as the destroy/spawn rules will be
 // different.
 [maxvertexcount(2)]
-void StreamOutGS(point Particle gin[1],
-				 inout PointStream<Particle> ptStream)
+void StreamOutGS(
+	point Particle gin[1],
+	inout PointStream<Particle> ptStream)
 {
 	gin[0].Age += gTimeStep;
-	if( gin[0].Type == PT_EMITTER )
-	{
+	if (gin[0].Type == PT_EMITTER) {
 		// time to emit a new particle?
-		if( gin[0].Age > 0.005f )
-		{
+		if (gin[0].Age > 0.005f) {
 			float3 vRandom = RandUnitVec3(0.0f);
 			vRandom.x *= 0.5f;
 			vRandom.z *= 0.5f;
@@ -123,26 +122,24 @@ void StreamOutGS(point Particle gin[1],
 		// always keep emitters
 		ptStream.Append(gin[0]);
 	}
-	else
-	{
+	else {
 		// Specify conditions to keep particle; this may vary from system to system.
-		if( gin[0].Age <= 1.0f )
+		if (gin[0].Age <= 1.0f)
 			ptStream.Append(gin[0]);
 	}
 }
 GeometryShader gsStreamOut = ConstructGSWithSO(
-	CompileShader( gs_5_0, StreamOutGS() ),
-	"POSITION.xyz; VELOCITY.xyz; SIZE.xy; AGE.x; TYPE.x" );
+	CompileShader(gs_5_0, StreamOutGS()),
+	"POSITION.xyz; VELOCITY.xyz; SIZE.xy; AGE.x; TYPE.x");
 technique11 StreamOutTech
 {
-	pass P0
-	{
-		SetVertexShader( CompileShader( vs_5_0, StreamOutVS() ) );
-		SetGeometryShader( gsStreamOut );
+	pass P0 {
+		SetVertexShader(CompileShader(vs_5_0, StreamOutVS()));
+		SetGeometryShader(gsStreamOut);
 		// disable pixel shader for stream-out only
 		SetPixelShader(NULL);
 		// we must also disable the depth buffer for stream-out only
-		SetDepthStencilState( DisableDepth, 0 );
+		SetDepthStencilState(DisableDepth, 0);
 	}
 }
 //***********************************************
@@ -176,12 +173,12 @@ struct GeoOut
 };
 // The draw GS just expands points into camera facing quads.
 [maxvertexcount(4)]
-void DrawGS(point VertexOut gin[1],
-			inout TriangleStream<GeoOut> triStream)
+void DrawGS(
+	point VertexOut gin[1],
+	inout TriangleStream<GeoOut> triStream)
 {
 	// do not draw emitter particles.
-	if( gin[0].Type != PT_EMITTER )
-	{
+	if (gin[0].Type != PT_EMITTER) {
 		//
 		// Compute world matrix so that billboard faces the camera.
 		//
@@ -204,8 +201,7 @@ void DrawGS(point VertexOut gin[1],
 		//
 		GeoOut gout;
 		[unroll]
-		for(int i = 0; i < 4; ++i)
-		{
+		for(int i = 0; i < 4; ++i) {
 			gout.PosH  = mul(v[i], gViewProj);
 			gout.Tex   = gQuadTexC[i];
 			gout.Color = gin[0].Color;
@@ -219,12 +215,11 @@ float4 DrawPS(GeoOut pin) : SV_TARGET
 }
 technique11 DrawTech
 {
-	pass P0
-	{
-		SetVertexShader(   CompileShader( vs_5_0, DrawVS() ) );
-		SetGeometryShader( CompileShader( gs_5_0, DrawGS() ) );
-		SetPixelShader(    CompileShader( ps_5_0, DrawPS() ) );
+	pass P0 {
+		SetVertexShader(CompileShader(vs_5_0, DrawVS()));
+		SetGeometryShader(CompileShader(gs_5_0, DrawGS()));
+		SetPixelShader(CompileShader(ps_5_0, DrawPS()));
 		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
-		SetDepthStencilState( NoDepthWrites, 0 );
+		SetDepthStencilState(NoDepthWrites, 0);
 	}
 }

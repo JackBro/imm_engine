@@ -51,7 +51,7 @@ public:
 	void draw(
 		ID3D11DeviceContext *dc,
 		const camera &cam1,
-		lit_dir lights[3],
+		light_dir lights[3],
 		shadow_map *shadow,
 		XMMATRIX &shadow_transform);
 	bool is_initialized();
@@ -108,10 +108,10 @@ terrain::terrain():
 	m_NumPatchVertCols(0)
 {
 	XMStoreFloat4x4(&m_World, XMMatrixIdentity());
-	m_Mat.ambient   = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Mat.diffuse   = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Mat.specular  = XMFLOAT4(0.0f, 0.0f, 0.0f, 64.0f);
-	m_Mat.reflect   = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	m_Mat.ambient  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Mat.diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Mat.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 64.0f);
+	m_Mat.reflect  = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 }
 //
 float terrain::get_Width() const {return (m_Info.heightmap_width-1)*m_Info.cell_spacing;}
@@ -188,7 +188,7 @@ void terrain::init(
 void terrain::draw(
 	ID3D11DeviceContext *dc,
 	const camera &cam1,
-	lit_dir lights[3],
+	light_dir lights[3],
 	shadow_map *shadow,
 	XMMATRIX &shadow_transform)
 {

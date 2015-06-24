@@ -85,17 +85,15 @@ Particle StreamOutVS(Particle vin)
 // to particle system, as the destroy/spawn rules will be
 // different.
 [maxvertexcount(6)]
-void StreamOutGS(point Particle gin[1],
-				 inout PointStream<Particle> ptStream)
+void StreamOutGS(
+	point Particle gin[1],
+	inout PointStream<Particle> ptStream)
 {
 	gin[0].Age += gTimeStep;
-	if( gin[0].Type == PT_EMITTER )
-	{
+	if (gin[0].Type == PT_EMITTER) {
 		// time to emit a new particle?
-		if( gin[0].Age > 0.002f )
-		{
-			for(int i = 0; i < 5; ++i)
-			{
+		if (gin[0].Age > 0.002f) {
+			for(int i = 0; i < 5; ++i) {
 				// Spread rain drops out above the camera.
 				float3 vRandom = 35.0f*RandVec3((float)i/5.0f);
 				vRandom.y = 20.0f;
@@ -113,26 +111,23 @@ void StreamOutGS(point Particle gin[1],
 		// always keep emitters
 		ptStream.Append(gin[0]);
 	}
-	else
-	{
+	else {
 		// Specify conditions to keep particle; this may vary from system to system.
-		if( gin[0].Age <= 3.0f )
-			ptStream.Append(gin[0]);
+		if (gin[0].Age <= 3.0f) ptStream.Append(gin[0]);
 	}
 }
 GeometryShader gsStreamOut = ConstructGSWithSO(
-	CompileShader( gs_5_0, StreamOutGS() ),
-	"POSITION.xyz; VELOCITY.xyz; SIZE.xy; AGE.x; TYPE.x" );
+	CompileShader(gs_5_0, StreamOutGS()),
+	"POSITION.xyz; VELOCITY.xyz; SIZE.xy; AGE.x; TYPE.x");
 technique11 StreamOutTech
 {
-	pass P0
-	{
-		SetVertexShader( CompileShader( vs_5_0, StreamOutVS() ) );
-		SetGeometryShader( gsStreamOut );
+	pass P0 {
+		SetVertexShader(CompileShader(vs_5_0, StreamOutVS()));
+		SetGeometryShader(gsStreamOut);
 		// disable pixel shader for stream-out only
 		SetPixelShader(NULL);
 		// we must also disable the depth buffer for stream-out only
-		SetDepthStencilState( DisableDepth, 0 );
+		SetDepthStencilState(DisableDepth, 0);
 	}
 }
 //***********************************************
@@ -159,11 +154,12 @@ struct GeoOut
 };
 // The draw GS just expands points into lines.
 [maxvertexcount(2)]
-void DrawGS(point VertexOut gin[1],
-			inout LineStream<GeoOut> lineStream)
+void DrawGS(
+	point VertexOut gin[1],
+	inout LineStream<GeoOut> lineStream)
 {
 	// do not draw emitter particles.
-	if( gin[0].Type != PT_EMITTER )
+	if (gin[0].Type != PT_EMITTER)
 	{
 		// Slant line in acceleration direction.
 		float3 p0 = gin[0].PosW;
@@ -184,11 +180,10 @@ float4 DrawPS(GeoOut pin) : SV_TARGET
 }
 technique11 DrawTech
 {
-	pass P0
-	{
-		SetVertexShader(   CompileShader( vs_5_0, DrawVS() ) );
-		SetGeometryShader( CompileShader( gs_5_0, DrawGS() ) );
-		SetPixelShader(    CompileShader( ps_5_0, DrawPS() ) );
-		SetDepthStencilState( NoDepthWrites, 0 );
+	pass P0 {
+		SetVertexShader(CompileShader(vs_5_0, DrawVS()));
+		SetGeometryShader(CompileShader(gs_5_0, DrawGS()));
+		SetPixelShader(CompileShader(ps_5_0, DrawPS()));
+		SetDepthStencilState(NoDepthWrites, 0);
 	}
 }

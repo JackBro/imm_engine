@@ -40,9 +40,9 @@ SamplerState samLinear
 };
 struct VertexIn
 {
-	float3 PosL     : POSITION;
-	float3 NormalL  : NORMAL;
-	float2 Tex      : TEXCOORD;
+	float3 PosL    : POSITION;
+	float3 NormalL : NORMAL;
+	float2 Tex     : TEXCOORD;
 };
 struct SkinnedVertexIn
 {
@@ -85,7 +85,7 @@ VertexOut SkinnedVS(SkinnedVertexIn vin)
 		for(int i = 0; i < 4; ++i) {
 			// Assume no nonuniform scaling when transforming normals, so
 			// that we do not have to use the inverse-transpose.
-			posL     += weights[i]*mul(float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]]).xyz;
+			posL += weights[i]*mul(float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]]).xyz;
 		}
 	}
 	// Transform to homogeneous clip space.
@@ -104,9 +104,9 @@ struct TessVertexOut
 TessVertexOut TessVS(VertexIn vin)
 {
 	TessVertexOut vout;
-	vout.PosW     = mul(float4(vin.PosL, 1.0f), gWorld).xyz;
-	vout.NormalW  = mul(vin.NormalL, (float3x3)gWorldInvTranspose);
-	vout.Tex      = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
+	vout.PosW    = mul(float4(vin.PosL, 1.0f), gWorld).xyz;
+	vout.NormalW = mul(vin.NormalL, (float3x3)gWorldInvTranspose);
+	vout.Tex     = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
 	float d = distance(vout.PosW, gEyePosW);
 	// Normalized tessellation factor.
 	// The tessellation is
@@ -122,8 +122,9 @@ struct PatchTess
 	float EdgeTess[3] : SV_TessFactor;
 	float InsideTess  : SV_InsideTessFactor;
 };
-PatchTess PatchHS(InputPatch<TessVertexOut,3> patch,
-				  uint patchID : SV_PrimitiveID)
+PatchTess PatchHS(
+	InputPatch<TessVertexOut,3> patch,
+	uint patchID : SV_PrimitiveID)
 {
 	PatchTess pt;
 	// Average tess factors along edges, and pick an edge tess factor for
@@ -139,45 +140,47 @@ PatchTess PatchHS(InputPatch<TessVertexOut,3> patch,
 }
 struct HullOut
 {
-	float3 PosW     : POSITION;
-	float3 NormalW  : NORMAL;
-	float2 Tex      : TEXCOORD;
+	float3 PosW    : POSITION;
+	float3 NormalW : NORMAL;
+	float2 Tex     : TEXCOORD;
 };
 [domain("tri")]
 [partitioning("fractional_odd")]
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(3)]
 [patchconstantfunc("PatchHS")]
-HullOut HS(InputPatch<TessVertexOut,3> p,
-		   uint i : SV_OutputControlPointID,
-		   uint patchId : SV_PrimitiveID)
+HullOut HS(
+	InputPatch<TessVertexOut,3> p,
+	uint i : SV_OutputControlPointID,
+	uint patchId : SV_PrimitiveID)
 {
 	HullOut hout;
 	// Pass through shader.
-	hout.PosW     = p[i].PosW;
-	hout.NormalW  = p[i].NormalW;
-	hout.Tex      = p[i].Tex;
+	hout.PosW    = p[i].PosW;
+	hout.NormalW = p[i].NormalW;
+	hout.Tex     = p[i].Tex;
 	return hout;
 }
 struct DomainOut
 {
-	float4 PosH     : SV_POSITION;
-	float3 PosW     : POSITION;
-	float3 NormalW  : NORMAL;
-	float2 Tex      : TEXCOORD;
+	float4 PosH    : SV_POSITION;
+	float3 PosW    : POSITION;
+	float3 NormalW : NORMAL;
+	float2 Tex     : TEXCOORD;
 };
 // The domain shader is called for every vertex created by the tessellator.
 // It is like the vertex shader after tessellation.
 [domain("tri")]
-DomainOut DS(PatchTess patchTess,
-			 float3 bary : SV_DomainLocation,
-			 const OutputPatch<HullOut,3> tri)
+DomainOut DS(
+	PatchTess patchTess,
+	float3 bary : SV_DomainLocation,
+	const OutputPatch<HullOut,3> tri)
 {
 	DomainOut dout;
 	// Interpolate patch attributes to generated vertices.
-	dout.PosW     = bary.x*tri[0].PosW     + bary.y*tri[1].PosW     + bary.z*tri[2].PosW;
-	dout.NormalW  = bary.x*tri[0].NormalW  + bary.y*tri[1].NormalW  + bary.z*tri[2].NormalW;
-	dout.Tex      = bary.x*tri[0].Tex      + bary.y*tri[1].Tex      + bary.z*tri[2].Tex;
+	dout.PosW    = bary.x*tri[0].PosW    + bary.y*tri[1].PosW    + bary.z*tri[2].PosW;
+	dout.NormalW = bary.x*tri[0].NormalW + bary.y*tri[1].NormalW + bary.z*tri[2].NormalW;
+	dout.Tex     = bary.x*tri[0].Tex     + bary.y*tri[1].Tex     + bary.z*tri[2].Tex;
 	// Interpolating normal can unnormalize it, so normalize it.
 	dout.NormalW = normalize(dout.NormalW);
 	//
@@ -234,8 +237,7 @@ RasterizerState Depth
 };
 technique11 BuildShadowMapTech
 {
-	pass P0
-	{
+	pass P0 {
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
 		SetPixelShader(NULL);
@@ -244,8 +246,7 @@ technique11 BuildShadowMapTech
 }
 technique11 BuildShadowMapAlphaClipTech
 {
-	pass P0
-	{
+	pass P0 {
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));
@@ -253,8 +254,7 @@ technique11 BuildShadowMapAlphaClipTech
 }
 technique11 BuildShadowMapSkinnedTech
 {
-	pass P0
-	{
+	pass P0 {
 		SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
 		SetGeometryShader(NULL);
 		SetPixelShader(NULL);
@@ -263,8 +263,7 @@ technique11 BuildShadowMapSkinnedTech
 }
 technique11 BuildShadowMapAlphaClipSkinnedTech
 {
-	pass P0
-	{
+	pass P0 {
 		SetVertexShader(CompileShader(vs_5_0, SkinnedVS()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));
@@ -272,8 +271,7 @@ technique11 BuildShadowMapAlphaClipSkinnedTech
 }
 technique11 TessBuildShadowMapTech
 {
-	pass P0
-	{
+	pass P0 {
 		SetVertexShader(CompileShader(vs_5_0, TessVS()));
 		SetHullShader(CompileShader(hs_5_0, HS()));
 		SetDomainShader(CompileShader(ds_5_0, DS()));
@@ -284,8 +282,7 @@ technique11 TessBuildShadowMapTech
 }
 technique11 TessBuildShadowMapAlphaClipTech
 {
-	pass P0
-	{
+	pass P0 {
 		SetVertexShader(CompileShader(vs_5_0, TessVS()));
 		SetHullShader(CompileShader(hs_5_0, HS()));
 		SetDomainShader(CompileShader(ds_5_0, DS()));

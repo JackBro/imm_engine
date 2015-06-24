@@ -43,17 +43,17 @@ ID3D11ShaderResourceView *create_Texture2DArraySRV(
 	src_tex[0]->GetDesc(&tex_element_desc);
 	//
 	D3D11_TEXTURE2D_DESC tex_array_desc;
-	tex_array_desc.Width                = tex_element_desc.Width;
-	tex_array_desc.Height               = tex_element_desc.Height;
-	tex_array_desc.MipLevels            = tex_element_desc.MipLevels;
-	tex_array_desc.ArraySize            = static_cast<UINT>(size);
-	tex_array_desc.Format               = tex_element_desc.Format;
-	tex_array_desc.SampleDesc.Count     = 1;
-	tex_array_desc.SampleDesc.Quality   = 0;
-	tex_array_desc.Usage                = D3D11_USAGE_DEFAULT;
-	tex_array_desc.BindFlags            = D3D11_BIND_SHADER_RESOURCE;
-	tex_array_desc.CPUAccessFlags       = 0;
-	tex_array_desc.MiscFlags            = 0;
+	tex_array_desc.Width              = tex_element_desc.Width;
+	tex_array_desc.Height             = tex_element_desc.Height;
+	tex_array_desc.MipLevels          = tex_element_desc.MipLevels;
+	tex_array_desc.ArraySize          = static_cast<UINT>(size);
+	tex_array_desc.Format             = tex_element_desc.Format;
+	tex_array_desc.SampleDesc.Count   = 1;
+	tex_array_desc.SampleDesc.Quality = 0;
+	tex_array_desc.Usage              = D3D11_USAGE_DEFAULT;
+	tex_array_desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE;
+	tex_array_desc.CPUAccessFlags     = 0;
+	tex_array_desc.MiscFlags          = 0;
 	//
 	ID3D11Texture2D *tex_array = 0;
 	HR(device->CreateTexture2D(&tex_array_desc, 0, &tex_array));
@@ -72,12 +72,12 @@ ID3D11ShaderResourceView *create_Texture2DArraySRV(
 	}
 	// Create a resource view to the texture array.
 	D3D11_SHADER_RESOURCE_VIEW_DESC view_desc;
-	view_desc.Format                            = tex_array_desc.Format;
-	view_desc.ViewDimension                     = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-	view_desc.Texture2DArray.MostDetailedMip    = 0;
-	view_desc.Texture2DArray.MipLevels          = tex_array_desc.MipLevels;
-	view_desc.Texture2DArray.FirstArraySlice    = 0;
-	view_desc.Texture2DArray.ArraySize          = static_cast<UINT>(size);
+	view_desc.Format                         = tex_array_desc.Format;
+	view_desc.ViewDimension                  = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	view_desc.Texture2DArray.MostDetailedMip = 0;
+	view_desc.Texture2DArray.MipLevels       = tex_array_desc.MipLevels;
+	view_desc.Texture2DArray.FirstArraySlice = 0;
+	view_desc.Texture2DArray.ArraySize       = static_cast<UINT>(size);
 	//
 	ID3D11ShaderResourceView *tex_arraySRV = 0;
 	HR(device->CreateShaderResourceView(tex_array, &view_desc, &tex_arraySRV));
@@ -101,9 +101,9 @@ ID3D11ShaderResourceView *create_RandomTexture1DSRV(ID3D11Device* device)
 		random_values[i].w = calc_randf(-1.0f, 1.0f);
 	}
 	D3D11_SUBRESOURCE_DATA init_data;
-	init_data.pSysMem           = random_values;
-	init_data.SysMemPitch       = 1024*sizeof(XMFLOAT4);
-	init_data.SysMemSlicePitch  = 0;
+	init_data.pSysMem          = random_values;
+	init_data.SysMemPitch      = 1024*sizeof(XMFLOAT4);
+	init_data.SysMemSlicePitch = 0;
 	// Create the texture.
 	D3D11_TEXTURE1D_DESC tex_desc;
 	tex_desc.Width          = 1024;

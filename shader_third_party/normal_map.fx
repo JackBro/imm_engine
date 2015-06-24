@@ -127,12 +127,13 @@ VertexOut SkinnedVS(SkinnedVertexIn vin)
 	vout.ShadowPosH = mul(float4(posL, 1.0f), gShadowTransform);
 	return vout;
 }
-float4 PS(VertexOut pin,
-		  uniform int gLightCount,
-		  uniform bool gUseTexure,
-		  uniform bool gAlphaClip,
-		  uniform bool gFogEnabled,
-		  uniform bool gReflectionEnabled) : SV_Target
+float4 PS(
+	VertexOut pin,
+	uniform int gLightCount,
+	uniform bool gUseTexure,
+	uniform bool gAlphaClip,
+	uniform bool gFogEnabled,
+	uniform bool gReflectionEnabled) : SV_Target
 {
 	// Interpolating normal can unnormalize it, so normalize it.
 	pin.NormalW = normalize(pin.NormalW);

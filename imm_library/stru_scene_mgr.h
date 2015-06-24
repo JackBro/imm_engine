@@ -13,6 +13,7 @@
 #include "render_terrain.h"
 #include "audio_dxtk.h"
 #include "phy_auxiliary.h"
+#include "stru_liquid.h"
 namespace imm
 {
 ////////////////
@@ -36,13 +37,14 @@ struct scene_mgr
 	void reload_media();
 	T_app *app;
 	std::map<std::string, std::string> get_misc;
-	lit_dir dir_lights[3];
+	light_dir dir_lights[3];
 	XMFLOAT3 dir_lights_orignial[3];
 	BoundingSphere bounds;
 	sky *skybox;
 	terrain terrain1;
 	phy_property terrain1_phy;
 	state_plasma plasma;
+	state_liquid liquid;
 	audio_dxtk audio;
 	phy_wireframe<T_app> phy_wire;
 	std::string scene_ix;
@@ -58,6 +60,7 @@ scene_mgr<T_app>::scene_mgr():
 	terrain1(),
 	terrain1_phy(),
 	plasma(),
+	liquid(),
 	audio(),
 	phy_wire(),
 	scene_ix(),
