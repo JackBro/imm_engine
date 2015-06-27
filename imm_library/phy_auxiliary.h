@@ -112,7 +112,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 		XMFLOAT3 corners[8];
 		assert(app->m_Inst.m_BoundL.map[ix].first == phy_bound_type::box);
 		app->m_Inst.m_BoundL.b1[app->m_Inst.m_BoundL.map[ix].second].GetCorners(corners);
-		vertex_color vertices[] = {
+		vertex::pos_color vertices[] = {
 			{corners[0], XMFLOAT4(Colors::Yellow)},
 			{corners[1], XMFLOAT4(Colors::Yellow)},
 			{corners[2], XMFLOAT4(Colors::Yellow)},
@@ -125,7 +125,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 		box_collision.push_back(nullptr);
 		D3D11_BUFFER_DESC vbd;
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
-		vbd.ByteWidth = sizeof(vertex_color)*8;
+		vbd.ByteWidth = sizeof(vertex::pos_color)*8;
 		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vbd.CPUAccessFlags = 0;
 		vbd.MiscFlags = 0;
@@ -138,7 +138,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 	for (size_t ix = 0; ix != app->m_Attack.bbox_l.size(); ++ix) {
 		XMFLOAT3 corners[8];
 		app->m_Attack.bbox_l[ix].GetCorners(corners);
-		vertex_color vertices[] = {
+		vertex::pos_color vertices[] = {
 			{corners[0], XMFLOAT4(Colors::Red)},
 			{corners[1], XMFLOAT4(Colors::Red)},
 			{corners[2], XMFLOAT4(Colors::Red)},
@@ -151,7 +151,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 		box_attack.push_back(nullptr);
 		D3D11_BUFFER_DESC vbd;
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
-		vbd.ByteWidth = sizeof(vertex_color)*8;
+		vbd.ByteWidth = sizeof(vertex::pos_color)*8;
 		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vbd.CPUAccessFlags = 0;
 		vbd.MiscFlags = 0;
@@ -166,11 +166,11 @@ template <typename T_app>
 void phy_wireframe<T_app>::draw()
 {
 	if (!is_drawing) return;
-	color_effect *color_fx = effects::m_ColorFX;
-	ID3DX11EffectTechnique *tech = color_fx->m_ColorTech;
-	UINT stride = sizeof(vertex_color);
+	color_effect *color_fx = effects::m_PosColorFX;
+	ID3DX11EffectTechnique *tech = color_fx->m_PosColorTech;
+	UINT stride = sizeof(vertex::pos_color);
 	UINT offset = 0;
-	app->m_D3DDC->IASetInputLayout(input_layouts::m_Color);
+	app->m_D3DDC->IASetInputLayout(input_layouts::m_PosColor);
 	app->m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	app->m_D3DDC->RSSetState(render::m_WireframeRS);
 	app->m_D3DDC->IASetIndexBuffer(box_ib, DXGI_FORMAT_R32_UINT, 0);

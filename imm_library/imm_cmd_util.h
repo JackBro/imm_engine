@@ -7,7 +7,7 @@
 ////////////////
 #ifndef IMM_CMD_UTIL_H
 #define IMM_CMD_UTIL_H
-#include "stru_scene_help.h"
+#include "stru_load_help.h"
 #include <atomic>
 namespace imm
 {

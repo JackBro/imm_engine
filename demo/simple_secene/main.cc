@@ -146,8 +146,10 @@ void imm_app::update_scene(float dt)
 	m_Scene.update_listen_thread_for_reload();
 	// m_UiMgr before m_Cmd, always update, m_Cmd will close m_UiMgr
 	m_UiMgr.define_update();
-	if (m_Cmd.is_should_be_quiet()) return;
+	if (m_Cmd.is_waiting_for_something()) return;
 	if (!m_Cmd.is_active) update_scene_keydown(dt);
+	// Ensure m_Cmd.is_waiting_for_something()
+	if (m_Cmd.is_waiting_for_something()) return;
 	build_shadow_transform();
 	m_Cam.update_view_matrix();
 	m_Condition.update();
@@ -162,7 +164,7 @@ void imm_app::update_scene_keydown(float dt)
 //
 void imm_app::on_mouse_down(WPARAM btn_state, int x, int y)
 {
-	if (m_Cmd.is_should_be_quiet()) return;
+	if (m_Cmd.is_waiting_for_something()) return;
 	if (btn_state & MOUSE_CAM_MOVE) {
 		m_LastMousePos.x = x;
 		m_LastMousePos.y = y;
@@ -173,7 +175,7 @@ void imm_app::on_mouse_down(WPARAM btn_state, int x, int y)
 //
 void imm_app::on_mouse_up(WPARAM btn_state, int x, int y)
 {
-	if (m_Cmd.is_should_be_quiet()) return;
+	if (m_Cmd.is_waiting_for_something()) return;
 	DUMMY(x);
 	DUMMY(y);
 	DUMMY(btn_state);
@@ -182,7 +184,7 @@ void imm_app::on_mouse_up(WPARAM btn_state, int x, int y)
 //
 void imm_app::on_mouse_move(WPARAM btn_state, int x, int y)
 {
-	if (m_Cmd.is_should_be_quiet()) return;
+	if (m_Cmd.is_waiting_for_something()) return;
 	m_Control.on_mouse_move(btn_state, x, y);
 	if (btn_state & MOUSE_CAM_MOVE) {
 		m_LastMousePos.x = x;
@@ -192,7 +194,7 @@ void imm_app::on_mouse_move(WPARAM btn_state, int x, int y)
 //
 void imm_app::on_mouse_wheel(WPARAM btn_state, int x, int y)
 {
-	if (m_Cmd.is_should_be_quiet()) return;
+	if (m_Cmd.is_waiting_for_something()) return;
 	DUMMY(x);
 	DUMMY(y);
 	short z_delta = GET_WHEEL_DELTA_WPARAM(btn_state);
@@ -207,7 +209,7 @@ void imm_app::on_input_char(WPARAM w_param, LPARAM l_param)
 void imm_app::on_input_keydown(WPARAM w_param, LPARAM l_param)
 {
 	m_Cmd.on_input_keydown(w_param, l_param);
-	if (m_Cmd.is_should_be_quiet()) return;
+	if (m_Cmd.is_waiting_for_something()) return;
 	m_Control.on_input_keydown(w_param, l_param);
 }
 ////////////////

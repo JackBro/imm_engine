@@ -1,12 +1,12 @@
 ////////////////
-// stru_scene_help.h
+// stru_load_help.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef STRU_SCENE_HELP_H
-#define STRU_SCENE_HELP_H
+#ifndef STRU_LOAD_HELP_H
+#define STRU_LOAD_HELP_H
 #include "stru_scene_swatch.h"
 #include "stru_lua_help.h"
 #include "mesh_geometry_gen.h"
@@ -107,7 +107,7 @@ bool data_is_file_exist(const std::string &path_file)
 ////////////////
 void model_load_geo_mesh(
 	ID3D11Device *device,
-	simple_model<pos_normal_tex_tan> &model_shape,
+	simple_model<vertex::pntt> &model_shape,
 	const std::vector<geometry::mesh_data> &geo)
 {
 	size_t size = geo.size();
@@ -126,7 +126,7 @@ void model_load_geo_mesh(
 		subset_table[ix].face_count = static_cast<UINT>(geo[ix].indices.size()/3);
 	}
 	//
-	std::vector<pos_normal_tex_tan> &vertices = model_shape.m_Vertices;
+	std::vector<vertex::pntt> &vertices = model_shape.m_Vertices;
 	size_t vertices_size = 0;
 	for (size_t ix = 0; ix != size; ++ix) vertices_size += geo[ix].vertices.size();
 	vertices.resize(vertices_size);
@@ -166,13 +166,12 @@ void model_load_csv_basic(
 	// build model
 	l_reader.vec2d_str_from_table(csv_name, csv_model);
 	for (size_t ix = 1; ix < csv_model.size(); ++ix) {
+		assert(csv_model[ix].size() > 3);
 		std::string model_file = model_path+csv_model[ix][1];
 		std::string model_name = csv_model[ix][0];
 		rot_front[model_name] = rotation_xyz(csv_model[ix][2]);
 		// assign alpha
-		if (csv_model[0].size() > 3) {
-			if (csv_model[0][3] == "is_alpha") model_alpha[model_name] = stoi(csv_model[ix][3]);
-		}
+		model_alpha[model_name] = stoi(csv_model[ix][3]);
 		// load model
 		if (model.count(model_name)) continue;
 		if (model_file.substr(model_file.size()-3) == "m3d") {

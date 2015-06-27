@@ -31,6 +31,8 @@
 #include <DirectXMath.h>
 #include "debug_console.h"
 using namespace DirectX;
+namespace imm
+{
 ////////////////
 // DEBUG, IUnknown
 ////////////////
@@ -72,11 +74,24 @@ static const float REF_RESOLUTION_HEIGHT = 768.0f;
 // OMSetBlendState, BLEND_FACTOR_ZERO
 static const float BLEND_FACTOR_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
 ////////////////
+// str, wstr
+////////////////
+////////////////
+std::wstring str_to_wstr(const std::string &str)
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+	return convert.from_bytes(str);
+}
+//
+std::string wstr_to_str(const std::wstring &wstr)
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+	return convert.to_bytes(wstr);
+}
+////////////////
 // timer
 ////////////////
 ////////////////
-namespace imm
-{
 class timer
 {
 public:
@@ -169,6 +184,8 @@ void timer::tick()
 // math
 ////////////////
 ////////////////
+namespace math
+{
 // Returns random float in [0, 1).
 float calc_randf() {return (float)(rand())/(float)RAND_MAX;}
 // Returns random float in [a, b).
@@ -243,6 +260,7 @@ XMVECTOR rand_hemisphere_unit_vec3(XMVECTOR n)
 	}
 	return one;
 }
+} // namespace math
 ////////////////
 // light
 // Note: Make sure structure alignment agrees with HLSL structure padding rules.
@@ -299,21 +317,6 @@ struct material
 	XMFLOAT4 specular; // w = SpecPower
 	XMFLOAT4 reflect;
 };
-////////////////
-// str_to_wstr
-////////////////
-////////////////
-std::wstring str_to_wstr(const std::string &str)
-{
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
-	return convert.from_bytes(str);
-}
-//
-std::string wstr_to_str(const std::wstring &wstr)
-{
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
-	return convert.to_bytes(wstr);
-}
 ////////////////
 // effect
 ////////////////

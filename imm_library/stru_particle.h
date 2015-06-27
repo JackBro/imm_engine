@@ -65,6 +65,7 @@ void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 	flame.init(device, effects::m_FireFX, flame_tex_srv, random_tex_srv, 500);
 	// Dummy set
 	flame.set_EmitPos(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	//flame_emit_pos.push_back(XMFLOAT3(10.0f, 0.0f, 0.0f));
 }
 //
 void state_plasma::update(float dt, float total_time)
@@ -78,7 +79,6 @@ void state_plasma::draw(ID3D11DeviceContext *context, const camera &cam)
 	if (!is_active) return;
 	flame.set_EyePos(cam.get_Position());
 	flame.draw_list(context, cam, flame_emit_pos);
-
 }
 //
 void state_plasma::reset()

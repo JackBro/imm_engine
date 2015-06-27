@@ -31,13 +31,13 @@ class m3d_loader
 public:
 	bool load_m3d(
 		const std::string &filename,
-		std::vector<pos_normal_tex_tan2> &vertices,
+		std::vector<vertex::pntt2> &vertices,
 		std::vector<UINT> &indices,
 		std::vector<mesh_geometry::subset> &subsets,
 		std::vector<m3d_material> &mats);
 	bool load_m3d(
 		const std::string &filename,
-		std::vector<pos_normal_tex_tan_skinned> &vertices,
+		std::vector<vertex::pntt_skinned> &vertices,
 		std::vector<UINT> &indices,
 		std::vector<mesh_geometry::subset> &subsets,
 		std::vector<m3d_material> &mats,
@@ -45,10 +45,10 @@ public:
 private:
 	void read_Materials(std::ifstream &fin, UINT num_materials, std::vector<m3d_material> &mats);
 	void read_SubsetTable(std::ifstream &fin, UINT num_subsets, std::vector<mesh_geometry::subset> &subsets);
-	void read_Vertices(std::ifstream &fin, UINT num_vertices, std::vector<pos_normal_tex_tan2> &vertices);
+	void read_Vertices(std::ifstream &fin, UINT num_vertices, std::vector<vertex::pntt2> &vertices);
 	void read_Triangles(std::ifstream &fin, UINT num_triangles, std::vector<UINT> &indices);
 	//
-	void read_SkinnedVertices(std::ifstream &fin, UINT num_vertices, std::vector<pos_normal_tex_tan_skinned> &vertices);
+	void read_SkinnedVertices(std::ifstream &fin, UINT num_vertices, std::vector<vertex::pntt_skinned> &vertices);
 	void read_BoneOffsets(std::ifstream &fin, UINT num_bones, std::vector<XMFLOAT4X4> &bone_offsets);
 	void read_BoneHierarchy(std::ifstream &fin, UINT num_bones, std::vector<int> &bone_index_to_parent_index);
 	void read_AnimationClips(std::ifstream &fin, UINT num_bones, UINT num_animation_clips, std::map<std::string, animation_clip> &animations);
@@ -57,7 +57,7 @@ private:
 //
 bool m3d_loader::load_m3d(
 	const std::string &filename,
-	std::vector<pos_normal_tex_tan2> &vertices,
+	std::vector<vertex::pntt2> &vertices,
 	std::vector<UINT> &indices,
 	std::vector<mesh_geometry::subset> &subsets,
 	std::vector<m3d_material> &mats)
@@ -93,7 +93,7 @@ bool m3d_loader::load_m3d(
 //
 bool m3d_loader::load_m3d(
 	const std::string &filename,
-	std::vector<pos_normal_tex_tan_skinned> &vertices,
+	std::vector<vertex::pntt_skinned> &vertices,
 	std::vector<UINT> &indices,
 	std::vector<mesh_geometry::subset> &subsets,
 	std::vector<m3d_material> &mats,
@@ -173,7 +173,7 @@ void m3d_loader::read_SubsetTable(std::ifstream &fin, UINT num_subsets, std::vec
 	}
 }
 //
-void m3d_loader::read_Vertices(std::ifstream &fin, UINT num_vertices, std::vector<pos_normal_tex_tan2> &vertices)
+void m3d_loader::read_Vertices(std::ifstream &fin, UINT num_vertices, std::vector<vertex::pntt2> &vertices)
 {
 	std::string ignore;
 	vertices.resize(num_vertices);
@@ -196,7 +196,7 @@ void m3d_loader::read_Triangles(std::ifstream &fin, UINT num_triangles, std::vec
 }
 //
 void m3d_loader::read_SkinnedVertices(
-	std::ifstream &fin, UINT num_vertices, std::vector<pos_normal_tex_tan_skinned> &vertices)
+	std::ifstream &fin, UINT num_vertices, std::vector<vertex::pntt_skinned> &vertices)
 {
 	std::string ignore;
 	vertices.resize(num_vertices);

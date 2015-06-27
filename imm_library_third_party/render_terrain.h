@@ -195,7 +195,7 @@ void terrain::draw(
 	if (m_QuadPatchVB == nullptr) return;
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	dc->IASetInputLayout(input_layouts::m_Terrain);
-	UINT stride = sizeof(vertex_terrain);
+	UINT stride = sizeof(vertex::terrain);
 	UINT offset = 0;
 	dc->IASetVertexBuffers(0, 1, &m_QuadPatchVB, &stride, &offset);
 	dc->IASetIndexBuffer(m_QuadPatchIB, DXGI_FORMAT_R16_UINT, 0);
@@ -328,8 +328,8 @@ void terrain::calc_PatchBoundsY(UINT i, UINT j)
 	for(UINT y = y0; y <= y1; ++y) {
 		for(UINT x = x0; x <= x1; ++x) {
 			UINT k = y*m_Info.heightmap_width + x;
-			min_y = calc_min(min_y, m_Heightmap[k]);
-			max_y = calc_max(max_y, m_Heightmap[k]);
+			min_y = math::calc_min(min_y, m_Heightmap[k]);
+			max_y = math::calc_max(max_y, m_Heightmap[k]);
 		}
 	}
 	UINT patch_id = i*(m_NumPatchVertCols-1)+j;
@@ -338,7 +338,7 @@ void terrain::calc_PatchBoundsY(UINT i, UINT j)
 //
 void terrain::build_QuadPatchVB(ID3D11Device *device)
 {
-	std::vector<vertex_terrain> patch_vertices(m_NumPatchVertRows*m_NumPatchVertCols);
+	std::vector<vertex::terrain> patch_vertices(m_NumPatchVertRows*m_NumPatchVertCols);
 	float half_width = 0.5f*get_Width();
 	float half_depth = 0.5f*get_Depth();
 	float patch_width = get_Width() / (m_NumPatchVertCols-1);
@@ -364,7 +364,7 @@ void terrain::build_QuadPatchVB(ID3D11Device *device)
 	}
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage               = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth           = static_cast<UINT>(sizeof(vertex_terrain) * patch_vertices.size());
+	vbd.ByteWidth           = static_cast<UINT>(sizeof(vertex::terrain) * patch_vertices.size());
 	vbd.BindFlags           = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags      = 0;
 	vbd.MiscFlags           = 0;

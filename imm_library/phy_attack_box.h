@@ -142,7 +142,7 @@ void phy_attack_arrange<T_app>::rebuild_bbox_from_instance()
 template <typename T_app>
 void phy_attack_arrange<T_app>::update()
 {
-	if (app->m_Cmd.is_should_be_quiet()) return;
+	assert(!app->m_Cmd.is_waiting_for_something());
 	for (auto it_map = map.begin(); it_map != map.end(); ++it_map) {
 		XMMATRIX world = XMLoadFloat4x4(app->m_Inst.m_Stat[it_map->first].get_World());
 		for (auto it_box = it_map->second.begin(); it_box != it_map->second.end(); ++it_box) {

@@ -116,7 +116,7 @@ float animation_clip::get_clip_start_time() const
 	// Find smallest start time over all bones in this clip.
 	float t = FLT_MAX;
 	for (UINT i = 0; i < bone_animations.size(); ++i) {
-		t = calc_min(t, bone_animations[i].get_start_time());
+		t = math::calc_min(t, bone_animations[i].get_start_time());
 	}
 	return t;
 }
@@ -126,7 +126,7 @@ float animation_clip::get_clip_end_time() const
 	// Find largest end time over all bones in this clip.
 	float t = 0.0f;
 	for (UINT i = 0; i < bone_animations.size(); ++i) {
-		t = calc_max(t, bone_animations[i].get_end_time());
+		t = math::calc_max(t, bone_animations[i].get_end_time());
 	}
 	return t;
 }

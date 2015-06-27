@@ -8,7 +8,7 @@
 #ifndef STRU_MODEL_MGR_H
 #define STRU_MODEL_MGR_H
 #include "phy_position_logic.h"
-#include "stru_scene_help.h"
+#include "stru_load_help.h"
 #include "mesh_basic_model.h"
 #include <thread>
 namespace imm
@@ -57,7 +57,7 @@ XMFLOAT4X4 *instance_stat::get_World()
 	switch(type) {
 		case basic: return &(((basic_model_instance*)p)->world);
 		case skinned: return &(((skinned_model_instance*)p)->world);
-		case simple_pntt: return &(((simple_model_instance<pos_normal_tex_tan>*)p)->world);
+		case simple_pntt: return &(((simple_model_instance<vertex::pntt>*)p)->world);
 	}
 	assert(false);
 	// bad
@@ -69,7 +69,7 @@ XMFLOAT4X4 *instance_stat::get_RotFront()
 	switch(type) {
 		case basic: return &(((basic_model_instance*)p)->rot_front);
 		case skinned: return &(((skinned_model_instance*)p)->rot_front);
-		case simple_pntt: return &(((simple_model_instance<pos_normal_tex_tan>*)p)->rot_front);
+		case simple_pntt: return &(((simple_model_instance<vertex::pntt>*)p)->rot_front);
 	}
 	assert(false);
 	// bad
@@ -87,7 +87,7 @@ std::string *instance_stat::get_ModelName()
 	switch(type) {
 		case basic: return &(((basic_model_instance*)p)->model_name);
 		case skinned: return &(((skinned_model_instance*)p)->model_name);
-		case simple_pntt: return &(((simple_model_instance<pos_normal_tex_tan>*)p)->model_name);
+		case simple_pntt: return &(((simple_model_instance<vertex::pntt>*)p)->model_name);
 	}
 	assert(false);
 	// bad
@@ -100,7 +100,7 @@ void instance_stat::set_World(const XMFLOAT4X4 world)
 	switch(type) {
 		case basic: ((basic_model_instance*)p)->world = world; return;
 		case skinned: ((skinned_model_instance*)p)->world = world; return;
-		case simple_pntt: ((simple_model_instance<pos_normal_tex_tan>*)p)->world = world; return;
+		case simple_pntt: ((simple_model_instance<vertex::pntt>*)p)->world = world; return;
 	}
 	assert(false);
 }
@@ -110,7 +110,7 @@ void instance_stat::set_IsAppear(const bool is_appear)
 	switch(type) {
 		case basic: ((basic_model_instance*)p)->is_appear = is_appear; return;
 		case skinned: ((skinned_model_instance*)p)->is_appear = is_appear; return;
-		case simple_pntt: ((simple_model_instance<pos_normal_tex_tan>*)p)->is_appear = is_appear; return;
+		case simple_pntt: ((simple_model_instance<vertex::pntt>*)p)->is_appear = is_appear; return;
 	}
 	assert(false);
 }
@@ -141,10 +141,10 @@ struct model_mgr
 	void remove_all();
 	texture_mgr m_TexMgr;
 	bool is_initialized;
-	std::map<std::string, simple_model<pos_normal_tex_tan>> m_PNTT;
+	std::map<std::string, simple_model<vertex::pntt>> m_PNTT;
 	std::map<std::string, skinned_model> m_Skinned;
 	std::map<std::string, basic_model> m_Basic;
-	std::vector<simple_model_instance<pos_normal_tex_tan>> m_InstPNTT;
+	std::vector<simple_model_instance<vertex::pntt>> m_InstPNTT;
 	std::vector<skinned_model_instance> m_InstSkinnedAlpha;
 	std::vector<skinned_model_instance> m_InstSkinned;
 	std::vector<basic_model_instance> m_InstBasicAlpha;
@@ -244,8 +244,8 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 		std::string model_name = vec2d_instance[ix][1];
 		m_NamePNTT.push_back(vec2d_instance[ix][0]);
 		assert(model_index.count(model_name));
-		m_InstPNTT.push_back(simple_model_instance<pos_normal_tex_tan>());
-		std::vector<simple_model_instance<pos_normal_tex_tan>>::iterator it;
+		m_InstPNTT.push_back(simple_model_instance<vertex::pntt>());
+		std::vector<simple_model_instance<vertex::pntt>>::iterator it;
 		it = m_InstPNTT.end();
 		// iterator to the last instance
 		--it;

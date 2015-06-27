@@ -224,7 +224,7 @@ public:
 	static particle_effect         *m_FireFX;
 	static particle_effect         *m_RainFX;
 	static debug_tex_effect        *m_DebugTexFX;
-	static color_effect            *m_ColorFX;
+	static color_effect            *m_PosColorFX;
 	static wave_sim_effect         *m_WaveSimFX;
 	static wave_render_effect      *m_WaveRenderFX;
 };
@@ -236,7 +236,7 @@ terrain_effect          *effects::m_TerrainFX        = nullptr;
 particle_effect         *effects::m_FireFX           = nullptr;
 particle_effect         *effects::m_RainFX           = nullptr;
 debug_tex_effect        *effects::m_DebugTexFX       = nullptr;
-color_effect            *effects::m_ColorFX          = nullptr;
+color_effect            *effects::m_PosColorFX          = nullptr;
 wave_sim_effect         *effects::m_WaveSimFX        = nullptr;
 wave_render_effect      *effects::m_WaveRenderFX     = nullptr;
 void effects::destroy_all()
@@ -249,7 +249,7 @@ void effects::destroy_all()
 	SafeDelete(m_FireFX);
 	SafeDelete(m_RainFX);
 	SafeDelete(m_DebugTexFX);
-	SafeDelete(m_ColorFX);
+	SafeDelete(m_PosColorFX);
 	SafeDelete(m_WaveSimFX);
 	SafeDelete(m_WaveRenderFX);
 }
@@ -265,7 +265,7 @@ void effects::init_all(ID3D11Device *device)
 	m_FireFX           = new particle_effect(device, path+L"fire.fxo");
 	m_RainFX           = new particle_effect(device, path+L"rain.fxo");
 	m_DebugTexFX       = new debug_tex_effect(device, path+L"debug_texture.fxo");
-	m_ColorFX          = new color_effect(device, path+L"color.fxo");
+	m_PosColorFX          = new color_effect(device, path+L"color.fxo");
 	m_WaveSimFX        = new wave_sim_effect(device, path+L"wave_sim.fxo");
 	m_WaveRenderFX     = new wave_render_effect(device, path+L"wave_render.fxo");
 }

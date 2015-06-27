@@ -123,7 +123,7 @@ void particle::draw(ID3D11DeviceContext *dc, const camera &cam1)
 	// Set IA stage.
 	dc->IASetInputLayout(input_layouts::m_Particle);
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	UINT stride = sizeof(vertex_particle);
+	UINT stride = sizeof(vertex::particle);
 	UINT offset = 0;
 	// On the first pass, use the initialization VB.  Otherwise, use
 	// the VB that contains the current particle list.
@@ -170,7 +170,7 @@ void particle::draw_list(ID3D11DeviceContext *dc, const camera &cam1, const std:
 	// Set IA stage.
 	dc->IASetInputLayout(input_layouts::m_Particle);
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	UINT stride = sizeof(vertex_particle);
+	UINT stride = sizeof(vertex::particle);
 	UINT offset = 0;
 	for (auto &emit_pos: list_emit_pos) {
 		m_FX->set_EmitPosW(emit_pos);
@@ -211,22 +211,22 @@ void particle::build_VB(ID3D11Device *device)
 	// Create the buffer to kick-off the particle system.
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage               = D3D11_USAGE_DEFAULT;
-	vbd.ByteWidth           = sizeof(vertex_particle) * 1;
+	vbd.ByteWidth           = sizeof(vertex::particle) * 1;
 	vbd.BindFlags           = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags      = 0;
 	vbd.MiscFlags           = 0;
 	vbd.StructureByteStride = 0;
 	// The initial particle emitter has type 0 and age 0.  The rest
 	// of the particle attributes do not apply to an emitter.
-	vertex_particle p;
-	ZeroMemory(&p, sizeof(vertex_particle));
+	vertex::particle p;
+	ZeroMemory(&p, sizeof(vertex::particle));
 	p.age = 0.0f;
 	p.type = 0;
 	D3D11_SUBRESOURCE_DATA vinit_data;
 	vinit_data.pSysMem = &p;
 	HR(device->CreateBuffer(&vbd, &vinit_data, &m_InitVB));
 	// Create the ping-pong buffers for stream-out and drawing.
-	vbd.ByteWidth = sizeof(vertex_particle) * m_MaxParticles;
+	vbd.ByteWidth = sizeof(vertex::particle) * m_MaxParticles;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_STREAM_OUTPUT;
 	HR(device->CreateBuffer(&vbd, 0, &m_DrawVB));
 	HR(device->CreateBuffer(&vbd, 0, &m_StreamOutVB));

@@ -38,7 +38,7 @@ void draw_inst_basic(
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
 			if (!model_inst[ix].is_appear) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
-			world_inv_transpose = inverse_transpose(world);
+			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;
 			fx->set_World(world);
 			fx->set_WorldInvTranspose(world_inv_transpose);
@@ -79,7 +79,7 @@ void draw_inst_basic_shadow(
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
 			if (!model_inst[ix].is_appear) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
-			world_inv_transpose = inverse_transpose(world);
+			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;
 			fx->set_World(world);
 			fx->set_WorldInvTranspose(world_inv_transpose);
@@ -120,7 +120,7 @@ void draw_inst_skinned(
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
 			if (!model_inst[ix].is_appear) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
-			world_inv_transpose = inverse_transpose(world);
+			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;
 			fx->set_World(world);
 			fx->set_WorldInvTranspose(world_inv_transpose);
@@ -164,7 +164,7 @@ void draw_inst_skinned_shadow(
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
 			if (!model_inst[ix].is_appear) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
-			world_inv_transpose = inverse_transpose(world);
+			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;
 			fx->set_World(world);
 			fx->set_WorldInvTranspose(world_inv_transpose);
@@ -209,7 +209,7 @@ void draw_inst_simple_pntt(
 	for(UINT ix = 0; ix < model_inst.size(); ++ix) {
 		if (!model_inst[ix].is_appear) continue;
 		world = XMLoadFloat4x4(&model_inst[ix].world);
-		world_inv_transpose = inverse_transpose(world);
+		world_inv_transpose = math::inverse_transpose(world);
 		world_view_proj = world*view_proj;
 		tex_transform = XMLoadFloat4x4(&model_inst[ix].tex_transform);
 		if (model_inst[ix].is_textrue) {
@@ -266,7 +266,7 @@ void draw_inst_simple_pntt_shadow(
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
 			if (!model_inst[ix].is_appear) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
-			world_inv_transpose = inverse_transpose(world);
+			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;
 			fx->set_World(world);
 			fx->set_WorldInvTranspose(world_inv_transpose);

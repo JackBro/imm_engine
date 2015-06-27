@@ -37,7 +37,7 @@ public:
 	std::vector<ID3D11ShaderResourceView*> m_DiffuseMapSRV;
 	std::vector<ID3D11ShaderResourceView*> m_NormalMapSRV;
 	// Keep CPU copies of the mesh data to read from.
-	std::vector<pos_normal_tex_tan2> m_Vertices;
+	std::vector<vertex::pntt2> m_Vertices;
 	std::vector<UINT> m_Indices;
 	std::vector<mesh_geometry::subset> m_Subsets;
 	mesh_geometry m_ModelMesh;
@@ -132,7 +132,7 @@ public:
 		ID3D11Device *device,
 		texture_mgr &tex_mgr,
 		const std::wstring &texture_path);
-	std::vector<pos_normal_tex_tan_skinned> m_Vertices;
+	std::vector<vertex::pntt_skinned> m_Vertices;
 	skinned_data m_SkinnedData;
 };
 ////////////////

@@ -95,10 +95,10 @@ ID3D11ShaderResourceView *create_RandomTexture1DSRV(ID3D11Device* device)
 	// Create the random data.
 	XMFLOAT4 random_values[1024];
 	for(int i = 0; i < 1024; ++i) {
-		random_values[i].x = calc_randf(-1.0f, 1.0f);
-		random_values[i].y = calc_randf(-1.0f, 1.0f);
-		random_values[i].z = calc_randf(-1.0f, 1.0f);
-		random_values[i].w = calc_randf(-1.0f, 1.0f);
+		random_values[i].x = math::calc_randf(-1.0f, 1.0f);
+		random_values[i].y = math::calc_randf(-1.0f, 1.0f);
+		random_values[i].z = math::calc_randf(-1.0f, 1.0f);
+		random_values[i].w = math::calc_randf(-1.0f, 1.0f);
 	}
 	D3D11_SUBRESOURCE_DATA init_data;
 	init_data.pSysMem          = random_values;

@@ -38,7 +38,7 @@ struct cmd_shell
 	void apply();
 	void on_resize();
 	void draw();
-	bool is_should_be_quiet();
+	bool is_waiting_for_something();
 };
 //
 template <typename T_app>
@@ -255,10 +255,9 @@ void cmd_shell<T_app>::draw()
 }
 //
 template <typename T_app>
-bool cmd_shell<T_app>::is_should_be_quiet()
+bool cmd_shell<T_app>::is_waiting_for_something()
 {
-	if (is_slient) return true;
-	if (is_preparing) return true;
+	if (is_slient || is_preparing) return true;
 	return false;
 }
 //

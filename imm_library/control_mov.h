@@ -302,6 +302,7 @@ template <typename T_app>
 void control_mov<T_app>::rebuild_player()
 {
 	player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.get_misc["player1"]));
+	assert(player1 > -1);
 }
 //
 template <typename T_app>

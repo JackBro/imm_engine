@@ -93,25 +93,25 @@ void instance_mgr<T_app>::reload()
 	inst_stat.type = basic;
 	push_back(
 		m_Model.m_InstBasic, inst_stat, k,
-		[](const pos_normal_tex_tan2 &x) {return &x.pos;},
+		[](const vertex::pntt2 &x) {return &x.pos;},
 		m_Model.m_NameBasic);
 	push_back(
 		m_Model.m_InstBasicAlpha, inst_stat, k,
-		[](const pos_normal_tex_tan2 &x) {return &x.pos;},
+		[](const vertex::pntt2 &x) {return &x.pos;},
 		m_Model.m_NameBasicAlpha);
 	inst_stat.type = skinned;
 	push_back(
 		m_Model.m_InstSkinned, inst_stat, k,
-		[](const pos_normal_tex_tan_skinned &x) {return &x.pos;},
+		[](const vertex::pntt_skinned &x) {return &x.pos;},
 		m_Model.m_NameSkinned);
 	push_back(
 		m_Model.m_InstSkinnedAlpha, inst_stat, k,
-		[](const pos_normal_tex_tan_skinned &x) {return &x.pos;},
+		[](const vertex::pntt_skinned &x) {return &x.pos;},
 		m_Model.m_NameSkinnedAlpha);
 	inst_stat.type = simple_pntt;
 	push_back_pntt(
 		m_Model.m_InstPNTT, inst_stat, k,
-		[](const pos_normal_tex_tan &x) {return &x.pos;},
+		[](const vertex::pntt &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
 	reload_scene_instance_relate();
 	on_resize();

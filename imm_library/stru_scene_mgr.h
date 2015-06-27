@@ -7,13 +7,13 @@
 ////////////////
 #ifndef STRU_SCENE_MGR_H
 #define STRU_SCENE_MGR_H
+#include "stru_liquid.h"
 #include "stru_particle.h"
 #include "stru_instance_mgr.h"
 #include "render_sky.h"
 #include "render_terrain.h"
 #include "audio_dxtk.h"
 #include "phy_auxiliary.h"
-#include "stru_liquid.h"
 namespace imm
 {
 ////////////////
@@ -50,8 +50,8 @@ struct scene_mgr
 	std::string scene_ix;
 	float begin_time;
 	float shadow_light_pos_far;
-	bool is_loading;
-	bool is_all_done;
+	bool is_loading_atmosphere;
+	bool is_reload_done;
 };
 //
 template <typename T_app>
@@ -66,8 +66,8 @@ scene_mgr<T_app>::scene_mgr():
 	scene_ix(),
 	begin_time(FLT_MAX),
 	shadow_light_pos_far(100.0f),
-	is_loading(false),
-	is_all_done(false)
+	is_loading_atmosphere(false),
+	is_reload_done(false)
 {
 	scene_dir_lights_common(dir_lights);
 	dir_lights_orignial[0] = dir_lights[0].direction;
@@ -87,6 +87,7 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
 	plasma.init_load(app->m_D3DDevice, app->m_D3DDC);
+	liquid.init(app->m_D3DDevice);
 	audio.init_load();
 	phy_wire.init(app);
 	app->m_Attack.init_load(app);
@@ -96,7 +97,9 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 template <typename T_app>
 void scene_mgr<T_app>::update_atmosphere(float dt)
 {
-	plasma.update(dt, app->m_Timer.total_time());
+	float total_time = app->m_Timer.total_time();
+	plasma.update(dt, total_time);
+	//liquid.update(app->m_D3DDC, dt, total_time);
 	audio.update();
 	app->m_Attack.update();
 }
@@ -113,6 +116,8 @@ void scene_mgr<T_app>::draw_d3d_atmosphere(XMMATRIX &shadow_transform)
 	app->m_D3DDC->OMSetDepthStencilState(0, 0);
 	// Draw terrain
 	terrain1.draw(app->m_D3DDC, app->m_Cam, dir_lights, app->m_Smap, shadow_transform);
+	// Draw liquid
+	//liquid.draw(app->m_D3DDC, dir_lights, app->m_Cam);
 	// Draw particle systems last so it is blended with scene.
 	plasma.draw(app->m_D3DDC, app->m_Cam);
 	// Restore default states.
@@ -124,19 +129,19 @@ void scene_mgr<T_app>::draw_d3d_atmosphere(XMMATRIX &shadow_transform)
 template <typename T_app>
 void scene_mgr<T_app>::update_listen_thread_for_reload()
 {
-	if (!is_all_done && !app->m_Inst.m_IsLoading && !is_loading) {
+	if (!is_reload_done && !app->m_Inst.m_IsLoading && !is_loading_atmosphere) {
 		relaod_terrain_after_instance();
 		app->m_Cmd.is_preparing = false;
 		begin_time = app->m_Timer.total_time();
-		is_all_done = true;
+		is_reload_done = true;
 	}
 }
 //
 template <typename T_app>
 void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 {
-	is_loading = true;
-	is_all_done = false;
+	is_loading_atmosphere = true;
+	is_reload_done = false;
 	begin_time = FLT_MAX;
 	app->m_Cmd.is_preparing = true;
 	assert(!app->m_Inst.m_IsLoading);
@@ -158,7 +163,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	reload_skybox();
 	reload_terrain(l_reader);
 	reload_media();
-	is_loading = false;
+	is_loading_atmosphere = false;
 }
 //
 template <typename T_app>

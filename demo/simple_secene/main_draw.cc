@@ -12,7 +12,7 @@ void imm_app::draw_scene()
 	// ID3D11Device::CreateBuffer crashes, redux
 	// https://community.amd.com/thread/170834
 	if (m_Cmd.is_preparing) return;
-	if (!m_Cmd.is_should_be_quiet()) draw_scene_d3d();
+	if (!m_Cmd.is_waiting_for_something()) draw_scene_d3d();
 	else draw_scene_d3d_slient();
 	draw_scene_d2d();
 	// Synchronize presentation
@@ -66,7 +66,7 @@ void imm_app::draw_scene_d3d_shadow()
 	D3DX11_TECHNIQUE_DESC tech_desc;
 	m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// Draw simple pntt
-	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan);
+	m_D3DDC->IASetInputLayout(input_layouts::m_PNTT);
 	draw_inst_simple_pntt_shadow(
 		m_D3DDC,
 		tech_shadow,
@@ -76,7 +76,7 @@ void imm_app::draw_scene_d3d_shadow()
 		view_proj
 	);
 	// Draw basic
-	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan2);
+	m_D3DDC->IASetInputLayout(input_layouts::m_PNTT2);
 	draw_inst_basic_shadow(
 		m_D3DDC,
 		tech_shadow,
@@ -97,7 +97,7 @@ void imm_app::draw_scene_d3d_shadow()
 		view_proj
 	);
 	// Draw skinned
-	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTanSkinned);
+	m_D3DDC->IASetInputLayout(input_layouts::m_PNTTSkinned);
 	draw_inst_skinned_shadow(
 		m_D3DDC,
 		tech_shadow_skinned,
@@ -159,7 +159,7 @@ void imm_app::draw_scene_d3d()
 	XMMATRIX shadow_transform = XMLoadFloat4x4(&m_ShadowTransform);
 	m_D3DDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// Draw simple pntt
-	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan);
+	m_D3DDC->IASetInputLayout(input_layouts::m_PNTT);
 	draw_inst_simple_pntt(
 		m_D3DDC,
 		tech_basic,
@@ -173,7 +173,7 @@ void imm_app::draw_scene_d3d()
 		to_tex_space
 	);
 	// Draw basic
-	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTan2);
+	m_D3DDC->IASetInputLayout(input_layouts::m_PNTT2);
 	draw_inst_basic(
 		m_D3DDC,
 		tech_basic,
@@ -197,7 +197,7 @@ void imm_app::draw_scene_d3d()
 		to_tex_space
 	);
 	// Draw skinned alpha
-	m_D3DDC->IASetInputLayout(input_layouts::m_PosNormalTexTanSkinned);
+	m_D3DDC->IASetInputLayout(input_layouts::m_PNTTSkinned);
 	draw_inst_skinned(
 		m_D3DDC,
 		tech_skinned_alpha,

@@ -7,7 +7,7 @@
 ////////////////
 #ifndef AUDIO_DXTK_H
 #define AUDIO_DXTK_H
-#include "stru_scene_help.h"
+#include "stru_load_help.h"
 #include <Audio.h>
 ////////////////
 // audio_dxtk

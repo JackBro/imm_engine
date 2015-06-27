@@ -8,7 +8,6 @@
 ////////////////
 #ifndef RENDER_GPU_WAVE_H
 #define RENDER_GPU_WAVE_H
-//#include <algorithm>
 #include "ia_effect.h"
 namespace imm
 {
@@ -21,13 +20,13 @@ class gpu_wave
 public:
 	gpu_wave();
 	~gpu_wave();
-	UINT get_RowCount() const;
-	UINT get_ColumnCount() const;
-	UINT get_VertexCount() const;
-	UINT get_TriangleCount() const;
-	float get_Width() const;
-	float get_Depth() const;
-	ID3D11ShaderResourceView* get_DisplacementMap();
+	UINT row_count() const;
+	UINT column_count() const;
+	UINT vertex_count() const;
+	UINT triangle_count() const;
+	float width() const;
+	float depth() const;
+	ID3D11ShaderResourceView* get_displacement_map();
 	// How many groups do we need to dispatch to cover the wave grid.
 	// Note that m_NumRows and m_NumCols should be divisible by 16
 	// so there is no remainder when we divide into thread groups.
@@ -36,7 +35,6 @@ public:
 	void disturb(ID3D11DeviceContext* dc, UINT i, UINT j, float magnitude);
 private:
 	void build_wave_simulation_views(ID3D11Device* device);
-private:
 	UINT m_NumRows;
 	UINT m_NumCols;
 	UINT m_VertexCount;
@@ -80,13 +78,13 @@ gpu_wave::~gpu_wave()
 	ReleaseCOM(m_WavesCurrSolUAV);
 	ReleaseCOM(m_WavesNextSolUAV);
 }
-UINT gpu_wave::get_RowCount() const {return m_NumRows;}
-UINT gpu_wave::get_ColumnCount() const {return m_NumCols;}
-UINT gpu_wave::get_VertexCount() const {return m_VertexCount;}
-UINT gpu_wave::get_TriangleCount() const {return m_TriangleCount;}
-float gpu_wave::get_Width() const {return m_NumCols*m_SpatialStep;}
-float gpu_wave::get_Depth() const {return m_NumRows*m_SpatialStep;}
-ID3D11ShaderResourceView* gpu_wave::get_DisplacementMap()
+UINT gpu_wave::row_count() const {return m_NumRows;}
+UINT gpu_wave::column_count() const {return m_NumCols;}
+UINT gpu_wave::vertex_count() const {return m_VertexCount;}
+UINT gpu_wave::triangle_count() const {return m_TriangleCount;}
+float gpu_wave::width() const {return m_NumCols*m_SpatialStep;}
+float gpu_wave::depth() const {return m_NumRows*m_SpatialStep;}
+ID3D11ShaderResourceView* gpu_wave::get_displacement_map()
 {
 	// After an Update, the current solution stores the solution we want to render.
 	return m_WavesCurrSolSRV;
@@ -101,9 +99,9 @@ void gpu_wave::init(ID3D11Device* device, UINT m, UINT n, float dx, float dt, fl
 	m_SpatialStep = dx;
 	float d = damping*dt+2.0f;
 	float e = (speed*speed)*(dt*dt)/(dx*dx);
-	m_K[0]   = (damping*dt-2.0f)/ d;
-	m_K[1]   = (4.0f-8.0f*e) / d;
-	m_K[2]   = (2.0f*e) / d;
+	m_K[0]  = (damping*dt-2.0f)/ d;
+	m_K[1]  = (4.0f-8.0f*e) / d;
+	m_K[2]  = (2.0f*e) / d;
 	build_wave_simulation_views(device);
 }
 void gpu_wave::update(ID3D11DeviceContext* dc, float dt)
@@ -113,13 +111,13 @@ void gpu_wave::update(ID3D11DeviceContext* dc, float dt)
 	t += dt;
 	// Only update the simulation at the specified time step.
 	if (t >= m_TimeStep) {
-		D3DX11_TECHNIQUE_DESC techDesc;
-		effects::m_WaveSimFX->SetWaveConstants(m_K);
-		effects::m_WaveSimFX->SetPrevSolInput(m_WavesPrevSolSRV);
-		effects::m_WaveSimFX->SetCurrSolInput(m_WavesCurrSolSRV);
-		effects::m_WaveSimFX->SetNextSolOutput(m_WavesNextSolUAV);
-		effects::m_WaveSimFX->m_UpdateWavesTech->GetDesc(&techDesc);
-		for (UINT p = 0; p < techDesc.Passes; ++p) {
+		D3DX11_TECHNIQUE_DESC tech_desc;
+		effects::m_WaveSimFX->set_WaveConstants(m_K);
+		effects::m_WaveSimFX->set_PrevSolInput(m_WavesPrevSolSRV);
+		effects::m_WaveSimFX->set_CurrSolInput(m_WavesCurrSolSRV);
+		effects::m_WaveSimFX->set_NextSolOutput(m_WavesNextSolUAV);
+		effects::m_WaveSimFX->m_UpdateWavesTech->GetDesc(&tech_desc);
+		for (UINT p = 0; p < tech_desc.Passes; ++p) {
 			ID3DX11EffectPass* pass = effects::m_WaveSimFX->m_UpdateWavesTech->GetPassByIndex(p);
 			pass->Apply(0, dc);
 			// How many groups do we need to dispatch to cover the wave grid.
@@ -130,12 +128,12 @@ void gpu_wave::update(ID3D11DeviceContext* dc, float dt)
 			dc->Dispatch(numGroupsX, numGroupsY, 1);
 		}
 		// Unbind the input textures from the CS for good housekeeping.
-		ID3D11ShaderResourceView* nullSRV[1] = { 0 };
-		dc->CSSetShaderResources(0, 1, nullSRV);
+		ID3D11ShaderResourceView* null_srv[1] = {0};
+		dc->CSSetShaderResources(0, 1, null_srv);
 		// Unbind output from compute shader (we are going to use this output as an input in the next pass,
 		// and a resource cannot be both an output and input at the same time.
-		ID3D11UnorderedAccessView* nullUAV[1] = { 0 };
-		dc->CSSetUnorderedAccessViews(0, 1, nullUAV, 0);
+		ID3D11UnorderedAccessView* null_uav[1] = {0};
+		dc->CSSetUnorderedAccessViews(0, 1, null_uav, 0);
 		// Disable compute shader.
 		dc->CSSetShader(0, 0, 0);
 		//
@@ -144,28 +142,28 @@ void gpu_wave::update(ID3D11DeviceContext* dc, float dt)
 		// The current solution becomes the previous solution.
 		// The next solution becomes the current solution.
 		//
-		ID3D11ShaderResourceView* srvTemp = m_WavesPrevSolSRV;
+		ID3D11ShaderResourceView* srv_temp = m_WavesPrevSolSRV;
 		m_WavesPrevSolSRV = m_WavesCurrSolSRV;
 		m_WavesCurrSolSRV = m_WavesNextSolSRV;
-		m_WavesNextSolSRV = srvTemp;
-		ID3D11UnorderedAccessView* uavTemp = m_WavesPrevSolUAV;
+		m_WavesNextSolSRV = srv_temp;
+		ID3D11UnorderedAccessView* uav_temp = m_WavesPrevSolUAV;
 		m_WavesPrevSolUAV = m_WavesCurrSolUAV;
 		m_WavesCurrSolUAV = m_WavesNextSolUAV;
-		m_WavesNextSolUAV = uavTemp;
+		m_WavesNextSolUAV = uav_temp;
 		t = 0.0f; // reset time
 	}
 }
 void gpu_wave::disturb(ID3D11DeviceContext* dc, UINT i, UINT j, float magnitude)
 {
-	D3DX11_TECHNIQUE_DESC techDesc;
+	D3DX11_TECHNIQUE_DESC tech_desc;
 	// The grid element to displace.
-	effects::m_WaveSimFX->SetDisturbIndex(i, j);
+	effects::m_WaveSimFX->set_DisturbIndex(i, j);
 	// The magnitude of the displacement.
-	effects::m_WaveSimFX->SetDisturbMag(magnitude);
+	effects::m_WaveSimFX->set_DisturbMag(magnitude);
 	// Displace the current solution heights to generate a wave.
-	effects::m_WaveSimFX->SetCurrSolOutput(m_WavesCurrSolUAV);
-	effects::m_WaveSimFX->m_DisturbWavesTech->GetDesc(&techDesc);
-	for (UINT p = 0; p < techDesc.Passes; ++p) {
+	effects::m_WaveSimFX->set_CurrSolOutput(m_WavesCurrSolUAV);
+	effects::m_WaveSimFX->m_DisturbWavesTech->GetDesc(&tech_desc);
+	for (UINT p = 0; p < tech_desc.Passes; ++p) {
 		ID3DX11EffectPass* pass = effects::m_WaveSimFX->m_DisturbWavesTech->GetPassByIndex(p);
 		pass->Apply(0, dc);
 		// One thread group kicks off one thread, which displaces the height of one
@@ -174,8 +172,8 @@ void gpu_wave::disturb(ID3D11DeviceContext* dc, UINT i, UINT j, float magnitude)
 	}
 	// Unbind output from compute shader so we can use it as a shader input (a resource cannot be bound
 	// as an output and input).
-	ID3D11UnorderedAccessView* nullUAV[1] = { 0 };
-	dc->CSSetUnorderedAccessViews(0, 1, nullUAV, 0);
+	ID3D11UnorderedAccessView* null_uav[1] = {0};
+	dc->CSSetUnorderedAccessViews(0, 1, null_uav, 0);
 }
 void gpu_wave::build_wave_simulation_views(ID3D11Device* device)
 {
@@ -187,48 +185,48 @@ void gpu_wave::build_wave_simulation_views(ID3D11Device* device)
 	ReleaseCOM(m_WavesNextSolUAV);
 	// All the textures for the wave simulation will be bound as a shader resource and
 	// unordered access view at some point since we ping-pong the buffers.
-	D3D11_TEXTURE2D_DESC texDesc;
-	texDesc.Width     = m_NumCols;
-	texDesc.Height    = m_NumRows;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 1;
-	texDesc.Format    = DXGI_FORMAT_R32_FLOAT;
-	texDesc.SampleDesc.Count   = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Usage     = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-	texDesc.CPUAccessFlags = 0;
-	texDesc.MiscFlags      = 0;
+	D3D11_TEXTURE2D_DESC tex_desc;
+	tex_desc.Width              = m_NumCols;
+	tex_desc.Height             = m_NumRows;
+	tex_desc.MipLevels          = 1;
+	tex_desc.ArraySize          = 1;
+	tex_desc.Format             = DXGI_FORMAT_R32_FLOAT;
+	tex_desc.SampleDesc.Count   = 1;
+	tex_desc.SampleDesc.Quality = 0;
+	tex_desc.Usage              = D3D11_USAGE_DEFAULT;
+	tex_desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	tex_desc.CPUAccessFlags     = 0;
+	tex_desc.MiscFlags          = 0;
 	// Zero out the buffers initially.
 	std::vector<float> zero(m_NumRows*m_NumCols, 0.0f);
-	D3D11_SUBRESOURCE_DATA initData;
-	initData.pSysMem = &zero[0];
-	initData.SysMemPitch = m_NumCols*sizeof(float);
-	ID3D11Texture2D* prevWaveSolutionTex = 0;
-	ID3D11Texture2D* currWaveSolutionTex = 0;
-	ID3D11Texture2D* nextWaveSolutionTex = 0;
-	HR(device->CreateTexture2D(&texDesc, &initData, &prevWaveSolutionTex));
-	HR(device->CreateTexture2D(&texDesc, &initData, &currWaveSolutionTex));
-	HR(device->CreateTexture2D(&texDesc, &initData, &nextWaveSolutionTex));
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.MipLevels = 1;
-	HR(device->CreateShaderResourceView(prevWaveSolutionTex, &srvDesc, &m_WavesPrevSolSRV));
-	HR(device->CreateShaderResourceView(currWaveSolutionTex, &srvDesc, &m_WavesCurrSolSRV));
-	HR(device->CreateShaderResourceView(nextWaveSolutionTex, &srvDesc, &m_WavesNextSolSRV));
-	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
-	uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	uavDesc.Texture2D.MipSlice = 0;
-	HR(device->CreateUnorderedAccessView(prevWaveSolutionTex, &uavDesc, &m_WavesPrevSolUAV));
-	HR(device->CreateUnorderedAccessView(currWaveSolutionTex, &uavDesc, &m_WavesCurrSolUAV));
-	HR(device->CreateUnorderedAccessView(nextWaveSolutionTex, &uavDesc, &m_WavesNextSolUAV));
+	D3D11_SUBRESOURCE_DATA init_data;
+	init_data.pSysMem = &zero[0];
+	init_data.SysMemPitch = m_NumCols*sizeof(float);
+	ID3D11Texture2D* prev_wave_solution_tex = 0;
+	ID3D11Texture2D* curr_wave_solution_tex = 0;
+	ID3D11Texture2D* next_wave_solution_tex = 0;
+	HR(device->CreateTexture2D(&tex_desc, &init_data, &prev_wave_solution_tex));
+	HR(device->CreateTexture2D(&tex_desc, &init_data, &curr_wave_solution_tex));
+	HR(device->CreateTexture2D(&tex_desc, &init_data, &next_wave_solution_tex));
+	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
+	srv_desc.Format                    = DXGI_FORMAT_R32_FLOAT;
+	srv_desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srv_desc.Texture2D.MostDetailedMip = 0;
+	srv_desc.Texture2D.MipLevels       = 1;
+	HR(device->CreateShaderResourceView(prev_wave_solution_tex, &srv_desc, &m_WavesPrevSolSRV));
+	HR(device->CreateShaderResourceView(curr_wave_solution_tex, &srv_desc, &m_WavesCurrSolSRV));
+	HR(device->CreateShaderResourceView(next_wave_solution_tex, &srv_desc, &m_WavesNextSolSRV));
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc;
+	uav_desc.Format             = DXGI_FORMAT_R32_FLOAT;
+	uav_desc.ViewDimension      = D3D11_UAV_DIMENSION_TEXTURE2D;
+	uav_desc.Texture2D.MipSlice = 0;
+	HR(device->CreateUnorderedAccessView(prev_wave_solution_tex, &uav_desc, &m_WavesPrevSolUAV));
+	HR(device->CreateUnorderedAccessView(curr_wave_solution_tex, &uav_desc, &m_WavesCurrSolUAV));
+	HR(device->CreateUnorderedAccessView(next_wave_solution_tex, &uav_desc, &m_WavesNextSolUAV));
 	// Views save a reference to the texture so we can release our reference.
-	ReleaseCOM(prevWaveSolutionTex);
-	ReleaseCOM(currWaveSolutionTex);
-	ReleaseCOM(nextWaveSolutionTex);
+	ReleaseCOM(prev_wave_solution_tex);
+	ReleaseCOM(curr_wave_solution_tex);
+	ReleaseCOM(next_wave_solution_tex);
 }
 }
 //

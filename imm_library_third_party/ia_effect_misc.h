@@ -187,14 +187,14 @@ public:
 	color_effect(ID3D11Device *device, const std::wstring &filename);
 	~color_effect()                     {;}
 	void set_WorldViewProj(CXMMATRIX M) {m_WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M));}
-	ID3DX11EffectTechnique *m_ColorTech;
+	ID3DX11EffectTechnique *m_PosColorTech;
 	ID3DX11EffectMatrixVariable *m_WorldViewProj;
 };
 //
 color_effect::color_effect(ID3D11Device *device, const std::wstring &filename):
 	effect(device, filename)
 {
-	m_ColorTech     = m_FX->GetTechniqueByName("ColorTech");
+	m_PosColorTech     = m_FX->GetTechniqueByName("ColorTech");
 	m_WorldViewProj = m_FX->GetVariableByName("gWorldViewProj")->AsMatrix();
 }
 ////////////////
@@ -204,24 +204,24 @@ color_effect::color_effect(ID3D11Device *device, const std::wstring &filename):
 class wave_sim_effect : public effect
 {
 public:
-	wave_sim_effect(ID3D11Device* device, const std::wstring& filename);
-	~wave_sim_effect()                                    {;}
-	void SetWaveConstants(float s[3])                     {m_WaveConstants->SetFloatArray(s, 0, 3);}
-	void SetDisturbMag(float s)					          {m_DisturbMag->SetFloat(s);}
-	void SetDisturbIndex(int row, int col);
-	void SetPrevSolInput(ID3D11ShaderResourceView* srv)   {m_PrevSolInput->SetResource(srv);}
-	void SetCurrSolInput(ID3D11ShaderResourceView* srv)   {m_CurrSolInput->SetResource(srv);}
-	void SetCurrSolOutput(ID3D11UnorderedAccessView* uav) {m_CurrSolOutput->SetUnorderedAccessView(uav);}
-	void SetNextSolOutput(ID3D11UnorderedAccessView* uav) {m_NextSolOutput->SetUnorderedAccessView(uav);}
-	ID3DX11EffectTechnique* m_UpdateWavesTech;
-	ID3DX11EffectTechnique* m_DisturbWavesTech;
-	ID3DX11EffectScalarVariable* m_WaveConstants;
-	ID3DX11EffectScalarVariable* m_DisturbMag;
-	ID3DX11EffectVectorVariable* m_DisturbIndex;
-	ID3DX11EffectShaderResourceVariable* m_PrevSolInput;
-	ID3DX11EffectShaderResourceVariable* m_CurrSolInput;
-	ID3DX11EffectUnorderedAccessViewVariable* m_CurrSolOutput;
-	ID3DX11EffectUnorderedAccessViewVariable* m_NextSolOutput;
+	wave_sim_effect(ID3D11Device *device, const std::wstring& filename);
+	~wave_sim_effect()                                     {;}
+	void set_WaveConstants(float s[3])                     {m_WaveConstants->SetFloatArray(s, 0, 3);}
+	void set_DisturbMag(float s)					       {m_DisturbMag->SetFloat(s);}
+	void set_DisturbIndex(int row, int col);
+	void set_PrevSolInput(ID3D11ShaderResourceView *srv)   {m_PrevSolInput->SetResource(srv);}
+	void set_CurrSolInput(ID3D11ShaderResourceView *srv)   {m_CurrSolInput->SetResource(srv);}
+	void set_CurrSolOutput(ID3D11UnorderedAccessView *uav) {m_CurrSolOutput->SetUnorderedAccessView(uav);}
+	void set_NextSolOutput(ID3D11UnorderedAccessView *uav) {m_NextSolOutput->SetUnorderedAccessView(uav);}
+	ID3DX11EffectTechnique *m_UpdateWavesTech;
+	ID3DX11EffectTechnique *m_DisturbWavesTech;
+	ID3DX11EffectScalarVariable *m_WaveConstants;
+	ID3DX11EffectScalarVariable *m_DisturbMag;
+	ID3DX11EffectVectorVariable *m_DisturbIndex;
+	ID3DX11EffectShaderResourceVariable *m_PrevSolInput;
+	ID3DX11EffectShaderResourceVariable *m_CurrSolInput;
+	ID3DX11EffectUnorderedAccessViewVariable *m_CurrSolOutput;
+	ID3DX11EffectUnorderedAccessViewVariable *m_NextSolOutput;
 };
 //
 wave_sim_effect::wave_sim_effect(ID3D11Device* device, const std::wstring& filename):
@@ -238,7 +238,7 @@ wave_sim_effect::wave_sim_effect(ID3D11Device* device, const std::wstring& filen
 	m_NextSolOutput    = m_FX->GetVariableByName("gNextSolOutput")->AsUnorderedAccessView();
 }
 //
-void wave_sim_effect::SetDisturbIndex(int row, int col)
+void wave_sim_effect::set_DisturbIndex(int row, int col)
 {
 	int v[4] = {col, row, -1, -1};
 	m_DisturbIndex->SetIntVector(v);
@@ -250,32 +250,32 @@ void wave_sim_effect::SetDisturbIndex(int row, int col)
 class wave_render_effect : public effect
 {
 public:
-	wave_render_effect(ID3D11Device* device, const std::wstring& filename);
-	~wave_render_effect()                                  {;}
-	void SetWorldViewProj(CXMMATRIX M)                     {m_WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M));}
-	void SetWorld(CXMMATRIX M)                             {m_World->SetMatrix(reinterpret_cast<const float*>(&M));}
-	void SetWorldInvTranspose(CXMMATRIX M)                 {m_WorldInvTranspose->SetMatrix(reinterpret_cast<const float*>(&M));}
-	void SetTexTransform(CXMMATRIX M)                      {m_TexTransform->SetMatrix(reinterpret_cast<const float*>(&M));}
-	void SetEyePosW(const XMFLOAT3& v)                     {m_EyePosW->SetRawValue(&v, 0, sizeof(XMFLOAT3));}
-	void SetGridSpatialStep(float f)                       {m_GridSpatialStep->SetFloat(f);}
-	void SetDisplacementTexelSize(const XMFLOAT2& v)       {m_DisplacementMapTexelSize->SetRawValue(&v, 0, sizeof(XMFLOAT2));}
-	void SetDirLights(const light_dir *lights)             {m_DirLights->SetRawValue(lights, 0, 3*sizeof(light_dir));}
-	void SetMaterial(const material &mat)                  {m_Mat->SetRawValue(&mat, 0, sizeof(material));}
-	void SetDiffuseMap(ID3D11ShaderResourceView* tex)      {m_DiffuseMap->SetResource(tex);}
-	void SetDisplacementMap(ID3D11ShaderResourceView* tex) {m_DisplacementMap->SetResource(tex);}
-	ID3DX11EffectTechnique* m_Light3Tech;
-	ID3DX11EffectTechnique* m_Light3TexTech;
-	ID3DX11EffectMatrixVariable* m_WorldViewProj;
-	ID3DX11EffectMatrixVariable* m_World;
-	ID3DX11EffectMatrixVariable* m_WorldInvTranspose;
-	ID3DX11EffectMatrixVariable* m_TexTransform;
-	ID3DX11EffectVectorVariable* m_EyePosW;
-	ID3DX11EffectScalarVariable* m_GridSpatialStep;
-	ID3DX11EffectVectorVariable* m_DisplacementMapTexelSize;
-	ID3DX11EffectVariable* m_DirLights;
-	ID3DX11EffectVariable* m_Mat;
-	ID3DX11EffectShaderResourceVariable* m_DiffuseMap;
-	ID3DX11EffectShaderResourceVariable* m_DisplacementMap;
+	wave_render_effect(ID3D11Device *device, const std::wstring& filename);
+	~wave_render_effect()                                   {;}
+	void set_WorldViewProj(CXMMATRIX M)                     {m_WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M));}
+	void set_World(CXMMATRIX M)                             {m_World->SetMatrix(reinterpret_cast<const float*>(&M));}
+	void set_WorldInvTranspose(CXMMATRIX M)                 {m_WorldInvTranspose->SetMatrix(reinterpret_cast<const float*>(&M));}
+	void set_TexTransform(CXMMATRIX M)                      {m_TexTransform->SetMatrix(reinterpret_cast<const float*>(&M));}
+	void set_EyePosW(const XMFLOAT3& v)                     {m_EyePosW->SetRawValue(&v, 0, sizeof(XMFLOAT3));}
+	void set_GridSpatialStep(float f)                       {m_GridSpatialStep->SetFloat(f);}
+	void set_DisplacementTexelSize(const XMFLOAT2& v)       {m_DisplacementMapTexelSize->SetRawValue(&v, 0, sizeof(XMFLOAT2));}
+	void set_DirLights(const light_dir *lights)             {m_DirLights->SetRawValue(lights, 0, 3*sizeof(light_dir));}
+	void set_Material(const material &mat)                  {m_Mat->SetRawValue(&mat, 0, sizeof(material));}
+	void set_DiffuseMap(ID3D11ShaderResourceView *tex)      {m_DiffuseMap->SetResource(tex);}
+	void set_DisplacementMap(ID3D11ShaderResourceView *tex) {m_DisplacementMap->SetResource(tex);}
+	ID3DX11EffectTechnique *m_Light3Tech;
+	ID3DX11EffectTechnique *m_Light3TexTech;
+	ID3DX11EffectMatrixVariable *m_WorldViewProj;
+	ID3DX11EffectMatrixVariable *m_World;
+	ID3DX11EffectMatrixVariable *m_WorldInvTranspose;
+	ID3DX11EffectMatrixVariable *m_TexTransform;
+	ID3DX11EffectVectorVariable *m_EyePosW;
+	ID3DX11EffectScalarVariable *m_GridSpatialStep;
+	ID3DX11EffectVectorVariable *m_DisplacementMapTexelSize;
+	ID3DX11EffectVariable *m_DirLights;
+	ID3DX11EffectVariable *m_Mat;
+	ID3DX11EffectShaderResourceVariable *m_DiffuseMap;
+	ID3DX11EffectShaderResourceVariable *m_DisplacementMap;
 };
 //
 wave_render_effect::wave_render_effect(ID3D11Device* device, const std::wstring& filename):
