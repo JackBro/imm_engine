@@ -32,6 +32,9 @@ struct phy_wireframe
 	std::vector<ID3D11Buffer*> box_attack;
 	ID3D11Buffer *box_ib;
 	T_app *app;
+private:
+	phy_wireframe(const phy_wireframe &rhs);
+	phy_wireframe &operator=(const phy_wireframe &rhs);
 };
 //
 template <typename T_app>

@@ -28,6 +28,9 @@ struct state_plasma
 	bool is_active;
 	ID3D11ShaderResourceView *fire_tex_srv;
 	ID3D11ShaderResourceView *random_tex_srv;
+private:
+	state_plasma(const state_plasma &rhs);
+	state_plasma &operator=(const state_plasma &rhs);
 };
 //
 state_plasma::state_plasma():

@@ -12,6 +12,7 @@ csv_instance_skinned  = read_csv("script\\scene00\\instance_skinned.csv")
 csv_model_basic       = read_csv("script\\scene00\\model_basic.csv")
 csv_model_geometry    = read_csv("script\\scene00\\model_geometry.csv")
 csv_model_skinned     = read_csv("script\\scene00\\model_skinned.csv")
+csv_envi_liquid       = read_csv("script\\scene00\\envi_liquid.csv")
 
 -- misc
 plane_ground = "grid"

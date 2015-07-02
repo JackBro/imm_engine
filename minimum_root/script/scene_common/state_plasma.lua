@@ -2,4 +2,4 @@
 -- load plasma dds
 
 -- dds
-plasma_flame_dds = ""
+plasma_fire_dds = ""

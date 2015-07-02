@@ -72,6 +72,9 @@ struct sprite_simple
 	std::map<std::string, XMFLOAT2> map_pos;
 	float scale;
 	bool is_built;
+private:
+	sprite_simple(const sprite_simple &rhs);
+	sprite_simple &operator=(const sprite_simple &rhs);
 };
 //
 sprite_simple::sprite_simple():
