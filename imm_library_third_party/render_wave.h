@@ -1,14 +1,15 @@
 ////////////////
-// render_gpu_wave.h
+// render_wave.h
 // gpu_wave.h by Frank Luna (C) 2011 All Rights Reserved.
 // Performs the calculations for the wave simulation using the ComputeShader on the GPU.
 // The solution is saved to a floating-point texture.  The client must then set this
 // texture as a SRV and do the displacement mapping in the vertex shader over a grid.
 ////////////////
 ////////////////
-#ifndef RENDER_GPU_WAVE_H
-#define RENDER_GPU_WAVE_H
+#ifndef RENDER_WAVE_H
+#define RENDER_WAVE_H
 #include "ia_effect.h"
+#include "mesh_d3d_util.h"
 namespace imm
 {
 ////////////////
@@ -31,7 +32,7 @@ public:
 	// Note that m_NumRows and m_NumCols should be divisible by 16
 	// so there is no remainder when we divide into thread groups.
 	void init(ID3D11Device* device, UINT m, UINT n, float dx, float dt, float speed, float damping);
-	void update(ID3D11DeviceContext* dc, float dt);
+	void update(ID3D11DeviceContext* dc, float dt, float total_time);
 	void disturb(ID3D11DeviceContext* dc, UINT i, UINT j, float magnitude);
 private:
 	void build_wave_simulation_views(ID3D11Device* device);
@@ -43,12 +44,16 @@ private:
 	float m_K[3];
 	float m_TimeStep;
 	float m_SpatialStep;
+	float m_TimeBase;
 	ID3D11ShaderResourceView *m_WavesPrevSolSRV;
 	ID3D11ShaderResourceView *m_WavesCurrSolSRV;
 	ID3D11ShaderResourceView *m_WavesNextSolSRV;
+	ID3D11ShaderResourceView *m_RandomTexSRV;
 	ID3D11UnorderedAccessView *m_WavesPrevSolUAV;
 	ID3D11UnorderedAccessView *m_WavesCurrSolUAV;
 	ID3D11UnorderedAccessView *m_WavesNextSolUAV;
+	gpu_wave(const gpu_wave &rhs);
+	gpu_wave &operator=(const gpu_wave &rhs);
 };
 //
 gpu_wave::gpu_wave():
@@ -58,9 +63,11 @@ gpu_wave::gpu_wave():
 	m_TriangleCount(0),
 	m_TimeStep(0.0f),
 	m_SpatialStep(0.0f),
+	m_TimeBase(0),
 	m_WavesPrevSolSRV(nullptr),
 	m_WavesCurrSolSRV(nullptr),
 	m_WavesNextSolSRV(nullptr),
+	m_RandomTexSRV(nullptr),
 	m_WavesPrevSolUAV(nullptr),
 	m_WavesCurrSolUAV(nullptr),
 	m_WavesNextSolUAV(nullptr)
@@ -74,10 +81,12 @@ gpu_wave::~gpu_wave()
 	ReleaseCOM(m_WavesPrevSolSRV);
 	ReleaseCOM(m_WavesCurrSolSRV);
 	ReleaseCOM(m_WavesNextSolSRV);
+	ReleaseCOM(m_RandomTexSRV);
 	ReleaseCOM(m_WavesPrevSolUAV);
 	ReleaseCOM(m_WavesCurrSolUAV);
 	ReleaseCOM(m_WavesNextSolUAV);
 }
+//
 UINT gpu_wave::row_count() const {return m_NumRows;}
 UINT gpu_wave::column_count() const {return m_NumCols;}
 UINT gpu_wave::vertex_count() const {return m_VertexCount;}
@@ -91,8 +100,8 @@ ID3D11ShaderResourceView* gpu_wave::get_displacement_map()
 }
 void gpu_wave::init(ID3D11Device* device, UINT m, UINT n, float dx, float dt, float speed, float damping)
 {
-	m_NumRows  = m;
-	m_NumCols  = n;
+	m_NumRows = m;
+	m_NumCols = n;
 	m_VertexCount   = m*n;
 	m_TriangleCount = (m-1)*(n-1)*2;
 	m_TimeStep    = dt;
@@ -104,54 +113,54 @@ void gpu_wave::init(ID3D11Device* device, UINT m, UINT n, float dx, float dt, fl
 	m_K[2]  = (2.0f*e) / d;
 	build_wave_simulation_views(device);
 }
-void gpu_wave::update(ID3D11DeviceContext* dc, float dt)
+void gpu_wave::update(ID3D11DeviceContext* dc, float dt, float total_time)
 {
-	static float t = 0;
 	// Accumulate time.
-	t += dt;
+	m_TimeBase += dt;
 	// Only update the simulation at the specified time step.
-	if (t >= m_TimeStep) {
-		D3DX11_TECHNIQUE_DESC tech_desc;
-		effects::m_WaveSimFX->set_WaveConstants(m_K);
-		effects::m_WaveSimFX->set_PrevSolInput(m_WavesPrevSolSRV);
-		effects::m_WaveSimFX->set_CurrSolInput(m_WavesCurrSolSRV);
-		effects::m_WaveSimFX->set_NextSolOutput(m_WavesNextSolUAV);
-		effects::m_WaveSimFX->m_UpdateWavesTech->GetDesc(&tech_desc);
-		for (UINT p = 0; p < tech_desc.Passes; ++p) {
-			ID3DX11EffectPass* pass = effects::m_WaveSimFX->m_UpdateWavesTech->GetPassByIndex(p);
-			pass->Apply(0, dc);
-			// How many groups do we need to dispatch to cover the wave grid.
-			// Note that m_NumRows and m_NumCols should be divisible by 16
-			// so there is no remainder.
-			UINT numGroupsX = m_NumCols / 16;
-			UINT numGroupsY = m_NumRows / 16;
-			dc->Dispatch(numGroupsX, numGroupsY, 1);
-		}
-		// Unbind the input textures from the CS for good housekeeping.
-		ID3D11ShaderResourceView* null_srv[1] = {0};
-		dc->CSSetShaderResources(0, 1, null_srv);
-		// Unbind output from compute shader (we are going to use this output as an input in the next pass,
-		// and a resource cannot be both an output and input at the same time.
-		ID3D11UnorderedAccessView* null_uav[1] = {0};
-		dc->CSSetUnorderedAccessViews(0, 1, null_uav, 0);
-		// Disable compute shader.
-		dc->CSSetShader(0, 0, 0);
-		//
-		// Ping-pong buffers in preparation for the next update.
-		// The previous solution is no longer needed and becomes the target of the next solution in the next update.
-		// The current solution becomes the previous solution.
-		// The next solution becomes the current solution.
-		//
-		ID3D11ShaderResourceView* srv_temp = m_WavesPrevSolSRV;
-		m_WavesPrevSolSRV = m_WavesCurrSolSRV;
-		m_WavesCurrSolSRV = m_WavesNextSolSRV;
-		m_WavesNextSolSRV = srv_temp;
-		ID3D11UnorderedAccessView* uav_temp = m_WavesPrevSolUAV;
-		m_WavesPrevSolUAV = m_WavesCurrSolUAV;
-		m_WavesCurrSolUAV = m_WavesNextSolUAV;
-		m_WavesNextSolUAV = uav_temp;
-		t = 0.0f; // reset time
+	if (m_TimeBase < m_TimeStep) return;
+	D3DX11_TECHNIQUE_DESC tech_desc;
+	effects::m_WaveSimFX->set_WaveConstants(m_K);
+	effects::m_WaveSimFX->set_GameTime(total_time);
+	effects::m_WaveSimFX->set_PrevSolInput(m_WavesPrevSolSRV);
+	effects::m_WaveSimFX->set_CurrSolInput(m_WavesCurrSolSRV);
+	effects::m_WaveSimFX->set_RandomTex(m_RandomTexSRV);
+	effects::m_WaveSimFX->set_NextSolOutput(m_WavesNextSolUAV);
+	effects::m_WaveSimFX->m_UpdateWavesTech->GetDesc(&tech_desc);
+	for (UINT p = 0; p < tech_desc.Passes; ++p) {
+		ID3DX11EffectPass* pass = effects::m_WaveSimFX->m_UpdateWavesTech->GetPassByIndex(p);
+		pass->Apply(0, dc);
+		// How many groups do we need to dispatch to cover the wave grid.
+		// Note that m_NumRows and m_NumCols should be divisible by 16
+		// so there is no remainder.
+		UINT numGroupsX = m_NumCols / 16;
+		UINT numGroupsY = m_NumRows / 16;
+		dc->Dispatch(numGroupsX, numGroupsY, 1);
 	}
+	// Unbind the input textures from the CS for good housekeeping.
+	ID3D11ShaderResourceView* null_srv[1] = {0};
+	dc->CSSetShaderResources(0, 1, null_srv);
+	// Unbind output from compute shader (we are going to use this output as an input in the next pass,
+	// and a resource cannot be both an output and input at the same time.
+	ID3D11UnorderedAccessView* null_uav[1] = {0};
+	dc->CSSetUnorderedAccessViews(0, 1, null_uav, 0);
+	// Disable compute shader.
+	dc->CSSetShader(0, 0, 0);
+	//
+	// Ping-pong buffers in preparation for the next update.
+	// The previous solution is no longer needed and becomes the target of the next solution in the next update.
+	// The current solution becomes the previous solution.
+	// The next solution becomes the current solution.
+	//
+	ID3D11ShaderResourceView* srv_temp = m_WavesPrevSolSRV;
+	m_WavesPrevSolSRV = m_WavesCurrSolSRV;
+	m_WavesCurrSolSRV = m_WavesNextSolSRV;
+	m_WavesNextSolSRV = srv_temp;
+	ID3D11UnorderedAccessView* uav_temp = m_WavesPrevSolUAV;
+	m_WavesPrevSolUAV = m_WavesCurrSolUAV;
+	m_WavesCurrSolUAV = m_WavesNextSolUAV;
+	m_WavesNextSolUAV = uav_temp;
+	m_TimeBase = 0.0f; // reset time
 }
 void gpu_wave::disturb(ID3D11DeviceContext* dc, UINT i, UINT j, float magnitude)
 {
@@ -180,6 +189,7 @@ void gpu_wave::build_wave_simulation_views(ID3D11Device* device)
 	ReleaseCOM(m_WavesPrevSolSRV);
 	ReleaseCOM(m_WavesCurrSolSRV);
 	ReleaseCOM(m_WavesNextSolSRV);
+	ReleaseCOM(m_RandomTexSRV);
 	ReleaseCOM(m_WavesPrevSolUAV);
 	ReleaseCOM(m_WavesCurrSolUAV);
 	ReleaseCOM(m_WavesNextSolUAV);
@@ -227,6 +237,7 @@ void gpu_wave::build_wave_simulation_views(ID3D11Device* device)
 	ReleaseCOM(prev_wave_solution_tex);
 	ReleaseCOM(curr_wave_solution_tex);
 	ReleaseCOM(next_wave_solution_tex);
+	m_RandomTexSRV = create_RandomTexture1DWaveSRV(device);
 }
 }
 //

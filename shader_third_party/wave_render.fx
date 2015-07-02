@@ -90,7 +90,7 @@ float4 PS(
 	// Normalize.
 	toEye /= distToEye;
 	// Default to multiplicative identity.
-	float4 texColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	float4 texColor = float4(0.34f, 0.74f, 0.83f, 1.0f);
 	if (gUseTexure) {
 		// Sample texture.
 		texColor = gDiffuseMap.Sample(samAnisotropic, pin.Tex);

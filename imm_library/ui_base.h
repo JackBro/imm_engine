@@ -47,7 +47,7 @@ struct ui_base
 	bool is_ui_appear();
 	void deactivate_all();
 	bool apply_ix(int &index);
-	bool is_should_be_quiet();
+	bool is_waiting_for_something();
 	// virtual
 	virtual void define_style() = 0;
 	virtual bool define_apply_ix_if(int &index) = 0;
@@ -272,7 +272,7 @@ void ui_base<T_app>::draw_d3d()
 template <typename T_app>
 bool ui_base<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if (is_should_be_quiet()) return false;
+	if (is_waiting_for_something()) return false;
 	if (btn_state & MOUSE_UI_PICK) {
 		m_IsPadUsing = false;
 		mouse_pick(pos_x, pos_y);
@@ -284,7 +284,7 @@ bool ui_base<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int
 template <typename T_app>
 bool ui_base<T_app>::on_mouse_wheel(const short &z_delta)
 {
-	if (is_should_be_quiet()) return false;
+	if (is_waiting_for_something()) return false;
 	for (auto &map: m_MapTextLayout) {
 		if (m_Rect[map.second[0]].active) {
 			float restrict_y = -m_Rect[map.second[0]].margin.w+100.0f;
@@ -300,7 +300,7 @@ bool ui_base<T_app>::on_mouse_wheel(const short &z_delta)
 template <typename T_app>
 void ui_base<T_app>::on_mouse_over(const int &pos_x, const int &pos_y)
 {
-	if (is_should_be_quiet()) return;
+	if (is_waiting_for_something()) return;
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		if (m_Rect[ix].tp == ui_rect::type::button && m_Rect[ix].active &&
 			pos_y > m_Rect[ix].rc.top && pos_y < m_Rect[ix].rc.bottom &&
@@ -314,7 +314,7 @@ void ui_base<T_app>::on_mouse_over(const int &pos_x, const int &pos_y)
 template <typename T_app>
 void ui_base<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 {
-	if (is_should_be_quiet()) return;
+	if (is_waiting_for_something()) return;
 	for (size_t ix = 0; ix != m_Rect.size(); ++ix) {
 		if (m_Rect[ix].tp == ui_rect::type::button && m_Rect[ix].active &&
 			pos_y > m_Rect[ix].rc.top && pos_y < m_Rect[ix].rc.bottom &&
@@ -328,7 +328,7 @@ void ui_base<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 template <typename T_app>
 void ui_base<T_app>::on_pad_keydown(const WORD &vkey)
 {
-	if (is_should_be_quiet()) return;
+	if (is_waiting_for_something()) return;
 	m_IsPadUsing = true;
 	define_on_pad_keydown(vkey);
 	if (vkey == PAD_UI_DWON1 || vkey == PAD_UI_DWON2) {
@@ -351,7 +351,7 @@ void ui_base<T_app>::on_pad_keydown(const WORD &vkey)
 template <typename T_app>
 void ui_base<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
-	if (is_should_be_quiet()) return;
+	if (is_waiting_for_something()) return;
 	m_IsPadUsing = false;
 	define_on_input_keydown(w_param, l_param);
 }
@@ -484,7 +484,7 @@ bool ui_base<T_app>::apply_ix(int &index)
 }
 //
 template <typename T_app>
-bool ui_base<T_app>::is_should_be_quiet()
+bool ui_base<T_app>::is_waiting_for_something()
 {
 	if (m_IsMute | m_IsOtherUIAppear) return true;
 	return false;

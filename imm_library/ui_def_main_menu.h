@@ -47,7 +47,7 @@ void ui_def_main_menu<T_app>::define_style()
 	// fps
 	////////////////
 	////////////////
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "fps";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "fps";
@@ -60,7 +60,7 @@ void ui_def_main_menu<T_app>::define_style()
 	// menu
 	////////////////
 	////////////////
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_backg";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "menu";
@@ -70,7 +70,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_title";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
@@ -80,7 +80,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.8f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_help";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
@@ -90,7 +90,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.3f, 0.2f, 0.3f, 0.72f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_title";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
@@ -100,7 +100,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.3f, 0.32f, 0.3f, 0.60f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_exit";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
@@ -110,7 +110,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.3f, 0.44f, 0.3f, 0.48f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_options";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
@@ -123,7 +123,7 @@ void ui_def_main_menu<T_app>::define_style()
 	// help
 	////////////////
 	////////////////
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "help_backg";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "help";
@@ -133,7 +133,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.1f, 0.0f, 0.1f, 0.0f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "help_close";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "help";
@@ -143,7 +143,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.8f, 0.84f, 0.05f, 0.08f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "help_content";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "help";
@@ -156,7 +156,7 @@ void ui_def_main_menu<T_app>::define_style()
 	// exit
 	////////////////
 	////////////////
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "exit_backg";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
@@ -166,7 +166,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.15f, 0.0f, 0.15f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "exit_yes";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
@@ -176,7 +176,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.25f, 0.5f, 0.6f, 0.42f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "exit_no";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
@@ -186,7 +186,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.6f, 0.5f, 0.25f, 0.42f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "exit_title";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
@@ -307,8 +307,8 @@ void ui_def_main_menu<T_app>::define_text()
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	std::string var_name = "main_menu";
-	if (!l_reader.is_not_nil(var_name)) {assert(false); abort();}
-	l_reader.map_from_table(get_welcome, var_name);
+	if (l_reader.is_nil(var_name)) {assert(false); abort();}
+	l_reader.map_from_table(var_name, get_welcome);
 	for (auto it = get_welcome.begin(); it != get_welcome.end(); ++it) {
 		m_DefineTxt[it->first] = str_to_wstr(it->second);
 	}

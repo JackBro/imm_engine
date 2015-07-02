@@ -140,7 +140,7 @@ struct model_mgr
 	void basic_init(ID3D11Device *device, lua_reader &l_reader);
 	void remove_all();
 	texture_mgr m_TexMgr;
-	bool is_initialized;
+	bool m_IsInitialized;
 	std::map<std::string, simple_model<vertex::pntt>> m_PNTT;
 	std::map<std::string, skinned_model> m_Skinned;
 	std::map<std::string, basic_model> m_Basic;
@@ -157,16 +157,16 @@ struct model_mgr
 };
 model_mgr::model_mgr():
 	m_TexMgr(),
-	is_initialized(false)
+	m_IsInitialized(false)
 {
 	;
 }
 //
 void model_mgr::init(ID3D11Device *device)
 {
-	if (!is_initialized) {
+	if (!m_IsInitialized) {
 		m_TexMgr.init(device);
-		is_initialized = true;
+		m_IsInitialized = true;
 	}
 }
 //

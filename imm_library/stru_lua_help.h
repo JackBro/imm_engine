@@ -28,7 +28,7 @@ public:
 	void loadfile(const std::string &fname);
 	void clear_stack();
 	void map_from_string(std::map<std::string, std::string> &map_str);
-	void map_from_table(std::map<std::string, std::string> &map_str, const std::string &table_name);
+	void map_from_table(const std::string &table_name, std::map<std::string, std::string> &map_str);
 	void vec2d_str_from_table(
 		const std::string &table_name,
 		std::vector<std::vector<std::string>> &vec2d_str);
@@ -37,7 +37,7 @@ public:
 		std::vector<std::vector<std::wstring>> &vec2d_wstr);
 	template <typename T_bool>
 	void assign_bool(T_bool &b_out, const std::string &str_in);
-	bool is_not_nil(const std::string &var_name);
+	bool is_nil(const std::string &var_name);
 private:
 	lua_reader(const lua_reader &rhs);
 	lua_reader &operator=(const lua_reader &rhs);
@@ -91,7 +91,7 @@ void lua_reader::map_from_string(std::map<std::string, std::string> &map_str)
 	}
 }
 //
-void lua_reader::map_from_table(std::map<std::string, std::string> &map_str, const std::string &table_name)
+void lua_reader::map_from_table(const std::string &table_name, std::map<std::string, std::string> &map_str)
 {
 	std::lock_guard<std::recursive_mutex> lock(mutex1);
 	if (!L) {assert(false); abort();}
@@ -173,13 +173,13 @@ void lua_reader::assign_bool(T_bool &b_out, const std::string &str_in)
 	else b_out = false;
 }
 //
-bool lua_reader::is_not_nil(const std::string &var_name)
+bool lua_reader::is_nil(const std::string &var_name)
 {
 	std::lock_guard<std::recursive_mutex> lock(mutex1);
 	if (!L) {assert(false); abort();}
 	lua_getglobal(L, var_name.c_str());
-	if (lua_isnil(L, -1)) return false;
-	return true;
+	if (lua_isnil(L, -1)) return true;
+	return false;
 }
 ////////////////
 // rotation_xyz

@@ -40,8 +40,8 @@ public:
 	void draw(ID3D11DeviceContext *dc, UINT subsetid);
 	void draw_segment(ID3D11DeviceContext *dc, UINT subsetid);
 private:
-	mesh_geometry &operator=(const mesh_geometry &rhs);
 	mesh_geometry(const mesh_geometry &rhs);
+	mesh_geometry &operator=(const mesh_geometry &rhs);
 	ID3D11Buffer *m_VB;
 	ID3D11Buffer *m_IB;
 	DXGI_FORMAT m_IndexBufferFormat; // Always 32-bit

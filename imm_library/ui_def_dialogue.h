@@ -52,7 +52,7 @@ void ui_def_dialogue<T_app>::define_style()
 	//
 	////////////////
 	////////////////
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "test_sprite";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "test";
@@ -62,7 +62,7 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "test_background";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "test";
@@ -72,7 +72,7 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.75f, 0.0f, 0.0f);
 	//
-	m_Rect.emplace_back(ui_rect());
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "test_button";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "test";
@@ -180,18 +180,18 @@ void ui_def_dialogue<T_app>::rebuild_text()
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
 	std::string scene_ix = "scene"+m_App->m_Scene.scene_ix;
-	if (!l_reader.is_not_nil(scene_ix)) return;
+	if (l_reader.is_nil(scene_ix)) return;
 	// build dialogue chunk
 	m_TxtChunk.remove_all();
-	l_reader.map_from_table(get_scene, scene_ix);
+	l_reader.map_from_table(scene_ix, get_scene);
 	for (auto it = get_scene.begin(); it != get_scene.end(); ++it) {
 		describe = IMM_PATH["text"]+it->second;
 		l_reader.loadfile(describe);
 		std::map<std::string, std::string> get_chunk_info;
-		l_reader.map_from_table(get_chunk_info, "chunk");
+		l_reader.map_from_table( "chunk", get_chunk_info);
 		for (auto &chunk: get_chunk_info) {
 			std::map<std::string, std::string> chunk_raw;
-			l_reader.map_from_table(chunk_raw, chunk.second);
+			l_reader.map_from_table(chunk.second, chunk_raw);
 			m_TxtChunk.insert_chunk(chunk.second, chunk_raw);
 		}
 	}

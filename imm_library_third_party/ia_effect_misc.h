@@ -207,19 +207,23 @@ public:
 	wave_sim_effect(ID3D11Device *device, const std::wstring& filename);
 	~wave_sim_effect()                                     {;}
 	void set_WaveConstants(float s[3])                     {m_WaveConstants->SetFloatArray(s, 0, 3);}
+	void set_GameTime(float f)                             {m_GameTime->SetFloat(f);}
 	void set_DisturbMag(float s)					       {m_DisturbMag->SetFloat(s);}
 	void set_DisturbIndex(int row, int col);
 	void set_PrevSolInput(ID3D11ShaderResourceView *srv)   {m_PrevSolInput->SetResource(srv);}
 	void set_CurrSolInput(ID3D11ShaderResourceView *srv)   {m_CurrSolInput->SetResource(srv);}
+	void set_RandomTex(ID3D11ShaderResourceView *tex)      {m_RandomTex->SetResource(tex);}
 	void set_CurrSolOutput(ID3D11UnorderedAccessView *uav) {m_CurrSolOutput->SetUnorderedAccessView(uav);}
 	void set_NextSolOutput(ID3D11UnorderedAccessView *uav) {m_NextSolOutput->SetUnorderedAccessView(uav);}
 	ID3DX11EffectTechnique *m_UpdateWavesTech;
 	ID3DX11EffectTechnique *m_DisturbWavesTech;
 	ID3DX11EffectScalarVariable *m_WaveConstants;
+	ID3DX11EffectScalarVariable *m_GameTime;
 	ID3DX11EffectScalarVariable *m_DisturbMag;
 	ID3DX11EffectVectorVariable *m_DisturbIndex;
 	ID3DX11EffectShaderResourceVariable *m_PrevSolInput;
 	ID3DX11EffectShaderResourceVariable *m_CurrSolInput;
+	ID3DX11EffectShaderResourceVariable *m_RandomTex;
 	ID3DX11EffectUnorderedAccessViewVariable *m_CurrSolOutput;
 	ID3DX11EffectUnorderedAccessViewVariable *m_NextSolOutput;
 };
@@ -230,10 +234,12 @@ wave_sim_effect::wave_sim_effect(ID3D11Device* device, const std::wstring& filen
 	m_UpdateWavesTech  = m_FX->GetTechniqueByName("UpdateWaves");
 	m_DisturbWavesTech = m_FX->GetTechniqueByName("DisturbWaves");
 	m_WaveConstants    = m_FX->GetVariableByName("gWaveConstants")->AsScalar();
+	m_GameTime         = m_FX->GetVariableByName("gGameTime")->AsScalar();
 	m_DisturbMag       = m_FX->GetVariableByName("gDisturbMag")->AsScalar();
 	m_DisturbIndex     = m_FX->GetVariableByName("gDisturbIndex")->AsVector();
 	m_PrevSolInput     = m_FX->GetVariableByName("gPrevSolInput")->AsShaderResource();
 	m_CurrSolInput     = m_FX->GetVariableByName("gCurrSolInput")->AsShaderResource();
+	m_RandomTex        = m_FX->GetVariableByName("gRandomTex")->AsShaderResource();
 	m_CurrSolOutput    = m_FX->GetVariableByName("gCurrSolOutput")->AsUnorderedAccessView();
 	m_NextSolOutput    = m_FX->GetVariableByName("gNextSolOutput")->AsUnorderedAccessView();
 }

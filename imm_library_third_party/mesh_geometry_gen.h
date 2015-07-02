@@ -44,20 +44,52 @@ public:
 		std::vector<vertex> vertices;
 		std::vector<UINT> indices;
 	};
-	void create_box(float width, float height, float depth, mesh_data &mesh_data_o);
-	void create_sphere(float radius, UINT slice_count, UINT stack_count, mesh_data &mesh_data_o);
-	void create_geosphere(float radius, UINT num_subdivisions, mesh_data &mesh_data_o);
+	void create_box(
+		float width,
+		float height,
+		float depth,
+		mesh_data &mesh_data_o);
+	void create_sphere(
+		float radius,
+		UINT slice_count,
+		UINT stack_count,
+		mesh_data &mesh_data_o);
+	void create_geosphere(
+		float radius,
+		UINT num_subdivisions,
+		mesh_data &mesh_data_o);
 	void create_cylinder(
-		float bottom_radius, float top_radius, float height, UINT slice_count, UINT stack_count, mesh_data &mesh_data_o);
-	void create_grid(float width, float depth, UINT m, UINT n, mesh_data &mesh_data_o);
+		float bottom_radius,
+		float top_radius,
+		float height,
+		UINT slice_count,
+		UINT stack_count,
+		mesh_data &mesh_data_o);
+	void create_grid(
+		float width,
+		float depth,
+		UINT m,
+		UINT n,
+		mesh_data &mesh_data_o);
 	void create_fullscreen_quad(mesh_data &mesh_data_o);
 private:
 	void subdivide(mesh_data &mesh_data_o);
-	void build_cylinder_top_cap(float top_radius, float height, UINT slice_count,  mesh_data &mesh_data_o);
-	void build_cylinder_bottom_cap(float bottom_radius, float height, UINT slice_count, mesh_data &mesh_data_o);
+	void build_cylinder_top_cap(
+		float top_radius,
+		float height,
+		UINT slice_count,
+		mesh_data &mesh_data_o);
+	void build_cylinder_bottom_cap(
+		float bottom_radius,
+		float height, UINT slice_count,
+		mesh_data &mesh_data_o);
 };
 //
-void geometry::create_box(float width, float height, float depth, mesh_data &mesh_data_o)
+void geometry::create_box(
+	float width,
+	float height,
+	float depth,
+	mesh_data &mesh_data_o)
 {
 	//
 	// Create the vertices.
@@ -122,7 +154,11 @@ void geometry::create_box(float width, float height, float depth, mesh_data &mes
 	mesh_data_o.indices.assign(&i[0], &i[36]);
 }
 //
-void geometry::create_sphere(float radius, UINT slice_count, UINT stack_count, mesh_data &mesh_data_o)
+void geometry::create_sphere(
+	float radius,
+	UINT slice_count,
+	UINT stack_count,
+	mesh_data &mesh_data_o)
 {
 	mesh_data_o.vertices.clear();
 	mesh_data_o.indices.clear();
@@ -261,7 +297,10 @@ void geometry::subdivide(mesh_data &mesh_data_o)
 	}
 }
 //
-void geometry::create_geosphere(float radius, UINT num_subdivisions, mesh_data &mesh_data_o)
+void geometry::create_geosphere(
+	float radius,
+	UINT num_subdivisions,
+	mesh_data &mesh_data_o)
 {
 	// Put a cap on the number of subdivisions.
 	num_subdivisions = math::calc_min(num_subdivisions, 5u);
@@ -312,7 +351,12 @@ void geometry::create_geosphere(float radius, UINT num_subdivisions, mesh_data &
 }
 //
 void geometry::create_cylinder(
-	float bottom_radius, float top_radius, float height, UINT slice_count, UINT stack_count, mesh_data &mesh_data_o)
+	float bottom_radius,
+	float top_radius,
+	float height,
+	UINT slice_count,
+	UINT stack_count,
+	mesh_data &mesh_data_o)
 {
 	mesh_data_o.vertices.clear();
 	mesh_data_o.indices.clear();
@@ -382,7 +426,11 @@ void geometry::create_cylinder(
 	build_cylinder_bottom_cap(bottom_radius, height, slice_count, mesh_data_o);
 }
 //
-void geometry::build_cylinder_top_cap(float top_radius, float height, UINT slice_count, mesh_data &mesh_data_o)
+void geometry::build_cylinder_top_cap(
+	float top_radius,
+	float height,
+	UINT slice_count,
+	mesh_data &mesh_data_o)
 {
 	UINT base_index = (UINT)mesh_data_o.vertices.size();
 	float y = 0.5f*height;
@@ -408,7 +456,11 @@ void geometry::build_cylinder_top_cap(float top_radius, float height, UINT slice
 	}
 }
 //
-void geometry::build_cylinder_bottom_cap(float bottom_radius, float height, UINT slice_count, mesh_data &mesh_data_o)
+void geometry::build_cylinder_bottom_cap(
+	float bottom_radius,
+	float height,
+	UINT slice_count,
+	mesh_data &mesh_data_o)
 {
 	// Build bottom cap.
 	UINT base_index = (UINT)mesh_data_o.vertices.size();
@@ -435,7 +487,12 @@ void geometry::build_cylinder_bottom_cap(float bottom_radius, float height, UINT
 	}
 }
 //
-void geometry::create_grid(float width, float depth, UINT m, UINT n, mesh_data &mesh_data_o)
+void geometry::create_grid(
+	float width,
+	float depth,
+	UINT m,
+	UINT n,
+	mesh_data &mesh_data_o)
 {
 	UINT vertex_count = m*n;
 	UINT face_count  = (m-1)*(n-1)*2;

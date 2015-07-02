@@ -36,7 +36,7 @@ Update KB2670838 (Windows 7.1 situation)
 DirectX 11 capable GPU  
 1024X768 minimum display resolution  
 DirectX 9.0c compliant sound card  
-(Win 10 only supports Release Build with VS2013)  
+(Win 10 only supports Release Build with VS2013, I have not VS2015 yet.)  
 
 Dependent .Lib Files:
 ---------------------

@@ -129,6 +129,45 @@ ID3D11ShaderResourceView *create_RandomTexture1DSRV(ID3D11Device* device)
 	return random_tex_srv;
 }
 ////////////////
+// create_RandomTexture1DWaveSRV
+////////////////
+////////////////
+ID3D11ShaderResourceView *create_RandomTexture1DWaveSRV(ID3D11Device* device)
+{
+	// Create the random data.
+	float random_values[1024];
+	for(int i = 0; i < 1024; ++i) {
+		random_values[i] = math::calc_randf(-0.00629f, 0.006f);
+	}
+	D3D11_SUBRESOURCE_DATA init_data;
+	init_data.pSysMem          = random_values;
+	init_data.SysMemPitch      = 1024*sizeof(float);
+	init_data.SysMemSlicePitch = 0;
+	// Create the texture.
+	D3D11_TEXTURE1D_DESC tex_desc;
+	tex_desc.Width          = 1024;
+	tex_desc.MipLevels      = 1;
+	tex_desc.Format         = DXGI_FORMAT_R32_FLOAT;
+	tex_desc.Usage          = D3D11_USAGE_IMMUTABLE;
+	tex_desc.BindFlags      = D3D11_BIND_SHADER_RESOURCE;
+	tex_desc.CPUAccessFlags = 0;
+	tex_desc.MiscFlags      = 0;
+	tex_desc.ArraySize      = 1;
+	//
+	ID3D11Texture1D* random_tex = 0;
+	HR(device->CreateTexture1D(&tex_desc, &init_data, &random_tex));
+	// Create the resource view.
+	D3D11_SHADER_RESOURCE_VIEW_DESC view_desc;
+	view_desc.Format                    = tex_desc.Format;
+	view_desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE1D;
+	view_desc.Texture1D.MipLevels       = tex_desc.MipLevels;
+	view_desc.Texture1D.MostDetailedMip = 0;
+	ID3D11ShaderResourceView* random_tex_srv = 0;
+	HR(device->CreateShaderResourceView(random_tex, &view_desc, &random_tex_srv));
+	ReleaseCOM(random_tex);
+	return random_tex_srv;
+}
+////////////////
 // extract_frustum_planes
 ////////////////
 ////////////////

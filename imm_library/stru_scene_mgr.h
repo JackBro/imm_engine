@@ -7,7 +7,7 @@
 ////////////////
 #ifndef STRU_SCENE_MGR_H
 #define STRU_SCENE_MGR_H
-#include "stru_liquid.h"
+#include "stru_wave.h"
 #include "stru_particle.h"
 #include "stru_instance_mgr.h"
 #include "render_sky.h"
@@ -44,7 +44,7 @@ struct scene_mgr
 	terrain terrain1;
 	phy_property terrain1_phy;
 	state_plasma plasma;
-	state_liquid liquid;
+	envi_liquid liquid;
 	audio_dxtk audio;
 	phy_wireframe<T_app> phy_wire;
 	std::string scene_ix;
@@ -87,7 +87,6 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
 	plasma.init_load(app->m_D3DDevice, app->m_D3DDC);
-	liquid.init(app->m_D3DDevice);
 	audio.init_load();
 	phy_wire.init(app);
 	app->m_Attack.init_load(app);
@@ -99,7 +98,7 @@ void scene_mgr<T_app>::update_atmosphere(float dt)
 {
 	float total_time = app->m_Timer.total_time();
 	plasma.update(dt, total_time);
-	//liquid.update(app->m_D3DDC, dt, total_time);
+	liquid.update(app->m_D3DDC, dt, total_time);
 	audio.update();
 	app->m_Attack.update();
 }
@@ -117,7 +116,7 @@ void scene_mgr<T_app>::draw_d3d_atmosphere(XMMATRIX &shadow_transform)
 	// Draw terrain
 	terrain1.draw(app->m_D3DDC, app->m_Cam, dir_lights, app->m_Smap, shadow_transform);
 	// Draw liquid
-	//liquid.draw(app->m_D3DDC, dir_lights, app->m_Cam);
+	liquid.draw(app->m_D3DDC, dir_lights, app->m_Cam);
 	// Draw particle systems last so it is blended with scene.
 	plasma.draw(app->m_D3DDC, app->m_Cam);
 	// Restore default states.
@@ -172,6 +171,7 @@ void scene_mgr<T_app>::reload_instance()
 	// Stop control first
 	app->m_Control.reset();
 	std::thread(&instance_mgr<T_app>::reload, std::ref(app->m_Inst)).detach();
+	liquid.reload(app->m_D3DDevice, scene_ix);
 }
 //
 template <typename T_app>
@@ -196,7 +196,7 @@ void scene_mgr<T_app>::reload_terrain(lua_reader &l_reader)
 	terrain1 = terrain();
 	if (get_misc["terrain_info"] == "") return;
 	std::map<std::string, std::string> tii_map;
-	l_reader.map_from_table(tii_map, get_misc["terrain_info"]);
+	l_reader.map_from_table(get_misc["terrain_info"], tii_map);
 	assert(tii_map.size() > 10);
 	auto it = tii_map.begin();
 	terrain::init_info tii;
@@ -227,7 +227,7 @@ void scene_mgr<T_app>::relaod_terrain_after_instance()
 		app->m_Inst.m_BoundL.transform(ix, app->m_Inst.m_BoundW, W);
 		float half_y = app->m_Inst.m_BoundW.half_y(ix);
 		float height = terrain1.get_Height(world->_41, world->_43) + half_y*2.0f;
-		if (world->_42 < height) world->_42 = height+10.0f;
+		if (world->_42 < height) world->_42 = height+1.0f;
 		ix++;
 	}
 }

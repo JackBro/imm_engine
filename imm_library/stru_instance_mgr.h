@@ -23,22 +23,27 @@ struct instance_mgr
 	void reload_scene_instance_relate();
 	template <typename instance, typename get_pos>
 	void push_back(
-		const std::vector<instance> &v_inst, instance_stat &inst_stat, size_t &k,
+		const std::vector<instance> &v_inst,
+		instance_stat &inst_stat,
+		size_t &k,
 		const get_pos &get_pos_f,
 		std::vector<std::string> &name);
 	template <typename instance, typename get_pos>
 	void push_back_pntt(
-		const std::vector<instance> &v_inst, instance_stat &inst_stat, size_t &k,
+		const std::vector<instance> &v_inst,
+		instance_stat &inst_stat,
+		size_t &k,
 		const get_pos &get_pos_f,
 		std::vector<std::string> &name);
 	int get_index(const std::string &name);
 	void on_resize();
 	void update(const float &dt);
-	void bound_update();
-	void collision_update(float dt_every);
-	void collision_update_plane(float dt_every);
-	void collision_update_terrain(float dt_every);
-	void collision_update_impulse(float dt_every);
+	void update_bound();
+	void update_collision(float dt);
+	void update_collision_plane(float dt);
+	void update_collision_terrain(float dt);
+	void update_collision_impulse(float dt);
+	void update_collision_liquid(float dt);
 	void update_skinned(const float &dt);
 	void update_frustum_culling();
 	void remove_all();
@@ -92,25 +97,35 @@ void instance_mgr<T_app>::reload()
 	size_t k = 0;
 	inst_stat.type = basic;
 	push_back(
-		m_Model.m_InstBasic, inst_stat, k,
+		m_Model.m_InstBasic,
+		inst_stat,
+		k,
 		[](const vertex::pntt2 &x) {return &x.pos;},
 		m_Model.m_NameBasic);
 	push_back(
-		m_Model.m_InstBasicAlpha, inst_stat, k,
+		m_Model.m_InstBasicAlpha,
+		inst_stat,
+		k,
 		[](const vertex::pntt2 &x) {return &x.pos;},
 		m_Model.m_NameBasicAlpha);
 	inst_stat.type = skinned;
 	push_back(
-		m_Model.m_InstSkinned, inst_stat, k,
+		m_Model.m_InstSkinned,
+		inst_stat,
+		k,
 		[](const vertex::pntt_skinned &x) {return &x.pos;},
 		m_Model.m_NameSkinned);
 	push_back(
-		m_Model.m_InstSkinnedAlpha, inst_stat, k,
+		m_Model.m_InstSkinnedAlpha,
+		inst_stat,
+		k,
 		[](const vertex::pntt_skinned &x) {return &x.pos;},
 		m_Model.m_NameSkinnedAlpha);
 	inst_stat.type = simple_pntt;
 	push_back_pntt(
-		m_Model.m_InstPNTT, inst_stat, k,
+		m_Model.m_InstPNTT,
+		inst_stat,
+		k,
 		[](const vertex::pntt &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
 	reload_scene_instance_relate();
@@ -200,13 +215,14 @@ template <typename T_app>
 void instance_mgr<T_app>::update(const float &dt)
 {
 	update_skinned(dt);
-	bound_update();
-	collision_update(dt);
+	update_bound();
+	update_collision(dt);
 	update_frustum_culling();
+	update_collision_liquid(dt);
 }
 //
 template <typename T_app>
-void instance_mgr<T_app>::bound_update()
+void instance_mgr<T_app>::update_bound()
 {
 	XMMATRIX world;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
@@ -216,17 +232,17 @@ void instance_mgr<T_app>::bound_update()
 }
 // should use octree, temporary not implement
 template <typename T_app>
-void instance_mgr<T_app>::collision_update(float dt_every)
+void instance_mgr<T_app>::update_collision(float dt)
 {
 	// if runtime stun
-	if (dt_every > PHY_MAX_DELTA_TIME) dt_every = PHY_MAX_DELTA_TIME;
-	if (m_IsTerrainUse) collision_update_terrain(dt_every);
-	else collision_update_plane(dt_every);
-	collision_update_impulse(dt_every);
+	if (dt > PHY_MAX_DELTA_TIME) dt = PHY_MAX_DELTA_TIME;
+	if (m_IsTerrainUse) update_collision_terrain(dt);
+	else update_collision_plane(dt);
+	update_collision_impulse(dt);
 }
 //
 template <typename T_app>
-void instance_mgr<T_app>::collision_update_plane(float dt_every)
+void instance_mgr<T_app>::update_collision_plane(float dt)
 {
 	if (m_PlaneGroundIx < 0) return;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
@@ -235,7 +251,7 @@ void instance_mgr<T_app>::collision_update_plane(float dt_every)
 		if (m_Stat[ix].phy.stand_from >= 0) ix_gro = m_Stat[ix].phy.stand_from;
 		m_Stat[ix].phy.is_touch_ground = m_BoundW.intersects(ix_gro, ix);
 		phy_position_update(
-			dt_every,
+			dt,
 			*(m_Stat[ix].get_World()),
 			m_Stat[ix].phy,
 			m_Stat[ix_gro].phy,
@@ -247,7 +263,7 @@ void instance_mgr<T_app>::collision_update_plane(float dt_every)
 }
 //
 template <typename T_app>
-void instance_mgr<T_app>::collision_update_terrain(float dt_every)
+void instance_mgr<T_app>::update_collision_terrain(float dt)
 {
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		int ix_gro = -1;
@@ -258,7 +274,7 @@ void instance_mgr<T_app>::collision_update_terrain(float dt_every)
 		int contains = m_BoundW.contains(ix, terrain_point);
 		m_Stat[ix].phy.is_touch_ground = (contains != 0);
 		phy_position_update(
-			dt_every,
+			dt,
 			*world,
 			m_Stat[ix].phy,
 			m_App->m_Scene.terrain1_phy,
@@ -275,12 +291,12 @@ void instance_mgr<T_app>::collision_update_terrain(float dt_every)
 }
 //
 template <typename T_app>
-void instance_mgr<T_app>::collision_update_impulse(float dt_every)
+void instance_mgr<T_app>::update_collision_impulse(float dt)
 {
 	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
 		for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
 			if (static_cast<int>(ix) == m_PlaneGroundIx || static_cast<int>(ix2) == m_PlaneGroundIx) continue;
-			phy_impulse_casual(dt_every,
+			phy_impulse_casual(dt,
 				*(m_Stat[ix].get_World()),
 				*(m_Stat[ix2].get_World()),
 				m_Stat[ix].phy,
@@ -290,6 +306,14 @@ void instance_mgr<T_app>::collision_update_impulse(float dt_every)
 				m_BoundW.intersects(ix, ix2));
 		}
 	}
+}
+//
+template <typename T_app>
+void instance_mgr<T_app>::update_collision_liquid(float dt)
+{
+	// test
+	m_App->m_Scene.liquid.intersects(m_BoundW.b1[m_App->m_Control.player1], dt, m_App->m_Control.player1);
+	m_App->m_Scene.liquid.frustum_culling(m_CamFrustumW);
 }
 //
 template <typename T_app>

@@ -133,19 +133,19 @@ void phy_bound_mgr::push_back_empty(const phy_bound_type &type)
 {
 	switch(type) {
 		case box:
-			b1.emplace_back(BoundingBox());
-			map.emplace_back(std::make_pair(type, b1.size()-1));
+			b1.emplace_back();
+			map.emplace_back(type, b1.size()-1);
 			return;
 		case ori_box:
-			b2.emplace_back(BoundingOrientedBox());
-			map.emplace_back(std::make_pair(type, b2.size()-1));
+			b2.emplace_back();
+			map.emplace_back(type, b2.size()-1);
 			return;
 		case sphere:
-			b3.emplace_back(BoundingSphere());
-			map.emplace_back(std::make_pair(type, b3.size()-1));
+			b3.emplace_back();
+			map.emplace_back(type, b3.size()-1);
 			return;
 		case null:
-			map.emplace_back(std::make_pair(type, 0));
+			map.emplace_back(type, 0);
 			return;
 	}
 	assert(false);

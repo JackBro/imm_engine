@@ -10,6 +10,7 @@
 cbuffer cbUpdateSettings
 {
 	float gWaveConstants[3];
+	float gGameTime;
 };
 // For generating a wave.
 cbuffer cbDisturbSettings
@@ -27,6 +28,13 @@ Texture2D gPrevSolInput;
 Texture2D gCurrSolInput;
 RWTexture2D<float> gCurrSolOutput;
 RWTexture2D<float> gNextSolOutput;
+Texture1D gRandomTex;
+SamplerState samLinear
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = WRAP;
+	AddressV = WRAP;
+};
 [numthreads(16, 16, 1)]
 void UpdateWavesCS(int3 dispatchThreadID : SV_DispatchThreadID)
 {
@@ -44,6 +52,13 @@ void UpdateWavesCS(int3 dispatchThreadID : SV_DispatchThreadID)
 			gCurrSolInput[int2(x,y-1)].r +
 			gCurrSolInput[int2(x+1,y)].r +
 			gCurrSolInput[int2(x-1,y)].r);
+	// Random wave
+	float u = x*gGameTime/y;
+	float offset = gRandomTex.SampleLevel(samLinear, u, 0).r;
+	gNextSolOutput[int2(x,y)] += offset;
+	// Clip restrict the height of water plane
+	if (gNextSolOutput[int2(x,y)] > 0.5f) gNextSolOutput[int2(x,y)] -= 0.003f;
+	if (gNextSolOutput[int2(x,y)] < -0.5f) gNextSolOutput[int2(x,y)] += 0.003f;
 /*
 	// Equivalently using SampleLevel() instead of operator [].
 	int x = dispatchThreadID.x;
