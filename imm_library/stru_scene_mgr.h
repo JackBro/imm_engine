@@ -30,6 +30,7 @@ struct scene_mgr
 	void update_listen_thread_for_reload();
 	void draw_d3d_atmosphere(XMMATRIX &shadow_transform);
 	void reload(const std::wstring &scene_ix_in);
+	void reload_in_main_update();
 	void reload_instance();
 	void reload_skybox();
 	void reload_terrain(lua_reader &l_reader);
@@ -50,6 +51,7 @@ struct scene_mgr
 	std::string scene_ix;
 	float begin_time;
 	float shadow_light_pos_far;
+	bool is_reload_schedule;
 	bool is_loading_atmosphere;
 	bool is_reload_done;
 };
@@ -66,6 +68,7 @@ scene_mgr<T_app>::scene_mgr():
 	scene_ix(),
 	begin_time(FLT_MAX),
 	shadow_light_pos_far(100.0f),
+	is_reload_schedule(false),
 	is_loading_atmosphere(false),
 	is_reload_done(false)
 {
@@ -128,6 +131,13 @@ void scene_mgr<T_app>::draw_d3d_atmosphere(XMMATRIX &shadow_transform)
 template <typename T_app>
 void scene_mgr<T_app>::update_listen_thread_for_reload()
 {
+	// Clean update in main,
+	// that guarantee no other update when reload,
+	// avoid thread(instance_mgr::reload).detach and instance_mgr::update conflict
+	if (is_reload_schedule) {
+		reload_in_main_update();
+		is_reload_schedule = false;
+	}
 	if (!is_reload_done && !app->m_Inst.m_IsLoading && !is_loading_atmosphere) {
 		relaod_terrain_after_instance();
 		app->m_Cmd.is_preparing = false;
@@ -139,6 +149,9 @@ void scene_mgr<T_app>::update_listen_thread_for_reload()
 template <typename T_app>
 void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 {
+	assert(!is_reload_schedule);
+	if (is_reload_schedule) return;
+	is_reload_schedule = true;
 	is_loading_atmosphere = true;
 	is_reload_done = false;
 	begin_time = FLT_MAX;
@@ -146,6 +159,11 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	assert(!app->m_Inst.m_IsLoading);
 	app->m_Inst.m_IsLoading = true;
 	scene_ix = wstr_to_str(scene_ix_in);
+}
+//
+template <typename T_app>
+void scene_mgr<T_app>::reload_in_main_update()
+{
 	get_misc["plane_ground"] = "";
 	get_misc["player1"] = "";
 	get_misc["skybox_dds"] = "";

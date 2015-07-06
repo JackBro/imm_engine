@@ -97,7 +97,7 @@ state_liquid::~state_liquid()
 //
 state_liquid::state_liquid(const state_liquid &rhs)
 {
-	// Ensure do not copy constructor
+	// Ensure do not use copy constructor
 	DUMMY(rhs);
 	assert(false);
 }
@@ -159,7 +159,7 @@ void state_liquid::init(
 	XMMATRIX world = XMLoadFloat4x4(&wave_world);
 	bbox_l.Transform(bbox_w, world);
 	offset_x = pa_num_rows*pa_spatial_step*0.5f;
-	offset_y = pa_num_cols*pa_spatial_step*0.5f;	
+	offset_y = pa_num_cols*pa_spatial_step*0.5f;
 }
 //
 void state_liquid::update(ID3D11DeviceContext *context, float dt, float total_time)

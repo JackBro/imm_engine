@@ -133,10 +133,10 @@ void model_load_geo_mesh(
 	size_t k = 0;
 	for (size_t ix = 0; ix != size; ++ix) {
 		for(size_t i = 0; i < geo[ix].vertices.size(); ++i, ++k) {
-			vertices[k].pos         = geo[ix].vertices[i].position;
-			vertices[k].normal      = geo[ix].vertices[i].normal;
-			vertices[k].tex         = geo[ix].vertices[i].tex_c;
-			vertices[k].tangent_u   = geo[ix].vertices[i].tangent_u;
+			vertices[k].pos       = geo[ix].vertices[i].position;
+			vertices[k].normal    = geo[ix].vertices[i].normal;
+			vertices[k].tex       = geo[ix].vertices[i].tex_c;
+			vertices[k].tangent_u = geo[ix].vertices[i].tangent_u;
 		}
 	}
 	//

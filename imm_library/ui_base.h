@@ -26,7 +26,7 @@ struct ui_base
 	void init(T_app *app_in);
 	void reset();
 	void build_rect_map();
-	void set_Brush(D2D1::ColorF::Enum color, const float &opacity, const std::string index);
+	void set_Brush(D2D1::ColorF color, const float &opacity, const std::string index);
 	void on_resize_RectFromHWND(const size_t &ix);
 	void on_resize_RectFromRect(const size_t &ix, const int &parent);
 	void on_resize_TextLayout(const size_t &ix, const bool &is_resize = false);
@@ -239,12 +239,12 @@ void ui_base<T_app>::on_resize()
 }
 //
 template <typename T_app>
-void ui_base<T_app>::set_Brush(D2D1::ColorF::Enum color, const float &opacity, const std::string index)
+void ui_base<T_app>::set_Brush(D2D1::ColorF color, const float &opacity, const std::string index)
 {
 	D2D1_BRUSH_PROPERTIES br_prop;
 	br_prop.opacity = opacity;
 	br_prop.transform = D2D1::IdentityMatrix();
-	m_App->m_D2DDC->CreateSolidColorBrush(D2D1::ColorF(color), br_prop, &m_Brush[index]);
+	HR(m_App->m_D2DDC->CreateSolidColorBrush(color, br_prop, &m_Brush[index]));
 }
 //
 template <typename T_app>

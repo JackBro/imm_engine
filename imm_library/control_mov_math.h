@@ -132,6 +132,7 @@ void control_mov<T_app>::math_mouse_hit_terrain(
 	size_t steps = 50;
 	float plane_y = app->m_Scene.terrain1.m_Info.height_scale;
 	float step_y = plane_y / steps;
+	float comp_y = step_y;
 	plane_y = p1_y;
 	for (size_t ix = 0; ix != steps+2; ++ix) {
 		float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+(plane_y/XMVectorGetY(ray_dir));
@@ -139,7 +140,7 @@ void control_mov<T_app>::math_mouse_hit_terrain(
 		plane_pos_out = XMVectorSetX(plane_pos_out, XMVectorGetX(ray_origin)+ratio_y*XMVectorGetX(ray_dir));
 		plane_pos_out = XMVectorSetZ(plane_pos_out, XMVectorGetZ(ray_origin)+ratio_y*XMVectorGetZ(ray_dir));
 		float height = app->m_Scene.terrain1.get_Height(XMVectorGetX(plane_pos_out), XMVectorGetZ(plane_pos_out));
-		if (plane_y < height) return;
+		if (abs(plane_y-height) < comp_y) return;
 		if (ix%2 == 0) plane_y = p1_y + step_y*(ix/2);
 		else plane_y = p1_y - step_y*((ix+1)/2);
 	}
