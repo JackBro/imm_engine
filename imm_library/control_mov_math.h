@@ -7,7 +7,7 @@
 ////////////////
 template <typename T_app>
 void control_mov<T_app>::math_mouse_move_toward_hit(
-	CXMVECTOR &plane_pos,
+	CXMVECTOR &hit_pos,
 	const size_t &index,
 	const float &speed = -1.0f)
 {
@@ -17,7 +17,7 @@ void control_mov<T_app>::math_mouse_move_toward_hit(
 	XMVECTOR velocity_nm = XMLoadFloat3(phy_velocity_nm);
 	XMMATRIX W = XMLoadFloat4x4(&world);
 	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
-	velocity_nm = XMVectorSubtract(plane_pos, W.r[3]);
+	velocity_nm = XMVectorSubtract(hit_pos, W.r[3]);
 	velocity_nm = XMVectorSetY(velocity_nm, 0.0f);
 	velocity_nm = XMVector3Normalize(velocity_nm);
 	// use velocity_nm as front direction
@@ -77,7 +77,7 @@ template <typename T_app>
 void control_mov<T_app>::math_mouse_hit_plane_y(
 	const int &pos_x,
 	const int &pos_y,
-	XMVECTOR &plane_pos_out)
+	XMVECTOR &hit_pos_out)
 {
 	CXMMATRIX cam_proj = app->m_Cam.get_Proj();
 	CXMMATRIX cam_view = app->m_Cam.get_View();
@@ -94,21 +94,26 @@ void control_mov<T_app>::math_mouse_hit_plane_y(
 	ray_dir = XMVector3TransformNormal(ray_dir, inv_view);
 	// Make the ray direction unit length for the intersection tests.
 	ray_dir = XMVector3Normalize(ray_dir);
+	// avoid ray_dir.y == 0
+	while (abs(XMVectorGetY(ray_dir)) < 0.001f) {
+		ray_dir = XMVectorSetY(ray_dir, XMVectorGetY(ray_dir)-0.01f);
+		ray_dir = XMVector3Normalize(ray_dir);
+	}	
 	// Ray hit y=value plane at plane_p
 	XMFLOAT4X4 *world = app->m_Inst.m_Stat[app->m_Inst.m_PlaneGroundIx].get_World();
 	float plane_y = world->_42;
-	plane_pos_out = ray_origin;
+	hit_pos_out = ray_origin;
 	float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+(plane_y/XMVectorGetY(ray_dir));
-	plane_pos_out = XMVectorSetY(plane_pos_out, plane_y);
-	plane_pos_out = XMVectorSetX(plane_pos_out, XMVectorGetX(ray_origin)+ratio_y*XMVectorGetX(ray_dir));
-	plane_pos_out = XMVectorSetZ(plane_pos_out, XMVectorGetZ(ray_origin)+ratio_y*XMVectorGetZ(ray_dir));
+	hit_pos_out = XMVectorSetY(hit_pos_out, plane_y);
+	hit_pos_out = XMVectorSetX(hit_pos_out, XMVectorGetX(ray_origin)+ratio_y*XMVectorGetX(ray_dir));
+	hit_pos_out = XMVectorSetZ(hit_pos_out, XMVectorGetZ(ray_origin)+ratio_y*XMVectorGetZ(ray_dir));
 }
 //
 template <typename T_app>
 void control_mov<T_app>::math_mouse_hit_terrain(
 	const int &pos_x,
 	const int &pos_y,
-	XMVECTOR &plane_pos_out)
+	XMVECTOR &hit_pos_out)
 {
 	CXMMATRIX cam_proj = app->m_Cam.get_Proj();
 	CXMMATRIX cam_view = app->m_Cam.get_View();
@@ -125,26 +130,58 @@ void control_mov<T_app>::math_mouse_hit_terrain(
 	ray_dir = XMVector3TransformNormal(ray_dir, inv_view);
 	// Make the ray direction unit length for the intersection tests.
 	ray_dir = XMVector3Normalize(ray_dir);
+	// Avoid ray_dir.y == 0
+	while (abs(XMVectorGetY(ray_dir)) < 0.001f) {
+		ray_dir = XMVectorSetY(ray_dir, XMVectorGetY(ray_dir)-0.01f);
+		ray_dir = XMVector3Normalize(ray_dir);
+	}
 	// Ray hit y=value plane at plane_p
-	// This solution has a problem, the result of ray hit test is not unique, maybe get wrong one
-	plane_pos_out = ray_origin;
-	float p1_y = app->m_Inst.m_BoundW.center(player1).y;
+	hit_pos_out = ray_origin;
 	size_t steps = 50;
-	float plane_y = app->m_Scene.terrain1.m_Info.height_scale;
-	float step_y = plane_y / steps;
-	float comp_y = step_y;
-	plane_y = p1_y;
+	float terrain_height = app->m_Scene.terrain1.m_Info.height_scale;
+	float terrain_half_y = terrain_height/2.0f;
+	float plane_y = terrain_half_y;
+	float delt_y = terrain_height / steps;
+	float comp_y = delt_y;
+	float less_y = FLT_MAX;
+	float less_y2 = FLT_MAX;
+	XMVECTOR near_pos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	//
 	for (size_t ix = 0; ix != steps+2; ++ix) {
 		float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+(plane_y/XMVectorGetY(ray_dir));
-		plane_pos_out = XMVectorSetY(plane_pos_out, plane_y);
-		plane_pos_out = XMVectorSetX(plane_pos_out, XMVectorGetX(ray_origin)+ratio_y*XMVectorGetX(ray_dir));
-		plane_pos_out = XMVectorSetZ(plane_pos_out, XMVectorGetZ(ray_origin)+ratio_y*XMVectorGetZ(ray_dir));
-		float height = app->m_Scene.terrain1.get_Height(XMVectorGetX(plane_pos_out), XMVectorGetZ(plane_pos_out));
-		if (abs(plane_y-height) < comp_y) return;
-		if (ix%2 == 0) plane_y = p1_y + step_y*(ix/2);
-		else plane_y = p1_y - step_y*((ix+1)/2);
+		hit_pos_out = XMVectorSetY(hit_pos_out, plane_y);
+		hit_pos_out = XMVectorSetX(hit_pos_out, XMVectorGetX(ray_origin)+ratio_y*XMVectorGetX(ray_dir));
+		hit_pos_out = XMVectorSetZ(hit_pos_out, XMVectorGetZ(ray_origin)+ratio_y*XMVectorGetZ(ray_dir));
+		assert(!isnan(XMVectorGetX(hit_pos_out)));
+		assert(!isnan(XMVectorGetZ(hit_pos_out)));
+		float height = app->m_Scene.terrain1.get_Height(XMVectorGetX(hit_pos_out), XMVectorGetZ(hit_pos_out));
+		ContainmentType contain = app->m_Inst.m_CamFrustumW.Contains(hit_pos_out);
+		bool in_frustum = (contain != 0);
+		float diff_y = abs(plane_y-height);
+		// Check height valid and frustum contains
+		if (height > -terrain_height && in_frustum) {
+			if (diff_y < comp_y) {
+				return;
+			}
+			if (diff_y < less_y) {
+				less_y = diff_y;
+				hit_pos_out = XMVectorSetY(hit_pos_out, height);
+				near_pos = hit_pos_out;
+			}
+		}
+		// When can not found a point in frustum
+		if (height > -terrain_height && !in_frustum) {
+			if (diff_y < less_y2 && less_y >= terrain_height) {
+				less_y2 = diff_y;
+				hit_pos_out = XMVectorSetY(hit_pos_out, height);
+				near_pos = hit_pos_out;
+			}
+		}
+		if (ix%2 == 0) plane_y = terrain_half_y + delt_y*(ix/2);
+		else plane_y = terrain_half_y - delt_y*((ix+1)/2);
 	}
-	plane_pos_out = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	hit_pos_out = near_pos;
+	assert (less_y < terrain_height || less_y2 < terrain_height);
 }
 //
 template <typename T_app>

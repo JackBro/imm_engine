@@ -54,7 +54,7 @@ How to Compile:
 In demo folder, every subfolder inlude a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: A basic window draw empty.
-* **simple_secene**: A very simple scene draw 4 basic geometrics. 
+* **simple_scene**: A very simple scene draw 4 basic geometrics. 
 This program is almost the same as the Released Demo (github's is updated, but not include assets).
 
 Runtime Folder Tree:

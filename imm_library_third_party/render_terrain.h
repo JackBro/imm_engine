@@ -127,11 +127,13 @@ float terrain::get_Height(float x, float z) const
 	// Get the row and column we are in.
 	int row = (int)floorf(d);
 	int col = (int)floorf(c);
-	//
+	// If out of range
 	if (row < 0 ||
 		col < 0 ||
-		row > (int)m_Info.heightmap_height -2 ||
-		col > (int)m_Info.heightmap_width -2) return 0.0f;
+		row > (int)m_Info.heightmap_height-2 ||
+		col > (int)m_Info.heightmap_width-2) {
+		return -FLT_MAX;
+	}
 	// Grab the heights of the cell we are in.
 	// A*--*B
 	//  | /|

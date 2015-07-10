@@ -165,7 +165,7 @@ void imm_app::update_scene_keydown(float dt)
 void imm_app::on_mouse_down(WPARAM btn_state, int x, int y)
 {
 	if (m_Cmd.is_waiting_for_something()) return;
-	if (btn_state & MOUSE_CAM_MOVE) {
+	if (btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0) {
 		m_LastMousePos.x = x;
 		m_LastMousePos.y = y;
 		SetCapture(this->get_hwnd());
@@ -186,7 +186,7 @@ void imm_app::on_mouse_move(WPARAM btn_state, int x, int y)
 {
 	if (m_Cmd.is_waiting_for_something()) return;
 	m_Control.on_mouse_move(btn_state, x, y);
-	if (btn_state & MOUSE_CAM_MOVE) {
+	if (btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0) {
 		m_LastMousePos.x = x;
 		m_LastMousePos.y = y;
 	}

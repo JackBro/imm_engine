@@ -20,182 +20,6 @@ namespace imm
 static const int CONTORL_CAM_FREE = 128;
 static const int CONTORL_MOVE_BY_MOUSE = 64;
 ////////////////
-// control_xinput
-////////////////
-////////////////
-struct control_xinput
-{
-	control_xinput();
-	bool is_enable();
-	bool is_L_active();
-	bool is_R_active();
-	bool is_on_keydown(WORD &vkey);
-	float L_radians();
-	float R_radians();
-	bool is_force_disable;
-	XINPUT_STATE state;
-	XINPUT_KEYSTROKE key;
-	float deadzone;
-};
-//
-control_xinput::control_xinput():
-	deadzone(5000.0f),
-	is_force_disable(false)
-{
-	ZeroMemory(&state, sizeof(XINPUT_STATE));
-	key.UserIndex = 0;
-}
-//
-bool control_xinput::is_enable()
-{
-	if (is_force_disable) return false;
-	DWORD dw_result;
-	dw_result = XInputGetState(0, &state);
-	if (dw_result == ERROR_SUCCESS) return true;
-	return false;
-}
-//
-bool control_xinput::is_L_active()
-{
-	float LX = state.Gamepad.sThumbLX;
-	float LY = state.Gamepad.sThumbLY;
-	float magnitude = sqrt(LX*LX + LY*LY);
-	if (magnitude > deadzone) return true;
-	return false;
-}
-//
-bool control_xinput::is_R_active()
-{
-	float RX = state.Gamepad.sThumbRX;
-	float RY = state.Gamepad.sThumbRY;
-	float magnitude = sqrt(RX*RX + RY*RY);
-	if (magnitude > deadzone) return true;
-	return false;
-}
-//
-bool control_xinput::is_on_keydown(WORD &vkey)
-{
-	if (XInputGetKeystroke(0, 0, &key) == ERROR_SUCCESS) {
-		if (key.Flags & XINPUT_KEYSTROKE_KEYDOWN) {
-			vkey = key.VirtualKey;
-			return true;
-		}
-	}
-	return false;
-}
-//
-float control_xinput::L_radians()
-{
-	float LX = state.Gamepad.sThumbLX;
-	float LY = state.Gamepad.sThumbLY;
-	return atan2(LX, LY);
-}
-//
-float control_xinput::R_radians()
-{
-	float RX = state.Gamepad.sThumbRX;
-	float RY = state.Gamepad.sThumbRY;
-	return atan2(RX, RY);
-}
-////////////////
-// control_stop
-////////////////
-////////////////
-struct control_stop
-{
-	control_stop();
-	void set_aabb(CXMVECTOR &pos, const float &half_y);
-	bool contains(const XMFLOAT3 &center);
-	bool is_stop;
-	BoundingBox bbox;
-	XMFLOAT3 plane_pos;
-	float dt_cd;
-	float speed;
-	float bbox_half_y;
-};
-//
-control_stop::control_stop():
-	is_stop(true),
-	plane_pos(0.0f, 0.0f, 0.0f),
-	dt_cd(0.0f),
-	speed(0.0f),
-	bbox_half_y(100.0f)
-{
-	;
-}
-//
-void control_stop::set_aabb(CXMVECTOR &pos, const float &half_y)
-{
-	XMStoreFloat3(&bbox.Center, pos);
-	bbox.Extents = XMFLOAT3(0.2f, half_y*2.0f, 0.2f);
-	plane_pos = bbox.Center;
-}
-//
-bool control_stop::contains(const XMFLOAT3 &center)
-{
-	XMVECTOR C = XMLoadFloat3(&center);
-	if (bbox.Contains(C) == 2) return true;
-	else return false;
-}
-////////////////
-// control_motion
-////////////////
-////////////////
-struct control_motion
-{
-	control_motion();
-	std::string walk_run;
-	std::string idle;
-	std::string jump;
-	float speed;
-	float speed_walk;
-	float speed_run;
-	float jump_velocity;
-	void switch_walk_run();
-	void make_run();
-	void make_walk();
-};
-//
-control_motion::control_motion():
-	walk_run("Run"),
-	idle("Idle"),
-	jump("Jump"),
-	speed(13.5f),
-	speed_walk(4.5f),
-	speed_run(13.5),
-	jump_velocity(20.0f)
-{
-	;
-}
-//
-void control_motion::switch_walk_run()
-{
-	if (walk_run == "Walk") {
-		walk_run = "Run";
-		speed = speed_run;
-	}
-	else {
-		walk_run = "Walk";
-		speed = speed_walk;
-	}
-}
-//
-void control_motion::make_run()
-{
-	if (walk_run != "Run") {
-		walk_run = "Run";
-		speed = speed_run;
-	}
-}
-//
-void control_motion::make_walk()
-{
-	if (walk_run != "Walk") {
-		walk_run = "Walk";
-		speed = speed_walk;
-	}
-}
-////////////////
 // control_mov
 ////////////////
 ////////////////
@@ -222,7 +46,7 @@ struct control_mov
 	void on_mouse_wheel(const short &z_delta);
 	// math function
 	void math_mouse_move_toward_hit(
-		CXMVECTOR &plane_pos,
+		CXMVECTOR &hit_pos,
 		const size_t &index,
 		const float &speed = -1.0f);
 	void math_mouse_face_rot_y(
@@ -237,11 +61,11 @@ struct control_mov
 	void math_mouse_hit_plane_y(
 		const int &pos_x,
 		const int &pos_y,
-		XMVECTOR &plane_pos_out);
+		XMVECTOR &hit_pos_out);
 	void math_mouse_hit_terrain(
 		const int &pos_x,
 		const int &pos_y,
-		XMVECTOR &plane_pos_out);
+		XMVECTOR &hit_pos_out);
 	void math_pad_move_toward();
 	// cam function
 	void pad_camera_update(const float &dt);
@@ -310,14 +134,14 @@ void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 {
 	if (player1 < 0) return;
 	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
-	XMVECTOR plane_pos;
-	if (app->m_Inst.m_IsTerrainUse) math_mouse_hit_terrain(pos_x, pos_y, plane_pos);
-	else math_mouse_hit_plane_y(pos_x, pos_y, plane_pos);
-	math_mouse_move_toward_hit(plane_pos, player1);
+	XMVECTOR hit_pos;
+	if (app->m_Inst.m_IsTerrainUse) math_mouse_hit_terrain(pos_x, pos_y, hit_pos);
+	else math_mouse_hit_plane_y(pos_x, pos_y, hit_pos);
+	math_mouse_move_toward_hit(hit_pos, player1);
 	//
 	map_stop[player1].is_stop = false;
 	map_stop[player1].speed = motion.speed;
-	map_stop[player1].set_aabb(plane_pos, app->m_Inst.m_BoundW.half_y(player1));
+	map_stop[player1].set_aabb(hit_pos, app->m_Inst.m_BoundW.half_y(player1));
 	app->m_Inst.m_Stat[player1].check_set_ClipName(motion.walk_run);
 }
 //
@@ -406,8 +230,8 @@ void control_mov<T_app>::update_stop(const float &dt)
 			if (it->second.dt_cd > 0.5f) it->second.dt_cd = 0.0f;
 			else continue;
 			if (!app->m_Inst.m_Stat[it->first].phy.is_touch_ground) continue;
-			XMVECTOR plane_pos = XMLoadFloat3(&(it->second.plane_pos));
-			math_mouse_move_toward_hit(plane_pos, it->first, it->second.speed);
+			XMVECTOR hit_pos = XMLoadFloat3(&(it->second.hit_pos));
+			math_mouse_move_toward_hit(hit_pos, it->first, it->second.speed);
 		}
 	}
 }
@@ -465,7 +289,7 @@ void control_mov<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 template <typename T_app>
 void control_mov<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if ((btn_state & MOUSE_CAM_MOVE)) {
+	if ((btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0)) {
 		mouse_camera_move(pos_x, pos_y);
 	}
 	app->m_UiMgr.on_mouse_over(pos_x, pos_y);
