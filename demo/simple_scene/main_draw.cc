@@ -7,7 +7,6 @@ void imm_app::draw_scene()
 	// ID3D11DeviceContext is not thread-safe, avoid loading conflict
 	// ID3D11Device::CreateBuffer has a bug with atidxx64.dll (because of the driver optimizing),
 	// avoid draw scene when loading
-	//
 	// Problem Url:
 	// ID3D11Device::CreateBuffer crashes, redux
 	// https://community.amd.com/thread/170834

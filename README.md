@@ -1,21 +1,21 @@
 immature engine
 ===============
 C++  
-immature engine
+immature engine  
 Quick-and-dirty
 
 Introduction:
 -------------
 A small game engine. All features tend to be minimized. 
-The engine platform only supports Microsoft Windows. 
+The platform only supports Microsoft Windows. 
 The fundamental 3D rendering technique is derived from the textbook 
 Introduction to 3D Game Programming with DirectX 11 by Frank Luna. 
 This engine development methodology is Quick-and-dirty, no traditional API design, casual style. 
-It may be difficult to use, because the engine is on low completion status.
+It may be difficult to use due to weakness development scale and absence of visualization scene editor.
 
 In Development:
 ---------------
-The project is in development, there is less document and feature now.
+There is less document now, and on low completion status.
 The framework of the engine is instability, will be changed frequently.
 Just guarantee the able to compile the project correctly.
 
@@ -24,7 +24,8 @@ Compile Environment:
 Win 7.1 / Win 8.x  
 Visual Studio 2013  
 Windows SDK for Windows 8.1  
-DirectX SDK (June 2010)
+DirectX SDK (June 2010)  
+(Win 10 requird VS2015, but I do not have a test.)  
 
 Runtime Environment:
 --------------------
@@ -35,7 +36,6 @@ Update KB2670838 (Windows 7.1 situation)
 DirectX 11 capable GPU  
 1024X768 minimum display resolution  
 DirectX 9.0c compliant sound card  
-(Win 10 only supports Release Build with VS2013, I have not VS2015 yet.)  
 
 Dependent .Lib Files:
 ---------------------

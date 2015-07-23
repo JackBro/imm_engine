@@ -38,6 +38,7 @@ struct cmd_shell
 	void apply();
 	void on_resize();
 	void draw();
+	void do_slient_on();
 	bool is_waiting_for_something();
 };
 //
@@ -159,10 +160,7 @@ void cmd_shell<T_app>::apply()
 	}
 	if (cmd_get == L"slient") {
 		is_slient = !is_slient;
-		if (is_slient) {
-			is_active = true;
-			app->m_UiMgr.define_deactivate_all_cmd_slient();
-		}
+		if (is_slient) do_slient_on();
 		else is_active = false;
 		return;
 	}
@@ -177,7 +175,6 @@ void cmd_shell<T_app>::apply()
 		if (cmd_get == L"util b3m") {
 			std::wstring path_lua(str_to_wstr(IMM_PATH["script"]));
 			std::wstring path_out(str_to_wstr(IMM_PATH["output"]));
-
 			input += L"\n> #####################################################################";
 			input += L"\n> ## util b3m manual";
 			input += L"\n> #####################################################################";
@@ -202,6 +199,7 @@ void cmd_shell<T_app>::apply()
 		}
 		if (cmd_get == L"util b3m start") {
 			is_slient = true;
+			do_slient_on();
 			input += L"\n> util b3m processing...";
 			if (!is_busying) {
 				std::thread(
@@ -252,6 +250,13 @@ template <typename T_app>
 void cmd_shell<T_app>::draw()
 {
 	dwrite.draw(app->m_D2DDC, input);
+}
+//
+template <typename T_app>
+void cmd_shell<T_app>::do_slient_on()
+{
+	is_active = true;
+	app->m_UiMgr.define_deactivate_all_cmd_slient();
 }
 //
 template <typename T_app>
