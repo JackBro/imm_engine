@@ -1,5 +1,5 @@
 ////////////////
-// control_mov_math.h
+// control_system_math.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)

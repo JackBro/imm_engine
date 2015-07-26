@@ -53,7 +53,7 @@ struct ui_base
 	virtual bool define_apply_ix_if(int &index) = 0;
 	virtual void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param) = 0;
 	virtual void define_on_pad_keydown(const WORD &vkey) = 0;
-	virtual void define_update() = 0;
+	virtual void define_update(float dt) = 0;
 	virtual void define_deactivate_all_default() = 0;
 	virtual void define_deactivate_all_cmd_slient() = 0;
 	virtual void define_sprite_build_buffer() {;}

@@ -1,16 +1,16 @@
 ////////////////
-// control_mov.h
+// control_system.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef CONTROL_MOV_H
-#define CONTROL_MOV_H
+#ifndef CONTROL_SYSTEM_H
+#define CONTROL_SYSTEM_H
 #include "stru_instance_mgr.h"
 #include "imm_camera.h"
 #include "phy_prepare.h"
-#include "control_key_define.h"
+#include "control_auxiliary.h"
 namespace imm
 {
 ////////////////
@@ -166,8 +166,10 @@ template <typename T_app>
 void control_mov<T_app>::common_jump()
 {
 	if (player1 < 0) return;
-	if (app->m_Inst.m_Stat[player1].phy.is_touch_ground)
+	if (app->m_Inst.m_Stat[player1].phy.is_touch_ground) {
 		app->m_Inst.m_Stat[player1].phy.velocity.y = motion.jump_velocity;
+		//app->m_Inst.m_Stat[player1].check_set_ClipName(motion.jump);
+	}
 }
 //
 template <typename T_app>
@@ -302,11 +304,10 @@ void control_mov<T_app>::on_mouse_wheel(const short &z_delta)
 	mouse_camera_wheel(z_delta);
 }
 ////////////////
-// control_mov_math.h
-// control_mov_cam.h
+// inl
 ////////////////
 ////////////////
-#include "control_mov_math.h"
-#include "control_mov_cam.h"
+#include "control_system_math.h"
+#include "control_system_cam.h"
 }
 #endif

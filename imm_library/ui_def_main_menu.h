@@ -23,7 +23,7 @@ struct ui_def_main_menu: public ui_base<T_app>
 	bool define_apply_ix_if(int &index);
 	void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void define_on_pad_keydown(const WORD &vkey);
-	void define_update();
+	void define_update(float dt);
 	void define_deactivate_all_default();
 	void define_deactivate_all_cmd_slient();
 	void define_text();
@@ -276,8 +276,9 @@ void ui_def_main_menu<T_app>::define_on_pad_keydown(const WORD &vkey)
 }
 //
 template <typename T_app>
-void ui_def_main_menu<T_app>::define_update()
+void ui_def_main_menu<T_app>::define_update(float dt)
 {
+	DUMMY(dt);
 	m_Rect[m_MapGroup["fps"][0]].text = m_App->m_Fps;
 }
 //

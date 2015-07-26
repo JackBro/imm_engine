@@ -1,5 +1,5 @@
 ////////////////
-// control_mov_cam.h
+// control_systemv_cam.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)

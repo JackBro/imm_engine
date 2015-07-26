@@ -7,7 +7,7 @@
 #endif
 #include "condition_trigger.h"
 #include "phy_attack_box.h"
-#include "control_mov.h"
+#include "control_system.h"
 #include "imm_cmd.h"
 #include "ui_mgr.h"
 #include "stru_scene_mgr.h"
@@ -145,7 +145,7 @@ void imm_app::update_scene(float dt)
 {
 	m_Scene.update_listen_thread_for_reload();
 	// m_UiMgr before m_Cmd, always update, m_Cmd will close m_UiMgr
-	m_UiMgr.define_update();
+	m_UiMgr.define_update(dt);
 	if (m_Cmd.is_waiting_for_something()) return;
 	if (!m_Cmd.is_active) update_scene_keydown(dt);
 	// Ensure m_Cmd.is_waiting_for_something()

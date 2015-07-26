@@ -17,20 +17,37 @@ namespace imm
 template <class T_app>
 struct ui_def_dialogue: public ui_base<T_app>
 {
-	ui_def_dialogue() {;}
-	~ui_def_dialogue() {;}
+	ui_def_dialogue();
+	~ui_def_dialogue();
 	void define_style();
 	bool define_apply_ix_if(int &index);
 	void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void define_on_pad_keydown(const WORD &vkey);
-	void define_update();
+	void define_update(float dt);
 	void define_deactivate_all_default();
 	void define_deactivate_all_cmd_slient();
 	void define_sprite_build_buffer();
 	void define_on_resize_sprite();
 	void define_text();
 	void rebuild_text();
+	//
+	bool m_IsPromptSymbol;
+	float m_WaitPrompt;
 };
+//
+template <typename T_app>
+ui_def_dialogue<T_app>::ui_def_dialogue():
+	m_IsPromptSymbol(false),
+	m_WaitPrompt(2.0f)
+{
+	;
+}
+//
+template <typename T_app>
+ui_def_dialogue<T_app>::~ui_def_dialogue()
+{
+	;
+}
 //
 template <typename T_app>
 void ui_def_dialogue<T_app>::define_style()
@@ -81,6 +98,16 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "test_prompt";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "test";
+	m_Rect.back().tp = ui_rect::type::button;
+	m_Rect.back().brush_sel = {"black_00a"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "32";
+	m_Rect.back().margin = XMFLOAT4(0.9f, 0.9f, 0.0f, 0.0f);
 	////////////////
 	//
 	////////////////
@@ -102,9 +129,11 @@ bool ui_def_dialogue<T_app>::define_apply_ix_if(int &index)
 {
 	DUMMY(index);
 	if (index == m_MapID["test_button"]) {
-		if (m_App->m_Timer.total_time() - m_LastUiActive < 2.0f) return true;
+		if (m_App->m_Timer.total_time() - m_LastUiActive < m_WaitPrompt) return true;
 		if (!m_TxtChunk.get_lines("test", m_MapSpriteName["test_sprite"], m_Rect[m_MapID["test_background"]].text)) {
 			group_active("test", false);
+			m_Rect[m_MapID["test_prompt"]].text = L"";
+			m_IsPromptSymbol = false;
 		}
 		return true;
 	}
@@ -125,9 +154,15 @@ void ui_def_dialogue<T_app>::define_on_pad_keydown(const WORD &vkey)
 }
 //
 template <typename T_app>
-void ui_def_dialogue<T_app>::define_update()
+void ui_def_dialogue<T_app>::define_update(float dt)
 {
-	;
+	DUMMY(dt);
+	if (m_Rect[m_MapID["test_prompt"]].active && !m_IsPromptSymbol) {
+		if (m_App->m_Timer.total_time() - m_LastUiActive > m_WaitPrompt) {
+			m_Rect[m_MapID["test_prompt"]].text = L">";
+			m_IsPromptSymbol = true;
+		}
+	}
 }
 //
 template <typename T_app>

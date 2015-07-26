@@ -22,7 +22,7 @@ struct ui_mgr
 	ui_mgr();
 	void init(T_app *app_in);
 	void on_resize();
-	void define_update();
+	void define_update(float dt);
 	void draw_d2d();
 	void draw_d3d();
 	bool on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y);
@@ -78,9 +78,9 @@ void ui_mgr<T_app>::on_resize()
 }
 //
 template <typename T_app>
-void ui_mgr<T_app>::define_update()
+void ui_mgr<T_app>::define_update(float dt)
 {
-	for (auto &ui: ui_together) ui->define_update();
+	for (auto &ui: ui_together) ui->define_update(dt);
 	// Avoid UI conflict
 	bool is_ui_appear = false;
 	for (size_t ix = 0; ix != ui_together.size(); ++ix) {

@@ -1,0 +1,93 @@
+////////////////
+// control_xinput.h
+// This file is a portion of the immature engine.
+// It is distributed under the BSD license.
+// Copyright 2015 Huang Yiting (http://endrollex.com)
+////////////////
+////////////////
+#ifndef CONTROL_XINPUT_H
+#define CONTROL_XINPUT_H
+#include "control_key_define.h"
+namespace imm
+{
+////////////////
+// control_xinput
+////////////////
+////////////////
+struct control_xinput
+{
+	control_xinput();
+	bool is_enable();
+	bool is_L_active();
+	bool is_R_active();
+	bool is_on_keydown(WORD &vkey);
+	float L_radians();
+	float R_radians();
+	bool is_force_disable;
+	XINPUT_STATE state;
+	XINPUT_KEYSTROKE key;
+	float deadzone;
+};
+//
+control_xinput::control_xinput():
+	deadzone(5000.0f),
+	is_force_disable(false)
+{
+	ZeroMemory(&state, sizeof(XINPUT_STATE));
+	key.UserIndex = 0;
+}
+//
+bool control_xinput::is_enable()
+{
+	if (is_force_disable) return false;
+	DWORD dw_result;
+	dw_result = XInputGetState(0, &state);
+	if (dw_result == ERROR_SUCCESS) return true;
+	return false;
+}
+//
+bool control_xinput::is_L_active()
+{
+	float LX = state.Gamepad.sThumbLX;
+	float LY = state.Gamepad.sThumbLY;
+	float magnitude = sqrt(LX*LX + LY*LY);
+	if (magnitude > deadzone) return true;
+	return false;
+}
+//
+bool control_xinput::is_R_active()
+{
+	float RX = state.Gamepad.sThumbRX;
+	float RY = state.Gamepad.sThumbRY;
+	float magnitude = sqrt(RX*RX + RY*RY);
+	if (magnitude > deadzone) return true;
+	return false;
+}
+//
+bool control_xinput::is_on_keydown(WORD &vkey)
+{
+	if (XInputGetKeystroke(0, 0, &key) == ERROR_SUCCESS) {
+		if (key.Flags & XINPUT_KEYSTROKE_KEYDOWN) {
+			vkey = key.VirtualKey;
+			return true;
+		}
+	}
+	return false;
+}
+//
+float control_xinput::L_radians()
+{
+	float LX = state.Gamepad.sThumbLX;
+	float LY = state.Gamepad.sThumbLY;
+	return atan2(LX, LY);
+}
+//
+float control_xinput::R_radians()
+{
+	float RX = state.Gamepad.sThumbRX;
+	float RY = state.Gamepad.sThumbRY;
+	return atan2(RX, RY);
+}
+//
+}
+#endif
