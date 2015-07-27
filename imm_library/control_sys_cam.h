@@ -1,12 +1,12 @@
 ////////////////
-// control_systemv_cam.h
+// control_sys_cam.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
 template <typename T_app>
-void control_mov<T_app>::pad_camera_update(const float &dt)
+void control_sys<T_app>::pad_camera_update(const float &dt)
 {
 	if (pad.is_R_active()) {
 		float dx = XMConvertToRadians(50.0f*pad.state.Gamepad.sThumbRX/32767*dt);
@@ -32,14 +32,14 @@ void control_mov<T_app>::pad_camera_update(const float &dt)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::on_pad_camera_follow(const WORD &vkey)
+void control_sys<T_app>::on_pad_camera_follow(const WORD &vkey)
 {
 	if (style_p1 & CONTORL_CAM_FREE) return;
 	if (vkey == PAD_CAM_FOLLOW_RESET) is_pad_cam_follow_reset = true;
 }
 //
 template <typename T_app>
-void control_mov<T_app>::key_camera_free_update(const float &dt)
+void control_sys<T_app>::key_camera_free_update(const float &dt)
 {
 	if (!(style_p1 & CONTORL_CAM_FREE)) return;
 	if (GetKeyState(KEY_CAM_FREE_LEFT) & 0x8000) app->m_Cam.strafe(-10.0f*dt);
@@ -49,7 +49,7 @@ void control_mov<T_app>::key_camera_free_update(const float &dt)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::mouse_camera_wheel(const short &z_delta)
+void control_sys<T_app>::mouse_camera_wheel(const short &z_delta)
 {
 	if (style_p1 & CONTORL_CAM_FREE) {
 		app->m_Cam.walk(z_delta/120*1.0f);
@@ -62,7 +62,7 @@ void control_mov<T_app>::mouse_camera_wheel(const short &z_delta)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::mouse_camera_move(const int &pos_x, const int &pos_y)
+void control_sys<T_app>::mouse_camera_move(const int &pos_x, const int &pos_y)
 {
 	// Make each pixel correspond to a quarter of a degree.
 	float dx = XMConvertToRadians(0.25f*static_cast<float>(pos_x - app->m_LastMousePos.x));
@@ -74,7 +74,7 @@ void control_mov<T_app>::mouse_camera_move(const int &pos_x, const int &pos_y)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::cam_follow_update()
+void control_sys<T_app>::cam_follow_update()
 {
 	if (player1 < 0 || style_p1 & CONTORL_CAM_FREE) return;
 	XMFLOAT4X4 player_world = *(app->m_Inst.m_Stat[player1].get_World());

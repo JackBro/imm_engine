@@ -1,12 +1,12 @@
 ////////////////
-// control_system.h
+// control_sys.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef CONTROL_SYSTEM_H
-#define CONTROL_SYSTEM_H
+#ifndef CONTROL_SYS_H
+#define CONTROL_SYS_H
 #include "stru_instance_mgr.h"
 #include "imm_camera.h"
 #include "phy_prepare.h"
@@ -20,13 +20,13 @@ namespace imm
 static const int CONTORL_CAM_FREE = 128;
 static const int CONTORL_MOVE_BY_MOUSE = 64;
 ////////////////
-// control_mov
+// control_sys
 ////////////////
 ////////////////
 template <typename T_app>
-struct control_mov
+struct control_sys
 {
-	control_mov();
+	control_sys();
 	// logic fuction
 	void init(T_app *app_in);
 	void reset();
@@ -92,7 +92,7 @@ struct control_mov
 };
 //
 template <typename T_app>
-control_mov<T_app>::control_mov():
+control_sys<T_app>::control_sys():
 	app(nullptr),
 	picked1(-1),
 	player1(-1),
@@ -108,13 +108,13 @@ control_mov<T_app>::control_mov():
 }
 //
 template <typename T_app>
-void control_mov<T_app>::init(T_app *app_in)
+void control_sys<T_app>::init(T_app *app_in)
 {
 	app = app_in;
 }
 //
 template <typename T_app>
-void control_mov<T_app>::reset()
+void control_sys<T_app>::reset()
 {
 	map_stop.clear();
 	map_rot_front_c.clear();
@@ -123,14 +123,14 @@ void control_mov<T_app>::reset()
 }
 //
 template <typename T_app>
-void control_mov<T_app>::rebuild_player()
+void control_sys<T_app>::rebuild_player()
 {
 	player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.get_misc["player1"]));
 	assert(player1 > -1);
 }
 //
 template <typename T_app>
-void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
+void control_sys<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 {
 	if (player1 < 0) return;
 	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
@@ -146,7 +146,7 @@ void control_mov<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::pad_instance_move_update()
+void control_sys<T_app>::pad_instance_move_update()
 {
 	if (player1 < 0) return;
 	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
@@ -163,7 +163,7 @@ void control_mov<T_app>::pad_instance_move_update()
 }
 //
 template <typename T_app>
-void control_mov<T_app>::common_jump()
+void control_sys<T_app>::common_jump()
 {
 	if (player1 < 0) return;
 	if (app->m_Inst.m_Stat[player1].phy.is_touch_ground) {
@@ -173,7 +173,7 @@ void control_mov<T_app>::common_jump()
 }
 //
 template <typename T_app>
-void control_mov<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
+void control_sys<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 {
 	app->m_Inst.m_BoundW.pick(
 		pos_x,
@@ -189,7 +189,7 @@ void control_mov<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::update_scene(const float &dt)
+void control_sys<T_app>::update_scene(const float &dt)
 {
 	// assert check update
 	assert(player1 > -1);
@@ -201,7 +201,7 @@ void control_mov<T_app>::update_scene(const float &dt)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::update_scene_bounds()
+void control_sys<T_app>::update_scene_bounds()
 {
 	// bounds follow player, if distance too far, update
 	XMFLOAT3 p1_center_f = app->m_Inst.m_BoundW.center(player1);
@@ -215,7 +215,7 @@ void control_mov<T_app>::update_scene_bounds()
 }
 //
 template <typename T_app>
-void control_mov<T_app>::update_stop(const float &dt)
+void control_sys<T_app>::update_stop(const float &dt)
 {
 	for (auto it = map_stop.begin(); it != map_stop.end(); ++it) {
 		if (it->second.is_stop) continue;
@@ -239,7 +239,7 @@ void control_mov<T_app>::update_stop(const float &dt)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::update_keydown_and_pad(const float &dt)
+void control_sys<T_app>::update_keydown_and_pad(const float &dt)
 {
 	// player1 and camera update, if !m_Cmd.is_active()
 	if (pad.is_enable()) {
@@ -251,7 +251,7 @@ void control_mov<T_app>::update_keydown_and_pad(const float &dt)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
+void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
 	if (app->m_UiMgr.on_mouse_down(btn_state, pos_x, pos_y)) return;
 	if (btn_state & MOUSE_P1_PICK) {
@@ -265,7 +265,7 @@ void control_mov<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 }
 //
 template <typename T_app>
-void control_mov<T_app>::on_pad_down(const float &dt)
+void control_sys<T_app>::on_pad_down(const float &dt)
 {
 	WORD get_vkey;
 	if (pad.is_on_keydown(get_vkey)) app->m_UiMgr.on_pad_keydown(get_vkey);
@@ -279,7 +279,7 @@ void control_mov<T_app>::on_pad_down(const float &dt)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
+void control_sys<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	app->m_UiMgr.on_input_keydown(w_param, l_param);
 	if (pad.is_enable()) return;
@@ -289,7 +289,7 @@ void control_mov<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 }
 //
 template <typename T_app>
-void control_mov<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y)
+void control_sys<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
 	if ((btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0)) {
 		mouse_camera_move(pos_x, pos_y);
@@ -298,7 +298,7 @@ void control_mov<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const
 }
 //
 template <typename T_app>
-void control_mov<T_app>::on_mouse_wheel(const short &z_delta)
+void control_sys<T_app>::on_mouse_wheel(const short &z_delta)
 {
 	if (app->m_UiMgr.on_mouse_wheel(z_delta)) return;
 	mouse_camera_wheel(z_delta);
@@ -307,7 +307,7 @@ void control_mov<T_app>::on_mouse_wheel(const short &z_delta)
 // inl
 ////////////////
 ////////////////
-#include "control_system_math.h"
-#include "control_system_cam.h"
+#include "control_sys_math.h"
+#include "control_sys_cam.h"
 }
 #endif

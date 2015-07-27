@@ -1,12 +1,12 @@
 ////////////////
-// control_system_math.h
+// control_sys_math.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
 template <typename T_app>
-void control_mov<T_app>::math_mouse_move_toward_hit(
+void control_sys<T_app>::math_mouse_move_toward_hit(
 	CXMVECTOR &hit_pos,
 	const size_t &index,
 	const float &speed = -1.0f)
@@ -30,7 +30,7 @@ void control_mov<T_app>::math_mouse_move_toward_hit(
 }
 //
 template <typename T_app>
-void control_mov<T_app>::math_mouse_face_rot_y(
+void control_sys<T_app>::math_mouse_face_rot_y(
 	XMMATRIX &W,
 	XMMATRIX &RF,
 	CXMVECTOR &direction)
@@ -49,7 +49,7 @@ void control_mov<T_app>::math_mouse_face_rot_y(
 }
 //
 template <typename T_app>
-void control_mov<T_app>::math_pad_face_rot_y(
+void control_sys<T_app>::math_pad_face_rot_y(
 	XMMATRIX &W,
 	XMMATRIX &RF,
 	XMVECTOR &direction,
@@ -74,7 +74,7 @@ void control_mov<T_app>::math_pad_face_rot_y(
 }
 //
 template <typename T_app>
-void control_mov<T_app>::math_mouse_hit_plane_y(
+void control_sys<T_app>::math_mouse_hit_plane_y(
 	const int &pos_x,
 	const int &pos_y,
 	XMVECTOR &hit_pos_out)
@@ -110,7 +110,7 @@ void control_mov<T_app>::math_mouse_hit_plane_y(
 }
 //
 template <typename T_app>
-void control_mov<T_app>::math_mouse_hit_terrain(
+void control_sys<T_app>::math_mouse_hit_terrain(
 	const int &pos_x,
 	const int &pos_y,
 	XMVECTOR &hit_pos_out)
@@ -185,7 +185,7 @@ void control_mov<T_app>::math_mouse_hit_terrain(
 }
 //
 template <typename T_app>
-void control_mov<T_app>::math_pad_move_toward()
+void control_sys<T_app>::math_pad_move_toward()
 {
 	XMVECTOR velocity_nm = app->m_Cam.get_LookXM();
 	float cam_radians = atan2(-XMVectorGetX(velocity_nm), -XMVectorGetZ(velocity_nm));

@@ -7,7 +7,7 @@
 #endif
 #include "condition_trigger.h"
 #include "phy_attack_box.h"
-#include "control_system.h"
+#include "control_sys.h"
 #include "imm_cmd.h"
 #include "ui_mgr.h"
 #include "stru_scene_mgr.h"
@@ -61,7 +61,7 @@ public:
 	ui_mgr<imm_app> m_UiMgr;
 	condition_trigger<imm_app> m_Condition;
 	lua_config<imm_app> m_Config;
-	control_mov<imm_app> m_Control;
+	control_sys<imm_app> m_Control;
 	XMFLOAT4X4 m_LightView;
 	XMFLOAT4X4 m_LightProj;
 	XMFLOAT4X4 m_ShadowTransform;

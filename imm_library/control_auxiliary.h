@@ -24,15 +24,13 @@ struct control_stop
 	XMFLOAT3 hit_pos;
 	float dt_cd;
 	float speed;
-	float bbox_half_y;
 };
 //
 control_stop::control_stop():
 	is_stop(true),
 	hit_pos(0.0f, 0.0f, 0.0f),
 	dt_cd(0.0f),
-	speed(0.0f),
-	bbox_half_y(100.0f)
+	speed(0.0f)
 {
 	;
 }
