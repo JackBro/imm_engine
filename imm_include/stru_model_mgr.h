@@ -40,8 +40,8 @@ struct instance_stat
 	std::string *get_ModelName();
 	void set_World(const XMFLOAT4X4 world);
 	void set_IsAppear(const bool is_appear);
-	void set_ClipName(const std::string &clip_name);
-	void check_set_ClipName(const std::string &clip_name);
+	void set_ClipName(const std::string &clip_name, const bool &is_reset_time);
+	void check_set_ClipName(const std::string &clip_name, const bool &is_reset_time);
 };
 //
 instance_stat::instance_stat():
@@ -115,16 +115,16 @@ void instance_stat::set_IsAppear(const bool is_appear)
 	assert(false);
 }
 //
-void instance_stat::set_ClipName(const std::string &clip_name)
+void instance_stat::set_ClipName(const std::string &clip_name, const bool &is_reset_time = false)
 {
 	if (type != skinned) return;
-	((skinned_model_instance*)p)->set_ClipName(clip_name);
+	((skinned_model_instance*)p)->set_ClipName(clip_name, is_reset_time);
 }
 //
-void instance_stat::check_set_ClipName(const std::string &clip_name)
+void instance_stat::check_set_ClipName(const std::string &clip_name, const bool &is_reset_time = false)
 {
 	if (type != skinned) return;
-	((skinned_model_instance*)p)->check_set_ClipName(clip_name);
+	((skinned_model_instance*)p)->check_set_ClipName(clip_name, is_reset_time);
 }
 ////////////////
 // model_mgr

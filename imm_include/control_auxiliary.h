@@ -52,9 +52,18 @@ bool control_stop::contains(const XMFLOAT3 &center)
 // control_motion
 ////////////////
 ////////////////
+template <typename T_app>
 struct control_motion
 {
 	control_motion();
+	void init(T_app *app_in);
+	void switch_walk_run();
+	void make_run();
+	void make_walk();
+	void update();
+	
+	
+	T_app *app;
 	std::string walk_run;
 	std::string idle;
 	std::string jump;
@@ -62,24 +71,40 @@ struct control_motion
 	float speed_walk;
 	float speed_run;
 	float jump_velocity;
-	void switch_walk_run();
-	void make_run();
-	void make_walk();
+	
+	int listen_touch_ground;
+	bool is_on_air;
+	
 };
 //
-control_motion::control_motion():
+template <typename T_app>
+control_motion<T_app>::control_motion():
+	app(nullptr),
 	walk_run("Run"),
 	idle("Idle"),
 	jump("Jump"),
 	speed(13.5f),
 	speed_walk(4.5f),
 	speed_run(13.5),
-	jump_velocity(20.0f)
+	jump_velocity(35.0f),
+	
+	
+	listen_touch_ground(-1),
+	is_on_air(false)
+	
 {
 	;
 }
 //
-void control_motion::switch_walk_run()
+template <typename T_app>
+void control_motion<T_app>::init(T_app *app_in)
+{
+	app = app_in;
+}
+
+//
+template <typename T_app>
+void control_motion<T_app>::switch_walk_run()
 {
 	if (walk_run == "Walk") {
 		walk_run = "Run";
@@ -91,7 +116,8 @@ void control_motion::switch_walk_run()
 	}
 }
 //
-void control_motion::make_run()
+template <typename T_app>
+void control_motion<T_app>::make_run()
 {
 	if (walk_run != "Run") {
 		walk_run = "Run";
@@ -99,12 +125,36 @@ void control_motion::make_run()
 	}
 }
 //
-void control_motion::make_walk()
+template <typename T_app>
+void control_motion<T_app>::make_walk()
 {
 	if (walk_run != "Walk") {
 		walk_run = "Walk";
 		speed = speed_walk;
 	}
+}
+//
+template <typename T_app>
+void control_motion<T_app>::update()
+{
+	if (listen_touch_ground < 0) return;
+	
+	
+	if (!is_on_air && !app->m_Inst.m_Stat[listen_touch_ground].phy.is_touch_ground) {
+		
+		is_on_air = true;
+		
+	}
+	if (is_on_air && app->m_Inst.m_Stat[listen_touch_ground].phy.is_touch_ground) {
+		
+		//app->m_Inst.m_Stat[listen_touch_ground].check_set_ClipName(idle);
+		
+		app->m_Inst.m_Stat[listen_touch_ground].check_set_ClipName("JumpGround", true);
+		
+		listen_touch_ground = -1;
+		is_on_air = false;
+	}
+	
 }
 //
 }

@@ -10,7 +10,7 @@ A small game engine. All features tend to be minimized.
 The platform only supports Microsoft Windows. 
 The fundamental 3D rendering technique is derived from the textbook 
 Introduction to 3D Game Programming with DirectX 11 by Frank Luna. 
-This engine development methodology is Quick-and-dirty, no traditional API design, casual style. 
+This engine development methodology is Quick-and-dirty, no traditional API design, evil magic style. 
 It may be difficult to use due to weak development scale and absence of visualization scene editor.
 
 In Development:
@@ -21,17 +21,16 @@ Just guarantee the able to compile the project correctly.
 
 Compile Environment:
 --------------------
-Win 7.1 / Win 8.x  
-Visual Studio 2013  
-Windows SDK for Windows 8.1  
+Win 10  
+Visual Studio 2015 (require Common Tools for Visual C++ 2015)  
+Windows SDK for Windows 10  
 DirectX SDK (June 2010)  
-(Win 10 requird VS2015, but I do not have a test.)  
 
 Runtime Environment:
 --------------------
 Win 7.1 / Win 8.x / Win 10  
 DirectX End-User Runtimes (June 2010)  
-Visual C++ Redistributable Packages for Visual Studio 2013  
+Visual C++ Redistributable for Visual Studio 2015  
 Update KB2670838 (Windows 7.1 situation)  
 DirectX 11 capable GPU  
 1024X768 minimum display resolution  
@@ -39,7 +38,7 @@ DirectX 9.0c compliant sound card
 
 Dependent .Lib Files:
 ---------------------
-Those files should be in include_third_party\, 
+Those files should be in VC++ Library Directories, 
 notice corresponding x64/x86, Debug/Release version.
 * **DirectXTK.lib**: DirectX Tool Kit
 * **Effects11.lib**: Effects for Direct3D 11
@@ -95,4 +94,4 @@ Copyright and License:
 ----------------------
 * Copyright 2015 Huang Yiting (http://endrollex.com)
 * immature engine is distributed under the the terms of the BSD license
-* Not include the files in folders of suffix "_third_party".
+* Not include the files in folders of suffix "_3rd_party".

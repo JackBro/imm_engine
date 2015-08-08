@@ -7,60 +7,14 @@
 #ifndef DEBUG_CONSOLE_H
 #define DEBUG_CONSOLE_H
 #include <windows.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <io.h>
+#include <Wincon.h>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <clocale>
 #include <DirectXMath.h>
 using namespace DirectX;
 namespace imm
 {
-////////////////
-// Adding Console I/O to a Win32 GUI App
-// Windows Developer Journal, December 1997
-////////////////
-////////////////
-// maximum mumber of lines the output console should have
-static const WORD MAX_CONSOLE_LINES = 500;
-bool RedirectIOToConsole()
-{
-	int hConHandle;
-	long lStdHandle;
-	CONSOLE_SCREEN_BUFFER_INFO coninfo;
-	FILE *fp;
-	// allocate a console for this app
-	AllocConsole();
-	SetConsoleTitle(L"imm Console");
-	// set the screen buffer to be big enough to let us scroll text
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
-	coninfo.dwSize.Y = MAX_CONSOLE_LINES;
-	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
-	// redirect unbuffered STDOUT to the console
-	lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
-	hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-	fp = _fdopen(hConHandle, "w");
-	*stdout = *fp;
-	setvbuf(stdout, NULL, _IONBF, 0);
-	// redirect unbuffered STDIN to the console
-	lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
-	hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-	fp = _fdopen(hConHandle, "r");
-	*stdin = *fp;
-	setvbuf(stdin, NULL, _IONBF, 0);
-	// redirect unbuffered STDERR to the console
-	lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
-	hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-	fp = _fdopen(hConHandle, "w");
-	*stderr = *fp;
-	setvbuf(stderr, NULL, _IONBF, 0);
-	// make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog
-	// point to console as well
-	std::ios::sync_with_stdio();
-	return true;
-}
 ////////////////
 // echo type cast
 ////////////////
@@ -116,14 +70,25 @@ std::ostream& operator<<(std::ostream &os, CXMMATRIX m)
 // echo_init
 ////////////////
 ////////////////
-bool DEBUG_IS_CONSOLE = false;
+static bool DEBUG_IS_CONSOLE = false;
+static FILE *DEBUG_FILE = nullptr;
 void echo_init()
 {
 	if (!DEBUG_IS_CONSOLE) {
-		RedirectIOToConsole();
-		// for prints chinese
-		std::setlocale(LC_ALL, "");
+		assert(AllocConsole());
+		freopen_s(&DEBUG_FILE, "CONOUT$", "w", stdout);
 		DEBUG_IS_CONSOLE = true;
+	}
+}
+////////////////
+// echo_close
+////////////////
+////////////////
+void echo_close()
+{
+	if (DEBUG_IS_CONSOLE) {
+		assert(fclose(DEBUG_FILE) == 0);
+		DEBUG_IS_CONSOLE = false;
 	}
 }
 ////////////////
@@ -134,7 +99,7 @@ template <typename T>
 void echo(const T &info)
 {
 	echo_init();
-	std::cerr << info << std::endl;
+	std::cout << info << std::endl;
 }
 //
 template <typename T>
@@ -143,13 +108,13 @@ void echo_wstr(const T &info)
 	echo_init();
 	std::wostringstream outs;
 	outs << info;
-	std::wcerr << outs.str() << std::endl;
+	std::wcout << outs.str() << std::endl;
 }
 //
 void echo_wostr(std::wostringstream &info)
 {
 	echo_init();
-	std::wcerr << info.str() << std::endl;
+	std::wcout << info.str() << std::endl;
 }
 //
 template <typename T>

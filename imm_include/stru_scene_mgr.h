@@ -188,7 +188,7 @@ void scene_mgr<T_app>::reload_instance()
 {
 	// Stop control first
 	app->m_Control.reset();
-	std::thread(&instance_mgr<T_app>::reload, std::ref(app->m_Inst)).detach();
+	std::thread(&instance_mgr<T_app>::reload, &app->m_Inst).detach();
 	liquid.reload(app->m_D3DDevice, scene_ix);
 }
 //

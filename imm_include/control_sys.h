@@ -88,7 +88,7 @@ struct control_sys
 	std::map<size_t, control_stop> map_stop;
 	std::map<size_t, XMFLOAT4> map_rot_front_c;
 	control_xinput pad;
-	control_motion motion;
+	control_motion<T_app> motion;
 };
 //
 template <typename T_app>
@@ -101,7 +101,8 @@ control_sys<T_app>::control_sys():
 	cam_follow_walk_def(-30.0f),
 	cam_follow_up_def(3.0f),
 	wait_ui_disappear(0.0f),
-	pad()
+	pad(),
+	motion()
 {
 	cam_follow_walk = cam_follow_walk_def;
 	cam_follow_up = cam_follow_up_def;
@@ -111,6 +112,7 @@ template <typename T_app>
 void control_sys<T_app>::init(T_app *app_in)
 {
 	app = app_in;
+	motion.init(app);
 }
 //
 template <typename T_app>
@@ -165,10 +167,16 @@ void control_sys<T_app>::pad_instance_move_update()
 template <typename T_app>
 void control_sys<T_app>::common_jump()
 {
+	
+	
 	if (player1 < 0) return;
 	if (app->m_Inst.m_Stat[player1].phy.is_touch_ground) {
 		app->m_Inst.m_Stat[player1].phy.velocity.y = motion.jump_velocity;
-		//app->m_Inst.m_Stat[player1].check_set_ClipName(motion.jump);
+		app->m_Inst.m_Stat[player1].check_set_ClipName(motion.jump);
+		
+		motion.listen_touch_ground = player1;
+		
+		
 	}
 }
 //
@@ -196,6 +204,7 @@ void control_sys<T_app>::update_scene(const float &dt)
 	app->m_Inst.update(dt);
 	update_scene_bounds();
 	update_stop(dt);
+	motion.update();
 	// camera follow update even m_Cmd.is_active()
 	cam_follow_update();
 }

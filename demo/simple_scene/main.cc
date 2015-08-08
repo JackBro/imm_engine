@@ -108,6 +108,7 @@ imm_app::imm_app():
 //
 imm_app::~imm_app()
 {
+	echo_close();
 	m_D3DDC->ClearState();
 	delete m_Smap;
 	effects::destroy_all();

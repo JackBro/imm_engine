@@ -39,8 +39,8 @@ namespace imm
 ////////////////
 #if defined(DEBUG) | defined(_DEBUG)
 	#ifndef HR
-	#define HR(x) {HRESULT hr = (x); if (FAILED(hr))\
-		{std::string hrs(std::to_string(hr)); MessageBoxA(0, hrs.c_str(), "HRESULT", MB_OK); assert(false); abort();}}
+	#define HR(x) {HRESULT hr_get = (x); if (FAILED(hr_get))\
+		{std::string hrs(std::to_string(hr_get)); MessageBoxA(0, hrs.c_str(), "HRESULT", MB_OK); assert(false); abort();}}
 	#endif
 #else
 	#ifndef HR

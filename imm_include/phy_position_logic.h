@@ -16,7 +16,8 @@ namespace imm
 ////////////////
 ////////////////
 static const float PHY_FLOAT_EQUAL_1METER = 5.0f;
-static const float PHY_GRAVITY = -9.8f*PHY_FLOAT_EQUAL_1METER;
+static const float PHY_GRAVITY_RATE = 1.5f;
+static const float PHY_GRAVITY = -9.8f*PHY_FLOAT_EQUAL_1METER*PHY_GRAVITY_RATE;
 // if too small velocity rebound, ignore it
 static const float PHY_IGNORE_GRAVITY = 1.8f;
 // if runtime stun, restrict delta time not too big

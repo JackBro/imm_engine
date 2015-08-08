@@ -8,6 +8,7 @@
 #ifndef STRU_INSTANCE_MGR_H
 #define STRU_INSTANCE_MGR_H
 #include "stru_model_mgr.h"
+#include "control_state.h"
 namespace imm
 {
 ////////////////
@@ -286,7 +287,7 @@ void instance_mgr<T_app>::update_collision_terrain(float dt)
 		// this is not for physics
 		float half_y = m_BoundW.half_y(ix);
 		if (world->_42 - half_y - terrain_height < 0.3f) m_Stat[ix].phy.is_touch_ground = true;
-		else m_Stat[ix].phy.is_touch_ground = false;
+		//else m_Stat[ix].phy.is_touch_ground = false;
 	}
 }
 //

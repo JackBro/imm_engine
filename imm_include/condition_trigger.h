@@ -90,7 +90,9 @@ template <typename T_app>
 void condition_trigger<T_app>::update()
 {
 	scene_pass_time = app->m_Timer.total_time() - app->m_Scene.begin_time;
-	if (trigger("clear_cmd")) app->m_Cmd.input.clear();
+	if (trigger("clear_cmd")) {
+		if (!app->m_Cmd.is_active) app->m_Cmd.input.clear();
+	}
 	//
 	update_scene01();
 }

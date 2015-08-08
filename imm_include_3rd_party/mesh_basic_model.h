@@ -151,8 +151,8 @@ struct skinned_model_instance
 	float time_pos;
 	bool is_appear;
 	void update(float dt);
-	void set_ClipName(const std::string &clip_name);
-	void check_set_ClipName(const std::string &clip_name);
+	void set_ClipName(const std::string &clip_name, const bool &is_reset_time);
+	void check_set_ClipName(const std::string &clip_name, const bool &is_reset_time);
 };
 //
 skinned_model_instance::skinned_model_instance():
@@ -220,19 +220,25 @@ void skinned_model_instance::update(float dt)
 	if (time_pos > model->m_SkinnedData.get_clip_end_time(clip_name)) time_pos = 0.0f;
 }
 //
-void skinned_model_instance::set_ClipName(const std::string &c_name)
+void skinned_model_instance::set_ClipName(const std::string &c_name, const bool &is_reset_time = false)
 {
 	if (!model->m_SkinnedData.check_clip_name(c_name)) {
 		std::string err_str(".m3d file clip name error: ");
 		err_str += c_name;
 		ERROR_MESA(err_str.c_str());
 	}
-	else clip_name = c_name;
+	else {
+		if (is_reset_time) time_pos = 0.0f;
+		clip_name = c_name;
+	}
 }
 //
-void skinned_model_instance::check_set_ClipName(const std::string &c_name)
+void skinned_model_instance::check_set_ClipName(const std::string &c_name, const bool &is_reset_time = false)
 {
-	if (model->m_SkinnedData.check_clip_name(c_name)) clip_name = c_name;
+	if (model->m_SkinnedData.check_clip_name(c_name)) {
+		if (is_reset_time) time_pos = 0.0f;
+		clip_name = c_name;
+	}
 }
 ////////////////
 // simple_model
