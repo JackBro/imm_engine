@@ -81,10 +81,12 @@ void pose_Idle::enter(troll *tro)
 void pose_Idle::execute(troll *tro)
 {
 	tro;
-	cout << "idle" << endl;
 }
 //
-
+void pose_Idle::exit(troll *tro)
+{
+	tro;
+}
 
 
 
