@@ -61,8 +61,6 @@ struct control_motion
 	void make_run();
 	void make_walk();
 	void update();
-	
-	
 	T_app *app;
 	std::string walk_run;
 	std::string idle;
@@ -72,8 +70,10 @@ struct control_motion
 	float speed_run;
 	float jump_velocity;
 	
+	
 	int listen_touch_ground;
 	bool is_on_air;
+	
 	
 };
 //
@@ -92,6 +92,7 @@ control_motion<T_app>::control_motion():
 	listen_touch_ground(-1),
 	is_on_air(false)
 	
+	
 {
 	;
 }
@@ -101,7 +102,6 @@ void control_motion<T_app>::init(T_app *app_in)
 {
 	app = app_in;
 }
-
 //
 template <typename T_app>
 void control_motion<T_app>::switch_walk_run()
@@ -138,12 +138,8 @@ template <typename T_app>
 void control_motion<T_app>::update()
 {
 	if (listen_touch_ground < 0) return;
-	
-	
 	if (!is_on_air && !app->m_Inst.m_Stat[listen_touch_ground].phy.is_touch_ground) {
-		
 		is_on_air = true;
-		
 	}
 	if (is_on_air && app->m_Inst.m_Stat[listen_touch_ground].phy.is_touch_ground) {
 		
@@ -153,8 +149,9 @@ void control_motion<T_app>::update()
 		
 		listen_touch_ground = -1;
 		is_on_air = false;
+		
+		
 	}
-	
 }
 //
 }

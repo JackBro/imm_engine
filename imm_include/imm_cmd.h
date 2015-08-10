@@ -58,6 +58,7 @@ cmd_shell<T_app>::cmd_shell():
 {
 	;
 }
+//
 template <typename T_app>
 void cmd_shell<T_app>::init(T_app *app_in)
 {

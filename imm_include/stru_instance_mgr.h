@@ -55,6 +55,7 @@ struct instance_mgr
 	BoundingFrustum m_CamFrustumL;
 	BoundingFrustum m_CamFrustumW;
 	std::vector<instance_stat> m_Stat;
+	std::vector<troll> m_Troll;
 	std::map<std::string, std::size_t> m_NameMap;
 	bool m_IsLoading;
 	bool m_IsTerrainUse;
@@ -129,6 +130,10 @@ void instance_mgr<T_app>::reload()
 		k,
 		[](const vertex::pntt &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
+	m_Troll.resize(m_Stat.size());
+	for (size_t ix = 0; ix != m_Troll.size(); ++ix) {
+		m_Troll[ix].index = ix;
+	}
 	reload_scene_instance_relate();
 	on_resize();
 	m_IsLoading = false;
@@ -324,6 +329,10 @@ void instance_mgr<T_app>::update_skinned(const float &dt)
 	// should be multithread?
 	for (auto &skinned: m_Model.m_InstSkinned) skinned.update(dt);
 	for (auto &skinned: m_Model.m_InstSkinnedAlpha) skinned.update(dt);
+	// Troll
+	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
+		if (m_Stat[ix].type == instance_type::skinned) m_Troll[ix].update();
+	}
 }
 //
 template <typename T_app>
@@ -349,6 +358,8 @@ void instance_mgr<T_app>::remove_all()
 	m_BoundW.remove_all();
 	m_Stat.clear();
 	m_Stat.shrink_to_fit();
+	m_Troll.clear();
+	m_Troll.shrink_to_fit();
 }
 //
 }

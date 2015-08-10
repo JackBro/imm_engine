@@ -1,5 +1,5 @@
 ////////////////
-// main_draw.cc
+// imm_app_draw.cc
 ////////////////
 ////////////////
 void imm_app::draw_scene()

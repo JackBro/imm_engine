@@ -167,12 +167,11 @@ void control_sys<T_app>::pad_instance_move_update()
 template <typename T_app>
 void control_sys<T_app>::common_jump()
 {
-	
-	
 	if (player1 < 0) return;
 	if (app->m_Inst.m_Stat[player1].phy.is_touch_ground) {
 		app->m_Inst.m_Stat[player1].phy.velocity.y = motion.jump_velocity;
 		app->m_Inst.m_Stat[player1].check_set_ClipName(motion.jump);
+		
 		
 		motion.listen_touch_ground = player1;
 		

@@ -100,16 +100,16 @@ base_win<DERIVED_TYPE>::base_win():
 	m_DpiX(96.0f),
 	m_DpiY(96.0f),
 	m_WindowName(L"D3D11 Demo"),
-	m_D3DDevice(0),
-	m_D3DDC(0),
-	m_SwapChain(0),
-	m_DepthStencilBuffer(0),
-	m_RenderTargetView(0),
-	m_DepthStencilView(0),
+	m_D3DDevice(nullptr),
+	m_D3DDC(nullptr),
+	m_SwapChain(nullptr),
+	m_DepthStencilBuffer(nullptr),
+	m_RenderTargetView(nullptr),
+	m_DepthStencilView(nullptr),
 	m_DXGIPresentPara(),
-	m_D2DDevice(0),
-	m_D2DDC(0),
-	m_D2DTargetBitmap(0),
+	m_D2DDevice(nullptr),
+	m_D2DDC(nullptr),
+	m_D2DTargetBitmap(nullptr),
 	m_D2DBitMapProp(D2D1::BitmapProperties1())
 {
 	ZeroMemory(&m_ScreenViewport, sizeof(D3D11_VIEWPORT));
@@ -149,6 +149,9 @@ LRESULT CALLBACK base_win<DERIVED_TYPE>::WindowProc(HWND hwnd, UINT uMsg, WPARAM
 template <class DERIVED_TYPE>
 BOOL base_win<DERIVED_TYPE>::init_win()
 {
+	// DPI in game always 96.0f, UI corresponding screen's height and width, not only DPI
+	assert(SetProcessDPIAware());
+	// WNDCLASS
 	WNDCLASS wc = {0};
 	wc.style         = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc   = DERIVED_TYPE::WindowProc;
