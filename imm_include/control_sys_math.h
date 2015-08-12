@@ -74,16 +74,13 @@ void control_sys<T_app>::math_pad_face_rot_y(
 }
 //
 template <typename T_app>
-void control_sys<T_app>::math_mouse_hit_plane_y(
-	const int &pos_x,
-	const int &pos_y,
-	XMVECTOR &hit_pos_out)
+void control_sys<T_app>::math_mouse_hit_plane_y(XMVECTOR &hit_pos_out)
 {
 	CXMMATRIX cam_proj = app->m_Cam.get_Proj();
 	CXMMATRIX cam_view = app->m_Cam.get_View();
 	// Compute picking ray in view space.
-	float vx = (+2.0f*pos_x/app->m_ClientWidth - 1.0f)/cam_proj.r[0].m128_f32[0];
-	float vy = (-2.0f*pos_y/app->m_ClientHeight + 1.0f)/cam_proj.r[1].m128_f32[1];
+	float vx = (+2.0f*mouse_down.x/app->m_ClientWidth - 1.0f)/cam_proj.r[0].m128_f32[0];
+	float vy = (-2.0f*mouse_down.y/app->m_ClientHeight + 1.0f)/cam_proj.r[1].m128_f32[1];
 	// Ray definition in view space.
 	XMVECTOR ray_origin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	XMVECTOR ray_dir = XMVectorSet(vx, vy, 1.0f, 0.0f);
@@ -110,16 +107,13 @@ void control_sys<T_app>::math_mouse_hit_plane_y(
 }
 //
 template <typename T_app>
-void control_sys<T_app>::math_mouse_hit_terrain(
-	const int &pos_x,
-	const int &pos_y,
-	XMVECTOR &hit_pos_out)
+void control_sys<T_app>::math_mouse_hit_terrain(XMVECTOR &hit_pos_out)
 {
 	CXMMATRIX cam_proj = app->m_Cam.get_Proj();
 	CXMMATRIX cam_view = app->m_Cam.get_View();
 	// Compute picking ray in view space.
-	float vx = (+2.0f*pos_x/app->m_ClientWidth - 1.0f)/cam_proj.r[0].m128_f32[0];
-	float vy = (-2.0f*pos_y/app->m_ClientHeight + 1.0f)/cam_proj.r[1].m128_f32[1];
+	float vx = (+2.0f*mouse_down.x/app->m_ClientWidth - 1.0f)/cam_proj.r[0].m128_f32[0];
+	float vy = (-2.0f*mouse_down.y/app->m_ClientHeight + 1.0f)/cam_proj.r[1].m128_f32[1];
 	// Ray definition in view space.
 	XMVECTOR ray_origin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	XMVECTOR ray_dir = XMVectorSet(vx, vy, 1.0f, 0.0f);

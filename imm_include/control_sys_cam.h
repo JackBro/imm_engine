@@ -62,11 +62,11 @@ void control_sys<T_app>::mouse_camera_wheel(const short &z_delta)
 }
 //
 template <typename T_app>
-void control_sys<T_app>::mouse_camera_move(const int &pos_x, const int &pos_y)
+void control_sys<T_app>::mouse_camera_move()
 {
 	// Make each pixel correspond to a quarter of a degree.
-	float dx = XMConvertToRadians(0.25f*static_cast<float>(pos_x - app->m_LastMousePos.x));
-	float dy = XMConvertToRadians(0.25f*static_cast<float>(pos_y - app->m_LastMousePos.y));
+	float dx = XMConvertToRadians(0.25f*static_cast<float>(mouse_move.x - app->m_LastMousePos.x));
+	float dy = XMConvertToRadians(0.25f*static_cast<float>(mouse_move.y - app->m_LastMousePos.y));
 	app->m_Cam.pitch(dy);
 	app->m_Cam.rotate_y(dx);
 	// keep move continuous

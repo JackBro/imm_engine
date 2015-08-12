@@ -521,6 +521,7 @@ LRESULT base_win<DERIVED_TYPE>::handle_message(UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
 		on_input_keydown(wParam, lParam);
+		return 0;
 	}
 	return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
 }

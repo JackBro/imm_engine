@@ -49,6 +49,24 @@ private:
 	pose_Idle &operator=(const pose_Idle&);
 };
 ////////////////
+// 
+////////////////
+////////////////
+typedef enum ORDER_ACT_TYPE {
+	ORDER_NONE     = 0x0,
+	ORDER_JUMP     = 0x1,
+	ORDER_WALK_RUN = 0x2,
+	
+	ORDER_MOVE     = 0x4,
+	
+	
+	
+} ORDER_ACT_TYPE;
+
+
+
+
+////////////////
 // troll
 ////////////////
 ////////////////
@@ -59,10 +77,16 @@ struct troll
 	void change_state(state<troll> *new_state);
 	size_t index;
 	state<troll> *current_state;
+	int order;
+	
+	
+	
+	
 };
 //
 troll::troll():
-	current_state(pose_Idle::instance())
+	current_state(pose_Idle::instance()),
+	order(ORDER_NONE)
 {
 	;
 }
@@ -79,6 +103,27 @@ void troll::change_state(state<troll> *new_state)
 	current_state = new_state;
 	current_state->enter(this, index);
 }
+////////////////
+// act
+////////////////
+////////////////
+struct act
+{
+	static std::string Idle;
+	static std::string Walk;
+	static std::string Run;
+	static std::string Jump;
+};
+//
+std::string act::Idle = "Idle";
+std::string act::Walk = "Walk";
+std::string act::Run  = "Run";
+std::string act::Jump = "Jump";
+
+
+
+
+
 //
 }
 #endif

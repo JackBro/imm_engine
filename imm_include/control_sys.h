@@ -31,10 +31,10 @@ struct control_sys
 	void init(T_app *app_in);
 	void reset();
 	void rebuild_player();
-	void mouse_instance_move(const int &pos_x, const int &pos_y);
+	void mouse_instance_move();
 	void pad_instance_move_update();
 	void common_jump();
-	void mouse_pick(const int &pos_x, const int &pos_y);
+	void mouse_pick();
 	void update_scene(const float &dt);
 	void update_scene_bounds();
 	void update_stop(const float &dt);
@@ -58,21 +58,15 @@ struct control_sys
 		XMMATRIX &RF,
 		XMVECTOR &direction,
 		const float &rot_cam);
-	void math_mouse_hit_plane_y(
-		const int &pos_x,
-		const int &pos_y,
-		XMVECTOR &hit_pos_out);
-	void math_mouse_hit_terrain(
-		const int &pos_x,
-		const int &pos_y,
-		XMVECTOR &hit_pos_out);
+	void math_mouse_hit_plane_y(XMVECTOR &hit_pos_out);
+	void math_mouse_hit_terrain(XMVECTOR &hit_pos_out);
 	void math_pad_move_toward();
 	// cam function
 	void pad_camera_update(const float &dt);
 	void on_pad_camera_follow(const WORD &vkey);
 	void key_camera_free_update(const float &dt);
 	void mouse_camera_wheel(const short &z_delta);
-	void mouse_camera_move(const int &pos_x, const int &pos_y);
+	void mouse_camera_move();
 	void cam_follow_update();
 	// member variable
 	T_app *app;
@@ -85,6 +79,8 @@ struct control_sys
 	float cam_follow_walk;
 	float cam_follow_up;
 	float wait_ui_disappear;
+	POINT mouse_down;
+	POINT mouse_move;
 	std::map<size_t, control_stop> map_stop;
 	std::map<size_t, XMFLOAT4> map_rot_front_c;
 	control_xinput pad;
@@ -106,6 +102,10 @@ control_sys<T_app>::control_sys():
 {
 	cam_follow_walk = cam_follow_walk_def;
 	cam_follow_up = cam_follow_up_def;
+	mouse_down.x = 0;
+	mouse_down.y = 0;
+	mouse_move.x = 0;
+	mouse_move.y = 0;	
 }
 //
 template <typename T_app>
@@ -132,13 +132,18 @@ void control_sys<T_app>::rebuild_player()
 }
 //
 template <typename T_app>
-void control_sys<T_app>::mouse_instance_move(const int &pos_x, const int &pos_y)
+void control_sys<T_app>::mouse_instance_move()
 {
 	if (player1 < 0) return;
+	
+	
+	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE;
+	
+	
 	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
 	XMVECTOR hit_pos;
-	if (app->m_Inst.m_IsTerrainUse) math_mouse_hit_terrain(pos_x, pos_y, hit_pos);
-	else math_mouse_hit_plane_y(pos_x, pos_y, hit_pos);
+	if (app->m_Inst.m_IsTerrainUse) math_mouse_hit_terrain(hit_pos);
+	else math_mouse_hit_plane_y(hit_pos);
 	math_mouse_move_toward_hit(hit_pos, player1);
 	//
 	map_stop[player1].is_stop = false;
@@ -153,7 +158,7 @@ void control_sys<T_app>::pad_instance_move_update()
 	if (player1 < 0) return;
 	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
 	// walk or run
-	if (pad.state.Gamepad.bRightTrigger > 50) motion.make_walk();
+	if (pad.is_RT_press()) motion.make_walk();
 	else motion.make_run();
 	if (pad.is_L_active()) {
 		math_pad_move_toward();
@@ -168,6 +173,9 @@ template <typename T_app>
 void control_sys<T_app>::common_jump()
 {
 	if (player1 < 0) return;
+	
+	
+	
 	if (app->m_Inst.m_Stat[player1].phy.is_touch_ground) {
 		app->m_Inst.m_Stat[player1].phy.velocity.y = motion.jump_velocity;
 		app->m_Inst.m_Stat[player1].check_set_ClipName(motion.jump);
@@ -180,11 +188,11 @@ void control_sys<T_app>::common_jump()
 }
 //
 template <typename T_app>
-void control_sys<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
+void control_sys<T_app>::mouse_pick()
 {
 	app->m_Inst.m_BoundW.pick(
-		pos_x,
-		pos_y,
+		mouse_down.x,
+		mouse_down.y,
 		app->m_ClientWidth,
 		app->m_ClientHeight,
 		app->m_Cam.get_Proj(),
@@ -261,14 +269,16 @@ void control_sys<T_app>::update_keydown_and_pad(const float &dt)
 template <typename T_app>
 void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if (app->m_UiMgr.on_mouse_down(btn_state, pos_x, pos_y)) return;
+	mouse_down.x = pos_x;
+	mouse_down.y = pos_y;
+	if (app->m_UiMgr.on_mouse_down(btn_state, mouse_down.x, mouse_down.y)) return;
 	if (btn_state & MOUSE_P1_PICK) {
-		mouse_pick(pos_x, pos_y);
+		mouse_pick();
 	}
 	if (pad.is_enable()) return;
 	// player
 	if (btn_state & MOUSE_P1_MOVE) {
-		mouse_instance_move(pos_x, pos_y);
+		mouse_instance_move();
 	}
 }
 //
@@ -299,10 +309,12 @@ void control_sys<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 template <typename T_app>
 void control_sys<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
+	mouse_move.x = pos_x;
+	mouse_move.y = pos_y;
 	if ((btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0)) {
-		mouse_camera_move(pos_x, pos_y);
+		mouse_camera_move();
 	}
-	app->m_UiMgr.on_mouse_over(pos_x, pos_y);
+	app->m_UiMgr.on_mouse_over(mouse_move.x, mouse_move.y);
 }
 //
 template <typename T_app>

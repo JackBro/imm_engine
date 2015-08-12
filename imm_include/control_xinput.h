@@ -20,6 +20,7 @@ struct control_xinput
 	bool is_enable();
 	bool is_L_active();
 	bool is_R_active();
+	bool is_RT_press();
 	bool is_on_keydown(WORD &vkey);
 	float L_radians();
 	float R_radians();
@@ -62,6 +63,11 @@ bool control_xinput::is_R_active()
 	float magnitude = sqrt(RX*RX + RY*RY);
 	if (magnitude > deadzone) return true;
 	return false;
+}
+//
+bool control_xinput::is_RT_press()
+{
+	return (state.Gamepad.bRightTrigger > 50);
 }
 //
 bool control_xinput::is_on_keydown(WORD &vkey)
