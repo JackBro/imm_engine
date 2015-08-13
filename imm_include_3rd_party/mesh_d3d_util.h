@@ -82,8 +82,8 @@ ID3D11ShaderResourceView *create_Texture2DArraySRV(
 	ID3D11ShaderResourceView *tex_arraySRV = 0;
 	HR(device->CreateShaderResourceView(tex_array, &view_desc, &tex_arraySRV));
 	// Cleanup--we only need the resource view.
-	ReleaseCOM(tex_array);
-	for(UINT i = 0; i < size; ++i) ReleaseCOM(src_tex[i]);
+	RELEASE_COM(tex_array);
+	for(UINT i = 0; i < size; ++i) RELEASE_COM(src_tex[i]);
 	return tex_arraySRV;
 }
 ////////////////
@@ -125,7 +125,7 @@ ID3D11ShaderResourceView *create_RandomTexture1DSRV(ID3D11Device* device)
 	view_desc.Texture1D.MostDetailedMip = 0;
 	ID3D11ShaderResourceView* random_tex_srv = 0;
 	HR(device->CreateShaderResourceView(random_tex, &view_desc, &random_tex_srv));
-	ReleaseCOM(random_tex);
+	RELEASE_COM(random_tex);
 	return random_tex_srv;
 }
 ////////////////
@@ -164,7 +164,7 @@ ID3D11ShaderResourceView *create_RandomTexture1DWaveSRV(ID3D11Device* device)
 	view_desc.Texture1D.MostDetailedMip = 0;
 	ID3D11ShaderResourceView* random_tex_srv = 0;
 	HR(device->CreateShaderResourceView(random_tex, &view_desc, &random_tex_srv));
-	ReleaseCOM(random_tex);
+	RELEASE_COM(random_tex);
 	return random_tex_srv;
 }
 ////////////////

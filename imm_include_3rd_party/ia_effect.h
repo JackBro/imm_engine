@@ -241,17 +241,17 @@ wave_sim_effect         *effects::m_WaveSimFX        = nullptr;
 wave_render_effect      *effects::m_WaveRenderFX     = nullptr;
 void effects::destroy_all()
 {
-	SafeDelete(m_BasicFX);
-	SafeDelete(m_NormalMapFX);
-	SafeDelete(m_BuildShadowMapFX);
-	SafeDelete(m_SkyFX);
-	SafeDelete(m_TerrainFX);
-	SafeDelete(m_FireFX);
-	SafeDelete(m_RainFX);
-	SafeDelete(m_DebugTexFX);
-	SafeDelete(m_PosColorFX);
-	SafeDelete(m_WaveSimFX);
-	SafeDelete(m_WaveRenderFX);
+	SAFE_DELETE(m_BasicFX);
+	SAFE_DELETE(m_NormalMapFX);
+	SAFE_DELETE(m_BuildShadowMapFX);
+	SAFE_DELETE(m_SkyFX);
+	SAFE_DELETE(m_TerrainFX);
+	SAFE_DELETE(m_FireFX);
+	SAFE_DELETE(m_RainFX);
+	SAFE_DELETE(m_DebugTexFX);
+	SAFE_DELETE(m_PosColorFX);
+	SAFE_DELETE(m_WaveSimFX);
+	SAFE_DELETE(m_WaveRenderFX);
 }
 //
 void effects::init_all(ID3D11Device *device)

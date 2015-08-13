@@ -47,8 +47,8 @@ namespace imm
 	#define HR(x) (x)
 	#endif
 #endif
-#define ReleaseCOM(x) {if (x) {x->Release(); x = nullptr;}}
-#define SafeDelete(x) {delete x; x = nullptr;}
+#define RELEASE_COM(x) {if (x) {x->Release(); x = nullptr;}}
+#define SAFE_DELETE(x) {delete x; x = nullptr;}
 // do nothing
 #define DUMMY(x) (x)
 // error messagebox
@@ -69,8 +69,8 @@ static std::map<std::string, std::string> IMM_PATH
 	{"text", "script\\text_en\\"},
 };
 // for calclate UI size with factor
-static const float REF_RESOLUTION_WIDTH = 1366.0f;
-static const float REF_RESOLUTION_HEIGHT = 768.0f;
+static const float UI_RESOLUTION_WIDTH = 1366.0f;
+static const float UI_RESOLUTION_HEIGHT = 768.0f;
 // OMSetBlendState, BLEND_FACTOR_ZERO
 static const float BLEND_FACTOR_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
 ////////////////
@@ -325,7 +325,7 @@ class effect
 {
 public:
 	effect(ID3D11Device *device, const std::wstring &filename);
-	virtual ~effect() {ReleaseCOM(m_FX);}
+	virtual ~effect() {RELEASE_COM(m_FX);}
 private:
 	effect(const effect &rhs);
 	effect &operator=(const effect &rhs);

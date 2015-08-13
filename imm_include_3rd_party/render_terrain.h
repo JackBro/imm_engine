@@ -89,11 +89,11 @@ private:
 //
 terrain::~terrain()
 {
-	ReleaseCOM(m_QuadPatchVB);
-	ReleaseCOM(m_QuadPatchIB);
-	ReleaseCOM(m_LayerMapArraySRV);
-	ReleaseCOM(m_BlendMapSRV);
-	ReleaseCOM(m_HeightMapSRV);
+	RELEASE_COM(m_QuadPatchVB);
+	RELEASE_COM(m_QuadPatchIB);
+	RELEASE_COM(m_LayerMapArraySRV);
+	RELEASE_COM(m_BlendMapSRV);
+	RELEASE_COM(m_HeightMapSRV);
 }
 //
 terrain::terrain():
@@ -434,7 +434,7 @@ void terrain::build_HeightmapSRV(ID3D11Device *device)
 	srv_desc.Texture2D.MipLevels        = static_cast<UINT>(-1);
 	HR(device->CreateShaderResourceView(hmap_tex, &srv_desc, &m_HeightMapSRV));
 	// SRV saves reference.
-	ReleaseCOM(hmap_tex);
+	RELEASE_COM(hmap_tex);
 }
 //
 }

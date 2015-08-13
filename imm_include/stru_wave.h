@@ -90,9 +90,9 @@ state_liquid::state_liquid():
 //
 state_liquid::~state_liquid()
 {
-	ReleaseCOM(wave_vb);
-	ReleaseCOM(wave_ib);
-	ReleaseCOM(wave_map_srv);
+	RELEASE_COM(wave_vb);
+	RELEASE_COM(wave_ib);
+	RELEASE_COM(wave_map_srv);
 }
 //
 state_liquid::state_liquid(const state_liquid &rhs)

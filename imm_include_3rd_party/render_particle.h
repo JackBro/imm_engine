@@ -55,9 +55,9 @@ private:
 //
 particle::~particle()
 {
-	ReleaseCOM(m_InitVB);
-	ReleaseCOM(m_DrawVB);
-	ReleaseCOM(m_StreamOutVB);
+	RELEASE_COM(m_InitVB);
+	RELEASE_COM(m_DrawVB);
+	RELEASE_COM(m_StreamOutVB);
 }
 //
 particle::particle():

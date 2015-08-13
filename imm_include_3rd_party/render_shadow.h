@@ -32,8 +32,8 @@ private:
 //
 shadow_map::~shadow_map()
 {
-	ReleaseCOM(m_DepthMapSRV);
-	ReleaseCOM(m_DepthMapDSV);
+	RELEASE_COM(m_DepthMapSRV);
+	RELEASE_COM(m_DepthMapDSV);
 }
 //
 shadow_map::shadow_map(ID3D11Device *device, UINT width, UINT height):
@@ -78,7 +78,7 @@ shadow_map::shadow_map(ID3D11Device *device, UINT width, UINT height):
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	HR(device->CreateShaderResourceView(depth_map, &srvDesc, &m_DepthMapSRV));
 	// View saves a reference to the texture so we can release our reference.
-	ReleaseCOM(depth_map);
+	RELEASE_COM(depth_map);
 }
 //
 ID3D11ShaderResourceView *shadow_map::get_DepthMapSRV() {return m_DepthMapSRV;}

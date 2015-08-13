@@ -7,6 +7,7 @@
 #endif
 #include "imm_app.cc"
 #include "control_state.cc"
+#include "control_math.cc"
 //
 #pragma comment(lib, "User32")
 #pragma comment(lib, "Effects11")

@@ -110,7 +110,7 @@ ui_base<T_app>::ui_base():
 template <typename T_app>
 ui_base<T_app>::~ui_base()
 {
-	for (auto &brush: m_Brush) ReleaseCOM(brush.second);
+	for (auto &brush: m_Brush) RELEASE_COM(brush.second);
 }
 //
 template <typename T_app>

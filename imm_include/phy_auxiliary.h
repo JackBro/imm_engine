@@ -50,13 +50,13 @@ template <typename T_app>
 phy_wireframe<T_app>::~phy_wireframe()
 {
 	remove_buffer();
-	ReleaseCOM(box_ib);
+	RELEASE_COM(box_ib);
 }
 //
 template <typename T_app>
 void phy_wireframe<T_app>::remove_buffer()
 {
-	for (auto &vb: box_collision) ReleaseCOM(vb);
+	for (auto &vb: box_collision) RELEASE_COM(vb);
 }
 //
 template <typename T_app>

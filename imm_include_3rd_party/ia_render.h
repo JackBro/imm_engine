@@ -193,19 +193,19 @@ void render::init_all(ID3D11Device *device)
 }
 void render::destroy_all()
 {
-	ReleaseCOM(m_WireframeRS);
-	ReleaseCOM(m_NoCullRS);
-	ReleaseCOM(m_CullClockwiseRS);
+	RELEASE_COM(m_WireframeRS);
+	RELEASE_COM(m_NoCullRS);
+	RELEASE_COM(m_CullClockwiseRS);
 	//
-	ReleaseCOM(m_AlphaToCoverageBS);
-	ReleaseCOM(m_TransparentBS);
-	ReleaseCOM(m_NoRenderTargetWritesBS);
+	RELEASE_COM(m_AlphaToCoverageBS);
+	RELEASE_COM(m_TransparentBS);
+	RELEASE_COM(m_NoRenderTargetWritesBS);
 	//
-	ReleaseCOM(m_MarkMirrorDSS);
-	ReleaseCOM(m_DrawReflectionDSS);
-	ReleaseCOM(m_NoDoubleBlendDSS);
-	ReleaseCOM(m_LessEqualDSS);
-	ReleaseCOM(m_EqualsDSS);
+	RELEASE_COM(m_MarkMirrorDSS);
+	RELEASE_COM(m_DrawReflectionDSS);
+	RELEASE_COM(m_NoDoubleBlendDSS);
+	RELEASE_COM(m_LessEqualDSS);
+	RELEASE_COM(m_EqualsDSS);
 }
 }
 #endif

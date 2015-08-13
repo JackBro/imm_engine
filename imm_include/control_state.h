@@ -28,9 +28,9 @@ template <class T_troll>
 struct state
 {
 	virtual ~state() {;}
-	virtual void enter(T_troll*, size_t) = 0;
-	virtual void execute(T_troll*, size_t) = 0;
-	virtual void exit(T_troll*, size_t) = 0;
+	virtual void enter(T_troll*) = 0;
+	virtual void execute(T_troll*) = 0;
+	virtual void exit(T_troll*) = 0;
 };
 ////////////////
 // pose_Idle
@@ -40,9 +40,9 @@ struct troll;
 struct pose_Idle: public state<troll>
 {
 	static pose_Idle *instance();
-	void enter(troll*, size_t);
-	void execute(troll*, size_t);
-	void exit(troll*, size_t);
+	void enter(troll*);
+	void execute(troll*);
+	void exit(troll*);
 private:
 	pose_Idle() {;}
 	pose_Idle(const pose_Idle&);
@@ -78,7 +78,7 @@ struct troll
 	size_t index;
 	state<troll> *current_state;
 	int order;
-	
+	float speed;
 	
 	
 	
@@ -86,22 +86,23 @@ struct troll
 //
 troll::troll():
 	current_state(pose_Idle::instance()),
-	order(ORDER_NONE)
+	order(ORDER_NONE),
+	speed(13.5f)
 {
 	;
 }
 //
 void troll::update()
 {
-	current_state->execute(this, index);
+	current_state->execute(this);
 }
 //
 void troll::change_state(state<troll> *new_state)
 {
 	assert(current_state && new_state);
-	current_state->exit(this, index);
+	current_state->exit(this);
 	current_state = new_state;
-	current_state->enter(this, index);
+	current_state->enter(this);
 }
 ////////////////
 // act

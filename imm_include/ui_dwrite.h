@@ -96,10 +96,10 @@ dwrite_simple::dwrite_simple():
 //
 dwrite_simple::~dwrite_simple()
 {
-	ReleaseCOM(m_WriteFactory);
-	ReleaseCOM(m_TextFormat);
-	ReleaseCOM(m_Brush);
-	for (auto text_layout: m_TextLayout) ReleaseCOM(text_layout.second);
+	RELEASE_COM(m_WriteFactory);
+	RELEASE_COM(m_TextFormat);
+	RELEASE_COM(m_Brush);
+	for (auto text_layout: m_TextLayout) RELEASE_COM(text_layout.second);
 }
 //
 float dwrite_simple::calc_FontSize(HWND &hwnd, const float &font_factor)
@@ -109,8 +109,8 @@ float dwrite_simple::calc_FontSize(HWND &hwnd, const float &font_factor)
 	float width = static_cast<float>(rc.right - rc.left);
 	float height = static_cast<float>(rc.bottom - rc.top);
 	// font size according 786p (1366*768 resolution)
-	float width_size = font_factor*width/REF_RESOLUTION_WIDTH;
-	float height_size = font_factor*height/REF_RESOLUTION_HEIGHT;
+	float width_size = font_factor*width/UI_RESOLUTION_WIDTH;
+	float height_size = font_factor*height/UI_RESOLUTION_HEIGHT;
 	float font_size = (width_size > height_size) ? width_size : height_size;
 	return font_size;
 }
@@ -118,7 +118,7 @@ float dwrite_simple::calc_FontSize(HWND &hwnd, const float &font_factor)
 void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
 {
 	float font_size = calc_FontSize(hwnd, m_FontFactor);
-	ReleaseCOM(m_TextFormat);
+	RELEASE_COM(m_TextFormat);
 	HR(m_WriteFactory->CreateTextFormat(
 		m_FontName.c_str(),
 		NULL,
@@ -209,7 +209,7 @@ void dwrite_simple::build_TextLayout(
 	const size_t &title_len)
 {
 	m_TextLayout[index];
-	ReleaseCOM(m_TextLayout[index]);
+	RELEASE_COM(m_TextLayout[index]);
 	HR(m_WriteFactory->CreateTextLayout(
 		wst_text.c_str(),
 		static_cast<UINT32>(wst_text.size()),

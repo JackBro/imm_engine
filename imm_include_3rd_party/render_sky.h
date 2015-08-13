@@ -44,9 +44,9 @@ sky::sky():
 //
 sky::~sky()
 {
-	ReleaseCOM(m_VB);
-	ReleaseCOM(m_IB);
-	ReleaseCOM(m_CubeMapSRV);
+	RELEASE_COM(m_VB);
+	RELEASE_COM(m_IB);
+	RELEASE_COM(m_CubeMapSRV);
 }
 //
 sky::sky(ID3D11Device* device, const std::wstring& cubemap_filename, float sky_sphere_radius)

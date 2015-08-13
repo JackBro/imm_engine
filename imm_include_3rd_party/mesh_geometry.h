@@ -52,7 +52,7 @@ private:
 template <typename vertex_type>
 void mesh_geometry::set_Vertices(ID3D11Device *device, const vertex_type *vertices, UINT count)
 {
-	ReleaseCOM(m_VB);
+	RELEASE_COM(m_VB);
 	m_VertexStride = sizeof(vertex_type);
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage               = D3D11_USAGE_IMMUTABLE;
@@ -76,8 +76,8 @@ mesh_geometry::mesh_geometry():
 //
 mesh_geometry::~mesh_geometry()
 {
-	ReleaseCOM(m_VB);
-	ReleaseCOM(m_IB);
+	RELEASE_COM(m_VB);
+	RELEASE_COM(m_IB);
 }
 //
 void mesh_geometry::set_Indices(ID3D11Device *device, const UINT *indices, UINT count)

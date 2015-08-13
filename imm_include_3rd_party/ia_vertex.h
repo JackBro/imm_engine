@@ -175,13 +175,13 @@ ID3D11InputLayout *input_layouts::m_PosColor = 0;
 //
 void input_layouts::destroy_all()
 {
-	ReleaseCOM(m_Pos);
-	ReleaseCOM(m_Basic32);
-	ReleaseCOM(m_PNTT);
-	ReleaseCOM(m_PNTT2);
-	ReleaseCOM(m_PNTTSkinned);
-	ReleaseCOM(m_Terrain);
-	ReleaseCOM(m_Particle);
+	RELEASE_COM(m_Pos);
+	RELEASE_COM(m_Basic32);
+	RELEASE_COM(m_PNTT);
+	RELEASE_COM(m_PNTT2);
+	RELEASE_COM(m_PNTTSkinned);
+	RELEASE_COM(m_Terrain);
+	RELEASE_COM(m_Particle);
 }
 //
 void input_layouts::init_all(ID3D11Device *device)

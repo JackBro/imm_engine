@@ -118,18 +118,18 @@ base_win<DERIVED_TYPE>::base_win():
 template <class DERIVED_TYPE>
 base_win<DERIVED_TYPE>::~base_win()
 {
-	ReleaseCOM(m_RenderTargetView);
-	ReleaseCOM(m_DepthStencilView);
-	ReleaseCOM(m_SwapChain);
-	ReleaseCOM(m_DepthStencilBuffer);
+	RELEASE_COM(m_RenderTargetView);
+	RELEASE_COM(m_DepthStencilView);
+	RELEASE_COM(m_SwapChain);
+	RELEASE_COM(m_DepthStencilBuffer);
 	// Restore all default settings.
 	if (m_D3DDC) m_D3DDC->ClearState();
-	ReleaseCOM(m_D3DDC);
-	ReleaseCOM(m_D3DDevice);
+	RELEASE_COM(m_D3DDC);
+	RELEASE_COM(m_D3DDevice);
 	// D2D Release
-	ReleaseCOM(m_D2DDevice);
-	ReleaseCOM(m_D2DDC);
-	ReleaseCOM(m_D2DTargetBitmap);
+	RELEASE_COM(m_D2DDevice);
+	RELEASE_COM(m_D2DDC);
+	RELEASE_COM(m_D2DTargetBitmap);
 }
 //
 template <class DERIVED_TYPE>
@@ -300,11 +300,11 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 			D2D1::BitmapProperties1(
 				D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
 				D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), m_DpiX, m_DpiY);
-		ReleaseCOM(d2d_factory);
+		RELEASE_COM(d2d_factory);
 	}
-	ReleaseCOM(dxgi_device);
-	ReleaseCOM(dxgi_adapter);
-	ReleaseCOM(dxgi_factory);
+	RELEASE_COM(dxgi_device);
+	RELEASE_COM(dxgi_adapter);
+	RELEASE_COM(dxgi_factory);
 	// The remaining steps that need to be carried out for d3d creation
 	// also need to be executed every time the window is resized.  So
 	// just call the on_resize method here to avoid code duplication.
@@ -344,14 +344,14 @@ void base_win<DERIVED_TYPE>::on_resize()
 	m_AspectRatio = aspect_ratio();
 	// Release the old views, as they hold references to the buffers we
 	// will be destroying.  Also release the old depth/stencil buffer.
-	ReleaseCOM(m_RenderTargetView);
-	ReleaseCOM(m_DepthStencilView);
-	ReleaseCOM(m_DepthStencilBuffer);
+	RELEASE_COM(m_RenderTargetView);
+	RELEASE_COM(m_DepthStencilView);
+	RELEASE_COM(m_DepthStencilBuffer);
 	// D2D
 	if (m_IsInteropD2D) {
 		assert(m_D2DDevice);
-		ReleaseCOM(m_D2DTargetBitmap);
-		ReleaseCOM(m_D2DDC);
+		RELEASE_COM(m_D2DTargetBitmap);
+		RELEASE_COM(m_D2DDC);
 	}
 	// Resize the swap chain and recreate the render target view.
 	HR(m_SwapChain->ResizeBuffers(1, m_ClientWidth, m_ClientHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
@@ -368,9 +368,9 @@ void base_win<DERIVED_TYPE>::on_resize()
 	ID3D11Texture2D *back_buffer;
 	HR(m_SwapChain->GetBuffer(0, IID_PPV_ARGS(&back_buffer)));
 	HR(m_D3DDevice->CreateRenderTargetView(back_buffer, 0, &m_RenderTargetView));
-	ReleaseCOM(back_buffer);
+	RELEASE_COM(back_buffer);
 	if (m_IsInteropD2D) {
-		ReleaseCOM(dxgi_back_buffer);
+		RELEASE_COM(dxgi_back_buffer);
 	}
 	// Create the depth/stencil buffer and view.
 	D3D11_TEXTURE2D_DESC depth_stencil_desc;

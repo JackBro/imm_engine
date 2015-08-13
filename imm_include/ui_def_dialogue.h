@@ -195,7 +195,7 @@ void ui_def_dialogue<T_app>::define_on_resize_sprite()
 {
 	float height = static_cast<float>(m_RcHWND.bottom - m_RcHWND.top);
 	float width = static_cast<float>(m_RcHWND.right - m_RcHWND.left);
-	float scale = height/REF_RESOLUTION_HEIGHT*0.6f;
+	float scale = height/UI_RESOLUTION_HEIGHT*0.6f;
 	std::map<std::string, XMFLOAT2> get_resize;
 	get_resize["abelia"] = XMFLOAT2(width*0.0f*scale, height-(1024.0f*scale));
 	m_Sprite.on_resize(scale, get_resize);

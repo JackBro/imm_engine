@@ -37,7 +37,7 @@ texture_mgr::texture_mgr():
 //
 texture_mgr::~texture_mgr()
 {
-	for (auto it = m_TextureSRV.begin(); it != m_TextureSRV.end(); ++it) ReleaseCOM(it->second);
+	for (auto it = m_TextureSRV.begin(); it != m_TextureSRV.end(); ++it) RELEASE_COM(it->second);
 	m_TextureSRV.clear();
 }
 //

@@ -78,13 +78,13 @@ gpu_wave::gpu_wave():
 }
 gpu_wave::~gpu_wave()
 {
-	ReleaseCOM(m_WavesPrevSolSRV);
-	ReleaseCOM(m_WavesCurrSolSRV);
-	ReleaseCOM(m_WavesNextSolSRV);
-	ReleaseCOM(m_RandomTexSRV);
-	ReleaseCOM(m_WavesPrevSolUAV);
-	ReleaseCOM(m_WavesCurrSolUAV);
-	ReleaseCOM(m_WavesNextSolUAV);
+	RELEASE_COM(m_WavesPrevSolSRV);
+	RELEASE_COM(m_WavesCurrSolSRV);
+	RELEASE_COM(m_WavesNextSolSRV);
+	RELEASE_COM(m_RandomTexSRV);
+	RELEASE_COM(m_WavesPrevSolUAV);
+	RELEASE_COM(m_WavesCurrSolUAV);
+	RELEASE_COM(m_WavesNextSolUAV);
 }
 //
 UINT gpu_wave::row_count() const {return m_NumRows;}
@@ -186,13 +186,13 @@ void gpu_wave::disturb(ID3D11DeviceContext* dc, UINT i, UINT j, float magnitude)
 }
 void gpu_wave::build_wave_simulation_views(ID3D11Device* device)
 {
-	ReleaseCOM(m_WavesPrevSolSRV);
-	ReleaseCOM(m_WavesCurrSolSRV);
-	ReleaseCOM(m_WavesNextSolSRV);
-	ReleaseCOM(m_RandomTexSRV);
-	ReleaseCOM(m_WavesPrevSolUAV);
-	ReleaseCOM(m_WavesCurrSolUAV);
-	ReleaseCOM(m_WavesNextSolUAV);
+	RELEASE_COM(m_WavesPrevSolSRV);
+	RELEASE_COM(m_WavesCurrSolSRV);
+	RELEASE_COM(m_WavesNextSolSRV);
+	RELEASE_COM(m_RandomTexSRV);
+	RELEASE_COM(m_WavesPrevSolUAV);
+	RELEASE_COM(m_WavesCurrSolUAV);
+	RELEASE_COM(m_WavesNextSolUAV);
 	// All the textures for the wave simulation will be bound as a shader resource and
 	// unordered access view at some point since we ping-pong the buffers.
 	D3D11_TEXTURE2D_DESC tex_desc;
@@ -234,9 +234,9 @@ void gpu_wave::build_wave_simulation_views(ID3D11Device* device)
 	HR(device->CreateUnorderedAccessView(curr_wave_solution_tex, &uav_desc, &m_WavesCurrSolUAV));
 	HR(device->CreateUnorderedAccessView(next_wave_solution_tex, &uav_desc, &m_WavesNextSolUAV));
 	// Views save a reference to the texture so we can release our reference.
-	ReleaseCOM(prev_wave_solution_tex);
-	ReleaseCOM(curr_wave_solution_tex);
-	ReleaseCOM(next_wave_solution_tex);
+	RELEASE_COM(prev_wave_solution_tex);
+	RELEASE_COM(curr_wave_solution_tex);
+	RELEASE_COM(next_wave_solution_tex);
 	m_RandomTexSRV = create_RandomTexture1DWaveSRV(device);
 }
 }

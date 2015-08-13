@@ -43,8 +43,8 @@ state_plasma::state_plasma():
 //
 state_plasma::~state_plasma()
 {
-	ReleaseCOM(fire_tex_srv);
-	ReleaseCOM(random_tex_srv);
+	RELEASE_COM(fire_tex_srv);
+	RELEASE_COM(random_tex_srv);
 }
 //
 void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
