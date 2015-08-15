@@ -81,7 +81,7 @@ struct control_sys
 	float wait_ui_disappear;
 	POINT mouse_down;
 	POINT mouse_move;
-	std::map<size_t, control_stop> map_stop;
+	std::map<size_t, control_stop<T_app>> map_stop;
 	std::map<size_t, XMFLOAT4> map_rot_front_c;
 	control_xinput pad;
 	control_motion<T_app> motion;
@@ -135,38 +135,20 @@ template <typename T_app>
 void control_sys<T_app>::mouse_instance_move()
 {
 	if (player1 < 0) return;
-	
-	
-	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE;
-	
-	
-	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
-	XMVECTOR hit_pos;
-	if (app->m_Inst.m_IsTerrainUse) math_mouse_hit_terrain(hit_pos);
-	else math_mouse_hit_plane_y(hit_pos);
-	math_mouse_move_toward_hit(hit_pos, player1);
-	//
-	map_stop[player1].is_stop = false;
-	map_stop[player1].speed = motion.speed;
-	map_stop[player1].set_aabb(hit_pos, app->m_Inst.m_BoundW.half_y(player1));
-	app->m_Inst.m_Stat[player1].check_set_ClipName(motion.walk_run);
+	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_HIT;
 }
 //
 template <typename T_app>
 void control_sys<T_app>::pad_instance_move_update()
 {
 	if (player1 < 0) return;
-	if (!app->m_Inst.m_Stat[player1].phy.is_touch_ground) return;
-	// walk or run
-	if (pad.is_RT_press()) motion.make_walk();
-	else motion.make_run();
-	if (pad.is_L_active()) {
-		math_pad_move_toward();
-	}
-	else {
-		app->m_Inst.m_Stat[player1].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		app->m_Inst.m_Stat[player1].check_set_ClipName(motion.idle);
-	}
+	
+	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_TOWARD;
+	
+	
+	if (pad.is_RT_press()) app->m_Inst.m_Troll[player1].order_stat |= ORDER_IS_WALK;
+	else app->m_Inst.m_Troll[player1].order_stat &= ~ORDER_IS_WALK;
+	
 }
 //
 template <typename T_app>
@@ -234,23 +216,7 @@ template <typename T_app>
 void control_sys<T_app>::update_stop(const float &dt)
 {
 	for (auto it = map_stop.begin(); it != map_stop.end(); ++it) {
-		if (it->second.is_stop) continue;
-		// assume bound's center approximate instance's world
-		bool is_inter = it->second.contains(app->m_Inst.m_BoundW.center(it->first));
-		if (is_inter) {
-			it->second.is_stop = true;
-			app->m_Inst.m_Stat[it->first].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
-			app->m_Inst.m_Stat[it->first].check_set_ClipName(motion.idle);
-		}
-		// adjust the direction
-		else {
-			it->second.dt_cd += dt;
-			if (it->second.dt_cd > 0.5f) it->second.dt_cd = 0.0f;
-			else continue;
-			if (!app->m_Inst.m_Stat[it->first].phy.is_touch_ground) continue;
-			XMVECTOR hit_pos = XMLoadFloat3(&(it->second.hit_pos));
-			math_mouse_move_toward_hit(hit_pos, it->first, it->second.speed);
-		}
+		it->second.update(app, it->first, dt);
 	}
 }
 //

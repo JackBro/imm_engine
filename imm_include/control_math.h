@@ -10,6 +10,9 @@
 #define CONTROL_MATH_H
 namespace imm {namespace math
 {
+//
+void mouse_instance_move(const size_t &index, const float &speed);
+//
 void mouse_move_toward_hit(
 	CXMVECTOR &hit_pos,
 	const size_t &index,
@@ -20,9 +23,17 @@ void mouse_face_rot_y(
 	XMMATRIX &RF,
 	CXMVECTOR &direction);
 //
-
-
-
+void pad_face_rot_y(
+	XMMATRIX &W,
+	XMMATRIX &RF,
+	XMVECTOR &direction,
+	const float &rot_cam);
+//
+void mouse_hit_plane_y(XMVECTOR &hit_pos_out);
+//
+void mouse_hit_terrain(XMVECTOR &hit_pos_out);
+//
+void pad_move_toward(const size_t &index, const float &speed);
 //
 }}
 #endif

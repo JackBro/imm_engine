@@ -49,61 +49,40 @@ private:
 	pose_Idle &operator=(const pose_Idle&);
 };
 ////////////////
-// 
+// pose_Move
 ////////////////
 ////////////////
-typedef enum ORDER_ACT_TYPE {
-	ORDER_NONE     = 0x0,
-	ORDER_JUMP     = 0x1,
-	ORDER_WALK_RUN = 0x2,
-	
-	ORDER_MOVE     = 0x4,
-	
-	
-	
-} ORDER_ACT_TYPE;
-
-
-
-
-////////////////
-// troll
-////////////////
-////////////////
-struct troll
+struct troll;
+struct pose_Move: public state<troll>
 {
-	troll();
-	void update();
-	void change_state(state<troll> *new_state);
-	size_t index;
-	state<troll> *current_state;
-	int order;
-	float speed;
-	
+	static pose_Move *instance();
+	void enter(troll*);
+	void execute(troll*);
+	void exit(troll*);
+private:
+	pose_Move() {;}
+	pose_Move(const pose_Idle&);
+	pose_Move &operator=(const pose_Idle&);
+};
+////////////////
+// ORDER_ACT_TYPE
+////////////////
+////////////////
+enum ORDER_ACT_TYPE {
+	ORDER_NONE        = 0x0,
+	ORDER_JUMP        = 0x1,
+	ORDER_MOVE_HIT    = 0x2,
+	ORDER_MOVE_TOWARD = 0x4,
+	ORDER_IDLE        = 0x8,
+};
+//
+enum ORDER_STAT_TYPE {
+	ORDER_IS_CLEAR = 0x0,
+	ORDER_IS_WALK  = 0x1,
 	
 	
 };
-//
-troll::troll():
-	current_state(pose_Idle::instance()),
-	order(ORDER_NONE),
-	speed(13.5f)
-{
-	;
-}
-//
-void troll::update()
-{
-	current_state->execute(this);
-}
-//
-void troll::change_state(state<troll> *new_state)
-{
-	assert(current_state && new_state);
-	current_state->exit(this);
-	current_state = new_state;
-	current_state->enter(this);
-}
+
 ////////////////
 // act
 ////////////////
@@ -120,6 +99,58 @@ std::string act::Idle = "Idle";
 std::string act::Walk = "Walk";
 std::string act::Run  = "Run";
 std::string act::Jump = "Jump";
+////////////////
+// troll
+////////////////
+////////////////
+struct troll
+{
+	troll();
+	void update();
+	void change_state(state<troll> *new_state);
+	float act_speed();
+	std::string &act_move();
+	state<troll> *current_state;
+	size_t index;
+	int order;
+	int order_stat;
+	
+	
+};
+//
+troll::troll():
+	current_state(pose_Idle::instance()),
+	index(0),
+	order(ORDER_NONE),
+	order_stat(0x0)
+{
+	;
+}
+//
+void troll::update()
+{
+	current_state->execute(this);
+}
+//
+void troll::change_state(state<troll> *new_state)
+{
+	assert(current_state && new_state);
+	current_state->exit(this);
+	current_state = new_state;
+	current_state->enter(this);
+}
+//
+float troll::act_speed()
+{
+	if (order_stat & ORDER_IS_WALK)	return 4.5f;
+	return 13.5f;
+}
+std::string &troll::act_move()
+{
+	if (order_stat & ORDER_IS_WALK) return act::Walk;
+	return act::Run;
+}
+
 
 
 

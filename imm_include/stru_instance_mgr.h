@@ -331,7 +331,8 @@ void instance_mgr<T_app>::update_skinned(const float &dt)
 	for (auto &skinned: m_Model.m_InstSkinnedAlpha) skinned.update(dt);
 	// Troll
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
-		if (m_Stat[ix].type == instance_type::skinned) m_Troll[ix].update();
+		//if (m_Stat[ix].type == instance_type::skinned) m_Troll[ix].update();
+		m_Troll[ix].update();
 	}
 }
 //

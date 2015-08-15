@@ -26,9 +26,27 @@ void pose_Idle::enter(troll *tro)
 //
 void pose_Idle::execute(troll *tro)
 {
-	if (tro->order & ORDER_MOVE) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) return;	
+	if (tro->order & ORDER_MOVE_HIT) {
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) return;
+		tro->order = ORDER_NONE;
+		math::mouse_instance_move(tro->index, tro->act_speed());
+		tro->change_state(pose_Move::instance());
 	}
+	
+	if (tro->order & ORDER_MOVE_TOWARD) {
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) return;
+		tro->order = ORDER_NONE;
+		if (PTR->m_Control.pad.is_L_active()) {
+			math::pad_move_toward(tro->index, tro->act_speed());
+			tro->change_state(pose_Move::instance());
+		}
+		else {
+			PTR->m_Inst.m_Stat[tro->index].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		}
+		
+		
+	}
+	
 	
 	
 	
@@ -41,43 +59,64 @@ void pose_Idle::exit(troll *tro)
 	tro;
 }
 ////////////////
-// pose_Walk
+// pose_Move
 ////////////////
 ////////////////
-struct troll;
-struct pose_Walk: public state<troll>
+pose_Move *pose_Move::instance()
 {
-	static pose_Walk *instance();
-	void enter(troll*);
-	void execute(troll*);
-	void exit(troll*);
-private:
-	pose_Walk() {;}
-	pose_Walk(const pose_Idle&);
-	pose_Walk &operator=(const pose_Idle&);
-};
-//
-pose_Walk *pose_Walk::instance()
-{
-	static pose_Walk instance;
+	static pose_Move instance;
 	return &instance;
 }
 //
-void pose_Walk::enter(troll *tro)
+void pose_Move::enter(troll *tro)
 {
-	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Walk);
+	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
 }
 //
-void pose_Walk::execute(troll *tro)
+void pose_Move::execute(troll *tro)
+{
+	if (tro->order & ORDER_IDLE) {
+		tro->order = ORDER_NONE;
+		tro->change_state(pose_Idle::instance());
+	}
+	
+	
+	
+	
+	
+	
+	
+	if (tro->order & ORDER_MOVE_HIT) {
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) return;
+		tro->order = ORDER_NONE;
+		math::mouse_instance_move(tro->index, tro->act_speed());
+	}
+	
+	if (tro->order & ORDER_MOVE_TOWARD) {
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) return;
+		tro->order = ORDER_NONE;
+		if (PTR->m_Control.pad.is_L_active()) {
+			math::pad_move_toward(tro->index, tro->act_speed());
+			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
+		}
+		else {
+			PTR->m_Inst.m_Stat[tro->index].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			tro->change_state(pose_Idle::instance());
+		}
+	}
+	
+	
+	
+	
+	
+	
+}
+//
+void pose_Move::exit(troll *tro)
 {
 	tro;
 }
 //
-void pose_Walk::exit(troll *tro)
-{
-	tro;
-}
-
 
 
 
