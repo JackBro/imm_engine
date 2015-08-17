@@ -208,11 +208,4 @@ void pad_move_toward(const size_t &index, const float &speed)
 	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.velocity_nm, velocity_nm);
 }
 //
-
-
-
-
-
-
-//
 }}

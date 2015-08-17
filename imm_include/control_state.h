@@ -65,6 +65,22 @@ private:
 	pose_Move &operator=(const pose_Idle&);
 };
 ////////////////
+// pose_Jump
+////////////////
+////////////////
+struct troll;
+struct pose_Jump: public state<troll>
+{
+	static pose_Jump *instance();
+	void enter(troll*);
+	void execute(troll*);
+	void exit(troll*);
+private:
+	pose_Jump() {;}
+	pose_Jump(const pose_Idle&);
+	pose_Jump &operator=(const pose_Idle&);
+};
+////////////////
 // ORDER_ACT_TYPE
 ////////////////
 ////////////////
@@ -82,7 +98,6 @@ enum ORDER_STAT_TYPE {
 	
 	
 };
-
 ////////////////
 // act
 ////////////////
@@ -93,12 +108,14 @@ struct act
 	static std::string Walk;
 	static std::string Run;
 	static std::string Jump;
+	static std::string JumpGround;
 };
 //
-std::string act::Idle = "Idle";
-std::string act::Walk = "Walk";
-std::string act::Run  = "Run";
-std::string act::Jump = "Jump";
+std::string act::Idle       = "Idle";
+std::string act::Walk       = "Walk";
+std::string act::Run        = "Run";
+std::string act::Jump       = "Jump";
+std::string act::JumpGround = "JumpGround";
 ////////////////
 // troll
 ////////////////
@@ -108,21 +125,27 @@ struct troll
 	troll();
 	void update();
 	void change_state(state<troll> *new_state);
-	float act_speed();
+	float speed_move();
 	std::string &act_move();
 	state<troll> *current_state;
+	state<troll> *hold_state;
 	size_t index;
 	int order;
 	int order_stat;
-	
-	
+	bool is_on_air;
+	float velocity_jump;
+	float count_down;
 };
 //
 troll::troll():
 	current_state(pose_Idle::instance()),
+	hold_state(pose_Idle::instance()),
 	index(0),
 	order(ORDER_NONE),
-	order_stat(0x0)
+	order_stat(0x0),
+	is_on_air(false),
+	velocity_jump(35.0f),
+	count_down(-1.0f)
 {
 	;
 }
@@ -140,7 +163,7 @@ void troll::change_state(state<troll> *new_state)
 	current_state->enter(this);
 }
 //
-float troll::act_speed()
+float troll::speed_move()
 {
 	if (order_stat & ORDER_IS_WALK)	return 4.5f;
 	return 13.5f;
@@ -150,12 +173,6 @@ std::string &troll::act_move()
 	if (order_stat & ORDER_IS_WALK) return act::Walk;
 	return act::Run;
 }
-
-
-
-
-
-
 //
 }
 #endif

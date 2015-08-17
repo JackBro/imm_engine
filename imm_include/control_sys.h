@@ -14,11 +14,14 @@
 namespace imm
 {
 ////////////////
-// control style
+// CONTROL_STYLE_TYPE
 ////////////////
 ////////////////
-static const int CONTORL_CAM_FREE = 128;
-static const int CONTORL_MOVE_BY_MOUSE = 64;
+enum CONTROL_STYLE_TYPE {
+	CONTROL_ZERO          = 0x0,
+	CONTORL_CAM_FREE      = 0x1,
+	CONTORL_MOVE_BY_MOUSE = 0x2,
+};
 ////////////////
 // control_sys
 ////////////////
@@ -44,23 +47,6 @@ struct control_sys
 	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_mouse_wheel(const short &z_delta);
-	// math function
-	void math_mouse_move_toward_hit(
-		CXMVECTOR &hit_pos,
-		const size_t &index,
-		const float &speed = -1.0f);
-	void math_mouse_face_rot_y(
-		XMMATRIX &W,
-		XMMATRIX &RF,
-		CXMVECTOR &direction);
-	void math_pad_face_rot_y(
-		XMMATRIX &W,
-		XMMATRIX &RF,
-		XMVECTOR &direction,
-		const float &rot_cam);
-	void math_mouse_hit_plane_y(XMVECTOR &hit_pos_out);
-	void math_mouse_hit_terrain(XMVECTOR &hit_pos_out);
-	void math_pad_move_toward();
 	// cam function
 	void pad_camera_update(const float &dt);
 	void on_pad_camera_follow(const WORD &vkey);
@@ -72,7 +58,7 @@ struct control_sys
 	T_app *app;
 	int picked1;
 	int player1;
-	int style_p1;
+	int style1;
 	bool is_pad_cam_follow_reset;
 	float cam_follow_walk_def;
 	float cam_follow_up_def;
@@ -84,7 +70,6 @@ struct control_sys
 	std::map<size_t, control_stop<T_app>> map_stop;
 	std::map<size_t, XMFLOAT4> map_rot_front_c;
 	control_xinput pad;
-	control_motion<T_app> motion;
 };
 //
 template <typename T_app>
@@ -92,27 +77,25 @@ control_sys<T_app>::control_sys():
 	app(nullptr),
 	picked1(-1),
 	player1(-1),
-	style_p1(CONTORL_MOVE_BY_MOUSE),
+	style1(CONTORL_MOVE_BY_MOUSE),
 	is_pad_cam_follow_reset(false),
 	cam_follow_walk_def(-30.0f),
 	cam_follow_up_def(3.0f),
 	wait_ui_disappear(0.0f),
-	pad(),
-	motion()
+	pad()
 {
 	cam_follow_walk = cam_follow_walk_def;
 	cam_follow_up = cam_follow_up_def;
 	mouse_down.x = 0;
 	mouse_down.y = 0;
 	mouse_move.x = 0;
-	mouse_move.y = 0;	
+	mouse_move.y = 0;
 }
 //
 template <typename T_app>
 void control_sys<T_app>::init(T_app *app_in)
 {
 	app = app_in;
-	motion.init(app);
 }
 //
 template <typename T_app>
@@ -142,31 +125,15 @@ template <typename T_app>
 void control_sys<T_app>::pad_instance_move_update()
 {
 	if (player1 < 0) return;
-	
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_TOWARD;
-	
-	
 	if (pad.is_RT_press()) app->m_Inst.m_Troll[player1].order_stat |= ORDER_IS_WALK;
 	else app->m_Inst.m_Troll[player1].order_stat &= ~ORDER_IS_WALK;
-	
 }
 //
 template <typename T_app>
 void control_sys<T_app>::common_jump()
 {
-	if (player1 < 0) return;
-	
-	
-	
-	if (app->m_Inst.m_Stat[player1].phy.is_touch_ground) {
-		app->m_Inst.m_Stat[player1].phy.velocity.y = motion.jump_velocity;
-		app->m_Inst.m_Stat[player1].check_set_ClipName(motion.jump);
-		
-		
-		motion.listen_touch_ground = player1;
-		
-		
-	}
+	app->m_Inst.m_Troll[player1].order |= ORDER_JUMP;
 }
 //
 template <typename T_app>
@@ -193,7 +160,6 @@ void control_sys<T_app>::update_scene(const float &dt)
 	app->m_Inst.update(dt);
 	update_scene_bounds();
 	update_stop(dt);
-	motion.update();
 	// camera follow update even m_Cmd.is_active()
 	cam_follow_update();
 }
@@ -259,6 +225,7 @@ void control_sys<T_app>::on_pad_down(const float &dt)
 	if (wait_ui_disappear > 0.0f) return;
 	wait_ui_disappear = -1.0f;
 	on_pad_camera_follow(get_vkey);
+	if (player1 < 0) return;
 	if (get_vkey == PAD_P1_JUMP) common_jump();
 }
 //
@@ -268,7 +235,10 @@ void control_sys<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 	app->m_UiMgr.on_input_keydown(w_param, l_param);
 	if (pad.is_enable()) return;
 	if (app->m_Cmd.is_active) return;
-	if (w_param == KEY_P1_WALK_RUN) motion.switch_walk_run();
+	if (player1 < 0) return;
+	if (w_param == KEY_P1_WALK_RUN) {
+			app->m_Inst.m_Troll[player1].order_stat ^= ORDER_IS_WALK;
+	}
 	if (w_param == KEY_P1_JUMP) common_jump();
 }
 //
@@ -293,7 +263,6 @@ void control_sys<T_app>::on_mouse_wheel(const short &z_delta)
 // inl
 ////////////////
 ////////////////
-#include "control_sys_math.h"
 #include "control_sys_cam.h"
 }
 #endif

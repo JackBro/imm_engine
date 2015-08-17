@@ -102,7 +102,7 @@ public:
 	void start();
 	void stop();
 	void tick();
-private:
+//private:
 	double m_SecPerCount;
 	double m_DeltaTime;
 	__int64 m_BaseTime;

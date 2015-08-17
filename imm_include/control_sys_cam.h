@@ -15,7 +15,7 @@ void control_sys<T_app>::pad_camera_update(const float &dt)
 		app->m_Cam.rotate_y(-dx);
 	}
 	if (app->m_UiMgr.is_ui_appear()) return;
-	if (style_p1 & CONTORL_CAM_FREE) {
+	if (style1 & CONTORL_CAM_FREE) {
 		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_UP) app->m_Cam.up_down(10.0f*dt);
 		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_DOWN) app->m_Cam.up_down(-10.0f*dt);
 		if (pad.state.Gamepad.wButtons & XGPAD_CAM_FREE_LEFT) app->m_Cam.strafe(-10.0f*dt);
@@ -34,14 +34,14 @@ void control_sys<T_app>::pad_camera_update(const float &dt)
 template <typename T_app>
 void control_sys<T_app>::on_pad_camera_follow(const WORD &vkey)
 {
-	if (style_p1 & CONTORL_CAM_FREE) return;
+	if (style1 & CONTORL_CAM_FREE) return;
 	if (vkey == PAD_CAM_FOLLOW_RESET) is_pad_cam_follow_reset = true;
 }
 //
 template <typename T_app>
 void control_sys<T_app>::key_camera_free_update(const float &dt)
 {
-	if (!(style_p1 & CONTORL_CAM_FREE)) return;
+	if (!(style1 & CONTORL_CAM_FREE)) return;
 	if (GetKeyState(KEY_CAM_FREE_LEFT) & 0x8000) app->m_Cam.strafe(-10.0f*dt);
 	if (GetKeyState(KEY_CAM_FREE_RIGHT) & 0x8000) app->m_Cam.strafe(10.0f*dt);
 	if (GetKeyState(KEY_CAM_FREE_UP) & 0x8000) app->m_Cam.up_down(10.0f*dt);
@@ -51,7 +51,7 @@ void control_sys<T_app>::key_camera_free_update(const float &dt)
 template <typename T_app>
 void control_sys<T_app>::mouse_camera_wheel(const short &z_delta)
 {
-	if (style_p1 & CONTORL_CAM_FREE) {
+	if (style1 & CONTORL_CAM_FREE) {
 		app->m_Cam.walk(z_delta/120*1.0f);
 	}
 	else {
@@ -76,7 +76,7 @@ void control_sys<T_app>::mouse_camera_move()
 template <typename T_app>
 void control_sys<T_app>::cam_follow_update()
 {
-	if (player1 < 0 || style_p1 & CONTORL_CAM_FREE) return;
+	if (player1 < 0 || style1 & CONTORL_CAM_FREE) return;
 	XMFLOAT4X4 player_world = *(app->m_Inst.m_Stat[player1].get_World());
 	XMMATRIX W = XMLoadFloat4x4(&player_world);
 	XMVECTOR scale, rot_quat, rot_front_conj, pos, L, U, R;
