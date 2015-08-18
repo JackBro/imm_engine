@@ -71,7 +71,7 @@ void control_stop<T_app>::update(T_app *app, const size_t &index, const float &d
 		cooldown += dt;
 		if (cooldown > 0.5f) cooldown = 0.0f;
 		else return;
-		if (!app->m_Inst.m_Stat[index].phy.is_touch_ground) return;
+		if (!app->m_Inst.m_Stat[index].phy.is_on_ground) return;
 		XMVECTOR hit = XMLoadFloat3(&(hit_pos));
 		math::mouse_move_toward_hit(hit, index, speed);
 	}

@@ -41,12 +41,12 @@ void phy_position_update(
 	phy_property &prop,
 	phy_property &prop_ground,
 	const XMFLOAT3 &center,
-	const bool &is_touch_ground,
+	const bool &is_on_ground,
 	const float &half_y,
 	const float &ground_y)
 {
 	if (prop.is_abnormal) return;
-	if (!is_touch_ground) {
+	if (!is_on_ground) {
 		prop.velocity.x += prop.acceleration.x*dt;
 		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt;
 		prop.velocity.z += prop.acceleration.z*dt;

@@ -36,7 +36,6 @@ struct control_sys
 	void rebuild_player();
 	void mouse_instance_move();
 	void pad_instance_move_update();
-	void common_jump();
 	void mouse_pick();
 	void update_scene(const float &dt);
 	void update_scene_bounds();
@@ -131,12 +130,6 @@ void control_sys<T_app>::pad_instance_move_update()
 }
 //
 template <typename T_app>
-void control_sys<T_app>::common_jump()
-{
-	app->m_Inst.m_Troll[player1].order |= ORDER_JUMP;
-}
-//
-template <typename T_app>
 void control_sys<T_app>::mouse_pick()
 {
 	app->m_Inst.m_BoundW.pick(
@@ -204,14 +197,10 @@ void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 	mouse_down.x = pos_x;
 	mouse_down.y = pos_y;
 	if (app->m_UiMgr.on_mouse_down(btn_state, mouse_down.x, mouse_down.y)) return;
-	if (btn_state & MOUSE_P1_PICK) {
-		mouse_pick();
-	}
+	if (btn_state & MOUSE_P1_PICK) mouse_pick();
 	if (pad.is_enable()) return;
 	// player
-	if (btn_state & MOUSE_P1_MOVE) {
-		mouse_instance_move();
-	}
+	if (btn_state & MOUSE_P1_MOVE) mouse_instance_move();
 }
 //
 template <typename T_app>
@@ -226,7 +215,7 @@ void control_sys<T_app>::on_pad_down(const float &dt)
 	wait_ui_disappear = -1.0f;
 	on_pad_camera_follow(get_vkey);
 	if (player1 < 0) return;
-	if (get_vkey == PAD_P1_JUMP) common_jump();
+	if (get_vkey == PAD_P1_JUMP) app->m_Inst.m_Troll[player1].order |= ORDER_JUMP;
 }
 //
 template <typename T_app>
@@ -236,10 +225,8 @@ void control_sys<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 	if (pad.is_enable()) return;
 	if (app->m_Cmd.is_active) return;
 	if (player1 < 0) return;
-	if (w_param == KEY_P1_WALK_RUN) {
-			app->m_Inst.m_Troll[player1].order_stat ^= ORDER_IS_WALK;
-	}
-	if (w_param == KEY_P1_JUMP) common_jump();
+	if (w_param == KEY_P1_WALK_RUN) app->m_Inst.m_Troll[player1].order_stat ^= ORDER_IS_WALK;
+	if (w_param == KEY_P1_JUMP) app->m_Inst.m_Troll[player1].order |= ORDER_JUMP;
 }
 //
 template <typename T_app>
@@ -247,9 +234,7 @@ void control_sys<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const
 {
 	mouse_move.x = pos_x;
 	mouse_move.y = pos_y;
-	if ((btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0)) {
-		mouse_camera_move();
-	}
+	if ((btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0)) mouse_camera_move();
 	app->m_UiMgr.on_mouse_over(mouse_move.x, mouse_move.y);
 }
 //

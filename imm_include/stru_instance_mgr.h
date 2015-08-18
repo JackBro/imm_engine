@@ -255,14 +255,14 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 		if (static_cast<int>(ix) == m_PlaneGroundIx) continue;
 		int ix_gro = m_PlaneGroundIx;
 		if (m_Stat[ix].phy.stand_from >= 0) ix_gro = m_Stat[ix].phy.stand_from;
-		m_Stat[ix].phy.is_touch_ground = m_BoundW.intersects(ix_gro, ix);
+		m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
 		phy_position_update(
 			dt,
 			*(m_Stat[ix].get_World()),
 			m_Stat[ix].phy,
 			m_Stat[ix_gro].phy,
 			m_BoundW.center(ix),
-			m_Stat[ix].phy.is_touch_ground,
+			m_Stat[ix].phy.is_on_ground,
 			m_BoundW.half_y(ix),
 			(m_Stat[m_PlaneGroundIx].get_World())->_42);
 	}
@@ -278,21 +278,21 @@ void instance_mgr<T_app>::update_collision_terrain(float dt)
 		float terrain_height = m_App->m_Scene.terrain1.get_Height(world->_41, world->_43);
 		XMVECTOR terrain_point = XMVectorSet(world->_41, terrain_height, world->_43, 0.0f);
 		int contains = m_BoundW.contains(ix, terrain_point);
-		m_Stat[ix].phy.is_touch_ground = (contains != 0);
+		m_Stat[ix].phy.is_on_ground = (contains != 0);
 		phy_position_update(
 			dt,
 			*world,
 			m_Stat[ix].phy,
 			m_App->m_Scene.terrain1_phy,
 			m_BoundW.center(ix),
-			m_Stat[ix].phy.is_touch_ground,
+			m_Stat[ix].phy.is_on_ground,
 			m_BoundW.half_y(ix),
 			terrain_height);
 		// inaccuracy touch ground, logically assume it touches gourond, because terrain is not flat
 		// this is not for physics
 		float half_y = m_BoundW.half_y(ix);
-		if (world->_42 - half_y - terrain_height < 0.3f) m_Stat[ix].phy.is_touch_ground = true;
-		//else m_Stat[ix].phy.is_touch_ground = false;
+		if (world->_42 - half_y - terrain_height < 0.3f) m_Stat[ix].phy.is_on_ground = true;
+		//else m_Stat[ix].phy.is_on_ground = false;
 	}
 }
 //

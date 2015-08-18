@@ -11,7 +11,7 @@ namespace imm {namespace math
 //
 void mouse_instance_move(const size_t &index, const float &speed)
 {
-	if (!PTR->m_Inst.m_Stat[index].phy.is_touch_ground) return;
+	if (!PTR->m_Inst.m_Stat[index].phy.is_on_ground) return;
 	XMVECTOR hit_pos;
 	if (PTR->m_Inst.m_IsTerrainUse) mouse_hit_terrain(hit_pos);
 	else mouse_hit_plane_y(hit_pos);

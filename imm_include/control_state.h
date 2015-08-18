@@ -95,8 +95,6 @@ enum ORDER_ACT_TYPE {
 enum ORDER_STAT_TYPE {
 	ORDER_IS_CLEAR = 0x0,
 	ORDER_IS_WALK  = 0x1,
-	
-	
 };
 ////////////////
 // act
@@ -125,10 +123,11 @@ struct troll
 	troll();
 	void update();
 	void change_state(state<troll> *new_state);
+	void revert_previous_state();
 	float speed_move();
 	std::string &act_move();
 	state<troll> *current_state;
-	state<troll> *hold_state;
+	state<troll> *previous_state;
 	size_t index;
 	int order;
 	int order_stat;
@@ -139,7 +138,7 @@ struct troll
 //
 troll::troll():
 	current_state(pose_Idle::instance()),
-	hold_state(pose_Idle::instance()),
+	previous_state(pose_Idle::instance()),
 	index(0),
 	order(ORDER_NONE),
 	order_stat(0x0),
@@ -158,9 +157,15 @@ void troll::update()
 void troll::change_state(state<troll> *new_state)
 {
 	assert(current_state && new_state);
+	previous_state = current_state;
 	current_state->exit(this);
 	current_state = new_state;
 	current_state->enter(this);
+}
+//
+void troll::revert_previous_state()
+{
+	change_state(previous_state);
 }
 //
 float troll::speed_move()

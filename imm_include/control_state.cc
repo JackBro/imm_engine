@@ -27,14 +27,14 @@ void pose_Idle::enter(troll *tro)
 void pose_Idle::execute(troll *tro)
 {
 	if (tro->order & ORDER_MOVE_HIT) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) return;
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
 		tro->order = ORDER_NONE;
 		math::mouse_instance_move(tro->index, tro->speed_move());
 		tro->change_state(pose_Move::instance());
 	}
 	if (tro->order & ORDER_MOVE_TOWARD) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) return;
-		tro->order = ORDER_NONE;
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
+		tro->order ^= ORDER_MOVE_TOWARD;
 		if (PTR->m_Control.pad.is_L_active()) {
 			math::pad_move_toward(tro->index, tro->speed_move());
 			tro->change_state(pose_Move::instance());
@@ -45,8 +45,7 @@ void pose_Idle::execute(troll *tro)
 	}
 	if (tro->order & ORDER_JUMP) {
 		tro->order = ORDER_NONE;
-		if (PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) {
-			tro->hold_state = pose_Idle::instance();
+		if (PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) {
 			tro->change_state(pose_Jump::instance());
 		}
 	}
@@ -78,13 +77,14 @@ void pose_Move::execute(troll *tro)
 		tro->change_state(pose_Idle::instance());
 	}
 	if (tro->order & ORDER_MOVE_HIT) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) return;
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
 		tro->order = ORDER_NONE;
 		math::mouse_instance_move(tro->index, tro->speed_move());
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
 	}
 	if (tro->order & ORDER_MOVE_TOWARD) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) return;
-		tro->order = ORDER_NONE;
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
+		tro->order ^= ORDER_MOVE_TOWARD;
 		if (PTR->m_Control.pad.is_L_active()) {
 			math::pad_move_toward(tro->index, tro->speed_move());
 			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
@@ -96,8 +96,7 @@ void pose_Move::execute(troll *tro)
 	}
 	if (tro->order & ORDER_JUMP) {
 		tro->order = ORDER_NONE;
-		if (PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground) {
-			tro->hold_state = pose_Move::instance();
+		if (PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) {
 			tro->change_state(pose_Jump::instance());
 		}
 	}
@@ -126,23 +125,26 @@ void pose_Jump::enter(troll *tro)
 //
 void pose_Jump::execute(troll *tro)
 {
-	bool is_touch_ground = PTR->m_Inst.m_Stat[tro->index].phy.is_touch_ground;
-	if (!tro->is_on_air && !is_touch_ground && tro->count_down > 59.0f) {
+	bool is_on_ground = PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground;
+	if (!tro->is_on_air && !is_on_ground && tro->count_down > 59.0f) {
 		tro->is_on_air = true;
 	}
-	if (tro->is_on_air && is_touch_ground) {
+	if (tro->is_on_air && is_on_ground) {
 		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::JumpGround, true);
 		tro->is_on_air = false;
-		if (tro->hold_state == pose_Idle::instance()) tro->count_down = 0.3f;
+		if (tro->previous_state == pose_Idle::instance()) tro->count_down = 0.3f;
 		else tro->count_down = 0.1f;
 	}
-	if (!tro->is_on_air && is_touch_ground && tro->count_down < 59.0f) {
+	if (!tro->is_on_air && is_on_ground && tro->count_down < 59.0f) {
 		if (tro->count_down > 0.0f) {
 			tro->count_down -= static_cast<float>(PTR->m_Timer.m_DeltaTime);
 		}
 		else {
-			tro->change_state(tro->hold_state);
+			tro->revert_previous_state();
 		}
+	}
+	if (tro->order & ORDER_JUMP && tro->count_down > 0.3f) {
+		tro->order = ORDER_NONE;
 	}
 }
 //

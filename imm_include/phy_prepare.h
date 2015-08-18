@@ -28,7 +28,7 @@ struct phy_property
 	float bounce;
 	int stand_from;
 	bool is_ground;
-	bool is_touch_ground;
+	bool is_on_ground;
 	bool is_abnormal;
 };
 //
@@ -41,7 +41,7 @@ phy_property::phy_property():
 	bounce(0.3f),
 	stand_from(-1),
 	is_ground(false),
-	is_touch_ground(false),
+	is_on_ground(false),
 	is_abnormal(false)
 {
 	;
