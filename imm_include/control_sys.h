@@ -8,7 +8,6 @@
 #ifndef CONTROL_SYS_H
 #define CONTROL_SYS_H
 #include "control_cam.h"
-#include <map>
 namespace imm
 {
 ////////////////
@@ -35,28 +34,15 @@ struct control_sys
 	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_mouse_wheel(const short &z_delta);
-	// cam function
-	void pad_camera_update(const float &dt);
-	void on_pad_camera_follow(const WORD &vkey);
-	void key_camera_free_update(const float &dt);
-	void mouse_camera_wheel(const short &z_delta);
-	void mouse_camera_move();
-	void cam_follow_update();
 	// member variable
 	T_app *app;
 	int picked1;
 	int player1;
 	int style1;
-	bool is_pad_cam_follow_reset;
-	float cam_follow_walk_def;
-	float cam_follow_up_def;
-	float cam_follow_walk;
-	float cam_follow_up;
 	float wait_ui_disappear;
 	POINT mouse_down;
 	POINT mouse_move;
 	std::map<size_t, control_stop<T_app>> map_stop;
-	std::map<size_t, XMFLOAT4> map_rot_front_c;
 	control_xinput pad;
 	control_cam<T_app> cam;
 };
@@ -67,15 +53,10 @@ control_sys<T_app>::control_sys():
 	picked1(-1),
 	player1(-1),
 	style1(CONTORL_MOVE_BY_MOUSE),
-	is_pad_cam_follow_reset(false),
-	cam_follow_walk_def(-30.0f),
-	cam_follow_up_def(3.0f),
 	wait_ui_disappear(0.0f),
 	pad(),
 	cam()
 {
-	cam_follow_walk = cam_follow_walk_def;
-	cam_follow_up = cam_follow_up_def;
 	mouse_down.x = 0;
 	mouse_down.y = 0;
 	mouse_move.x = 0;
@@ -86,13 +67,14 @@ template <typename T_app>
 void control_sys<T_app>::init(T_app *app_in)
 {
 	app = app_in;
+	cam.init(app);
 }
 //
 template <typename T_app>
 void control_sys<T_app>::reset()
 {
 	map_stop.clear();
-	map_rot_front_c.clear();
+	cam.reset();
 	player1 = -1;
 	picked1 = -1;
 }
@@ -145,7 +127,7 @@ void control_sys<T_app>::update_scene(const float &dt)
 	update_scene_bounds();
 	update_stop(dt);
 	// camera follow update even m_Cmd.is_active()
-	cam_follow_update();
+	cam.follow_update();
 }
 //
 template <typename T_app>
@@ -177,9 +159,9 @@ void control_sys<T_app>::update_keydown_and_pad(const float &dt)
 	if (pad.is_enable()) {
 		on_pad_down(dt);
 		pad_instance_move_update();
-		pad_camera_update(dt);
+		cam.pad_update(dt);
 	}
-	key_camera_free_update(dt);
+	cam.key_free_update(dt);
 }
 //
 template <typename T_app>
@@ -204,7 +186,7 @@ void control_sys<T_app>::on_pad_down(const float &dt)
 	wait_ui_disappear -= dt;
 	if (wait_ui_disappear > 0.0f) return;
 	wait_ui_disappear = -1.0f;
-	on_pad_camera_follow(get_vkey);
+	cam.on_pad_follow(get_vkey);
 	if (player1 < 0) return;
 	if (get_vkey == PAD_P1_JUMP) app->m_Inst.m_Troll[player1].order |= ORDER_JUMP;
 }
@@ -225,7 +207,7 @@ void control_sys<T_app>::on_mouse_move(WPARAM btn_state, const int &pos_x, const
 {
 	mouse_move.x = pos_x;
 	mouse_move.y = pos_y;
-	if ((btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0)) mouse_camera_move();
+	if ((btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0)) cam.mouse_move();
 	app->m_UiMgr.on_mouse_over(mouse_move.x, mouse_move.y);
 }
 //
@@ -233,12 +215,8 @@ template <typename T_app>
 void control_sys<T_app>::on_mouse_wheel(const short &z_delta)
 {
 	if (app->m_UiMgr.on_mouse_wheel(z_delta)) return;
-	mouse_camera_wheel(z_delta);
+	cam.mouse_wheel(z_delta);
 }
-////////////////
-// inl
-////////////////
-////////////////
-#include "control_sys_cam.h"
+//
 }
 #endif

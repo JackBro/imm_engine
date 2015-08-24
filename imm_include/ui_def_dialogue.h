@@ -14,6 +14,7 @@ namespace imm
 // ui_def_dialogue
 ////////////////
 ////////////////
+// issue: if mouse over rect, but pad press A with none rect, pad will not active rect
 template <class T_app>
 struct ui_def_dialogue: public ui_base<T_app>
 {
