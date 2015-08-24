@@ -6,6 +6,7 @@
 ////////////////
 ////////////////
 #include "control_math.h"
+#include "imm_ptr.h"
 namespace imm {namespace math
 {
 //
@@ -58,7 +59,7 @@ void mouse_face_rot_y(
 	//
 	R = XMMatrixMultiply(RF, R);
 	T = XMMatrixTranslationFromVector(translation);
-	W = XMMatrixMultiply(XMMatrixMultiply(S, R), T);	
+	W = XMMatrixMultiply(XMMatrixMultiply(S, R), T);
 }
 //
 void pad_face_rot_y(

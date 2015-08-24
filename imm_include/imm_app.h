@@ -14,7 +14,6 @@
 #include "ui_mgr.h"
 #include "stru_scene_mgr.h"
 #include "stru_draw_instance.h"
-#include "ia_render.h"
 #include "imm_base.h"
 #include "render_shadow.h"
 namespace imm

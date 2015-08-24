@@ -1,8 +1,12 @@
 ////////////////
 // imm_app.cc
+// This file is a portion of the immature engine.
+// It is distributed under the BSD license.
+// Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
 #include "imm_app.h"
+#include "imm_ptr.h"
 namespace imm
 {
 imm_app::imm_app():

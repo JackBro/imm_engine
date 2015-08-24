@@ -8,6 +8,7 @@
 #ifndef CONTROL_XINPUT_H
 #define CONTROL_XINPUT_H
 #include "control_key_define.h"
+#include <cmath>
 namespace imm
 {
 ////////////////

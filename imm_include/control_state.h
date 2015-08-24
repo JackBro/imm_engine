@@ -5,21 +5,12 @@
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#include "imm_app.h"
 #ifndef CONTROL_STATE_H
 #define CONTROL_STATE_H
+#include "control_math.h"
+#include <string>
 namespace imm
 {
-////////////////
-// PTR
-////////////////
-////////////////
-class imm_app;
-static imm_app *PTR;
-void ptr_app_init(imm_app *app_in)
-{
-	PTR = app_in;
-}
 ////////////////
 // state
 ////////////////

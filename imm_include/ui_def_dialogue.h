@@ -38,7 +38,7 @@ struct ui_def_dialogue: public ui_base<T_app>
 template <typename T_app>
 ui_def_dialogue<T_app>::ui_def_dialogue():
 	m_IsPromptSymbol(false),
-	m_WaitPrompt(2.0f)
+	m_WaitPrompt(1.0f)
 {
 	;
 }

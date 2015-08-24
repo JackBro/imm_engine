@@ -5,9 +5,12 @@
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#include "control_state.h"
 #ifndef CONTROL_MATH_H
 #define CONTROL_MATH_H
+#include <DirectXMath.h>
+using namespace DirectX;
+#include "control_state.h"
+#include <string>
 namespace imm {namespace math
 {
 //

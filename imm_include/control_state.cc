@@ -5,8 +5,8 @@
 // Copyright 2015 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#include "control_math.h"
 #include "control_state.h"
+#include "imm_ptr.h"
 namespace imm
 {
 ////////////////

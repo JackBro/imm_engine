@@ -7,7 +7,8 @@
 ////////////////
 #ifndef CONDITION_TRIGGER_H
 #define CONDITION_TRIGGER_H
-#include "stru_lua_help.h"
+#include <string>
+#include <map>
 namespace imm
 {
 ////////////////

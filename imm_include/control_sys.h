@@ -7,21 +7,10 @@
 ////////////////
 #ifndef CONTROL_SYS_H
 #define CONTROL_SYS_H
-#include "stru_instance_mgr.h"
-#include "imm_camera.h"
-#include "phy_prepare.h"
-#include "control_auxiliary.h"
+#include "control_cam.h"
+#include <map>
 namespace imm
 {
-////////////////
-// CONTROL_STYLE_TYPE
-////////////////
-////////////////
-enum CONTROL_STYLE_TYPE {
-	CONTROL_ZERO          = 0x0,
-	CONTORL_CAM_FREE      = 0x1,
-	CONTORL_MOVE_BY_MOUSE = 0x2,
-};
 ////////////////
 // control_sys
 ////////////////
@@ -69,6 +58,7 @@ struct control_sys
 	std::map<size_t, control_stop<T_app>> map_stop;
 	std::map<size_t, XMFLOAT4> map_rot_front_c;
 	control_xinput pad;
+	control_cam<T_app> cam;
 };
 //
 template <typename T_app>
@@ -81,7 +71,8 @@ control_sys<T_app>::control_sys():
 	cam_follow_walk_def(-30.0f),
 	cam_follow_up_def(3.0f),
 	wait_ui_disappear(0.0f),
-	pad()
+	pad(),
+	cam()
 {
 	cam_follow_walk = cam_follow_walk_def;
 	cam_follow_up = cam_follow_up_def;

@@ -8,9 +8,12 @@
 #ifndef STRU_WAVE_H
 #define STRU_WAVE_H
 #include "render_wave.h"
-#include "DDSTextureLoader.h"
 #include "mesh_geometry_gen.h"
 #include "ia_render.h"
+#include "ia_vertex.h"
+#include "imm_camera.h"
+#include "phy_prepare.h"
+#include "stru_lua_help.h"
 namespace imm
 {
 ////////////////

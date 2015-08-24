@@ -8,7 +8,8 @@
 #ifndef CONTROL_AUXILIARY_H
 #define CONTROL_AUXILIARY_H
 #include "control_xinput.h"
-#include "control_math.h"
+#include <DirectXCollision.h>
+using namespace DirectX;
 namespace imm
 {
 ////////////////

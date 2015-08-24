@@ -8,12 +8,12 @@
 #ifndef STRU_SCENE_MGR_H
 #define STRU_SCENE_MGR_H
 #include "stru_wave.h"
+#include "phy_auxiliary.h"
 #include "stru_particle.h"
 #include "stru_instance_mgr.h"
 #include "render_sky.h"
 #include "render_terrain.h"
 #include "audio_dxtk.h"
-#include "phy_auxiliary.h"
 namespace imm
 {
 ////////////////

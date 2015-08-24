@@ -9,6 +9,7 @@
 #define STRU_PARTICLE_H
 #include "render_particle.h"
 #include "mesh_d3d_util.h"
+#include "stru_lua_help.h"
 namespace imm
 {
 ////////////////
