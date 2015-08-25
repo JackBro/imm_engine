@@ -18,7 +18,7 @@ namespace imm
 enum CONTROL_STYLE_TYPE {
 	CONTROL_ZERO          = 0x0,
 	CONTORL_CAM_FREE      = 0x1,
-	CONTORL_MOVE_BY_MOUSE = 0x2,
+	CONTORL_MOVE_BY_MOUSE = 0x2, // absence = move by WASD
 };	
 ////////////////
 // control_cam

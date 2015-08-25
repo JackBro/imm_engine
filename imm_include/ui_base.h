@@ -46,7 +46,7 @@ struct ui_base
 	void pad_roll_text_layout(const bool &is_down);
 	bool is_ui_appear();
 	void deactivate_all();
-	bool apply_ix(int &index);
+	bool apply_ix(int &index, const bool &is_like_pad = false);
 	bool is_waiting_for_something();
 	// virtual
 	virtual void define_style() = 0;
@@ -354,6 +354,19 @@ void ui_base<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 	if (is_waiting_for_something()) return;
 	m_IsPadUsing = false;
 	define_on_input_keydown(w_param, l_param);
+	// if not use a mouse, only use keyboard, this behavior is similar as using pad
+	if (w_param == KEY_UI_DOWN1 || w_param == KEY_UI_DOWN2) {
+		pad_loop_button(true);
+		return;
+	}
+	if (w_param == KEY_UI_UP1 || w_param == KEY_UI_UP2) {
+		pad_loop_button(false);
+		return;
+	}
+	if (m_ClickableActived != "none") {
+		if (w_param == KEY_UI_ENTER) apply_ix(m_ClickIxPad, true);
+		return;
+	}
 }
 //
 template <typename T_app>
@@ -467,14 +480,16 @@ void ui_base<T_app>::deactivate_all()
 }
 //
 template <typename T_app>
-bool ui_base<T_app>::apply_ix(int &index)
+bool ui_base<T_app>::apply_ix(int &index, const bool &is_like_pad = false)
 {
 	if (index != -1) {
 		if (define_apply_ix_if(index)) {
 			// no change m_ClickIxPad and m_ClickIxMouse value in define_ functions
 			// let pad select first button immediately from another group apply, keep m_ClickIxPad
 			// otherwise m_ClickIxPad will be clean by apply, the first selected buttom will be invalid
-			if (!m_IsPadUsing) {
+			//
+			// if not use a mouse, only use keyboard, this behavior is similar as using pad
+			if (!m_IsPadUsing && !is_like_pad) {
 				index = -1;
 			}
 			return true;
