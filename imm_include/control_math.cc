@@ -209,4 +209,45 @@ void pad_move_toward(const size_t &index, const float &speed)
 	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.velocity_nm, velocity_nm);
 }
 //
+bool key_move_wasd(const size_t &index, const float &speed)
+{
+	float offset_radians = 0.0f;
+	if (!(GetKeyState(KEY_P1_W) & 0x8000) &&
+		!(GetKeyState(KEY_P1_A) & 0x8000) &&
+		!(GetKeyState(KEY_P1_S) & 0x8000) &&
+		!(GetKeyState(KEY_P1_D) & 0x8000)) {
+		PTR->m_Inst.m_Stat[index].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		return false;
+	}
+	//
+	if (GetKeyState(KEY_P1_A) & 0x8000) offset_radians = -XM_PI*0.5f;
+	if (GetKeyState(KEY_P1_S) & 0x8000) offset_radians = XM_PI;
+	if (GetKeyState(KEY_P1_D) & 0x8000) offset_radians = XM_PI*0.5f;
+	if ((GetKeyState(KEY_P1_W) & 0x8000) && (GetKeyState(KEY_P1_A) & 0x8000))
+		offset_radians = -XM_PI*0.25f;
+	if ((GetKeyState(KEY_P1_W) & 0x8000) && (GetKeyState(KEY_P1_D) & 0x8000))
+		offset_radians = XM_PI*0.25f;
+	if ((GetKeyState(KEY_P1_S) & 0x8000) && (GetKeyState(KEY_P1_A) & 0x8000))
+		offset_radians = -XM_PI*0.75f;
+	if ((GetKeyState(KEY_P1_S) & 0x8000) && (GetKeyState(KEY_P1_D) & 0x8000))
+		offset_radians = XM_PI*0.75f;
+	//
+	XMVECTOR velocity_nm = PTR->m_Cam.get_LookXM();
+	XMVECTOR offset_rotation = XMQuaternionRotationAxis(VECTOR_AXIS_Y, offset_radians);
+	velocity_nm = XMVector3Rotate(velocity_nm, offset_rotation);
+	float cam_radians = atan2(-XMVectorGetX(velocity_nm), -XMVectorGetZ(velocity_nm));
+	//
+	XMFLOAT4X4 &world = *(PTR->m_Inst.m_Stat[index].get_World());
+	XMFLOAT4X4 &rot_front = *(PTR->m_Inst.m_Stat[index].get_RotFront());
+	XMMATRIX W = XMLoadFloat4x4(&world);
+	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
+	pad_face_rot_y(W, RF, velocity_nm, cam_radians);
+	velocity_nm = XMVectorSetY(velocity_nm, 0.0f);
+	velocity_nm = XMVector3Normalize(velocity_nm);
+	velocity_nm = XMVectorScale(velocity_nm, speed);
+	XMStoreFloat4x4(&world, W);
+	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.velocity_nm, velocity_nm);
+	return true;
+}
+//
 }}

@@ -21,7 +21,8 @@ imm_app::imm_app():
 	m_UiMgr(),
 	m_Condition(),
 	m_Config(this),
-	m_Control()
+	m_Control(),
+	m_MouseMode(CAM_MOVE_BY_BUTTON)
 {
 	m_WindowName = L"immature engine Demo";
 	m_LastMousePos.x = 0;
@@ -90,19 +91,19 @@ void imm_app::update_scene_keydown(float dt)
 void imm_app::on_mouse_down(WPARAM btn_state, int x, int y)
 {
 	if (m_Cmd.is_waiting_for_something()) return;
+	SetCapture(this->get_hwnd());
+	m_Control.on_mouse_down(btn_state, x, y);
 	if (btn_state & MOUSE_CAM_MOVE || MOUSE_CAM_MOVE == 0) {
 		m_LastMousePos.x = x;
 		m_LastMousePos.y = y;
-		SetCapture(this->get_hwnd());
 	}
-	m_Control.on_mouse_down(btn_state, x, y);
 }
 //
 void imm_app::on_mouse_up(WPARAM btn_state, int x, int y)
 {
-	if (m_Cmd.is_waiting_for_something()) return;
 	DUMMY(x);
-	DUMMY(y);
+	DUMMY(y);	
+	if (m_Cmd.is_waiting_for_something()) return;
 	DUMMY(btn_state);
 	ReleaseCapture();
 }
@@ -119,9 +120,9 @@ void imm_app::on_mouse_move(WPARAM btn_state, int x, int y)
 //
 void imm_app::on_mouse_wheel(WPARAM btn_state, int x, int y)
 {
-	if (m_Cmd.is_waiting_for_something()) return;
 	DUMMY(x);
 	DUMMY(y);
+	if (m_Cmd.is_waiting_for_something()) return;
 	short z_delta = GET_WHEEL_DELTA_WPARAM(btn_state);
 	m_Control.on_mouse_wheel(z_delta);
 }

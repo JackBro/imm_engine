@@ -108,7 +108,7 @@ float dwrite_simple::calc_FontSize(HWND &hwnd, const float &font_factor)
 	GetClientRect(hwnd, &rc);
 	float width = static_cast<float>(rc.right - rc.left);
 	float height = static_cast<float>(rc.bottom - rc.top);
-	// font size according 786p (1366*768 resolution)
+	// font size according to 786p (1366*768 resolution)
 	float width_size = font_factor*width/UI_RESOLUTION_WIDTH;
 	float height_size = font_factor*height/UI_RESOLUTION_HEIGHT;
 	float font_size = (width_size > height_size) ? width_size : height_size;

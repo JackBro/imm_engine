@@ -25,6 +25,10 @@ namespace imm
 ////////////////
 static int KEY_P1_JUMP          = VK_SPACE;
 static int KEY_P1_WALK_RUN      = VK_SHIFT;
+static int KEY_P1_W             = 'W';
+static int KEY_P1_A             = 'A';
+static int KEY_P1_S             = 'S';
+static int KEY_P1_D             = 'D';
 static int KEY_UI_ESC           = VK_ESCAPE;
 static int KEY_UI_FPS1          = 'R';
 static int KEY_UI_FPS2          = VK_CONTROL;
@@ -40,11 +44,6 @@ static int KEY_CAM_FREE_DOWN    = 'S';
 static int KEY_CAM_FOLLOW_RESET = 'Z';
 static int KEY_CMD_ACT1         = VK_DELETE;
 static int KEY_CMD_ACT2         = VK_MENU;
-// WASD
-static int KEY_P1_W             = 'W';
-static int KEY_P1_A             = 'A';
-static int KEY_P1_S             = 'S';
-static int KEY_P1_D             = 'D';
 ////////////////
 // mouse static
 ////////////////
@@ -85,6 +84,15 @@ static int XGPAD_CAM_FOLLOW_BACKWARD = XINPUT_GAMEPAD_RIGHT_THUMB;
 static float COEF_MOUSE_MOVE  = 1.0f;
 static float COEF_MOUSE_WHEEL = 1.0f;
 static float COEF_PAD_THUMB   = 1.0f;
+////////////////
+// MOUSE_MODEL
+////////////////
+////////////////
+enum MOUSE_MODEL
+{
+	CAM_MOVE_BY_BUTTON,
+	HIDDEN_CURSOR,
+};
 //
 }
 #endif

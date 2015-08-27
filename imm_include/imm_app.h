@@ -57,6 +57,7 @@ public:
 	condition_trigger<imm_app> m_Condition;
 	lua_config<imm_app> m_Config;
 	control_sys<imm_app> m_Control;
+	MOUSE_MODEL m_MouseMode;
 	XMFLOAT4X4 m_LightView;
 	XMFLOAT4X4 m_LightProj;
 	XMFLOAT4X4 m_ShadowTransform;

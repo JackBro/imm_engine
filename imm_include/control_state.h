@@ -12,6 +12,23 @@
 namespace imm
 {
 ////////////////
+// ORDER_ACT_TYPE
+////////////////
+////////////////
+enum ORDER_ACT_TYPE {
+	ORDER_NONE        = 0x0,
+	ORDER_JUMP        = 0x1,
+	ORDER_MOVE_HIT    = 0x2,
+	ORDER_MOVE_TOWARD = 0x4,
+	ORDER_MOVE_WASD   = 0x8,
+	ORDER_IDLE        = 0x10,
+};
+//
+enum ORDER_STAT_TYPE {
+	ORDER_IS_CLEAR = 0x0,
+	ORDER_IS_WALK  = 0x1, // NOT: IS_RUN
+};
+////////////////
 // state
 ////////////////
 ////////////////
@@ -70,22 +87,6 @@ private:
 	pose_Jump() {;}
 	pose_Jump(const pose_Idle&);
 	pose_Jump &operator=(const pose_Idle&);
-};
-////////////////
-// ORDER_ACT_TYPE
-////////////////
-////////////////
-enum ORDER_ACT_TYPE {
-	ORDER_NONE        = 0x0,
-	ORDER_JUMP        = 0x1,
-	ORDER_MOVE_HIT    = 0x2,
-	ORDER_MOVE_TOWARD = 0x4,
-	ORDER_IDLE        = 0x8,
-};
-//
-enum ORDER_STAT_TYPE {
-	ORDER_IS_CLEAR = 0x0,
-	ORDER_IS_WALK  = 0x1,
 };
 ////////////////
 // act

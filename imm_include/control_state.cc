@@ -43,6 +43,11 @@ void pose_Idle::execute(troll *tro)
 			PTR->m_Inst.m_Stat[tro->index].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		}
 	}
+	if (tro->order & ORDER_MOVE_WASD) {
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
+		tro->order ^= ORDER_MOVE_WASD;
+		if (math::key_move_wasd(tro->index, tro->speed_move())) tro->change_state(pose_Move::instance());
+	}
 	if (tro->order & ORDER_JUMP) {
 		tro->order = ORDER_NONE;
 		if (PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) {
@@ -93,6 +98,12 @@ void pose_Move::execute(troll *tro)
 			PTR->m_Inst.m_Stat[tro->index].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
 			tro->change_state(pose_Idle::instance());
 		}
+	}
+	if (tro->order & ORDER_MOVE_WASD) {
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
+		tro->order ^= ORDER_MOVE_WASD;
+		if (!math::key_move_wasd(tro->index, tro->speed_move())) tro->change_state(pose_Idle::instance());
+		else PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
 	}
 	if (tro->order & ORDER_JUMP) {
 		tro->order = ORDER_NONE;

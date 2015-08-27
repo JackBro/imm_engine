@@ -24,6 +24,7 @@ struct control_sys
 	void rebuild_player();
 	void mouse_instance_move();
 	void pad_instance_move_update();
+	void key_instance_move_update();
 	void mouse_pick();
 	void update_scene(const float &dt);
 	void update_scene_bounds();
@@ -52,7 +53,7 @@ control_sys<T_app>::control_sys():
 	app(nullptr),
 	picked1(-1),
 	player1(-1),
-	style1(CONTORL_MOVE_BY_MOUSE),
+	style1(CONTROL_DEFAULT),
 	wait_ui_disappear(0.0f),
 	pad(),
 	cam()
@@ -89,7 +90,7 @@ void control_sys<T_app>::rebuild_player()
 template <typename T_app>
 void control_sys<T_app>::mouse_instance_move()
 {
-	if (player1 < 0) return;
+	if (player1 < 0 || !(style1 & CONTORL_MOVE_BY_MOUSE)) return;
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_HIT;
 }
 //
@@ -100,6 +101,13 @@ void control_sys<T_app>::pad_instance_move_update()
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_TOWARD;
 	if (pad.is_RT_press()) app->m_Inst.m_Troll[player1].order_stat |= ORDER_IS_WALK;
 	else app->m_Inst.m_Troll[player1].order_stat &= ~ORDER_IS_WALK;
+}
+//
+template <typename T_app>
+void control_sys<T_app>::key_instance_move_update()
+{
+	if (player1 < 0 || (style1 & CONTORL_MOVE_BY_MOUSE)) return;
+	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_WASD;
 }
 //
 template <typename T_app>
@@ -160,6 +168,9 @@ void control_sys<T_app>::update_keydown_and_pad(const float &dt)
 		on_pad_down(dt);
 		pad_instance_move_update();
 		cam.pad_update(dt);
+	}
+	else {
+		key_instance_move_update();
 	}
 	cam.key_free_update(dt);
 }
