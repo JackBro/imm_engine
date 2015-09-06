@@ -23,19 +23,19 @@ struct instance_mgr
 	void reload();
 	void reload_scene_instance_relate();
 	template <typename instance, typename get_pos>
-	void push_back(
+	void push_back_basic(
 		const std::vector<instance> &v_inst,
 		instance_stat &inst_stat,
 		size_t &k,
 		const get_pos &get_pos_f,
-		std::vector<std::string> &name);
+		const std::vector<std::string> &name);
 	template <typename instance, typename get_pos>
 	void push_back_pntt(
 		const std::vector<instance> &v_inst,
 		instance_stat &inst_stat,
 		size_t &k,
 		const get_pos &get_pos_f,
-		std::vector<std::string> &name);
+		const std::vector<std::string> &name);
 	int get_index(const std::string &name);
 	void on_resize();
 	void update(const float &dt);
@@ -98,26 +98,26 @@ void instance_mgr<T_app>::reload()
 	instance_stat inst_stat;
 	size_t k = 0;
 	inst_stat.type = basic;
-	push_back(
+	push_back_basic(
 		m_Model.m_InstBasic,
 		inst_stat,
 		k,
 		[](const vertex::pntt2 &x) {return &x.pos;},
 		m_Model.m_NameBasic);
-	push_back(
+	push_back_basic(
 		m_Model.m_InstBasicAlpha,
 		inst_stat,
 		k,
 		[](const vertex::pntt2 &x) {return &x.pos;},
 		m_Model.m_NameBasicAlpha);
 	inst_stat.type = skinned;
-	push_back(
+	push_back_basic(
 		m_Model.m_InstSkinned,
 		inst_stat,
 		k,
 		[](const vertex::pntt_skinned &x) {return &x.pos;},
 		m_Model.m_NameSkinned);
-	push_back(
+	push_back_basic(
 		m_Model.m_InstSkinnedAlpha,
 		inst_stat,
 		k,
@@ -159,10 +159,12 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 //
 template <typename T_app>
 template <typename instance, typename get_pos>
-void instance_mgr<T_app>::push_back(
-	const std::vector<instance> &v_inst, instance_stat &inst_stat, size_t &k,
+void instance_mgr<T_app>::push_back_basic(
+	const std::vector<instance> &v_inst,
+	instance_stat &inst_stat,
+	size_t &k,
 	const get_pos &get_pos_f,
-	std::vector<std::string> &name)
+	const std::vector<std::string> &name)
 {
 	for (size_t ix = 0; ix != v_inst.size(); ++ix) {
 		m_NameMap[name[ix]] = k;
@@ -181,9 +183,11 @@ void instance_mgr<T_app>::push_back(
 template <typename T_app>
 template <typename instance, typename get_pos>
 void instance_mgr<T_app>::push_back_pntt(
-	const std::vector<instance> &v_inst, instance_stat &inst_stat, size_t &k,
+	const std::vector<instance> &v_inst,
+	instance_stat &inst_stat,
+	size_t &k,
 	const get_pos &get_pos_f,
-	std::vector<std::string> &name)
+	const std::vector<std::string> &name)
 {
 	for (size_t ix = 0; ix != v_inst.size(); ++ix) {
 		m_NameMap[name[ix]] = k;

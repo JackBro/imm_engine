@@ -22,11 +22,12 @@ enum ORDER_ACT_TYPE {
 	ORDER_MOVE_TOWARD = 0x4,
 	ORDER_MOVE_WASD   = 0x8,
 	ORDER_IDLE        = 0x10,
+	ORDER_ATK_X       = 0x20,
 };
 //
 enum ORDER_STAT_TYPE {
 	ORDER_IS_CLEAR = 0x0,
-	ORDER_IS_WALK  = 0x1, // NOT: IS_RUN
+	ORDER_IS_WALK  = 0x1, // NOT: ORDER_IS_RUN
 };
 ////////////////
 // state
@@ -87,6 +88,22 @@ private:
 	pose_Jump() {;}
 	pose_Jump(const pose_Idle&);
 	pose_Jump &operator=(const pose_Idle&);
+};
+////////////////
+// pose_Atk
+////////////////
+////////////////
+struct troll;
+struct pose_Atk: public state<troll>
+{
+	static pose_Atk *instance();
+	void enter(troll*);
+	void execute(troll*);
+	void exit(troll*);
+private:
+	pose_Atk() {;}
+	pose_Atk(const pose_Idle&);
+	pose_Atk &operator=(const pose_Idle&);
 };
 ////////////////
 // act
@@ -165,6 +182,7 @@ float troll::speed_move()
 	if (order_stat & ORDER_IS_WALK)	return 4.5f;
 	return 13.5f;
 }
+//
 std::string &troll::act_move()
 {
 	if (order_stat & ORDER_IS_WALK) return act::Walk;

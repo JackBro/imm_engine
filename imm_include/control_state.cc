@@ -21,7 +21,8 @@ pose_Idle *pose_Idle::instance()
 //
 void pose_Idle::enter(troll *tro)
 {
-	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Idle);
+	if (tro->previous_state == pose_Atk::instance()) PTR->m_Inst.m_Stat[tro->index].check_set_ClipName("BattleReady");
+	else PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Idle);
 }
 //
 void pose_Idle::execute(troll *tro)
@@ -53,6 +54,9 @@ void pose_Idle::execute(troll *tro)
 		if (PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) {
 			tro->change_state(pose_Jump::instance());
 		}
+	}
+	if (tro->order & ORDER_ATK_X) {
+		tro->change_state(pose_Atk::instance());
 	}
 }
 //
@@ -148,7 +152,7 @@ void pose_Jump::execute(troll *tro)
 	}
 	if (!tro->is_on_air && is_on_ground && tro->count_down < 59.0f) {
 		if (tro->count_down > 0.0f) {
-			tro->count_down -= static_cast<float>(PTR->m_Timer.m_DeltaTime);
+			tro->count_down -= PTR->m_Timer.delta_time();
 		}
 		else {
 			tro->revert_previous_state();
@@ -160,6 +164,37 @@ void pose_Jump::execute(troll *tro)
 }
 //
 void pose_Jump::exit(troll *tro)
+{
+	tro;
+}
+////////////////
+// pose_Atk
+////////////////
+////////////////
+pose_Atk *pose_Atk::instance()
+{
+	static pose_Atk instance;
+	return &instance;
+}
+//
+void pose_Atk::enter(troll *tro)
+{
+	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName("BattleReady");
+}
+//
+void pose_Atk::execute(troll *tro)
+{
+	if (tro->order & ORDER_ATK_X) {
+		tro->order = ORDER_NONE;
+		PTR->m_Control.atk.perform(tro->index);
+	}
+	if (tro->order & ORDER_IDLE) {
+		tro->order = ORDER_NONE;
+		tro->change_state(pose_Idle::instance());
+	}
+}
+//
+void pose_Atk::exit(troll *tro)
 {
 	tro;
 }

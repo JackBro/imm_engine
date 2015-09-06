@@ -48,10 +48,13 @@ static int KEY_CMD_ACT2         = VK_MENU;
 // mouse static
 ////////////////
 ////////////////
+// CONTORL_MOVE_BY_MOUSE
 static int MOUSE_CAM_MOVE = MK_MBUTTON;
 static int MOUSE_P1_PICK  = MK_RBUTTON;
 static int MOUSE_P1_MOVE  = MK_LBUTTON;
 static int MOUSE_UI_PICK  = MK_LBUTTON;
+// CONTORL_MOVE_BY_WASD
+static int MOUSE_P1_ATK_X = MK_LBUTTON;
 ////////////////
 // pad static
 //

@@ -96,8 +96,8 @@ class timer
 {
 public:
 	timer();
-	float total_time()const;
-	float delta_time()const {return (float)m_DeltaTime;}
+	float total_time() const;
+	float delta_time() const {return (float)m_DeltaTime;}
 	void reset();
 	void start();
 	void stop();
