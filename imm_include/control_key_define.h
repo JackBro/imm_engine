@@ -64,6 +64,7 @@ static int MOUSE_P1_ATK_X = MK_LBUTTON;
 ////////////////
 ////////////////
 static int PAD_P1_JUMP               = VK_PAD_A;
+static int PAD_P1_ATK_X              = VK_PAD_X;
 static int PAD_CAM_FOLLOW_RESET      = VK_PAD_RSHOULDER;
 static int PAD_UI_MENU               = VK_PAD_START;
 static int PAD_UI_DWON1              = VK_PAD_DPAD_DOWN;

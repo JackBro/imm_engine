@@ -115,6 +115,9 @@ void pose_Move::execute(troll *tro)
 			tro->change_state(pose_Jump::instance());
 		}
 	}
+	if (tro->order & ORDER_ATK_X) {
+		tro->change_state(pose_Atk::instance());
+	}
 }
 //
 void pose_Move::exit(troll *tro)
@@ -179,7 +182,7 @@ pose_Atk *pose_Atk::instance()
 //
 void pose_Atk::enter(troll *tro)
 {
-	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName("BattleReady");
+	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::BattleReady);
 }
 //
 void pose_Atk::execute(troll *tro)

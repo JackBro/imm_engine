@@ -306,7 +306,8 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
 		for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
 			if (static_cast<int>(ix) == m_PlaneGroundIx || static_cast<int>(ix2) == m_PlaneGroundIx) continue;
-			phy_impulse_casual(dt,
+			phy_impulse_casual(
+				dt,
 				*(m_Stat[ix].get_World()),
 				*(m_Stat[ix2].get_World()),
 				m_Stat[ix].phy,

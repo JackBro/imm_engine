@@ -188,6 +188,8 @@ void control_sys<T_app>::update_stop(const float &dt)
 template <typename T_app>
 void control_sys<T_app>::update_keydown_and_pad(const float &dt)
 {
+	
+	if (app->m_Cmd.is_active) return;
 	// player1 and camera update, if !m_Cmd.is_active()
 	if (pad.is_enable()) {
 		on_pad_down(dt);
@@ -208,6 +210,7 @@ void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 	if (app->m_UiMgr.on_mouse_down(btn_state, mouse_down.x, mouse_down.y)) return;
 	if (btn_state & MOUSE_P1_PICK) mouse_pick();
 	if (pad.is_enable()) return;
+	if (app->m_Cmd.is_active) return;
 	// player
 	if (btn_state & MOUSE_P1_MOVE) mouse_instance_move();
 	if (btn_state & MOUSE_P1_ATK_X) instance_atk_x();
@@ -216,6 +219,7 @@ void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 template <typename T_app>
 void control_sys<T_app>::on_pad_down(const float &dt)
 {
+	if (app->m_Cmd.is_active) return;
 	WORD get_vkey;
 	if (pad.is_on_keydown(get_vkey)) app->m_UiMgr.on_pad_keydown(get_vkey);
 	// avoid ui conflict with control
@@ -226,6 +230,7 @@ void control_sys<T_app>::on_pad_down(const float &dt)
 	cam.on_pad_follow(get_vkey);
 	if (player1 < 0) return;
 	if (get_vkey == PAD_P1_JUMP) instance_jump();
+	if (get_vkey == PAD_P1_ATK_X) instance_atk_x();
 }
 //
 template <typename T_app>

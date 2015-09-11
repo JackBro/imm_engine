@@ -8,6 +8,7 @@
 #include "imm_app.cc"
 #include "control_state.cc"
 #include "control_math.cc"
+#include "control_atk.cc"
 //
 #pragma comment(lib, "User32")
 #pragma comment(lib, "Effects11")

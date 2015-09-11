@@ -116,13 +116,15 @@ struct act
 	static std::string Run;
 	static std::string Jump;
 	static std::string JumpGround;
+	static std::string BattleReady;
 };
 //
-std::string act::Idle       = "Idle";
-std::string act::Walk       = "Walk";
-std::string act::Run        = "Run";
-std::string act::Jump       = "Jump";
-std::string act::JumpGround = "JumpGround";
+std::string act::Idle        = "Idle";
+std::string act::Walk        = "Walk";
+std::string act::Run         = "Run";
+std::string act::Jump        = "Jump";
+std::string act::JumpGround  = "JumpGround";
+std::string act::BattleReady = "BattleReady";
 ////////////////
 // troll
 ////////////////

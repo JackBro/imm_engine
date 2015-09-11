@@ -214,9 +214,9 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 	};
 	D3D_FEATURE_LEVEL check_feature_level;
 	HRESULT hr = D3D11CreateDevice(
-		nullptr,            // default adapter
+		nullptr,                      // default adapter
 		D3D_DRIVER_TYPE_HARDWARE,
-		0,                  // no software device
+		0,                            // no software device
 		create_device_flags,
 		set_feature_level,
 		ARRAYSIZE(set_feature_level),

@@ -73,7 +73,7 @@ void imm_app::update_scene(float dt)
 	// m_UiMgr before m_Cmd, always update, m_Cmd will close m_UiMgr
 	m_UiMgr.define_update(dt);
 	if (m_Cmd.is_waiting_for_something()) return;
-	if (!m_Cmd.is_active) update_scene_keydown(dt);
+	update_scene_keydown(dt);
 	// Ensure m_Cmd.is_waiting_for_something()
 	if (m_Cmd.is_waiting_for_something()) return;
 	build_shadow_transform();
@@ -129,7 +129,7 @@ void imm_app::on_mouse_wheel(WPARAM btn_state, int x, int y)
 //
 void imm_app::on_input_char(WPARAM w_param, LPARAM l_param)
 {
-	if (m_Cmd.is_active) m_Cmd.on_input_char(w_param, l_param);
+	m_Cmd.on_input_char(w_param, l_param);
 }
 //
 void imm_app::on_input_keydown(WPARAM w_param, LPARAM l_param)

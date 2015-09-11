@@ -70,6 +70,7 @@ void cmd_shell<T_app>::init(T_app *app_in)
 template <typename T_app>
 void cmd_shell<T_app>::on_input_char(WPARAM &w_param, LPARAM &l_param)
 {
+	if (!is_active) return;
 	DUMMY(l_param);
 	if (w_param != VK_BACK) {
 		input += (wchar_t)w_param;

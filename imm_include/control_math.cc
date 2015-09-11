@@ -66,21 +66,22 @@ void pad_face_rot_y(
 	XMMATRIX &W,
 	XMMATRIX &RF,
 	XMVECTOR &direction,
-	const float &rot_cam)
+	const float &rot_cam,
+	const bool &is_keyboard = false)
 {
 	// Decompose the matrix into its individual parts.
 	XMVECTOR scale, rot_quat, translation;
 	XMMatrixDecompose(&scale, &rot_quat, &translation, W);
 	XMMATRIX S, R, T;
 	S = XMMatrixScalingFromVector(scale);
-	// rot_quat uses as temp var
-	float rot_pad = PTR->m_Control.pad.L_radians();
-	rot_quat =  XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), rot_pad);
-	direction = XMVector3Rotate(direction, rot_quat);
-	//
 	R = XMMatrixRotationY(rot_cam);
-	R = XMMatrixMultiply(XMMatrixRotationY(rot_pad), R);
-	//
+	if (!is_keyboard) {
+		// rot_quat uses as temp var
+		float rot_pad = PTR->m_Control.pad.L_radians();
+		rot_quat =  XMQuaternionRotationAxis(VECTOR_AXIS_Y, rot_pad);
+		direction = XMVector3Rotate(direction, rot_quat);
+		R = XMMatrixMultiply(XMMatrixRotationY(rot_pad), R);
+	}
 	R = XMMatrixMultiply(RF, R);
 	T = XMMatrixTranslationFromVector(translation);
 	W = XMMatrixMultiply(XMMatrixMultiply(S, R), T);
@@ -241,13 +242,32 @@ bool key_move_wasd(const size_t &index, const float &speed)
 	XMFLOAT4X4 &rot_front = *(PTR->m_Inst.m_Stat[index].get_RotFront());
 	XMMATRIX W = XMLoadFloat4x4(&world);
 	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
-	pad_face_rot_y(W, RF, velocity_nm, cam_radians);
+	pad_face_rot_y(W, RF, velocity_nm, cam_radians, true);
 	velocity_nm = XMVectorSetY(velocity_nm, 0.0f);
 	velocity_nm = XMVector3Normalize(velocity_nm);
 	velocity_nm = XMVectorScale(velocity_nm, speed);
 	XMStoreFloat4x4(&world, W);
 	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.velocity_nm, velocity_nm);
 	return true;
+}
+//
+void set_instance_speed(const size_t &index, const float &speed)
+{
+	XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[index].get_World();
+	XMFLOAT4X4 &rot_front = *PTR->m_Inst.m_Stat[index].get_RotFront();
+	XMMATRIX W = XMLoadFloat4x4(&world);
+	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
+	// Decompose the matrix into its individual parts.
+	XMVECTOR scale, rot_quat, translation;
+	XMMatrixDecompose(&scale, &rot_quat, &translation, W);
+	XMMATRIX WR = XMMatrixRotationQuaternion(rot_quat);
+	XMVECTOR det_RF = XMMatrixDeterminant(RF);
+	XMMATRIX R = XMMatrixMultiply(XMMatrixInverse(&det_RF, RF), WR);
+	XMVECTOR velocity_nm = XMVector3Rotate(VECTOR_FRONT_FACING, XMQuaternionRotationMatrix(R));
+	//
+	velocity_nm = XMVector3Normalize(velocity_nm);
+	velocity_nm = XMVectorScale(velocity_nm, speed);
+	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.velocity_nm, velocity_nm);
 }
 //
 }}

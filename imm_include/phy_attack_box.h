@@ -52,11 +52,21 @@ struct phy_attack_arrange
 	void read_lua();
 	void rebuild_bbox_from_instance();
 	void update();
+	void update_world();
+	void update_collision();
+	void set_active_box(
+		const size_t &inst_ix,
+		const std::vector<std::string> &box_name,
+		const bool &active = true);
+	void deactive_box(const size_t &inst_ix);
 	std::vector<BoundingBox> bbox_l;
 	std::vector<BoundingBox> bbox_w;
+	std::vector<bool> is_active;
 	std::map<std::string, phy_attack_model> model;
-	// map[instance_ix][box_name] = bbox_ix
-	std::map<size_t, std::map<std::string, size_t> > map;
+	// demonstration: map[instance_ix][box_name] = bbox_ix
+	std::map<size_t, std::map<std::string, size_t>> map;
+	// demonstration: map[bbox_ix] = instance_ix
+	std::map<size_t, size_t> map_inst;
 	T_app *app;
 };
 //
@@ -77,10 +87,13 @@ template <typename T_app>
 void phy_attack_arrange<T_app>::remove_all()
 {
 	map.clear();
+	map_inst.clear();
 	bbox_l.clear();
 	bbox_w.clear();
+	is_active.clear();
 	bbox_l.shrink_to_fit();
 	bbox_w.shrink_to_fit();
+	is_active.shrink_to_fit();
 }
 //
 template <typename T_app>
@@ -132,15 +145,24 @@ void phy_attack_arrange<T_app>::rebuild_bbox_from_instance()
 				bbox.Transform(out, to_bone);
 				bbox_l.push_back(out);
 				bbox_w.push_back(out);
-				//
+				// build map
 				map[ix][it->first] = bbox_l.size()-1;
+				map_inst[bbox_l.size()-1] = ix;
 			}
 		}
 	}
+	is_active.resize(bbox_w.size(), false);
 }
 //
 template <typename T_app>
 void phy_attack_arrange<T_app>::update()
+{
+	update_world();
+	update_collision();
+}
+//
+template <typename T_app>
+void phy_attack_arrange<T_app>::update_world()
 {
 	assert(!app->m_Cmd.is_waiting_for_something());
 	for (auto it_map = map.begin(); it_map != map.end(); ++it_map) {
@@ -154,6 +176,47 @@ void phy_attack_arrange<T_app>::update()
 			world = bone_trans*world;
 			bbox_l[it_box->second].Transform(bbox_w[it_box->second], world);
 		}
+	}
+}
+//
+template <typename T_app>
+void phy_attack_arrange<T_app>::update_collision()
+{
+	for (size_t ix = 0; ix != is_active.size(); ++ix) {
+		if (!is_active[ix]) continue;
+		for (size_t ix_inst = 0; ix_inst != app->m_Inst.m_Stat.size(); ++ix_inst) {
+			phy_impulse_casual(
+				app->m_Timer.delta_time(),
+				*(app->m_Inst.m_Stat[map_inst[ix]].get_World()),
+				*(app->m_Inst.m_Stat[ix_inst].get_World()),
+				app->m_Inst.m_Stat[map_inst[ix]].phy,
+				app->m_Inst.m_Stat[ix_inst].phy,
+				bbox_w[ix].Center,
+				app->m_Inst.m_BoundW.center(ix_inst),
+				app->m_Inst.m_BoundW.intersects(ix_inst, bbox_w[ix]));
+			//
+		}
+	}
+}
+//
+template <typename T_app>
+void phy_attack_arrange<T_app>::set_active_box(
+	const size_t &inst_ix,
+	const std::vector<std::string> &box_name,
+	const bool &active = true)
+{
+	assert(map.count(inst_ix));
+	for (auto &name: box_name) {
+		is_active[map[inst_ix][name]] = active;
+	}
+}
+//
+template <typename T_app>
+void phy_attack_arrange<T_app>::deactive_box(const size_t &inst_ix)
+{
+	assert(map.count(inst_ix));
+	for (auto &box: map[inst_ix]) {
+		is_active[box.second] = false;
 	}
 }
 //
