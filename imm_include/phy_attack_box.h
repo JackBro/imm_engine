@@ -50,6 +50,7 @@ struct phy_attack_arrange
 	void remove_all();
 	void init_load(T_app *app_in);
 	void read_lua();
+	void read_lua_bound_offset();
 	void rebuild_bbox_from_instance();
 	void update();
 	void update_world();
@@ -67,6 +68,7 @@ struct phy_attack_arrange
 	std::map<size_t, std::map<std::string, size_t>> map;
 	// demonstration: map[bbox_ix] = instance_ix
 	std::map<size_t, size_t> map_inst;
+	std::map<std::string, std::vector<float>> model_bound_offset;
 	T_app *app;
 };
 //
@@ -101,6 +103,7 @@ void phy_attack_arrange<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
 	read_lua();
+	read_lua_bound_offset();
 }
 //
 template <typename T_app>
@@ -127,6 +130,21 @@ void phy_attack_arrange<T_app>::read_lua()
 			model[vec2d[ix][0]].box[vec2d[ix][1]].extents.y = para[1];
 			model[vec2d[ix][0]].box[vec2d[ix][1]].extents.z = para[2];
 		}
+	}
+}
+//
+template <typename T_app>
+void phy_attack_arrange<T_app>::read_lua_bound_offset()
+{
+	std::string describe = IMM_PATH["script"]+"describe_common.lua";
+	lua_reader l_reader;
+	l_reader.loadfile(describe);
+	std::vector<std::vector<std::string>> vec2d;
+	l_reader.vec2d_str_from_table("csv_bound_offset", vec2d);
+	for (size_t ix = 1; ix < vec2d.size(); ++ix) {
+		vec2d[ix][1] = vec2d[ix][1].substr(1);
+		std::vector<float> offset = csv_string_to_percent(vec2d[ix][1]);
+		model_bound_offset[vec2d[ix][0]] = offset;
 	}
 }
 //
@@ -173,8 +191,7 @@ void phy_attack_arrange<T_app>::update_world()
 			XMMATRIX bone_trans = XMLoadFloat4x4(
 				app->m_Inst.m_Stat[it_map->first].get_FinalTransform(bone_ix)
 			);
-			world = bone_trans*world;
-			bbox_l[it_box->second].Transform(bbox_w[it_box->second], world);
+			bbox_l[it_box->second].Transform(bbox_w[it_box->second], XMMatrixMultiply(bone_trans, world));
 		}
 	}
 }
@@ -207,6 +224,7 @@ void phy_attack_arrange<T_app>::set_active_box(
 {
 	assert(map.count(inst_ix));
 	for (auto &name: box_name) {
+		assert(map[inst_ix].count(name));
 		is_active[map[inst_ix][name]] = active;
 	}
 }

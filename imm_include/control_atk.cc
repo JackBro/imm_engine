@@ -33,6 +33,8 @@ void combo_data::build(const std::string &name)
 		std::vector<std::string> box_name;
 		box_name.push_back("hand_L");
 		atk_box.push_back(box_name);
+		box_name.clear();
+		box_name.push_back("foot_R");
 		atk_box.push_back(box_name);
 	}
 	for (auto &end: frame_end) end /= frame_rate;
@@ -122,7 +124,10 @@ void control_atk<T_app>::init_combo_para(const size_t &index_in)
 template <typename T_app>
 void control_atk<T_app>::perform(const size_t &index_in)
 {
-	if (!combo.count(*app->m_Inst.m_Stat[index_in].get_ModelName())) return;
+	if (!combo.count(*app->m_Inst.m_Stat[index_in].get_ModelName())) {
+		PTR->m_Inst.m_Troll[index_in].order |= ORDER_IDLE;
+		return;
+	}
 	if (!combo_p.count(index_in)) init_combo_para(index_in);
 	combo[combo_p[index_in].model_name].strike(combo_p[index_in]);
 }

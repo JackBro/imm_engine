@@ -204,8 +204,7 @@ void phy_wireframe<T_app>::draw()
 			XMMATRIX bone_trans = XMLoadFloat4x4(
 				app->m_Inst.m_Stat[it_map->first].get_FinalTransform(bone_ix)
 			);
-			world = bone_trans*world;
-			XMMATRIX world_view_proj = XMMatrixMultiply(world, view_proj);
+			XMMATRIX world_view_proj = XMMatrixMultiply(XMMatrixMultiply(bone_trans, world), view_proj);
 			color_fx->set_WorldViewProj(world_view_proj);
 			D3DX11_TECHNIQUE_DESC tech_desc;
 			tech->GetDesc(&tech_desc);

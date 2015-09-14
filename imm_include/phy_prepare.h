@@ -74,6 +74,17 @@ void phy_set_aabb(
 	return;
 }
 ////////////////
+// phy_set_aabb_scale
+////////////////
+////////////////
+void phy_set_aabb_scale(BoundingBox &bbox, const std::vector<float> &offset)
+{
+	assert(offset.size() == 3);
+	bbox.Extents.x = bbox.Extents.x*offset[0];
+	bbox.Extents.y = bbox.Extents.y*offset[1];
+	bbox.Extents.z = bbox.Extents.z*offset[2];
+}
+////////////////
 // phy_bound_type
 ////////////////
 ////////////////

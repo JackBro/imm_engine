@@ -42,6 +42,7 @@ struct control_cam
 	float follow_up_def;
 	float follow_walk;
 	float follow_up;
+	float follow_reset_cooldown;
 	std::map<size_t, XMFLOAT4> map_rot_front_c;
 };
 //
@@ -50,7 +51,8 @@ control_cam<T_app>::control_cam():
 	app(nullptr),
 	is_pad_follow_reset(false),
 	follow_walk_def(-30.0f),
-	follow_up_def(3.0f)
+	follow_up_def(3.0f),
+	follow_reset_cooldown(0.0f)
 {
 	follow_walk = follow_walk_def;
 	follow_up = follow_up_def;
@@ -154,8 +156,11 @@ void control_cam<T_app>::follow_update()
 	U = XMLoadFloat3(&app->m_Cam.m_Up);
 	pos = XMVectorMultiplyAdd(scale, U, pos);
 	XMStoreFloat3(&app->m_Cam.m_Position, pos);
+	if (follow_reset_cooldown > -1.0f) follow_reset_cooldown -= app->m_Timer.delta_time();
 	if (GetKeyState(KEY_CAM_FOLLOW_RESET) & 0x8000 || is_pad_follow_reset) {
 		is_pad_follow_reset = false;
+		if (follow_reset_cooldown > 0.0f) return;
+		else follow_reset_cooldown = 0.5f;
 		// reset
 		follow_walk = follow_walk_def;
 		if (!map_rot_front_c.count(app->m_Control.picked1)) {

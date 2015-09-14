@@ -176,6 +176,9 @@ void instance_mgr<T_app>::push_back_basic(
 			m_BoundL.b1[k],
 			v_inst[ix].model->m_Vertices,
 			get_pos_f);
+		if (m_App->m_Attack.model_bound_offset.count(name[ix])) {
+			phy_set_aabb_scale(m_BoundL.b1[k], m_App->m_Attack.model_bound_offset[name[ix]]);
+		}
 		++k;
 	}
 }
