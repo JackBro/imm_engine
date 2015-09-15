@@ -104,7 +104,7 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Rect.back().id_str = "test_prompt";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "test";
-	m_Rect.back().tp = ui_rect::type::button;
+	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black_00a"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";

@@ -22,7 +22,7 @@ struct ui_rect
 {
 	enum type {
 		background  = 0,
-		button      = 1,
+		button      = 1, // be careful choose ui_rect's type, if a fake button appear, pad may be stuck
 		text_pure   = 2,
 		text_layout = 3,
 		sprite      = 4,

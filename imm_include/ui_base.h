@@ -382,9 +382,9 @@ void ui_base<T_app>::group_active_switch(const std::string &name)
 }
 //
 template <typename T_app>
-void ui_base<T_app>::group_active(const std::string &name, const bool &is_act, const bool &is_switched = false)
+void ui_base<T_app>::group_active(const std::string &name, const bool &is_act, const bool &is_from_switched = false)
 {
-	if (!is_switched) for (auto &ix: m_MapGroup[name]) m_Rect[ix].active = is_act;
+	if (!is_from_switched) for (auto &ix: m_MapGroup[name]) m_Rect[ix].active = is_act;
 	if (m_Rect[m_MapGroup[name][0]].active) {
 		m_ClickIxPad = -1;
 		m_LastUiActive = m_App->m_Timer.total_time();

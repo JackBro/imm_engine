@@ -125,7 +125,7 @@ template <typename T_app>
 void control_atk<T_app>::perform(const size_t &index_in)
 {
 	if (!combo.count(*app->m_Inst.m_Stat[index_in].get_ModelName())) {
-		PTR->m_Inst.m_Troll[index_in].order |= ORDER_IDLE;
+		PTR->m_Inst.m_Troll[index_in].revert_previous_state();
 		return;
 	}
 	if (!combo_p.count(index_in)) init_combo_para(index_in);

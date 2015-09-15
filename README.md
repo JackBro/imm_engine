@@ -11,7 +11,7 @@ The platform only supports Microsoft Windows.
 The fundamental 3D rendering technique is derived from the textbook 
 Introduction to 3D Game Programming with DirectX 11 by Frank Luna. 
 This engine development methodology is Quick-and-dirty, no traditional API design, evil magic style. 
-It may be difficult to use due to weak development scale and absence of visualization scene editor.
+**It may be very difficult to use due to weak development scale and absence of visualization scene editor.**
 
 In Development:
 ---------------
