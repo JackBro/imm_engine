@@ -110,33 +110,39 @@ template <typename T_app>
 void control_atk<T_app>::init(T_app *app_in)
 {
 	app = app_in;
-	combo["sinon"].build("sinon");
+	combo_d["sinon"].build("sinon");
+}
+//
+template <typename T_app>
+void control_atk<T_app>::reset()
+{
+	c_para.clear();
 }
 //
 template <typename T_app>
 void control_atk<T_app>::init_combo_para(const size_t &index_in)
 {
-	combo_p[index_in];
-	combo_p[index_in].model_name = *app->m_Inst.m_Stat[index_in].get_ModelName();
-	combo_p[index_in].inst_ix = index_in;
+	c_para[index_in];
+	c_para[index_in].model_name = *app->m_Inst.m_Stat[index_in].get_ModelName();
+	c_para[index_in].inst_ix = index_in;
 }
 //
 template <typename T_app>
 void control_atk<T_app>::perform(const size_t &index_in)
 {
-	if (!combo.count(*app->m_Inst.m_Stat[index_in].get_ModelName())) {
+	if (!combo_d.count(*app->m_Inst.m_Stat[index_in].get_ModelName())) {
 		PTR->m_Inst.m_Troll[index_in].revert_previous_state();
 		return;
 	}
-	if (!combo_p.count(index_in)) init_combo_para(index_in);
-	combo[combo_p[index_in].model_name].strike(combo_p[index_in]);
+	if (!c_para.count(index_in)) init_combo_para(index_in);
+	combo_d[c_para[index_in].model_name].strike(c_para[index_in]);
 }
 //
 template <typename T_app>
 void control_atk<T_app>::update(const float &dt)
 {
-	for (auto &para_it: combo_p) {
-		combo[para_it.second.model_name].update(dt, para_it.second);
+	for (auto &para_it: c_para) {
+		combo_d[para_it.second.model_name].update(dt, para_it.second);
 	}
 }
 //

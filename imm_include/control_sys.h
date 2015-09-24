@@ -82,6 +82,7 @@ void control_sys<T_app>::reset()
 {
 	map_stop.clear();
 	cam.reset();
+	atk.reset();
 	player1 = -1;
 	picked1 = -1;
 }

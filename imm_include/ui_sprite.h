@@ -70,6 +70,7 @@ struct sprite_simple
 	texture_mgr tex_mgr;
 	std::map<std::string, ID3D11ShaderResourceView*> map_tex;
 	std::map<std::string, XMFLOAT2> map_pos;
+	std::map<std::string, float> map_height;
 	float scale;
 	bool is_built;
 private:
@@ -102,12 +103,22 @@ void sprite_simple::init(ID3D11Device *device, ID3D11DeviceContext *device_conte
 }
 void sprite_simple::build_buffer(const std::map<std::string, std::string> &get_dds)
 {
+	ID3D11Resource *res = nullptr;
+	ID3D11Texture2D *texture2d = nullptr;
+	D3D11_TEXTURE2D_DESC desc;
 	std::wstring tex_path = str_to_wstr(IMM_PATH["texture"]);
 	for (auto it = get_dds.begin(); it != get_dds.end(); ++it) {
 		if (it->second == "") return;
 		std::wstring tex_path_dds = tex_path + str_to_wstr(it->second);
 		map_tex[it->first] = tex_mgr.create_texture(tex_path_dds);
+		// dds: 1024*1024, 1024*2048, 2048*2048
+		map_tex[it->first]->GetResource(&res);
+		HR(res->QueryInterface(&texture2d));
+		texture2d->GetDesc(&desc);
+		map_height[it->first] = static_cast<float>(desc.Height);
 	}
+    RELEASE_COM(res);
+    RELEASE_COM(texture2d);
 	if (map_tex.size() > 0) is_built = true;
 }
 //
@@ -117,9 +128,7 @@ void sprite_simple::draw_d3d(
 	const std::map<std::string, std::string> &map_sprite_name)
 {
 	if (!is_built) return;
-	sprite_batch->Begin(
-		SpriteSortMode_Deferred,
-		states->NonPremultiplied());
+	sprite_batch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 	// Draw sprite according UI rect active
 	for (auto &map: map_sprite_rect) {
 		if (rect[map.second].active) {

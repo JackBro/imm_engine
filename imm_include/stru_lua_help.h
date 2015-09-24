@@ -304,7 +304,7 @@ lua_config<T_app>::lua_config(T_app *app_in)
 	std::map<std::string, std::string> g_map;
 	g_map["is_fullscreen"] = "";
 	g_map["is_4xmsaa"] = "";
-	g_map["is_sync_iterval"] = "";
+	g_map["is_sync_interval"] = "";
 	lua_reader l_reader;
 	l_reader.loadfile(IMM_PATH["script"]+"imm_config.lua");
 	l_reader.map_from_string(g_map);

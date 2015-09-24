@@ -65,12 +65,13 @@ struct control_atk
 {
 	control_atk();
 	void init(T_app *app_in);
+	void reset();
 	void init_combo_para(const size_t &index_in);
 	void perform(const size_t &index_in);
 	void update(const float &dt);
 	T_app *app;
-	std::map<std::string, combo_data> combo;
-	std::map<size_t, combo_para> combo_p;
+	std::map<std::string, combo_data> combo_d;
+	std::map<size_t, combo_para> c_para;
 };
 //
 }

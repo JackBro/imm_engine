@@ -7,17 +7,23 @@ Quick-and-dirty
 Introduction:
 -------------
 A small game engine. All features tend to be minimized. 
-The platform only supports Microsoft Windows. 
-The fundamental 3D rendering technique is derived from the textbook 
-Introduction to 3D Game Programming with DirectX 11 by Frank Luna. 
-This engine development methodology is Quick-and-dirty, no traditional API design, evil magic style. 
-**It may be very difficult to use due to weak development scale and absence of visualization scene editor.**
+The fundamental 3D rendering technique is derived from the DirectX 11 book by Frank Luna. 
+**It is very difficult to use due to weak development scale and absence of visualization scene editor.**
+**Not recommended this engine at present.**
 
 In Development:
 ---------------
 There is less document now, and on low completion status.
 The framework of the engine is instability, will be changed frequently.
 Just guarantee the able to compile the project correctly.
+
+Disadvantage List:
+------------------
+* The disavantage list is the bad features that will not change even in the future.
+* No visualization scene editor.
+* Some game date is directly mixed with source code, such as UI and game logic.
+* The platform only supports Microsoft Windows. 
+* No traditional API design, evil magic style.
 
 Compile Environment:
 --------------------
