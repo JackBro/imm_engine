@@ -38,11 +38,13 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Dwrite["22_page"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 22.0f, DWRITE_ALIG_STYLE_PAGE);
 	// brush
 	m_Brush["black"];
-	set_Brush(D2D1::ColorF::Black, 0.5f, "black");
+	set_Brush(D2D1::ColorF::Black, 0.7f, "black");
 	m_Brush["yellow"];
-	set_Brush(D2D1::ColorF::Yellow, 0.5f, "yellow");
+	set_Brush(D2D1::ColorF::Orange, 0.7f, "yellow");
 	m_Brush["red"];
-	set_Brush(D2D1::ColorF::Red, 0.5f, "red");
+	set_Brush(D2D1::ColorF::DarkRed, 0.7f, "red");
+	m_Brush["transparent"];
+	set_Brush(D2D1::ColorF::Black, 0.0f, "transparent");
 	////////////////
 	// fps
 	////////////////
@@ -68,7 +70,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";
-	m_Rect.back().margin = XMFLOAT4(0.15f, 0.0f, 0.15f, 0.0f);
+	m_Rect.back().margin = XMFLOAT4(0.25f, 0.0f, 0.25f, 0.0f);
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_title";
@@ -85,40 +87,40 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Help";
+	m_Rect.back().brush_sel = {"transparent"};
+	m_Rect.back().text = L"Help                         -";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.3f, 0.2f, 0.3f, 0.72f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.2f, 0.0f, 0.72f);
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_title";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Retrun to Title";
+	m_Rect.back().brush_sel = {"transparent"};
+	m_Rect.back().text = L"Retrun to Title              -";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.3f, 0.32f, 0.3f, 0.60f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.28f, 0.0f, 0.64f);
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_exit";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Exit Game";
+	m_Rect.back().brush_sel = {"transparent"};
+	m_Rect.back().text = L"Exit Game                    -";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.3f, 0.44f, 0.3f, 0.48f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.36f, 0.0f, 0.56f);
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "menu_options";
 	m_Rect.back().parent_str = "menu_backg";
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
-	m_Rect.back().text = L"Options";
+	m_Rect.back().brush_sel = {"transparent"};
+	m_Rect.back().text = L"Options                      -";
 	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.3f, 0.56f, 0.3f, 0.36f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.44f, 0.0f, 0.48f);
 	////////////////
 	// help
 	////////////////
@@ -164,7 +166,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";
-	m_Rect.back().margin = XMFLOAT4(0.0f, 0.15f, 0.0f, 0.15f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.3f, 0.0f, 0.3f);
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "exit_yes";
@@ -203,7 +205,10 @@ void ui_def_main_menu<T_app>::define_style()
 	//
 	for (auto &rect: m_Rect) {
 		rect.brush_ix = rect.brush_sel[0];
-		if (rect.tp == ui_rect::type::button) rect.brush_sel.emplace_back("red");
+		if (rect.tp == ui_rect::type::button) {
+			if (rect.group == "menu") rect.brush_sel.emplace_back("yellow");
+			rect.brush_sel.emplace_back("red");
+		}
 		rect.active = false;
 	}
 	m_Rect[m_MapGroup["fps"][0]].active = true;

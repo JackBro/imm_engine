@@ -60,12 +60,8 @@ void ui_def_dialogue<T_app>::define_style()
 	// brush
 	m_Brush["black"];
 	set_Brush(D2D1::ColorF::Black, 0.5f, "black");
-	m_Brush["black_00a"];
-	set_Brush(D2D1::ColorF::Black, 0.0f, "black_00a");
-	m_Brush["yellow"];
-	set_Brush(D2D1::ColorF::Yellow, 0.5f, "yellow");
-	m_Brush["red"];
-	set_Brush(D2D1::ColorF::Red, 0.5f, "red");
+	m_Brush["transparent"];
+	set_Brush(D2D1::ColorF::Black, 0.0f, "transparent");
 	////////////////
 	//
 	////////////////
@@ -75,7 +71,7 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "test";
 	m_Rect.back().tp = ui_rect::type::sprite;
-	m_Rect.back().brush_sel = {"black_00a"};
+	m_Rect.back().brush_sel = {"transparent"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -95,7 +91,7 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "test";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"black_00a"};
+	m_Rect.back().brush_sel = {"transparent"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -105,7 +101,7 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "test";
 	m_Rect.back().tp = ui_rect::type::text_pure;
-	m_Rect.back().brush_sel = {"black_00a"};
+	m_Rect.back().brush_sel = {"transparent"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.9f, 0.9f, 0.0f, 0.0f);
@@ -118,8 +114,7 @@ void ui_def_dialogue<T_app>::define_style()
 	for (auto &rect: m_Rect) {
 		rect.brush_ix = rect.brush_sel[0];
 		if (rect.tp == ui_rect::type::button) {
-			if (rect.group == "entrance") rect.brush_sel.emplace_back("black");
-			else rect.brush_sel.emplace_back("black_00a");
+			rect.brush_sel.emplace_back("transparent");
 		}
 		rect.active = false;
 	}

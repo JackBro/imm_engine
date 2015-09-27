@@ -41,12 +41,12 @@ void ui_def_welcome<T_app>::define_style()
 	// brush
 	m_Brush["black"];
 	set_Brush(D2D1::ColorF::Black, 0.5f, "black");
-	m_Brush["black_00a"];
-	set_Brush(D2D1::ColorF::Black, 0.0f, "black_00a");
+	m_Brush["transparent"];
+	set_Brush(D2D1::ColorF::Black, 0.0f, "transparent");
 	m_Brush["yellow"];
-	set_Brush(D2D1::ColorF::Yellow, 0.5f, "yellow");
+	set_Brush(D2D1::ColorF::Orange, 0.5f, "yellow");
 	m_Brush["red"];
-	set_Brush(D2D1::ColorF::Red, 0.5f, "red");
+	set_Brush(D2D1::ColorF::DarkRed, 0.5f, "red");
 	////////////////
 	// entrance
 	////////////////
@@ -56,7 +56,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "entrance";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"black_00a"};
+	m_Rect.back().brush_sel = {"transparent"};
 	m_Rect.back().text = L"Start Game";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.5f, 0.0f, 0.42f);
@@ -66,7 +66,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "entrance";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"black_00a"};
+	m_Rect.back().brush_sel = {"transparent"};
 	m_Rect.back().text = L"Options";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.58f, 0.0f, 0.34f);
@@ -76,7 +76,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "entrance";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"black_00a"};
+	m_Rect.back().brush_sel = {"transparent"};
 	m_Rect.back().text = L"Credit";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.66f, 0.0f, 0.26f);
@@ -86,7 +86,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "entrance";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"black_00a"};
+	m_Rect.back().brush_sel = {"transparent"};
 	m_Rect.back().text = L"About";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.74f, 0.0f, 0.18f);
@@ -96,7 +96,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "entrance";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"black_00a"};
+	m_Rect.back().brush_sel = {"transparent"};
 	m_Rect.back().text = L"Exit Game";
 	m_Rect.back().dwrite_ix = "32";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.82f, 0.0f, 0.10f);
@@ -178,7 +178,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";
-	m_Rect.back().margin = XMFLOAT4(0.0f, 0.15f, 0.0f, 0.15f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.3f, 0.0f, 0.3f);
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "exit_yes";
