@@ -363,6 +363,14 @@ void ui_base<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 		pad_loop_button(false);
 		return;
 	}
+	if (w_param == KEY_UI_PAGEDOWN) {
+		pad_roll_text_layout(true);
+		return;
+	}
+	if (w_param == KEY_UI_PAGEUP) {
+		pad_roll_text_layout(false);
+		return;
+	}
 	if (m_ClickableActived != "none") {
 		if (w_param == KEY_UI_ENTER) apply_ix(m_ClickIxPad, true);
 		return;

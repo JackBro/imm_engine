@@ -176,14 +176,14 @@ void ui_def_dialogue<T_app>::define_deactivate_all_cmd_slient()
 template <typename T_app>
 void ui_def_dialogue<T_app>::define_sprite_build_buffer()
 {
-	std::map<std::string, std::string> get_dds;
-	get_dds["abelia"] = "";
-	std::string describe = IMM_PATH["script"]+"scene_common\\ui_def_dialogue.lua";
+	std::string describe = IMM_PATH["script"]+"describe_common.lua";
 	lua_reader l_reader;
 	l_reader.loadfile(describe);
-	l_reader.map_from_string(get_dds);
-	m_Sprite.build_buffer(get_dds);
-	m_MapSpriteName["test_sprite"] = "abelia";
+	std::vector<std::vector<std::string>> vec2d;
+	l_reader.vec2d_str_from_table("csv_avatar", vec2d);
+	vec2d.erase(vec2d.begin());
+	m_Sprite.build_buffer(vec2d);
+	m_MapSpriteName["test_sprite"] = "";
 }
 //
 template <typename T_app>
@@ -193,9 +193,10 @@ void ui_def_dialogue<T_app>::define_on_resize_sprite()
 	float scr_width = static_cast<float>(m_RcHWND.right - m_RcHWND.left);
 	float scale = scr_height/UI_RESOLUTION_HEIGHT*0.6f;
 	std::map<std::string, XMFLOAT2> get_resize;
-	if (!m_Sprite.map_tex.count("abelia")) return;
-	get_resize["abelia"] = XMFLOAT2(scr_width*0.0f*scale, scr_height-(m_Sprite.map_height["abelia"]*scale));
-	m_Sprite.on_resize(scale, get_resize);
+	for (auto it = m_Sprite.map_height.begin(); it != m_Sprite.map_height.end(); ++it) {
+		m_Sprite.map_pos[it->first] = XMFLOAT2(scr_width*0.0f*scale, scr_height-(it->second*scale));
+	}
+	m_Sprite.on_resize(scale);
 }
 //
 template <typename T_app>

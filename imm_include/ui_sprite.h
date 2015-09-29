@@ -58,12 +58,12 @@ struct sprite_simple
 	sprite_simple();
 	~sprite_simple();
 	void init(ID3D11Device *device, ID3D11DeviceContext *device_context);
-	void build_buffer(const std::map<std::string, std::string> &get_dds);
+	void build_buffer(const std::vector<std::vector<std::string>> &get_dds);
 	void draw_d3d(
 		const std::map<std::string, size_t> &map_sprite_rect,
 		const std::vector<ui_rect> &rect,
 		const std::map<std::string, std::string> &map_sprite_name);
-	void on_resize(float scale_in, const std::map<std::string, XMFLOAT2> &get_resize);
+	void on_resize(const float &scale_in);
 	std::unique_ptr<SpriteBatch> sprite_batch;
 	std::unique_ptr<SpriteFont> sprite_font;
 	std::unique_ptr<CommonStates> states;
@@ -101,21 +101,20 @@ void sprite_simple::init(ID3D11Device *device, ID3D11DeviceContext *device_conte
 	states = std::unique_ptr<CommonStates>(new CommonStates(device));
 	tex_mgr.init(device);
 }
-void sprite_simple::build_buffer(const std::map<std::string, std::string> &get_dds)
+void sprite_simple::build_buffer(const std::vector<std::vector<std::string>> &get_dds)
 {
 	ID3D11Resource *res = nullptr;
 	ID3D11Texture2D *texture2d = nullptr;
 	D3D11_TEXTURE2D_DESC desc;
-	std::wstring tex_path = str_to_wstr(IMM_PATH["texture"]);
-	for (auto it = get_dds.begin(); it != get_dds.end(); ++it) {
-		if (it->second == "") return;
-		std::wstring tex_path_dds = tex_path + str_to_wstr(it->second);
-		map_tex[it->first] = tex_mgr.create_texture(tex_path_dds);
+	std::wstring tex_path = str_to_wstr(IMM_PATH["texture"]+"avatar\\");
+	for (size_t ix = 0; ix != get_dds.size(); ++ix) {
+		std::wstring tex_path_dds = tex_path + str_to_wstr(get_dds[ix][1]);
+		map_tex[get_dds[ix][0]] = tex_mgr.create_texture(tex_path_dds);
 		// dds: 1024*1024, 1024*2048, 2048*2048
-		map_tex[it->first]->GetResource(&res);
+		map_tex[get_dds[ix][0]]->GetResource(&res);
 		HR(res->QueryInterface(&texture2d));
 		texture2d->GetDesc(&desc);
-		map_height[it->first] = static_cast<float>(desc.Height);
+		map_height[get_dds[ix][0]] = static_cast<float>(desc.Height);
 	}
     RELEASE_COM(res);
     RELEASE_COM(texture2d);
@@ -147,12 +146,10 @@ void sprite_simple::draw_d3d(
 	sprite_batch->End();
 }
 //
-void sprite_simple::on_resize(float scale_in, const std::map<std::string, XMFLOAT2> &get_resize)
+void sprite_simple::on_resize(const float &scale_in)
 {
 	scale = scale_in;
-	for (auto it = get_resize.begin(); it != get_resize.end(); ++it) {
-		map_pos[it->first] = it->second;
-	}
+	// ensure map_pos do on_resize at the same time in be called on_resize function
 }
 //
 }
