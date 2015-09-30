@@ -6,7 +6,7 @@ welcome["credit"] = [[
 
 Credit
 
-## 3D model ##
+-- 3D Model from blendswap.com --
 
 Sinon (Sword Art Online)
 Daniel Kreuter
@@ -19,6 +19,15 @@ xrg
 
 Ammo Box
 mahesh
+
+-- Background Music from jamendo.com --
+
+Dragon Fight - Gregoire Lourme
+
+-- Programmer and Artist --
+
+Huang Yiting
+
 ]]
 welcome["about"] = [[
 

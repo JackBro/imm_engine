@@ -115,9 +115,6 @@ void state_liquid::init(
 	const float &speed,
 	const float &damping)
 {
-	//std::wstring path = str_to_wstr(IMM_PATH["texture"]);
-	//path += L"water01_BC7.dds";
-	//HR(CreateDDSTextureFromFile(device, path.c_str(), nullptr, &wave_map_srv));
 	wave_world = world_in;
 	pa_num_rows = num_rows;
 	pa_num_cols = num_cols;
@@ -176,15 +173,6 @@ void state_liquid::update(ID3D11DeviceContext *context, float dt, float total_ti
 		collision.shrink_to_fit();
 	}
 	wave.update(context, dt, total_time);
-	// Animate water texture coordinates.
-	// Tile water texture.
-	//XMMATRIX wave_scale = XMMatrixScaling(1.0f, 1.0f, 0.0f);
-	// Translate texture over time.
-	//wave_tex_offset.y += 0.01f*dt;
-	//wave_tex_offset.x += 0.01f*dt;
-	//XMMATRIX wave_offset = XMMatrixTranslation(wave_tex_offset.x, wave_tex_offset.y, 0.0f);
-	// Combine scale and translation.
-	//XMStoreFloat4x4(&wave_tex_transform, wave_scale*wave_offset);
 }
 //
 void state_liquid::intersects(const BoundingBox &box_in, float dt, int index)
@@ -284,9 +272,9 @@ void envi_liquid::reload(ID3D11Device* device, const std::string &scene_ix)
 {
 	liquid.clear();
 	liquid.shrink_to_fit();
-	std::string describe = IMM_PATH["script"]+"scene"+scene_ix+"\\describe_instance.lua";
+	std::string concrete = IMM_PATH["script"]+"scene"+scene_ix+"\\concrete_instance.lua";
 	lua_reader l_reader;
-	l_reader.loadfile(describe);
+	l_reader.loadfile(concrete);
 	std::string table_name = "csv_envi_liquid";
 	if (l_reader.is_nil(table_name)) return;
 	std::vector<std::vector<std::string>> get_init;

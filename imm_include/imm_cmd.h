@@ -219,8 +219,8 @@ void cmd_shell<T_app>::apply()
 			return;
 		}
 		std::wstring scene_ix = cmd_get.substr(7);
-		std::string describe = IMM_PATH["script"]+"scene"+wstr_to_str(scene_ix)+"\\describe_instance.lua";
-		if (data_is_file_exist(describe)) {
+		std::string concrete = IMM_PATH["script"]+"scene"+wstr_to_str(scene_ix)+"\\concrete_instance.lua";
+		if (data_is_file_exist(concrete)) {
 			app->m_Scene.reload(scene_ix);
 			is_slient = false;
 			is_active = false;

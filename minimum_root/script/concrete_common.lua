@@ -1,4 +1,4 @@
--- describe_common.lua
+-- concrete_common.lua
 -- read common information to immature engine
 
 -- require

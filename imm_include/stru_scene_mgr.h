@@ -173,8 +173,8 @@ void scene_mgr<T_app>::reload_in_main_update()
 	get_misc["ui_group"] = "";
 	get_misc["terrain_info"] = "";
 	lua_reader l_reader;
-	std::string describe = IMM_PATH["script"]+"scene"+scene_ix+"\\describe_instance.lua";
-	l_reader.loadfile(describe);
+	std::string concrete = IMM_PATH["script"]+"scene"+scene_ix+"\\concrete_instance.lua";
+	l_reader.loadfile(concrete);
 	l_reader.map_from_string(get_misc);
 	reload_instance();
 	reload_skybox();

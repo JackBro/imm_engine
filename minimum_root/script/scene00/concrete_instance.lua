@@ -1,4 +1,4 @@
--- describe_instance.lua
+-- concrete_instance.lua
 -- read instance information to immature engine
 
 -- require

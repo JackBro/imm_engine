@@ -176,9 +176,9 @@ void ui_def_dialogue<T_app>::define_deactivate_all_cmd_slient()
 template <typename T_app>
 void ui_def_dialogue<T_app>::define_sprite_build_buffer()
 {
-	std::string describe = IMM_PATH["script"]+"describe_common.lua";
+	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
 	lua_reader l_reader;
-	l_reader.loadfile(describe);
+	l_reader.loadfile(concrete);
 	std::vector<std::vector<std::string>> vec2d;
 	l_reader.vec2d_str_from_table("csv_avatar", vec2d);
 	vec2d.erase(vec2d.begin());
@@ -209,17 +209,17 @@ template <typename T_app>
 void ui_def_dialogue<T_app>::rebuild_text()
 {
 	std::map<std::string, std::string> get_scene;
-	std::string describe = IMM_PATH["text"]+"dialogue_index.lua";
+	std::string concrete = IMM_PATH["text"]+"dialogue_index.lua";
 	lua_reader l_reader;
-	l_reader.loadfile(describe);
+	l_reader.loadfile(concrete);
 	std::string scene_ix = "scene"+m_App->m_Scene.scene_ix;
 	if (l_reader.is_nil(scene_ix)) return;
 	// build dialogue chunk
 	m_TxtChunk.remove_all();
 	l_reader.map_from_table(scene_ix, get_scene);
 	for (auto it = get_scene.begin(); it != get_scene.end(); ++it) {
-		describe = IMM_PATH["text"]+it->second;
-		l_reader.loadfile(describe);
+		concrete = IMM_PATH["text"]+it->second;
+		l_reader.loadfile(concrete);
 		std::map<std::string, std::string> get_chunk_info;
 		l_reader.map_from_table( "chunk", get_chunk_info);
 		for (auto &chunk: get_chunk_info) {

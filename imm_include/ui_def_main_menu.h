@@ -309,9 +309,9 @@ template <typename T_app>
 void ui_def_main_menu<T_app>::define_text()
 {
 	std::map<std::string, std::string> get_welcome;
-	std::string describe = IMM_PATH["text"]+"main_menu.lua";
+	std::string concrete = IMM_PATH["text"]+"main_menu.lua";
 	lua_reader l_reader;
-	l_reader.loadfile(describe);
+	l_reader.loadfile(concrete);
 	std::string var_name = "main_menu";
 	if (l_reader.is_nil(var_name)) {assert(false); abort();}
 	l_reader.map_from_table(var_name, get_welcome);

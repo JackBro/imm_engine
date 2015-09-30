@@ -53,9 +53,9 @@ audio_dxtk::audio_dxtk():
 //
 void audio_dxtk::init_load()
 {
-	std::string describe = IMM_PATH["script"]+"describe_common.lua";
+	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
 	lua_reader l_reader;
-	l_reader.loadfile(describe);
+	l_reader.loadfile(concrete);
 	std::vector<std::vector<std::string>> vec2d_audio_bgm;
 	l_reader.vec2d_str_from_table("csv_audio_bgm", vec2d_audio_bgm);
 	std::wstring path_med(str_to_wstr(IMM_PATH["media"]));

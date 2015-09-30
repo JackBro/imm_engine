@@ -173,11 +173,11 @@ void model_mgr::init(ID3D11Device *device)
 bool model_mgr::load(ID3D11Device *device, const std::string& scene_ix)
 {
 	init(device);
-	std::string describe = IMM_PATH["script"]+"scene"+scene_ix+"\\describe_instance.lua";
-	if (!data_is_file_exist(describe)) return false;
+	std::string concrete = IMM_PATH["script"]+"scene"+scene_ix+"\\concrete_instance.lua";
+	if (!data_is_file_exist(concrete)) return false;
 	remove_all();
 	lua_reader l_reader;
-	l_reader.loadfile(describe);
+	l_reader.loadfile(concrete);
 	std::thread(&model_mgr::pntt_init, this, device, std::ref(l_reader)).join();
 	std::thread(&model_mgr::skinned_init, this, device, std::ref(l_reader)).join();
 	std::thread(&model_mgr::basic_init, this, device, std::ref(l_reader)).join();

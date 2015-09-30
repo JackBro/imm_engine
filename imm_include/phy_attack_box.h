@@ -109,9 +109,9 @@ void phy_attack_arrange<T_app>::init_load(T_app *app_in)
 template <typename T_app>
 void phy_attack_arrange<T_app>::read_lua()
 {
-	std::string describe = IMM_PATH["script"]+"describe_common.lua";
+	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
 	lua_reader l_reader;
-	l_reader.loadfile(describe);
+	l_reader.loadfile(concrete);
 	std::vector<std::vector<std::string>> vec2d;
 	l_reader.vec2d_str_from_table("csv_attack_box", vec2d);
 	for (size_t ix = 1; ix < vec2d.size(); ++ix) {
@@ -136,9 +136,9 @@ void phy_attack_arrange<T_app>::read_lua()
 template <typename T_app>
 void phy_attack_arrange<T_app>::read_lua_bound_offset()
 {
-	std::string describe = IMM_PATH["script"]+"describe_common.lua";
+	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
 	lua_reader l_reader;
-	l_reader.loadfile(describe);
+	l_reader.loadfile(concrete);
 	std::vector<std::vector<std::string>> vec2d;
 	l_reader.vec2d_str_from_table("csv_bound_offset", vec2d);
 	for (size_t ix = 1; ix < vec2d.size(); ++ix) {

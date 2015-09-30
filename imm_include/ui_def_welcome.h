@@ -324,9 +324,9 @@ template <typename T_app>
 void ui_def_welcome<T_app>::define_text()
 {
 	std::map<std::string, std::string> get_welcome;
-	std::string describe = IMM_PATH["text"]+"welcome.lua";
+	std::string concrete = IMM_PATH["text"]+"welcome.lua";
 	lua_reader l_reader;
-	l_reader.loadfile(describe);
+	l_reader.loadfile(concrete);
 	std::string var_name = "welcome";
 	if (l_reader.is_nil(var_name)) {assert(false); abort();}
 	l_reader.map_from_table(var_name, get_welcome);
