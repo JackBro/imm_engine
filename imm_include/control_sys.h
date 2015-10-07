@@ -35,7 +35,7 @@ struct control_sys
 	void update_stop(const float &dt);
 	void update_keydown_and_pad(const float &dt);
 	void on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y);
-	void on_pad_down(const float &dt);
+	void on_pad_down_update(const float &dt);
 	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_mouse_wheel(const short &z_delta);
@@ -193,7 +193,7 @@ void control_sys<T_app>::update_keydown_and_pad(const float &dt)
 	if (app->m_Cmd.is_active) return;
 	// player1 and camera update, if !m_Cmd.is_active()
 	if (pad.is_enable()) {
-		on_pad_down(dt);
+		on_pad_down_update(dt);
 		pad_instance_move_update();
 		cam.pad_update(dt);
 	}
@@ -218,7 +218,7 @@ void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 }
 //
 template <typename T_app>
-void control_sys<T_app>::on_pad_down(const float &dt)
+void control_sys<T_app>::on_pad_down_update(const float &dt)
 {
 	if (app->m_Cmd.is_active) return;
 	WORD get_vkey;

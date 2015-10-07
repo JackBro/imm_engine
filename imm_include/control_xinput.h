@@ -29,21 +29,23 @@ struct control_xinput
 	XINPUT_STATE state;
 	XINPUT_KEYSTROKE key;
 	float deadzone;
+	int user_index;
 };
 //
 control_xinput::control_xinput():
+	is_force_disable(false),
 	deadzone(5000.0f),
-	is_force_disable(false)
+	user_index(0)
 {
 	ZeroMemory(&state, sizeof(XINPUT_STATE));
-	key.UserIndex = 0;
+	key.UserIndex = static_cast<BYTE>(user_index);
 }
 //
 bool control_xinput::is_enable()
 {
 	if (is_force_disable) return false;
 	DWORD dw_result;
-	dw_result = XInputGetState(0, &state);
+	dw_result = XInputGetState(user_index, &state);
 	if (dw_result == ERROR_SUCCESS) return true;
 	return false;
 }
@@ -73,7 +75,7 @@ bool control_xinput::is_RT_press()
 //
 bool control_xinput::is_on_keydown(WORD &vkey)
 {
-	if (XInputGetKeystroke(0, 0, &key) == ERROR_SUCCESS) {
+	if (XInputGetKeystroke(user_index, 0, &key) == ERROR_SUCCESS) {
 		if (key.Flags & XINPUT_KEYSTROKE_KEYDOWN) {
 			vkey = key.VirtualKey;
 			return true;

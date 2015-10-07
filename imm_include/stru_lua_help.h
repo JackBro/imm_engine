@@ -310,7 +310,7 @@ lua_config<T_app>::lua_config(T_app *app_in)
 	l_reader.map_from_string(g_map);
 	l_reader.assign_bool(m_App->m_FullScreen, g_map["is_fullscreen"]);
 	l_reader.assign_bool(m_App->m_Enable4xMsaa, g_map["is_4xmsaa"]);
-	l_reader.assign_bool(m_App->m_IsSyncInterval, g_map["is_sync_iterval"]);
+	l_reader.assign_bool(m_App->m_IsSyncInterval, g_map["is_sync_interval"]);
 }
 template <typename T_app>
 void lua_config<T_app>::init_additional()
