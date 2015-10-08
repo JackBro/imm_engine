@@ -202,6 +202,7 @@ void phy_attack_arrange<T_app>::update_collision()
 	for (size_t ix = 0; ix != is_active.size(); ++ix) {
 		if (!is_active[ix]) continue;
 		for (size_t ix_inst = 0; ix_inst != app->m_Inst.m_Stat.size(); ++ix_inst) {
+			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneGroundIx) continue;
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),
 				*(app->m_Inst.m_Stat[map_inst[ix]].get_World()),

@@ -156,7 +156,7 @@ void control_sys<T_app>::update_scene(const float &dt)
 {
 	// assert check update
 	assert(player1 > -1);
-	app->m_Inst.update(dt);
+	app->m_Inst.update_all_physics(dt);
 	update_scene_bounds();
 	update_stop(dt);
 	// camera follow update even m_Cmd.is_active()

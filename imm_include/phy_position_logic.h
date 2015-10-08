@@ -85,7 +85,7 @@ void phy_position_update(
 }
 ////////////////
 // phy_boxA_normal
-// not proper solution, for test only
+// bad!! it is not works, for test only
 ////////////////
 ////////////////
 XMVECTORF32 phy_boxA_normal(const BoundingBox &bbox_A, const BoundingBox &bbox_B)

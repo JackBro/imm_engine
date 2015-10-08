@@ -38,7 +38,7 @@ struct instance_mgr
 		const std::vector<std::string> &name);
 	int get_index(const std::string &name);
 	void on_resize();
-	void update(const float &dt);
+	void update_all_physics(const float &dt);
 	void update_bound();
 	void update_collision(float dt);
 	void update_collision_plane(float dt);
@@ -225,13 +225,14 @@ void instance_mgr<T_app>::on_resize()
 }
 //
 template <typename T_app>
-void instance_mgr<T_app>::update(const float &dt)
+void instance_mgr<T_app>::update_all_physics(const float &dt)
 {
 	update_skinned(dt);
 	update_bound();
 	update_collision(dt);
 	update_frustum_culling();
 	update_collision_liquid(dt);
+	m_App->m_Attack.update();
 }
 //
 template <typename T_app>

@@ -103,7 +103,6 @@ void scene_mgr<T_app>::update_atmosphere(float dt)
 	plasma.update(dt, total_time);
 	liquid.update(app->m_D3DDC, dt, total_time);
 	audio.update();
-	app->m_Attack.update();
 }
 //
 template <typename T_app>
