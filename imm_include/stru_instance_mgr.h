@@ -7,6 +7,7 @@
 ////////////////
 #ifndef STRU_INSTANCE_MGR_H
 #define STRU_INSTANCE_MGR_H
+#include "stru_inst_adapter.h"
 #include "stru_model_mgr.h"
 #include "control_state.h"
 namespace imm
@@ -52,6 +53,7 @@ struct instance_mgr
 	// Bounding only use BoundingBox for lazy develop
 	phy_bound_mgr m_BoundL;
 	phy_bound_mgr m_BoundW;
+	inst_adapter<T_app> m_Adapter;
 	BoundingFrustum m_CamFrustumL;
 	BoundingFrustum m_CamFrustumW;
 	std::vector<instance_stat> m_Stat;
@@ -68,6 +70,7 @@ instance_mgr<T_app>::instance_mgr():
 	m_Model(),
 	m_BoundL(),
 	m_BoundW(),
+	m_Adapter(),
 	m_IsLoading(false),
 	m_IsTerrainUse(false),
 	m_PlaneGroundIx(-1),
@@ -80,6 +83,7 @@ template <typename T_app>
 void instance_mgr<T_app>::init(T_app *app_in)
 {
 	m_App = app_in;
+	m_Adapter.init_load(app_in);
 }
 //
 template <typename T_app>
@@ -155,6 +159,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 	m_App->m_Control.rebuild_player();
 	m_App->m_Attack.rebuild_bbox_from_instance();
 	m_App->m_Scene.phy_wire.rebuild_buffer();
+	m_Adapter.flush();
 }
 //
 template <typename T_app>
@@ -232,6 +237,7 @@ void instance_mgr<T_app>::update_all_physics(const float &dt)
 	update_collision(dt);
 	update_frustum_culling();
 	update_collision_liquid(dt);
+	m_Adapter.update_world();
 	m_App->m_Attack.update();
 }
 //
@@ -261,6 +267,8 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 	if (m_PlaneGroundIx < 0) return;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		if (static_cast<int>(ix) == m_PlaneGroundIx) continue;
+		if (!m_Stat[ix].is_invoke_physics()) continue;
+		// ix_gro reserve
 		int ix_gro = m_PlaneGroundIx;
 		if (m_Stat[ix].phy.stand_from >= 0) ix_gro = m_Stat[ix].phy.stand_from;
 		m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
@@ -280,6 +288,8 @@ template <typename T_app>
 void instance_mgr<T_app>::update_collision_terrain(float dt)
 {
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
+		if (!m_Stat[ix].is_invoke_physics()) continue;
+		// ix_gro reserve
 		int ix_gro = -1;
 		if (m_Stat[ix].phy.stand_from >= 0) ix_gro = m_Stat[ix].phy.stand_from;
 		XMFLOAT4X4 *world = m_Stat[ix].get_World();
@@ -310,6 +320,7 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
 		for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
 			if (static_cast<int>(ix) == m_PlaneGroundIx || static_cast<int>(ix2) == m_PlaneGroundIx) continue;
+			if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
 			phy_impulse_casual(
 				dt,
 				*(m_Stat[ix].get_World()),

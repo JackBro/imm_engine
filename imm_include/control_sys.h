@@ -58,7 +58,7 @@ control_sys<T_app>::control_sys():
 	app(nullptr),
 	picked1(-1),
 	player1(-1),
-	style1(CONTROL_DEFAULT),
+	style1(CONTROL_CAM_FOLLOW),
 	wait_ui_disappear(0.0f),
 	pad(),
 	cam()
@@ -97,7 +97,7 @@ void control_sys<T_app>::rebuild_player()
 template <typename T_app>
 void control_sys<T_app>::mouse_instance_move()
 {
-	if (player1 < 0 || !(style1 & CONTORL_MOVE_BY_MOUSE)) return;
+	if (player1 < 0 || !(style1 & CONTORL_CAM_FREE)) return;
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_HIT;
 }
 //
@@ -113,7 +113,7 @@ void control_sys<T_app>::pad_instance_move_update()
 template <typename T_app>
 void control_sys<T_app>::key_instance_move_update()
 {
-	if (player1 < 0 || (style1 & CONTORL_MOVE_BY_MOUSE)) return;
+	if (player1 < 0 || (style1 & CONTORL_CAM_FREE)) return;
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_WASD;
 }
 //

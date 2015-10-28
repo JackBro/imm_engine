@@ -33,21 +33,25 @@ struct instance_stat
 	const void *p;
 	phy_property phy;
 	instance_type type;
+	bool is_attach;
 	//
 	XMFLOAT4X4 *get_World();
 	XMFLOAT4X4 *get_RotFront();
 	XMFLOAT4X4 *get_FinalTransform(size_t ix);
 	std::string *get_ModelName();
-	void set_World(const XMFLOAT4X4 world);
-	void set_IsAppear(const bool is_appear);
+	void set_World(const XMFLOAT4X4 &world);
+	void set_World(const XMMATRIX &world);
+	void set_IsAppear(const bool &is_appear);
 	void set_ClipName(const std::string &clip_name, const bool &is_reset_time);
 	void check_set_ClipName(const std::string &clip_name, const bool &is_reset_time);
+	bool is_invoke_physics();
 };
 //
 instance_stat::instance_stat():
 	p(nullptr),
 	phy(),
-	type(basic)
+	type(basic),
+	is_attach(false)
 {
 	;
 }
@@ -95,7 +99,7 @@ std::string *instance_stat::get_ModelName()
 }
 
 //
-void instance_stat::set_World(const XMFLOAT4X4 world)
+void instance_stat::set_World(const XMFLOAT4X4 &world)
 {
 	switch(type) {
 		case basic: ((basic_model_instance*)p)->world = world; return;
@@ -105,7 +109,17 @@ void instance_stat::set_World(const XMFLOAT4X4 world)
 	assert(false);
 }
 //
-void instance_stat::set_IsAppear(const bool is_appear)
+void instance_stat::set_World(const XMMATRIX &world)
+{
+	switch(type) {
+		case basic: XMStoreFloat4x4(&((basic_model_instance*)p)->world, world); return;
+		case skinned: XMStoreFloat4x4(&((skinned_model_instance*)p)->world, world); return;
+		case simple_pntt: XMStoreFloat4x4(&((simple_model_instance<vertex::pntt>*)p)->world, world); return;
+	}
+	assert(false);
+}
+//
+void instance_stat::set_IsAppear(const bool &is_appear)
 {
 	switch(type) {
 		case basic: ((basic_model_instance*)p)->is_appear = is_appear; return;
@@ -125,6 +139,12 @@ void instance_stat::check_set_ClipName(const std::string &clip_name, const bool 
 {
 	if (type != skinned) return;
 	((skinned_model_instance*)p)->check_set_ClipName(clip_name, is_reset_time);
+}
+//
+bool instance_stat::is_invoke_physics()
+{
+	if (is_attach) return false;
+	return true;
 }
 ////////////////
 // model_mgr

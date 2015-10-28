@@ -180,6 +180,7 @@ void phy_wireframe<T_app>::draw()
 	XMMATRIX view_proj = app->m_Cam.get_ViewProj();
 	// Draw collision box
 	for (size_t ix = 0; ix != app->m_Inst.m_BoundL.map.size(); ++ix) {
+		if (!app->m_Inst.m_Stat[ix].is_invoke_physics()) continue;
 		app->m_D3DDC->IASetVertexBuffers(0, 1, &box_collision[ix], &stride, &offset);
 		XMFLOAT4X4 *inst_world = app->m_Inst.m_Stat[ix].get_World();
 		XMMATRIX world = XMLoadFloat4x4(inst_world);
