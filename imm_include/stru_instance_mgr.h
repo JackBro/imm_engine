@@ -157,9 +157,8 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 		m_IsTerrainUse = true;
 	}
 	m_App->m_Control.rebuild_player();
-	m_App->m_Attack.rebuild_bbox_from_instance();
+	m_App->m_Attack.rebuild();
 	m_App->m_Scene.phy_wire.rebuild_buffer();
-	m_Adapter.flush();
 }
 //
 template <typename T_app>
@@ -381,6 +380,7 @@ void instance_mgr<T_app>::remove_all()
 	m_Stat.shrink_to_fit();
 	m_Troll.clear();
 	m_Troll.shrink_to_fit();
+	m_NameMap.clear();
 }
 //
 }

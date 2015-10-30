@@ -41,7 +41,7 @@ void pose_Idle::execute(troll *tro)
 			tro->change_state(pose_Move::instance());
 		}
 		else {
-			PTR->m_Inst.m_Stat[tro->index].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			PTR->m_Inst.m_Stat[tro->index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		}
 	}
 	if (tro->order & ORDER_MOVE_WASD) {
@@ -99,7 +99,7 @@ void pose_Move::execute(troll *tro)
 			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
 		}
 		else {
-			PTR->m_Inst.m_Stat[tro->index].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			PTR->m_Inst.m_Stat[tro->index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
 			tro->change_state(pose_Idle::instance());
 		}
 	}

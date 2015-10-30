@@ -29,18 +29,18 @@ void mouse_move_toward_hit(
 {
 	XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[index].get_World();
 	XMFLOAT4X4 &rot_front = *PTR->m_Inst.m_Stat[index].get_RotFront();
-	XMFLOAT3 *phy_velocity_nm = &PTR->m_Inst.m_Stat[index].phy.velocity_nm;
-	XMVECTOR velocity_nm = XMLoadFloat3(phy_velocity_nm);
+	XMFLOAT3 *phy_vel_indirect = &PTR->m_Inst.m_Stat[index].phy.vel_indirect;
+	XMVECTOR vel_indirect = XMLoadFloat3(phy_vel_indirect);
 	XMMATRIX W = XMLoadFloat4x4(&world);
 	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
-	velocity_nm = XMVectorSubtract(hit_pos, W.r[3]);
-	velocity_nm = XMVectorSetY(velocity_nm, 0.0f);
-	velocity_nm = XMVector3Normalize(velocity_nm);
-	// use velocity_nm as front direction
-	mouse_face_rot_y(W, RF, velocity_nm);
+	vel_indirect = XMVectorSubtract(hit_pos, W.r[3]);
+	vel_indirect = XMVectorSetY(vel_indirect, 0.0f);
+	vel_indirect = XMVector3Normalize(vel_indirect);
+	// use vel_indirect as front direction
+	mouse_face_rot_y(W, RF, vel_indirect);
 	// when update stop, use object own speed
-	velocity_nm = XMVectorScale(velocity_nm, speed);
-	XMStoreFloat3(phy_velocity_nm, velocity_nm);
+	vel_indirect = XMVectorScale(vel_indirect, speed);
+	XMStoreFloat3(phy_vel_indirect, vel_indirect);
 	XMStoreFloat4x4(&world, W);
 }
 //
@@ -196,18 +196,18 @@ void mouse_hit_terrain(XMVECTOR &hit_pos_out)
 //
 void pad_move_toward(const size_t &index, const float &speed)
 {
-	XMVECTOR velocity_nm = PTR->m_Cam.get_LookXM();
-	float cam_radians = atan2(-XMVectorGetX(velocity_nm), -XMVectorGetZ(velocity_nm));
+	XMVECTOR vel_indirect = PTR->m_Cam.get_LookXM();
+	float cam_radians = atan2(-XMVectorGetX(vel_indirect), -XMVectorGetZ(vel_indirect));
 	XMFLOAT4X4 &world = *(PTR->m_Inst.m_Stat[index].get_World());
 	XMFLOAT4X4 &rot_front = *(PTR->m_Inst.m_Stat[index].get_RotFront());
 	XMMATRIX W = XMLoadFloat4x4(&world);
 	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
-	pad_face_rot_y(W, RF, velocity_nm, cam_radians);
-	velocity_nm = XMVectorSetY(velocity_nm, 0.0f);
-	velocity_nm = XMVector3Normalize(velocity_nm);
-	velocity_nm = XMVectorScale(velocity_nm, speed);
+	pad_face_rot_y(W, RF, vel_indirect, cam_radians);
+	vel_indirect = XMVectorSetY(vel_indirect, 0.0f);
+	vel_indirect = XMVector3Normalize(vel_indirect);
+	vel_indirect = XMVectorScale(vel_indirect, speed);
 	XMStoreFloat4x4(&world, W);
-	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.velocity_nm, velocity_nm);
+	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.vel_indirect, vel_indirect);
 }
 //
 bool key_move_wasd(const size_t &index, const float &speed)
@@ -217,7 +217,7 @@ bool key_move_wasd(const size_t &index, const float &speed)
 		!(GetKeyState(KEY_P1_A) & 0x8000) &&
 		!(GetKeyState(KEY_P1_S) & 0x8000) &&
 		!(GetKeyState(KEY_P1_D) & 0x8000)) {
-		PTR->m_Inst.m_Stat[index].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		PTR->m_Inst.m_Stat[index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		return false;
 	}
 	//
@@ -233,21 +233,21 @@ bool key_move_wasd(const size_t &index, const float &speed)
 	if ((GetKeyState(KEY_P1_S) & 0x8000) && (GetKeyState(KEY_P1_D) & 0x8000))
 		offset_radians = XM_PI*0.75f;
 	//
-	XMVECTOR velocity_nm = PTR->m_Cam.get_LookXM();
+	XMVECTOR vel_indirect = PTR->m_Cam.get_LookXM();
 	XMVECTOR offset_rotation = XMQuaternionRotationAxis(VECTOR_AXIS_Y, offset_radians);
-	velocity_nm = XMVector3Rotate(velocity_nm, offset_rotation);
-	float cam_radians = atan2(-XMVectorGetX(velocity_nm), -XMVectorGetZ(velocity_nm));
+	vel_indirect = XMVector3Rotate(vel_indirect, offset_rotation);
+	float cam_radians = atan2(-XMVectorGetX(vel_indirect), -XMVectorGetZ(vel_indirect));
 	//
 	XMFLOAT4X4 &world = *(PTR->m_Inst.m_Stat[index].get_World());
 	XMFLOAT4X4 &rot_front = *(PTR->m_Inst.m_Stat[index].get_RotFront());
 	XMMATRIX W = XMLoadFloat4x4(&world);
 	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
-	pad_face_rot_y(W, RF, velocity_nm, cam_radians, true);
-	velocity_nm = XMVectorSetY(velocity_nm, 0.0f);
-	velocity_nm = XMVector3Normalize(velocity_nm);
-	velocity_nm = XMVectorScale(velocity_nm, speed);
+	pad_face_rot_y(W, RF, vel_indirect, cam_radians, true);
+	vel_indirect = XMVectorSetY(vel_indirect, 0.0f);
+	vel_indirect = XMVector3Normalize(vel_indirect);
+	vel_indirect = XMVectorScale(vel_indirect, speed);
 	XMStoreFloat4x4(&world, W);
-	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.velocity_nm, velocity_nm);
+	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.vel_indirect, vel_indirect);
 	return true;
 }
 //
@@ -263,11 +263,11 @@ void set_instance_speed(const size_t &index, const float &speed)
 	XMMATRIX WR = XMMatrixRotationQuaternion(rot_quat);
 	XMVECTOR det_RF = XMMatrixDeterminant(RF);
 	XMMATRIX R = XMMatrixMultiply(XMMatrixInverse(&det_RF, RF), WR);
-	XMVECTOR velocity_nm = XMVector3Rotate(VECTOR_FRONT_FACING, XMQuaternionRotationMatrix(R));
+	XMVECTOR vel_indirect = XMVector3Rotate(VECTOR_FRONT_FACING, XMQuaternionRotationMatrix(R));
 	//
-	velocity_nm = XMVector3Normalize(velocity_nm);
-	velocity_nm = XMVectorScale(velocity_nm, speed);
-	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.velocity_nm, velocity_nm);
+	vel_indirect = XMVector3Normalize(vel_indirect);
+	vel_indirect = XMVectorScale(vel_indirect, speed);
+	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.vel_indirect, vel_indirect);
 }
 //
 }}

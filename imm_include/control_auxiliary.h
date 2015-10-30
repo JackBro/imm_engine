@@ -64,7 +64,7 @@ void control_stop<T_app>::update(T_app *app, const size_t &index, const float &d
 	bool is_inter = contains(app->m_Inst.m_BoundW.center(index));
 	if (is_inter) {
 		is_stop = true;
-		app->m_Inst.m_Stat[index].phy.velocity_nm = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		app->m_Inst.m_Stat[index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		app->m_Inst.m_Troll[index].order |= ORDER_IDLE;
 	}
 	// adjust the direction

@@ -8,7 +8,7 @@
 #ifndef PHY_ATTACK_BOX_H
 #define PHY_ATTACK_BOX_H
 #include "phy_prepare.h"
-#include "stru_lua_help.h"
+#include "stru_inst_adapter.h"
 #include <map>
 namespace imm
 {
@@ -51,7 +51,9 @@ struct phy_attack_arrange
 	void init_load(T_app *app_in);
 	void read_lua();
 	void read_lua_bound_offset();
+	void rebuild();
 	void rebuild_bbox_from_instance();
+	void rebuild_info_from_attachment();
 	void update();
 	void update_world();
 	void update_collision();
@@ -63,12 +65,19 @@ struct phy_attack_arrange
 	std::vector<BoundingBox> bbox_l;
 	std::vector<BoundingBox> bbox_w;
 	std::vector<bool> is_active;
+	std::vector<bool> is_active_att;
 	std::map<std::string, phy_attack_model> model;
-	// demonstration: map[instance_ix][box_name] = bbox_ix
+	// unarmed map:
+	// # map[instance_ix][box_name] = bbox_ix
+	// # map_inst[bbox_ix] = instance_ix
 	std::map<size_t, std::map<std::string, size_t>> map;
-	// demonstration: map[bbox_ix] = instance_ix
 	std::map<size_t, size_t> map_inst;
 	std::map<std::string, std::vector<float>> model_bound_offset;
+	// weapon map:
+	// # map_att[instance_ix][weapon_name] = is_active_att_ix
+	// # map_att_box[is_active_att_ix] = weapon_ix
+	std::map<size_t, std::map<std::string, size_t>> map_att;
+	std::map<size_t, size_t> map_att_box;
 	T_app *app;
 };
 //
@@ -91,11 +100,15 @@ void phy_attack_arrange<T_app>::remove_all()
 	map.clear();
 	map_inst.clear();
 	bbox_l.clear();
-	bbox_w.clear();
-	is_active.clear();
 	bbox_l.shrink_to_fit();
+	bbox_w.clear();
 	bbox_w.shrink_to_fit();
+	is_active.clear();
 	is_active.shrink_to_fit();
+	map_att.clear();
+	map_att_box.clear();
+	is_active_att.clear();
+	is_active_att.shrink_to_fit();
 }
 //
 template <typename T_app>
@@ -149,6 +162,13 @@ void phy_attack_arrange<T_app>::read_lua_bound_offset()
 }
 //
 template <typename T_app>
+void phy_attack_arrange<T_app>::rebuild()
+{
+	rebuild_bbox_from_instance();
+	rebuild_info_from_attachment();
+}
+//
+template <typename T_app>
 void phy_attack_arrange<T_app>::rebuild_bbox_from_instance()
 {
 	remove_all();
@@ -170,6 +190,20 @@ void phy_attack_arrange<T_app>::rebuild_bbox_from_instance()
 		}
 	}
 	is_active.resize(bbox_w.size(), false);
+}
+//
+template <typename T_app>
+void phy_attack_arrange<T_app>::rebuild_info_from_attachment()
+{
+	app->m_Inst.m_Adapter.flush();
+	std::vector<inst_attachment> (*att) = &app->m_Inst.m_Adapter.attach;
+	for (size_t ix = 0; ix != (*att).size(); ++ix) {
+		if ((*att)[ix].is_enable) {
+			is_active_att.push_back(false);
+			map_att[(*att)[ix].owner_ix][(*att)[ix].name] = is_active_att.size()-1;
+			map_att_box[is_active_att.size()-1] = ix;
+		}
+	}
 }
 //
 template <typename T_app>
@@ -199,9 +233,12 @@ void phy_attack_arrange<T_app>::update_world()
 template <typename T_app>
 void phy_attack_arrange<T_app>::update_collision()
 {
+	// unarmed
 	for (size_t ix = 0; ix != is_active.size(); ++ix) {
 		if (!is_active[ix]) continue;
 		for (size_t ix_inst = 0; ix_inst != app->m_Inst.m_Stat.size(); ++ix_inst) {
+			if (ix_inst == map_inst[ix]) continue;
+			if (!app->m_Inst.m_Stat[ix_inst].is_invoke_physics()) continue;
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneGroundIx) continue;
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),
@@ -215,6 +252,28 @@ void phy_attack_arrange<T_app>::update_collision()
 			//
 		}
 	}
+	// weapon
+	std::vector<inst_attachment> (*att) = &app->m_Inst.m_Adapter.attach;
+	for (size_t ix = 0; ix != is_active_att.size(); ++ix) {
+		if (!is_active_att[ix]) continue;
+		for (size_t ix_inst = 0; ix_inst != app->m_Inst.m_Stat.size(); ++ix_inst) {
+			size_t owner_ix = (*att)[map_att_box[ix]].owner_ix;
+			size_t weapon_ix = (*att)[map_att_box[ix]].ix;
+			if (ix_inst == owner_ix) continue;
+			if (!app->m_Inst.m_Stat[ix_inst].is_invoke_physics()) continue;
+			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneGroundIx) continue;
+			phy_impulse_casual(
+				app->m_Timer.delta_time(),
+				*(app->m_Inst.m_Stat[owner_ix].get_World()),
+				*(app->m_Inst.m_Stat[ix_inst].get_World()),
+				app->m_Inst.m_Stat[owner_ix].phy,
+				app->m_Inst.m_Stat[ix_inst].phy,
+				bbox_w[ix].Center,
+				app->m_Inst.m_BoundW.center(ix_inst),
+				app->m_Inst.m_BoundW.intersects(ix_inst, weapon_ix));
+			//
+		}
+	}
 }
 //
 template <typename T_app>
@@ -223,19 +282,38 @@ void phy_attack_arrange<T_app>::set_active_box(
 	const std::vector<std::string> &box_name,
 	const bool &active = true)
 {
-	assert(map.count(inst_ix));
-	for (auto &name: box_name) {
-		assert(map[inst_ix].count(name));
-		is_active[map[inst_ix][name]] = active;
+	assert(map.count(inst_ix) || map_att.count(inst_ix));
+	// unarmed
+	if (map.count(inst_ix)) {
+		for (auto &name: box_name) {
+			if (!map[inst_ix].count(name)) continue;
+			is_active[map[inst_ix][name]] = active;
+		}
+	}
+	// weapon
+	if (map_att.count(inst_ix)) {
+		for (auto &name: box_name) {
+			if (!map_att[inst_ix].count(name)) continue;
+			is_active[map_att[inst_ix][name]] = active;
+		}
 	}
 }
 //
 template <typename T_app>
 void phy_attack_arrange<T_app>::deactive_box(const size_t &inst_ix)
 {
-	assert(map.count(inst_ix));
-	for (auto &box: map[inst_ix]) {
-		is_active[box.second] = false;
+	assert(map.count(inst_ix) || map_att.count(inst_ix));
+	// unarmed
+	if (map.count(inst_ix)) {
+		for (auto &box: map[inst_ix]) {
+			is_active[box.second] = false;
+		}
+	}
+	// weapon
+	if (map_att.count(inst_ix)) {
+		for (auto &box: map_att[inst_ix]) {
+			is_active_att[box.second] = false;
+		}
 	}
 }
 //

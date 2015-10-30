@@ -50,9 +50,9 @@ void phy_position_update(
 		prop.velocity.x += prop.acceleration.x*dt;
 		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt;
 		prop.velocity.z += prop.acceleration.z*dt;
-		world._41 += prop.velocity.x*dt + prop.velocity_nm.x*dt;
-		world._42 += prop.velocity.y*dt + prop.velocity_nm.y*dt;
-		world._43 += prop.velocity.z*dt + prop.velocity_nm.z*dt;
+		world._41 += prop.velocity.x*dt + prop.vel_indirect.x*dt;
+		world._42 += prop.velocity.y*dt + prop.vel_indirect.y*dt;
+		world._43 += prop.velocity.z*dt + prop.vel_indirect.z*dt;
 	}
 	else {
 		float bounce = prop.bounce*prop_ground.bounce;
@@ -68,9 +68,9 @@ void phy_position_update(
 		// guarantee object.intersects(ground) return true, exclude if they have a little gap
 		float stand_adjust = -0.01f;
 		float stand = half_y+ground_y+stand_adjust;
-		center_y += prop.velocity.y*dt + prop.velocity_nm.y*dt;
-		world._41 += prop.velocity.x*dt + prop.velocity_nm.x*dt;
-		world._43 += prop.velocity.z*dt + prop.velocity_nm.z*dt;
+		center_y += prop.velocity.y*dt + prop.vel_indirect.y*dt;
+		world._41 += prop.velocity.x*dt + prop.vel_indirect.x*dt;
+		world._43 += prop.velocity.z*dt + prop.vel_indirect.z*dt;
 		if (abs(prop.velocity.y) < PHY_IGNORE_GRAVITY) prop.velocity.y = 0.0f;
 		if (center_y < stand) center_y = stand;
 		world._42 = center_y+offset_y;
@@ -146,9 +146,9 @@ void phy_impulse_casual(
 	XMVECTOR AtoB = XMVector3Normalize(XMVectorSubtract(c_B, c_A));
 	XMVECTOR vel_A = XMLoadFloat3(&prop_A.velocity);
 	XMVECTOR vel_B = XMLoadFloat3(&prop_B.velocity);
-	// empirical formula, velocity_nm is different from velocity
-	XMVECTOR vel_A_nm = XMLoadFloat3(&prop_A.velocity_nm);
-	XMVECTOR vel_B_nm = XMLoadFloat3(&prop_B.velocity_nm);
+	// empirical formula, vel_indirect is different from velocity
+	XMVECTOR vel_A_nm = XMLoadFloat3(&prop_A.vel_indirect);
+	XMVECTOR vel_B_nm = XMLoadFloat3(&prop_B.vel_indirect);
 	XMVECTOR vel_A_all = XMVectorAdd(vel_A, vel_A_nm);
 	XMVECTOR vel_B_all = XMVectorAdd(vel_B, vel_B_nm);
 	// penetration depth estimate, not accurate, increase its value

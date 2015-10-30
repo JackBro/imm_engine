@@ -21,7 +21,8 @@ struct phy_property
 {
 	phy_property();
 	XMFLOAT3 velocity;
-	XMFLOAT3 velocity_nm; // velcoity of no direct mechanical motion, for example: walk, run
+	XMFLOAT3 vel_indirect; // velcoity of no direct mechanical motion, for example: walk, run
+	XMFLOAT3 vel_bring;
 	XMFLOAT3 acceleration;
 	float mass;
 	float friction_rev; // reversed coefficient of friction, 0 <= this <= 1, ignore original friction > 1
@@ -34,7 +35,8 @@ struct phy_property
 //
 phy_property::phy_property():
 	velocity(0.0f, 0.0f, 0.0f),
-	velocity_nm(0.0f, 0.0f, 0.0f),
+	vel_indirect(0.0f, 0.0f, 0.0f),
+	vel_bring(0.0f, 0.0f, 0.0f),
 	acceleration(0.0f, 0.0f, 0.0f),
 	mass(0.0f),
 	friction_rev(0.3f),
@@ -112,10 +114,10 @@ public:
 	void transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world);
 	bool intersects(const size_t &ixA, const size_t &ixB);
 	bool intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &direction, float &dist);
-	template <typename T_object>
-	ContainmentType contains(const size_t &ix, const T_object &object);
 	template <typename T_bound>
 	bool intersects(const size_t &ix, const T_bound &bound);
+	template <typename T_object>
+	ContainmentType contains(const size_t &ix, const T_object &object);
 	void pick(
 		const int &pos_x,
 		const int &pos_y,

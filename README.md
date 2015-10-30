@@ -2,7 +2,6 @@ immature engine
 ===============
 C++  
 immature engine  
-Quick-and-dirty
 
 Introduction:
 -------------
