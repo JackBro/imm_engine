@@ -51,8 +51,8 @@ struct instance_mgr
 	void remove_all();
 	model_mgr m_Model;
 	// Bounding only use BoundingBox for lazy develop
-	phy_bound_mgr m_BoundL;
-	phy_bound_mgr m_BoundW;
+	phy_bound_mgr<T_app> m_BoundL;
+	phy_bound_mgr<T_app> m_BoundW;
 	inst_adapter<T_app> m_Adapter;
 	BoundingFrustum m_CamFrustumL;
 	BoundingFrustum m_CamFrustumW;
@@ -83,6 +83,8 @@ template <typename T_app>
 void instance_mgr<T_app>::init(T_app *app_in)
 {
 	m_App = app_in;
+	m_BoundL.init(m_App);
+	m_BoundW.init(m_App);
 	m_Adapter.init_load(app_in);
 }
 //

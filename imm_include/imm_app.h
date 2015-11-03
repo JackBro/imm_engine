@@ -7,6 +7,7 @@
 ////////////////
 #ifndef IMM_APP_H
 #define IMM_APP_H
+#include "ai_steering_behavior.h"
 #include "condition_trigger.h"
 #include "phy_attack_box.h"
 #include "control_sys.h"

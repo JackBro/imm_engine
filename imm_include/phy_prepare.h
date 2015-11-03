@@ -102,14 +102,17 @@ enum phy_bound_type
 // manager various types of bounding
 ////////////////
 ////////////////
+template <typename T_app>
 class phy_bound_mgr
 {
 public:
 	phy_bound_mgr();
+	T_app *app;
 	std::vector<BoundingBox> b1;
 	std::vector<BoundingOrientedBox> b2;
 	std::vector<BoundingSphere> b3;
 	std::vector<std::pair<phy_bound_type, size_t>> map;
+	void init(T_app *app_in);
 	void push_back_empty(const phy_bound_type &type);
 	void transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world);
 	bool intersects(const size_t &ixA, const size_t &ixB);
@@ -125,15 +128,15 @@ public:
 		const int &clinet_height,
 		CXMMATRIX cam_proj,
 		CXMMATRIX cam_view,
-		int &out_ix,
-		const std::vector<size_t> &ix_list);
+		int &out_ix);
 	//
 	XMFLOAT3 center(const size_t &ix);
 	float half_y(const size_t &ix);
 	void remove_all();
 };
 //
-phy_bound_mgr::phy_bound_mgr():
+template <typename T_app>
+phy_bound_mgr<T_app>::phy_bound_mgr():
 	b1(),
 	b2(),
 	b3(),
@@ -142,7 +145,14 @@ phy_bound_mgr::phy_bound_mgr():
 	;
 }
 //
-void phy_bound_mgr::push_back_empty(const phy_bound_type &type)
+template <typename T_app>
+void phy_bound_mgr<T_app>::init(T_app *app_in)
+{
+	app = app_in;
+}
+//
+template <typename T_app>
+void phy_bound_mgr<T_app>::push_back_empty(const phy_bound_type &type)
 {
 	switch(type) {
 		case box:
@@ -164,7 +174,8 @@ void phy_bound_mgr::push_back_empty(const phy_bound_type &type)
 	assert(false);
 }
 //
-void phy_bound_mgr::transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world)
+template <typename T_app>
+void phy_bound_mgr<T_app>::transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world)
 {
 	switch(map[ix].first) {
 		case box: b1[map[ix].second].Transform(out.b1[map[ix].second], world); return;
@@ -173,7 +184,8 @@ void phy_bound_mgr::transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &w
 	}
 }
 //
-bool phy_bound_mgr::intersects(const size_t &ixA, const size_t &ixB)
+template <typename T_app>
+bool phy_bound_mgr<T_app>::intersects(const size_t &ixA, const size_t &ixB)
 {
 	switch(map[ixA].first) {
 		case box:
@@ -199,7 +211,8 @@ bool phy_bound_mgr::intersects(const size_t &ixA, const size_t &ixB)
 	return false;
 }
 //
-bool phy_bound_mgr::intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &direction, float &dist)
+template <typename T_app>
+bool phy_bound_mgr<T_app>::intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &direction, float &dist)
 {
 	switch(map[ix].first) {
 		case box: return b1[map[ix].second].Intersects(origin, direction, dist);
@@ -210,8 +223,9 @@ bool phy_bound_mgr::intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &d
 	return false;
 }
 //
+template <typename T_app>
 template <typename T_bound>
-bool phy_bound_mgr::intersects(const size_t &ix, const T_bound &bound)
+bool phy_bound_mgr<T_app>::intersects(const size_t &ix, const T_bound &bound)
 {
 	switch(map[ix].first) {
 		case box: return b1[map[ix].second].Intersects(bound);
@@ -222,8 +236,9 @@ bool phy_bound_mgr::intersects(const size_t &ix, const T_bound &bound)
 	return false;
 }
 //
+template <typename T_app>
 template <typename T_object>
-ContainmentType phy_bound_mgr::contains(const size_t &ix, const T_object &object)
+ContainmentType phy_bound_mgr<T_app>::contains(const size_t &ix, const T_object &object)
 {
 	switch(map[ix].first) {
 		case box: return b1[map[ix].second].Contains(object);
@@ -234,15 +249,15 @@ ContainmentType phy_bound_mgr::contains(const size_t &ix, const T_object &object
 	return ContainmentType::DISJOINT;
 }
 //
-void phy_bound_mgr::pick(
+template <typename T_app>
+void phy_bound_mgr<T_app>::pick(
 	const int &pos_x,
 	const int &pos_y,
 	const int &client_width,
 	const int &clinet_height,
 	CXMMATRIX cam_proj,
 	CXMMATRIX cam_view,
-	int &out_ix,
-	const std::vector<size_t> &ix_list = std::vector<size_t>())
+	int &out_ix)
 {
 	// Compute picking ray in view space.
 	float vx = (+2.0f*pos_x/client_width  - 1.0f)/cam_proj.r[0].m128_f32[0];
@@ -260,27 +275,18 @@ void phy_bound_mgr::pick(
 	int picked_box = -1;
 	float tmin = FLT_MAX;
 	// Find the nearest ray/box intersection.
-	if (ix_list.size() == 0) {
-		for (size_t ix = 0; ix != map.size(); ++ix) {
-			float t = 0.0f;
-			if (intersects(ix, ray_origin, ray_dir, t)) {
-				if (t < tmin) {tmin = t; picked_box = static_cast<int>(ix);}
-			}
-		}
-	}
-	else {
-		for (size_t index = 0; index != ix_list.size(); ++index) {
-			size_t ix = ix_list[index];
-			float t = 0.0f;
-			if (intersects(ix, ray_origin, ray_dir, t)) {
-				if (t < tmin) {tmin = t; picked_box = static_cast<int>(ix);}
-			}
+	for (size_t ix = 0; ix != map.size(); ++ix) {
+		float t = 0.0f;
+		if (!app->m_Inst.m_Stat[ix].is_invoke_physics()) continue;
+		if (intersects(ix, ray_origin, ray_dir, t)) {
+			if (t < tmin) {tmin = t; picked_box = static_cast<int>(ix);}
 		}
 	}
 	out_ix = picked_box;
 }
 //
-XMFLOAT3 phy_bound_mgr::center(const size_t &ix)
+template <typename T_app>
+XMFLOAT3 phy_bound_mgr<T_app>::center(const size_t &ix)
 {
 	switch(map[ix].first) {
 		case box: return b1[map[ix].second].Center;
@@ -291,7 +297,8 @@ XMFLOAT3 phy_bound_mgr::center(const size_t &ix)
 	return XMFLOAT3();
 }
 //
-float phy_bound_mgr::half_y(const size_t &ix)
+template <typename T_app>
+float phy_bound_mgr<T_app>::half_y(const size_t &ix)
 {
 	switch(map[ix].first) {
 		case box: return b1[map[ix].second].Extents.y;
@@ -302,7 +309,8 @@ float phy_bound_mgr::half_y(const size_t &ix)
 	return 0.0f;
 }
 //
-void phy_bound_mgr::remove_all()
+template <typename T_app>
+void phy_bound_mgr<T_app>::remove_all()
 {
 	b1.clear();
 	b2.clear();

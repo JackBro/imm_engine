@@ -66,12 +66,13 @@ struct phy_attack_arrange
 	std::vector<BoundingBox> bbox_w;
 	std::vector<bool> is_active;
 	std::vector<bool> is_active_att;
-	std::map<std::string, phy_attack_model> model;
 	// unarmed map:
 	// # map[instance_ix][box_name] = bbox_ix
 	// # map_inst[bbox_ix] = instance_ix
+	std::map<std::string, phy_attack_model> model;
 	std::map<size_t, std::map<std::string, size_t>> map;
 	std::map<size_t, size_t> map_inst;
+	// bound correction:
 	std::map<std::string, std::vector<float>> model_bound_offset;
 	// weapon map:
 	// # map_att[instance_ix][weapon_name] = is_active_att_ix

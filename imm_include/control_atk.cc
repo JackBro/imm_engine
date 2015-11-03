@@ -37,6 +37,22 @@ void combo_data::build(const std::string &name)
 		box_name.push_back("foot_R");
 		atk_box.push_back(box_name);
 	}
+	if (name == "pepper") {
+		atk.push_back("Atk01");
+		atk.push_back("Atk02");
+		frame_end.push_back(9.0f);
+		frame_end.push_back(11.0f);
+		frame_turn.push_back(4.5f-2.0f);
+		frame_turn.push_back(5.5f-2.0f);
+		frame_speed.push_back(1.0f);
+		frame_speed.push_back(0.5f);
+		std::vector<std::string> box_name;
+		box_name.push_back("hand_L");
+		atk_box.push_back(box_name);
+		box_name.clear();
+		box_name.push_back("foot_R");
+		atk_box.push_back(box_name);
+	}
 	for (auto &end: frame_end) end /= frame_rate;
 	for (auto &turn: frame_turn) turn /= frame_rate;
 }
@@ -111,6 +127,7 @@ void control_atk<T_app>::init(T_app *app_in)
 {
 	app = app_in;
 	combo_d["sinon"].build("sinon");
+	combo_d["pepper"].build("pepper");
 }
 //
 template <typename T_app>
