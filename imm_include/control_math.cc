@@ -10,16 +10,14 @@
 namespace imm {namespace math
 {
 //
-void mouse_instance_move(const size_t &index, const float &speed)
+void mouse_inst_move(const size_t &index, const float &speed)
 {
 	if (!PTR->m_Inst.m_Stat[index].phy.is_on_ground) return;
 	XMVECTOR hit_pos;
 	if (PTR->m_Inst.m_IsTerrainUse) mouse_hit_terrain(hit_pos);
 	else mouse_hit_plane_y(hit_pos);
 	mouse_move_toward_hit(hit_pos, index, speed);
-	PTR->m_Control.map_stop[index].is_stop = false;
-	PTR->m_Control.map_stop[index].speed = speed;
-	PTR->m_Control.map_stop[index].set_aabb(hit_pos, PTR->m_Inst.m_BoundW.half_y(index));
+	PTR->m_Control.map_stop[index].set_destination(speed, hit_pos, PTR->m_Inst.m_BoundW.half_y(index));
 }
 //
 void mouse_move_toward_hit(
@@ -191,7 +189,12 @@ void mouse_hit_terrain(XMVECTOR &hit_pos_out)
 		else plane_y = terrain_half_y - delt_y*((ix+1)/2);
 	}
 	hit_pos_out = near_pos;
-	assert(less_y < terrain_height || less_y2 < terrain_height);
+	//
+	if (!(less_y < terrain_height || less_y2 < terrain_height)) {
+#if defined(DEBUG) | defined(_DEBUG)
+		echo("error: control_math.cc: mouse_hit_terrain()");
+#endif
+	}
 }
 //
 void pad_move_toward(const size_t &index, const float &speed)
@@ -251,7 +254,7 @@ bool key_move_wasd(const size_t &index, const float &speed)
 	return true;
 }
 //
-void set_instance_speed(const size_t &index, const float &speed)
+void set_inst_speed(const size_t &index, const float &speed)
 {
 	XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[index].get_World();
 	XMFLOAT4X4 &rot_front = *PTR->m_Inst.m_Stat[index].get_RotFront();
@@ -268,6 +271,20 @@ void set_instance_speed(const size_t &index, const float &speed)
 	vel_indirect = XMVector3Normalize(vel_indirect);
 	vel_indirect = XMVectorScale(vel_indirect, speed);
 	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.vel_indirect, vel_indirect);
+}
+//
+void ai_move_pos(const size_t &index, const float &speed)
+{
+	XMFLOAT3 *pos = &PTR->m_Inst.m_Steering[index].desired_pos;
+	if (PTR->m_Inst.m_IsTerrainUse) {
+		pos->y = PTR->m_Scene.terrain1.get_Height(pos->x, pos->z);
+	}
+	else {
+		pos->y = PTR->m_Inst.m_Stat[PTR->m_Inst.m_PlaneGroundIx].get_World()->_42;
+	}
+	XMVECTOR hit_pos = XMLoadFloat3(pos);
+	mouse_move_toward_hit(hit_pos, index, speed);
+	PTR->m_Control.map_stop[index].set_destination(speed, hit_pos, PTR->m_Inst.m_BoundW.half_y(index));
 }
 //
 }}

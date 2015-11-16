@@ -9,6 +9,7 @@
 #include "control_state.cc"
 #include "control_math.cc"
 #include "control_atk.cc"
+#include "ai_steering.cc"
 //
 #pragma comment(lib, "User32")
 #pragma comment(lib, "Effects11")

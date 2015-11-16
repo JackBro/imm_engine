@@ -23,6 +23,7 @@ enum ORDER_ACT_TYPE {
 	ORDER_MOVE_WASD   = 0x8,
 	ORDER_IDLE        = 0x10,
 	ORDER_ATK_X       = 0x20,
+	ORDER_DMG         = 0x40,
 };
 //
 enum ORDER_STAT_TYPE {
@@ -70,8 +71,8 @@ struct pose_Move: public state<troll>
 	void exit(troll*);
 private:
 	pose_Move() {;}
-	pose_Move(const pose_Idle&);
-	pose_Move &operator=(const pose_Idle&);
+	pose_Move(const pose_Move&);
+	pose_Move &operator=(const pose_Move&);
 };
 ////////////////
 // pose_Jump
@@ -86,8 +87,8 @@ struct pose_Jump: public state<troll>
 	void exit(troll*);
 private:
 	pose_Jump() {;}
-	pose_Jump(const pose_Idle&);
-	pose_Jump &operator=(const pose_Idle&);
+	pose_Jump(const pose_Jump&);
+	pose_Jump &operator=(const pose_Jump&);
 };
 ////////////////
 // pose_Atk
@@ -102,8 +103,24 @@ struct pose_Atk: public state<troll>
 	void exit(troll*);
 private:
 	pose_Atk() {;}
-	pose_Atk(const pose_Idle&);
-	pose_Atk &operator=(const pose_Idle&);
+	pose_Atk(const pose_Atk&);
+	pose_Atk &operator=(const pose_Atk&);
+};
+////////////////
+// pose_Damage
+////////////////
+////////////////
+struct troll;
+struct pose_Damage: public state<troll>
+{
+	static pose_Damage *instance();
+	void enter(troll*);
+	void execute(troll*);
+	void exit(troll*);
+private:
+	pose_Damage() {;}
+	pose_Damage(const pose_Damage&);
+	pose_Damage &operator=(const pose_Damage&);
 };
 ////////////////
 // act
@@ -117,6 +134,7 @@ struct act
 	static std::string Jump;
 	static std::string JumpGround;
 	static std::string BattleReady;
+	static std::string Damage;
 };
 //
 std::string act::Idle        = "Idle";
@@ -125,6 +143,7 @@ std::string act::Run         = "Run";
 std::string act::Jump        = "Jump";
 std::string act::JumpGround  = "JumpGround";
 std::string act::BattleReady = "BattleReady";
+std::string act::Damage      = "Damage";
 ////////////////
 // troll
 ////////////////

@@ -7,6 +7,7 @@
 ////////////////
 #ifndef STRU_INSTANCE_MGR_H
 #define STRU_INSTANCE_MGR_H
+#include "ai_steering.h"
 #include "stru_inst_adapter.h"
 #include "stru_model_mgr.h"
 #include "control_state.h"
@@ -58,6 +59,7 @@ struct instance_mgr
 	BoundingFrustum m_CamFrustumW;
 	std::vector<instance_stat> m_Stat;
 	std::vector<troll> m_Troll;
+	std::map<size_t, steering> m_Steering;
 	std::map<std::string, std::size_t> m_NameMap;
 	bool m_IsLoading;
 	bool m_IsTerrainUse;
@@ -139,6 +141,7 @@ void instance_mgr<T_app>::reload()
 	m_Troll.resize(m_Stat.size());
 	for (size_t ix = 0; ix != m_Troll.size(); ++ix) {
 		m_Troll[ix].index = ix;
+		if (m_Stat[ix].type == skinned) m_Steering[ix].init(ix);
 	}
 	reload_scene_instance_relate();
 	on_resize();
@@ -282,6 +285,7 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 			m_Stat[ix].phy.is_on_ground,
 			m_BoundW.half_y(ix),
 			(m_Stat[m_PlaneGroundIx].get_World())->_42);
+		//
 	}
 }
 //
@@ -322,6 +326,15 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 		for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
 			if (static_cast<int>(ix) == m_PlaneGroundIx || static_cast<int>(ix2) == m_PlaneGroundIx) continue;
 			if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
+			// sensor
+			bool is_touch = m_BoundW.intersects(ix, ix2);
+			if (m_Stat[ix].type == skinned) {
+				m_Steering[ix].sensor[ix2] = is_touch;
+			}
+			if (m_Stat[ix2].type == skinned) {		
+				m_Steering[ix2].sensor[ix] = is_touch;
+			}
+			//
 			phy_impulse_casual(
 				dt,
 				*(m_Stat[ix].get_World()),
@@ -330,7 +343,7 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 				m_Stat[ix2].phy,
 				m_BoundW.center(ix),
 				m_BoundW.center(ix2),
-				m_BoundW.intersects(ix, ix2));
+				is_touch);
 		}
 	}
 }
@@ -351,10 +364,8 @@ void instance_mgr<T_app>::update_skinned(const float &dt)
 	for (auto &skinned: m_Model.m_InstSkinned) skinned.update(dt);
 	for (auto &skinned: m_Model.m_InstSkinnedAlpha) skinned.update(dt);
 	// Troll
-	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
-		//if (m_Stat[ix].type == instance_type::skinned) m_Troll[ix].update();
-		m_Troll[ix].update();
-	}
+	for (auto &troll: m_Troll) troll.update();
+	for (auto &ste: m_Steering) ste.second.update();
 }
 //
 template <typename T_app>
@@ -382,6 +393,7 @@ void instance_mgr<T_app>::remove_all()
 	m_Stat.shrink_to_fit();
 	m_Troll.clear();
 	m_Troll.shrink_to_fit();
+	m_Steering.clear();
 	m_NameMap.clear();
 }
 //

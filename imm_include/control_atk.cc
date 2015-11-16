@@ -13,14 +13,14 @@ namespace imm
 // combo_data
 ////////////////
 ////////////////
-combo_data::combo_data():
-	frame_rate(24.0f)
+combo_data::combo_data()
 {
 	;
 }
 //
 void combo_data::build(const std::string &name)
 {
+	// game date
 	if (name == "sinon") {
 		atk.push_back("Atk01");
 		atk.push_back("Atk02");
@@ -53,17 +53,19 @@ void combo_data::build(const std::string &name)
 		box_name.push_back("foot_R");
 		atk_box.push_back(box_name);
 	}
-	for (auto &end: frame_end) end /= frame_rate;
-	for (auto &turn: frame_turn) turn /= frame_rate;
+	for (auto &end: frame_end) end /= FRAME_RATE;
+	for (auto &turn: frame_turn) turn /= FRAME_RATE;
 }
 //
 void combo_data::current_apply(combo_para &pa)
 {
+	// deactive the previous box
 	if (pa.combo_ix > 0) PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.combo_ix-1], false);
-	pa.time_count_down = frame_end[pa.combo_ix];
+	pa.count_down = frame_end[pa.combo_ix];
 	PTR->m_Inst.m_Stat[pa.inst_ix].check_set_ClipName(atk[pa.combo_ix], true);
-	math::set_instance_speed(pa.inst_ix, frame_speed[pa.combo_ix]);
+	math::set_inst_speed(pa.inst_ix, frame_speed[pa.combo_ix]);
 	pa.is_busy = true;
+	pa.current_ix = pa.combo_ix;
 	PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.combo_ix], true);
 }
 //
@@ -75,13 +77,13 @@ void combo_data::current_over(combo_para &pa)
 //
 void combo_data::strike(combo_para &pa)
 {
-	if (pa.combo_ix < 0 && pa.time_count_down > 0.0f) return;
+	if (pa.combo_ix < 0 && pa.count_down > 0.0f) return;
 	if (pa.combo_ix == -1) {
 		++pa.combo_ix;
 		current_apply(pa);
 		return;
 	}
-	if (!pa.is_turn_next && pa.time_count_down > frame_turn[pa.combo_ix]) {
+	if (!pa.is_turn_next && pa.count_down > frame_turn[pa.combo_ix]) {
 		++pa.combo_ix;
 		pa.is_turn_next = true;
 		return;
@@ -91,24 +93,57 @@ void combo_data::strike(combo_para &pa)
 void combo_data::update(const float &dt, combo_para &pa)
 {
 	auto &tro = PTR->m_Inst.m_Troll[pa.inst_ix];
-	if (pa.time_count_down > -5.0f) pa.time_count_down -= dt;
-	if (pa.is_busy && pa.time_count_down < 0.0f) {
+	if (pa.count_down > -5.0f) pa.count_down -= dt;
+	if (pa.is_busy && pa.count_down < 0.0f) {
 		tro.order |= ORDER_IDLE;
 		current_over(pa);
 		pa.combo_ix = -1;
 		return;
 	}
-	if (!pa.is_busy && pa.time_count_down < -2.0f) {
+	if (!pa.is_busy && pa.count_down < -2.0f) {
 		if (tro.current_state == pose_Idle::instance())
 			PTR->m_Inst.m_Stat[pa.inst_ix].check_set_ClipName(act::Idle);
-		pa.time_count_down = -6.0f;
+		pa.count_down = -6.0f;
 		return;
 	}
-	if (pa.is_turn_next && pa.time_count_down < frame_turn[pa.combo_ix]) {
+	if (pa.is_turn_next && pa.count_down < frame_turn[pa.combo_ix]) {
 		current_apply(pa);
 		pa.is_turn_next = false;
 		if (pa.combo_ix == atk.size()-1) pa.combo_ix = -1;
 		return;
+	}
+}
+////////////////
+// damage_data
+////////////////
+////////////////
+damage_data::damage_data():
+	ix_atk(0),
+	ix_dmg(0),
+	combo_ix(-2),
+	count_down(-1.0f),
+	is_calculated(true)
+{
+	;
+}
+//
+void damage_data::update(const float &dt)
+{
+	if (count_down > 0.0f) count_down -= dt;
+	if (!is_calculated) {
+		PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
+		is_calculated = true;
+	}
+}
+//
+void damage_data::stamp()
+{
+	if (count_down > 0.0f) {
+		return;
+	}
+	else {
+		count_down = PTR->m_Control.atk.c_para[ix_atk].count_down;
+		is_calculated = false;
 	}
 }
 ////////////////
@@ -134,6 +169,7 @@ template <typename T_app>
 void control_atk<T_app>::reset()
 {
 	c_para.clear();
+	damage.clear();
 }
 //
 template <typename T_app>
@@ -145,7 +181,27 @@ void control_atk<T_app>::init_combo_para(const size_t &index_in)
 }
 //
 template <typename T_app>
-void control_atk<T_app>::perform(const size_t &index_in)
+void control_atk<T_app>::cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg)
+{
+	assert(inst_ix_atk < 1000);
+	assert(inst_ix_dmg < 1000);
+	assert(c_para[inst_ix_atk].current_ix < 100);
+	assert(c_para[inst_ix_atk].current_ix > -1);
+	int index =
+		c_para[inst_ix_atk].current_ix +
+		static_cast<int>(inst_ix_atk)*1000 +
+		static_cast<int>(inst_ix_dmg)*1000000;
+	if (!damage.count(index)) {
+		// init
+		damage[index].ix_atk = inst_ix_atk;
+		damage[index].ix_dmg = inst_ix_dmg;
+		damage[index].combo_ix = c_para[inst_ix_atk].current_ix;
+	}
+	damage[index].stamp();
+}
+//
+template <typename T_app>
+void control_atk<T_app>::execute(const size_t &index_in)
 {
 	if (!combo_d.count(*app->m_Inst.m_Stat[index_in].get_ModelName())) {
 		PTR->m_Inst.m_Troll[index_in].revert_previous_state();
@@ -160,6 +216,9 @@ void control_atk<T_app>::update(const float &dt)
 {
 	for (auto &para_it: c_para) {
 		combo_d[para_it.second.model_name].update(dt, para_it.second);
+	}
+	for (auto &dmg: damage) {
+		dmg.second.update(dt);
 	}
 }
 //

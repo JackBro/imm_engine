@@ -20,6 +20,7 @@ template <typename T_app>
 struct control_stop
 {
 	control_stop();
+	void set_destination(const float &speed_in, CXMVECTOR &pos, const float &half_y);
 	void set_aabb(CXMVECTOR &pos, const float &half_y);
 	bool contains(const XMFLOAT3 &center);
 	void update(T_app *app, const size_t &index, const float &dt);
@@ -38,6 +39,14 @@ control_stop<T_app>::control_stop():
 	speed(0.0f)
 {
 	;
+}
+//
+template <typename T_app>
+void control_stop<T_app>::set_destination(const float &speed_in, CXMVECTOR &pos, const float &half_y)
+{
+	is_stop = false;
+	speed = speed_in;
+	set_aabb(pos, half_y);
 }
 //
 template <typename T_app>

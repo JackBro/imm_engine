@@ -73,6 +73,8 @@ static const float UI_RESOLUTION_WIDTH = 1366.0f;
 static const float UI_RESOLUTION_HEIGHT = 768.0f;
 // OMSetBlendState, BLEND_FACTOR_ZERO
 static const float BLEND_FACTOR_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
+// frame rate, Blender's default setting is 24.0f
+static const float FRAME_RATE = 24.0f;
 ////////////////
 // str, wstr
 ////////////////

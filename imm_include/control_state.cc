@@ -21,8 +21,12 @@ pose_Idle *pose_Idle::instance()
 //
 void pose_Idle::enter(troll *tro)
 {
-	if (tro->previous_state == pose_Atk::instance()) PTR->m_Inst.m_Stat[tro->index].check_set_ClipName("BattleReady");
-	else PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Idle);
+	if (tro->previous_state == pose_Atk::instance()) {
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::BattleReady);
+	}
+	else {
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Idle);
+	}
 }
 //
 void pose_Idle::execute(troll *tro)
@@ -30,7 +34,8 @@ void pose_Idle::execute(troll *tro)
 	if (tro->order & ORDER_MOVE_HIT) {
 		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
 		tro->order = ORDER_NONE;
-		math::mouse_instance_move(tro->index, tro->speed_move());
+		if (tro->index != PTR->m_Control.player1) math::ai_move_pos(tro->index, tro->speed_move());
+		else math::mouse_inst_move(tro->index, tro->speed_move());
 		tro->change_state(pose_Move::instance());
 	}
 	if (tro->order & ORDER_MOVE_TOWARD) {
@@ -57,6 +62,10 @@ void pose_Idle::execute(troll *tro)
 	}
 	if (tro->order & ORDER_ATK_X) {
 		tro->change_state(pose_Atk::instance());
+	}
+	if (tro->order & ORDER_DMG) {
+		tro->order = ORDER_NONE;
+		tro->change_state(pose_Damage::instance());
 	}
 }
 //
@@ -88,8 +97,9 @@ void pose_Move::execute(troll *tro)
 	if (tro->order & ORDER_MOVE_HIT) {
 		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
 		tro->order = ORDER_NONE;
-		math::mouse_instance_move(tro->index, tro->speed_move());
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
+		if (tro->index != PTR->m_Control.player1) math::ai_move_pos(tro->index, tro->speed_move());
+		else math::mouse_inst_move(tro->index, tro->speed_move());
+		tro->change_state(pose_Move::instance());
 	}
 	if (tro->order & ORDER_MOVE_TOWARD) {
 		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
@@ -189,7 +199,7 @@ void pose_Atk::execute(troll *tro)
 {
 	if (tro->order & ORDER_ATK_X) {
 		tro->order = ORDER_NONE;
-		PTR->m_Control.atk.perform(tro->index);
+		PTR->m_Control.atk.execute(tro->index);
 	}
 	if (tro->order & ORDER_IDLE) {
 		tro->order = ORDER_NONE;
@@ -198,6 +208,32 @@ void pose_Atk::execute(troll *tro)
 }
 //
 void pose_Atk::exit(troll *tro)
+{
+	tro;
+}
+////////////////
+// pose_Damage
+////////////////
+////////////////
+pose_Damage *pose_Damage::instance()
+{
+	static pose_Damage instance;
+	return &instance;
+}
+//
+void pose_Damage::enter(troll *tro)
+{
+	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Damage, true);
+	tro->count_down = 7.0f/FRAME_RATE;
+}
+//
+void pose_Damage::execute(troll *tro)
+{
+	tro->count_down -= PTR->m_Timer.delta_time();
+	if (tro->count_down < 0.0f) tro->change_state(pose_Idle::instance());
+}
+//
+void pose_Damage::exit(troll *tro)
 {
 	tro;
 }

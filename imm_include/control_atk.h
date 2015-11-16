@@ -20,18 +20,20 @@ struct combo_para
 	combo_para();
 	std::string model_name;
 	int combo_ix;
+	int current_ix;
 	size_t inst_ix;
 	bool is_busy;
 	bool is_turn_next;
-	float time_count_down;
+	float count_down;
 };
 //
 combo_para::combo_para():
 	combo_ix(-1),
+	current_ix(-1),
 	inst_ix(0),
 	is_busy(false),
 	is_turn_next(false),
-	time_count_down(-1.0f)
+	count_down(-1.0f)
 {
 	;
 }
@@ -54,7 +56,21 @@ public:
 	std::vector<float> frame_turn;
 	std::vector<float> frame_speed;
 	std::vector<std::vector<std::string>> atk_box;
-	float frame_rate;
+};
+////////////////
+// damage_data
+////////////////
+////////////////
+struct damage_data
+{
+	damage_data();
+	void update(const float &dt);
+	void stamp();
+	size_t ix_atk;
+	size_t ix_dmg;
+	int combo_ix;
+	float count_down;
+	bool is_calculated;
 };
 ////////////////
 // control_atk
@@ -67,11 +83,13 @@ struct control_atk
 	void init(T_app *app_in);
 	void reset();
 	void init_combo_para(const size_t &index_in);
-	void perform(const size_t &index_in);
+	void cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg);
+	void execute(const size_t &index_in);
 	void update(const float &dt);
 	T_app *app;
 	std::map<std::string, combo_data> combo_d;
 	std::map<size_t, combo_para> c_para;
+	std::map<int, damage_data> damage;
 };
 //
 }

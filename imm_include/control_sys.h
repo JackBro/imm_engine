@@ -149,6 +149,7 @@ void control_sys<T_app>::mouse_pick()
 	//
 	if (picked1 < 0) return;
 	player1 = picked1;
+	map_stop[player1].is_stop = true;
 }
 //
 template <typename T_app>

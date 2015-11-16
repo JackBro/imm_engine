@@ -23,7 +23,7 @@ static const XMVECTORF32 VECTOR_FRONT_FACING = {0.0f, 0.0f, -1.0f, 0.0f};
 // functions
 ////////////////
 ////////////////
-void mouse_instance_move(const size_t &index, const float &speed);
+void mouse_inst_move(const size_t &index, const float &speed);
 void mouse_move_toward_hit(
 	CXMVECTOR &hit_pos,
 	const size_t &index,
@@ -42,7 +42,8 @@ void mouse_hit_plane_y(XMVECTOR &hit_pos_out);
 void mouse_hit_terrain(XMVECTOR &hit_pos_out);
 void pad_move_toward(const size_t &index, const float &speed);
 bool key_move_wasd(const size_t &index, const float &speed);
-void set_instance_speed(const size_t &index, const float &speed);
+void set_inst_speed(const size_t &index, const float &speed);
+void ai_move_pos(const size_t &index, const float &speed);
 //
 }}
 #endif

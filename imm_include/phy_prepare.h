@@ -44,7 +44,7 @@ phy_property::phy_property():
 	stand_from(-1),
 	is_ground(false),
 	is_on_ground(false),
-	is_abnormal(false)
+	is_abnormal(false)	
 {
 	;
 }

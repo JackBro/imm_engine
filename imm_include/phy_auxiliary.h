@@ -198,13 +198,13 @@ void phy_wireframe<T_app>::draw()
 		}
 	}
 	// Draw attack box
-	for (auto it_map = app->m_Attack.map.begin(); it_map != app->m_Attack.map.end(); ++it_map) {
+	for (auto it_map = app->m_Attack.map_box_active.begin(); it_map != app->m_Attack.map_box_active.end(); ++it_map) {
 		XMFLOAT4X4 *inst_world = app->m_Inst.m_Stat[it_map->first].get_World();
 		XMMATRIX world = XMLoadFloat4x4(inst_world);
 		for (auto it_box = it_map->second.begin(); it_box != it_map->second.end(); ++it_box) {
 			app->m_D3DDC->IASetVertexBuffers(0, 1, &box_attack[it_box->second], &stride, &offset);
 			size_t bone_ix =
-				app->m_Attack.model[*app->m_Inst.m_Stat[it_map->first].get_ModelName()].box[it_box->first].bone_ix;
+				app->m_Attack.atk_model[*app->m_Inst.m_Stat[it_map->first].get_ModelName()].box[it_box->first].bone_ix;
 			XMMATRIX bone_trans = XMLoadFloat4x4(
 				app->m_Inst.m_Stat[it_map->first].get_FinalTransform(bone_ix)
 			);
