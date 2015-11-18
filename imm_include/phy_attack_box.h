@@ -69,10 +69,10 @@ struct phy_attack_arrange
 	// unarmed map:
 	// # atk_model[model_name] = phy_attack_model
 	// # map_box_active[instance_ix][box_name] = bbox_ix = is_active_box_ix
-	// # map_box_inst[bbox_ix] = instance_ix
+	// # map_box_owner[bbox_ix] = instance_ix
 	std::map<std::string, phy_attack_model> atk_model;
 	std::map<size_t, std::map<std::string, size_t>> map_box_active;
-	std::map<size_t, size_t> map_box_inst;
+	std::map<size_t, size_t> map_box_owner;
 	// bound correction:
 	std::map<std::string, std::vector<float>> model_bound_offset;
 	// weapon map:
@@ -100,7 +100,7 @@ template <typename T_app>
 void phy_attack_arrange<T_app>::remove_all()
 {
 	map_box_active.clear();
-	map_box_inst.clear();
+	map_box_owner.clear();
 	bbox_l.clear();
 	bbox_l.shrink_to_fit();
 	bbox_w.clear();
@@ -187,7 +187,7 @@ void phy_attack_arrange<T_app>::rebuild_bbox_from_instance()
 				bbox_w.push_back(out);
 				// build map
 				map_box_active[ix][it->first] = bbox_l.size()-1;
-				map_box_inst[bbox_l.size()-1] = ix;
+				map_box_owner[bbox_l.size()-1] = ix;
 			}
 		}
 	}
@@ -239,20 +239,24 @@ void phy_attack_arrange<T_app>::update_collision()
 	for (size_t ix = 0; ix != is_active_box.size(); ++ix) {
 		if (!is_active_box[ix]) continue;
 		for (size_t ix_inst = 0; ix_inst != app->m_Inst.m_Stat.size(); ++ix_inst) {
-			if (ix_inst == map_box_inst[ix]) continue;
+			if (ix_inst == map_box_owner[ix]) continue;
 			if (!app->m_Inst.m_Stat[ix_inst].is_invoke_physics()) continue;
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneGroundIx) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, bbox_w[ix]);
-			if (is_touch) app->m_Control.atk.cause_damage(map_box_inst[ix], ix_inst);
+			if (is_touch) {
+				app->m_Control.atk.cause_damage(map_box_owner[ix], ix_inst);
+				app->m_Control.atk.hits[map_box_owner[ix]].insert(ix_inst);
+			}
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),
-				*(app->m_Inst.m_Stat[map_box_inst[ix]].get_World()),
+				*(app->m_Inst.m_Stat[map_box_owner[ix]].get_World()),
 				*(app->m_Inst.m_Stat[ix_inst].get_World()),
-				app->m_Inst.m_Stat[map_box_inst[ix]].phy,
+				app->m_Inst.m_Stat[map_box_owner[ix]].phy,
 				app->m_Inst.m_Stat[ix_inst].phy,
 				bbox_w[ix].Center,
 				app->m_Inst.m_BoundW.center(ix_inst),
-				is_touch);
+				is_touch,
+				true);
 			//
 		}
 	}
@@ -267,7 +271,10 @@ void phy_attack_arrange<T_app>::update_collision()
 			if (!app->m_Inst.m_Stat[ix_inst].is_invoke_physics()) continue;
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneGroundIx) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, weapon_ix);
-			if (is_touch) app->m_Control.atk.cause_damage(owner_ix, ix_inst);
+			if (is_touch) {
+				app->m_Control.atk.cause_damage(owner_ix, ix_inst);
+				app->m_Control.atk.hits[owner_ix].insert(ix_inst);
+			}
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),
 				*(app->m_Inst.m_Stat[owner_ix].get_World()),

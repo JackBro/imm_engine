@@ -72,6 +72,7 @@ void combo_data::current_apply(combo_para &pa)
 void combo_data::current_over(combo_para &pa)
 {
 	pa.is_busy = false;
+	PTR->m_Control.atk.hits[pa.inst_ix].clear();
 	PTR->m_Attack.deactive_box(pa.inst_ix);
 }
 //
@@ -132,6 +133,18 @@ void damage_data::update(const float &dt)
 	if (count_down > 0.0f) count_down -= dt;
 	if (!is_calculated) {
 		PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
+		math::set_inst_speed(ix_dmg, 0.0f);
+		if (PTR->m_Inst.m_Stat[ix_dmg].type == skinned) {
+			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
+			math::set_face_to_face(ix_atk, ix_dmg);
+			PTR->m_Scene.audio.play_effect("punch0");
+		}
+		else {
+			int focus = PTR->m_Inst.m_Troll[ix_atk].focus;
+			if (!PTR->m_Control.atk.hits[ix_atk].count(focus)) {
+				math::set_inst_face_to_inst2(ix_atk, ix_dmg);
+			}
+		}
 		is_calculated = true;
 	}
 }

@@ -123,6 +123,7 @@ XMVECTORF32 phy_boxA_normal(const BoundingBox &bbox_A, const BoundingBox &bbox_B
 // collision impulse method modify from
 // \Microsoft DirectX SDK (June 2010)\Samples\C++\Direct3D\ConfigSystem\main.cpp
 // it is originally used with two spheres, but there is used with two AABB or others, inaccuracy solution
+// defect1: if objects chain impulse, object on ground will not apart enough with velocity compare to on air
 ////////////////
 ////////////////
 void phy_impulse_casual(
@@ -133,7 +134,8 @@ void phy_impulse_casual(
 	phy_property &prop_B,
 	const XMFLOAT3 &center_A,
 	const XMFLOAT3 &center_B,
-	const bool &is_touch = true)
+	const bool &is_touch = true,
+	const bool &is_A_atk = false)
 {
 	if (!is_touch) return;
 	XMMATRIX w_A = XMLoadFloat4x4(&world_A);
@@ -169,9 +171,11 @@ void phy_impulse_casual(
 	w_B.r[3] = XMVectorAdd(c_B, offset_B);
 	w_A.r[3] = XMVectorSetW(w_A.r[3], 1.0f);
 	w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
-	XMStoreFloat3(&prop_A.velocity, vel_A);
+	if (!is_A_atk) {
+		XMStoreFloat3(&prop_A.velocity, vel_A);
+		XMStoreFloat4x4(&world_A, w_A);
+	}
 	XMStoreFloat3(&prop_B.velocity, vel_B);
-	XMStoreFloat4x4(&world_A, w_A);
 	XMStoreFloat4x4(&world_B, w_B);
 	return;
 }

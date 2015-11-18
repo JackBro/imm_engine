@@ -273,6 +273,46 @@ void set_inst_speed(const size_t &index, const float &speed)
 	XMStoreFloat3(&PTR->m_Inst.m_Stat[index].phy.vel_indirect, vel_indirect);
 }
 //
+void set_inst_face_to_inst2(const size_t &index, const size_t &index2)
+{
+	XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[index].get_World();
+	XMFLOAT4X4 &world2 = *PTR->m_Inst.m_Stat[index2].get_World();
+	XMFLOAT4X4 &rot_front = *PTR->m_Inst.m_Stat[index].get_RotFront();
+	XMMATRIX W = XMLoadFloat4x4(&world);
+	XMMATRIX W2 = XMLoadFloat4x4(&world2);
+	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
+	XMVECTOR direction = XMVectorSubtract(W2.r[3], W.r[3]);
+	direction = XMVectorSetY(direction, 0.0f);
+	direction = XMVector3Normalize(direction);
+	mouse_face_rot_y(W, RF, direction);
+	XMStoreFloat4x4(&world, W);
+}
+//
+void set_face_to_face(const size_t &index, const size_t &index2)
+{
+	XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[index].get_World();
+	XMFLOAT4X4 &world2 = *PTR->m_Inst.m_Stat[index2].get_World();
+	XMFLOAT4X4 &rot_front = *PTR->m_Inst.m_Stat[index].get_RotFront();
+	XMMATRIX W = XMLoadFloat4x4(&world);
+	XMMATRIX W2 = XMLoadFloat4x4(&world2);
+	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
+	XMVECTOR direction = XMVectorSubtract(W2.r[3], W.r[3]);
+	direction = XMVectorSetY(direction, 0.0f);
+	direction = XMVector3Normalize(direction);
+	mouse_face_rot_y(W, RF, direction);
+	XMStoreFloat4x4(&world, W);
+	//
+	if (PTR->m_Inst.m_Stat[index2].type == skinned) {
+		XMFLOAT4X4 &rot_front2 = *PTR->m_Inst.m_Stat[index2].get_RotFront();
+		XMMATRIX RF2 = XMLoadFloat4x4(&rot_front2);
+		XMVECTOR direction2 = XMVectorSubtract(W.r[3], W2.r[3]);
+		direction2 = XMVectorSetY(direction2, 0.0f);
+		direction2 = XMVector3Normalize(direction2);
+		mouse_face_rot_y(W2, RF2, direction2);
+		XMStoreFloat4x4(&world2, W2);
+	}
+}
+//
 void ai_move_pos(const size_t &index, const float &speed)
 {
 	XMFLOAT3 *pos = &PTR->m_Inst.m_Steering[index].desired_pos;

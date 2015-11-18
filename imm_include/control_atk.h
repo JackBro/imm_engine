@@ -9,6 +9,7 @@
 #define CONTROL_ATK_H
 #include "control_state.h"
 #include <vector>
+#include <set>
 namespace imm
 {
 ////////////////
@@ -90,6 +91,7 @@ struct control_atk
 	std::map<std::string, combo_data> combo_d;
 	std::map<size_t, combo_para> c_para;
 	std::map<int, damage_data> damage;
+	std::map<size_t, std::set<size_t>> hits;
 };
 //
 }

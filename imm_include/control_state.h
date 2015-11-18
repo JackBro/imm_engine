@@ -161,6 +161,7 @@ struct troll
 	size_t index;
 	int order;
 	int order_stat;
+	int focus;
 	bool is_on_air;
 	float velocity_jump;
 	float count_down;
@@ -171,7 +172,8 @@ troll::troll():
 	previous_state(pose_Idle::instance()),
 	index(0),
 	order(ORDER_NONE),
-	order_stat(0x0),
+	order_stat(ORDER_IS_CLEAR),
+	focus(-1),
 	is_on_air(false),
 	velocity_jump(35.0f),
 	count_down(-1.0f)
