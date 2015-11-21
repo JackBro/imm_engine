@@ -141,9 +141,7 @@ void damage_data::update(const float &dt)
 			PTR->m_Scene.audio.play_effect("punch0");
 			//
 			assert(box_center);
-			PTR->m_Scene.plasma.list_strike.emplace_back();
-			PTR->m_Scene.plasma.list_strike.back().pos = *box_center;
-			PTR->m_Scene.plasma.list_strike.back().count_down = 0.5f;
+			PTR->m_Scene.plasma.push_back(plasma_type::strike, 0.5f, *box_center);
 		}
 		else {
 			int focus = PTR->m_Inst.m_Troll[ix_atk].focus;

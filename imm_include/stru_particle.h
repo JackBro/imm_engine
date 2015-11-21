@@ -14,6 +14,15 @@
 namespace imm
 {
 ////////////////
+// plasma_type
+////////////////
+////////////////
+enum plasma_type
+{
+	fire,
+	strike,
+};
+////////////////
 // state_plasma
 ////////////////
 ////////////////
@@ -25,11 +34,14 @@ struct state_plasma
 	void update(const float &dt, const float &total_time);
 	void draw(ID3D11DeviceContext *context, const camera &cam);
 	void remove_all();
+	void push_back(plasma_type type, const float &count_down, const XMFLOAT3 &pos);
 	particle pt_fire;
 	particle pt_strike;
 	std::list<inst_plasam> list_fire;
 	std::list<inst_plasam> list_strike;
 	bool is_active;
+	size_t index_fire;
+	size_t index_strike;
 	ID3D11ShaderResourceView *tex_fire_srv;
 	ID3D11ShaderResourceView *tex_strike_srv;
 	ID3D11ShaderResourceView *tex_random_srv;
@@ -44,6 +56,8 @@ state_plasma::state_plasma():
 	list_fire(),
 	list_strike(),
 	is_active(true),
+	index_fire(0),
+	index_strike(0),
 	tex_fire_srv(nullptr),
 	tex_strike_srv(nullptr),
 	tex_random_srv(nullptr)
@@ -79,16 +93,16 @@ void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 	// Fire
 	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_fire_dds"]));
 	tex_fire_srv = create_Texture2DArraySRV(device, context, file_names);
-	pt_fire.init(device, effects::m_PtFireFX, tex_fire_srv, tex_random_srv, 500);
+	pt_fire.init(device, effects::m_PtFireFX, tex_fire_srv, tex_random_srv, 500, 10);
 	// Strike
 	file_names.clear();
 	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_strike_dds"]));
 	tex_strike_srv = create_Texture2DArraySRV(device, context, file_names);
-	pt_strike.init(device, effects::m_PtFireFX, tex_strike_srv, tex_random_srv, 500);
+	pt_strike.init(device, effects::m_PtFireFX, tex_strike_srv, tex_random_srv, 500, 10);
 	// Test
 	list_fire.emplace_back();
 	list_fire.back().pos = XMFLOAT3(10.0f, 20.0f, 0.0f);
-	list_fire.back().count_down = 10.0f;
+	list_fire.back().count_down = 5.0f;
 }
 //
 void state_plasma::update(const float &dt, const float &total_time)
@@ -118,6 +132,27 @@ void state_plasma::remove_all()
 {
 	list_fire.clear();
 	list_strike.clear();
+}
+//
+void state_plasma::push_back(plasma_type type, const float &count_down, const XMFLOAT3 &pos)
+{
+	switch(type) {
+	case fire:
+		++index_fire;
+		if (index_fire > pt_fire.get_ListSize()-1) index_fire = 0;
+		list_fire.emplace_back();
+		list_fire.back().pos = pos;
+		list_fire.back().count_down = count_down;
+		list_fire.back().slot = index_fire;
+		break;
+	case strike:
+	++index_strike;
+		if (index_strike > pt_strike.get_ListSize()-1) index_strike = 0;
+		list_strike.emplace_back();
+		list_strike.back().pos = pos;
+		list_strike.back().count_down = count_down;
+		list_strike.back().slot = index_strike;
+	}
 }
 //
 }

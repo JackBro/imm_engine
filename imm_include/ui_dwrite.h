@@ -14,9 +14,12 @@
 // DWRITE_ALIG_STYLE
 ////////////////
 ////////////////
-static const int DWRITE_ALIG_STYLE_CMD = 0;
-static const int DWRITE_ALIG_STYLE_CENTER = 1;
-static const int DWRITE_ALIG_STYLE_PAGE = 2;
+enum DWRITE_ALIG_STYLE
+{
+	DWRITE_ALIG_STYLE_CMD,
+	DWRITE_ALIG_STYLE_CENTER,
+	DWRITE_ALIG_STYLE_PAGE,
+};
 ////////////////
 // dwrite_simple
 ////////////////
@@ -42,7 +45,7 @@ struct dwrite_simple
 		HWND &hwnd,
 		const std::wstring &font_name,
 		const float &font_factor,
-		const int &text_alig_style);
+		const DWRITE_ALIG_STYLE &text_alig_style);
 	void on_resize_LayoutRc(HWND &hwnd, const FLOAT &margin_factor);
 	void set_Brush(ID2D1DeviceContext *d2d_dc, D2D1::ColorF::Enum color);
 	template <typename T_wstring>
@@ -75,7 +78,7 @@ struct dwrite_simple
 	size_t m_MaxSize;
 	float m_FontFactor;
 	std::wstring m_FontName;
-	int m_TextAligStyle;
+	DWRITE_ALIG_STYLE m_TextAligStyle;
 private:
 	dwrite_simple(const dwrite_simple &rhs);
 	dwrite_simple &operator=(const dwrite_simple &rhs);
@@ -130,18 +133,18 @@ void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
 		&m_TextFormat
 	));
 	switch (m_TextAligStyle) {
-		case DWRITE_ALIG_STYLE_CMD:
-			HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-			HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR));
-			return;
-		case DWRITE_ALIG_STYLE_CENTER:
-			HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
-			HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
-			return;
-		case DWRITE_ALIG_STYLE_PAGE:
-			HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-			HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
-			return;
+	case DWRITE_ALIG_STYLE_CMD:
+		HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
+		HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR));
+		return;
+	case DWRITE_ALIG_STYLE_CENTER:
+		HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
+		HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
+		return;
+	case DWRITE_ALIG_STYLE_PAGE:
+		HR(m_TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
+		HR(m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
+		return;
 	}
 	assert(false);
 }
@@ -168,7 +171,7 @@ void dwrite_simple::init_without_rect(
 	HWND &hwnd,
 	const std::wstring &font_name,
 	const float &font_factor,
-	const int &text_alig_style)
+	const DWRITE_ALIG_STYLE &text_alig_style)
 {
 	m_FontName = font_name;
 	m_TextAligStyle = text_alig_style;

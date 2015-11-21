@@ -220,9 +220,9 @@ rotation_xyz::rotation_xyz(const std::string &xyz)
 			if (xyz.substr(pos[ix]+1).find_first_of("+-") == 0) offset = 1;
 			if (xyz.substr(pos[ix]+1+offset).find_first_of(s_number) == 0) {
 				switch (ix) {
-					case 0: x = std::stof(xyz.substr(pos[ix]+1))/180.0f*XM_PI; break;
-					case 1: y = std::stof(xyz.substr(pos[ix]+1))/180.0f*XM_PI; break;
-					case 2: z = std::stof(xyz.substr(pos[ix]+1))/180.0f*XM_PI; break;
+				case 0: x = std::stof(xyz.substr(pos[ix]+1))/180.0f*XM_PI; break;
+				case 1: y = std::stof(xyz.substr(pos[ix]+1))/180.0f*XM_PI; break;
+				case 2: z = std::stof(xyz.substr(pos[ix]+1))/180.0f*XM_PI; break;
 				}
 			}
 		}

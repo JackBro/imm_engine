@@ -155,21 +155,21 @@ template <typename T_app>
 void phy_bound_mgr<T_app>::push_back_empty(const phy_bound_type &type)
 {
 	switch(type) {
-		case box:
-			b1.emplace_back();
-			map.emplace_back(type, b1.size()-1);
-			return;
-		case ori_box:
-			b2.emplace_back();
-			map.emplace_back(type, b2.size()-1);
-			return;
-		case sphere:
-			b3.emplace_back();
-			map.emplace_back(type, b3.size()-1);
-			return;
-		case null:
-			map.emplace_back(type, 0);
-			return;
+	case box:
+		b1.emplace_back();
+		map.emplace_back(type, b1.size()-1);
+		return;
+	case ori_box:
+		b2.emplace_back();
+		map.emplace_back(type, b2.size()-1);
+		return;
+	case sphere:
+		b3.emplace_back();
+		map.emplace_back(type, b3.size()-1);
+		return;
+	case null:
+		map.emplace_back(type, 0);
+		return;
 	}
 	assert(false);
 }
@@ -178,9 +178,9 @@ template <typename T_app>
 void phy_bound_mgr<T_app>::transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world)
 {
 	switch(map[ix].first) {
-		case box: b1[map[ix].second].Transform(out.b1[map[ix].second], world); return;
-		case ori_box: b2[map[ix].second].Transform(out.b2[map[ix].second], world); return;
-		case sphere: b3[map[ix].second].Transform(out.b3[map[ix].second], world); return;
+	case box: b1[map[ix].second].Transform(out.b1[map[ix].second], world); return;
+	case ori_box: b2[map[ix].second].Transform(out.b2[map[ix].second], world); return;
+	case sphere: b3[map[ix].second].Transform(out.b3[map[ix].second], world); return;
 	}
 }
 //
@@ -188,24 +188,24 @@ template <typename T_app>
 bool phy_bound_mgr<T_app>::intersects(const size_t &ixA, const size_t &ixB)
 {
 	switch(map[ixA].first) {
-		case box:
-			switch(map[ixB].first) {
-				case box: return b1[map[ixA].second].Intersects(b1[map[ixB].second]);
-				case ori_box: return b1[map[ixA].second].Intersects(b2[map[ixB].second]);
-				case sphere: return b1[map[ixA].second].Intersects(b3[map[ixB].second]);
-			}
-		case ori_box:
-			switch(map[ixB].first) {
-				case box: return b2[map[ixA].second].Intersects(b1[map[ixB].second]);
-				case ori_box: return b2[map[ixA].second].Intersects(b2[map[ixB].second]);
-				case sphere: return b2[map[ixA].second].Intersects(b3[map[ixB].second]);
-			}
-		case sphere:
-			switch(map[ixB].first) {
-				case box: return b3[map[ixA].second].Intersects(b1[map[ixB].second]);
-				case ori_box: return b3[map[ixA].second].Intersects(b2[map[ixB].second]);
-				case sphere: return b3[map[ixA].second].Intersects(b3[map[ixB].second]);
-			}
+	case box:
+		switch(map[ixB].first) {
+		case box: return b1[map[ixA].second].Intersects(b1[map[ixB].second]);
+		case ori_box: return b1[map[ixA].second].Intersects(b2[map[ixB].second]);
+		case sphere: return b1[map[ixA].second].Intersects(b3[map[ixB].second]);
+		}
+	case ori_box:
+		switch(map[ixB].first) {
+		case box: return b2[map[ixA].second].Intersects(b1[map[ixB].second]);
+		case ori_box: return b2[map[ixA].second].Intersects(b2[map[ixB].second]);
+		case sphere: return b2[map[ixA].second].Intersects(b3[map[ixB].second]);
+		}
+	case sphere:
+		switch(map[ixB].first) {
+		case box: return b3[map[ixA].second].Intersects(b1[map[ixB].second]);
+		case ori_box: return b3[map[ixA].second].Intersects(b2[map[ixB].second]);
+		case sphere: return b3[map[ixA].second].Intersects(b3[map[ixB].second]);
+		}
 	}
 	assert(false);
 	return false;
@@ -215,9 +215,9 @@ template <typename T_app>
 bool phy_bound_mgr<T_app>::intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &direction, float &dist)
 {
 	switch(map[ix].first) {
-		case box: return b1[map[ix].second].Intersects(origin, direction, dist);
-		case ori_box: return b2[map[ix].second].Intersects(origin, direction, dist);
-		case sphere: return b3[map[ix].second].Intersects(origin, direction, dist);
+	case box: return b1[map[ix].second].Intersects(origin, direction, dist);
+	case ori_box: return b2[map[ix].second].Intersects(origin, direction, dist);
+	case sphere: return b3[map[ix].second].Intersects(origin, direction, dist);
 	}
 	assert(false);
 	return false;
@@ -228,9 +228,9 @@ template <typename T_bound>
 bool phy_bound_mgr<T_app>::intersects(const size_t &ix, const T_bound &bound)
 {
 	switch(map[ix].first) {
-		case box: return b1[map[ix].second].Intersects(bound);
-		case ori_box: return b2[map[ix].second].Intersects(bound);
-		case sphere: return b3[map[ix].second].Intersects(bound);
+	case box: return b1[map[ix].second].Intersects(bound);
+	case ori_box: return b2[map[ix].second].Intersects(bound);
+	case sphere: return b3[map[ix].second].Intersects(bound);
 	}
 	assert(false);
 	return false;
@@ -241,9 +241,9 @@ template <typename T_object>
 ContainmentType phy_bound_mgr<T_app>::contains(const size_t &ix, const T_object &object)
 {
 	switch(map[ix].first) {
-		case box: return b1[map[ix].second].Contains(object);
-		case ori_box: return b2[map[ix].second].Contains(object);
-		case sphere: return b3[map[ix].second].Contains(object);
+	case box: return b1[map[ix].second].Contains(object);
+	case ori_box: return b2[map[ix].second].Contains(object);
+	case sphere: return b3[map[ix].second].Contains(object);
 	}
 	assert(false);
 	return ContainmentType::DISJOINT;
@@ -289,9 +289,9 @@ template <typename T_app>
 const XMFLOAT3& phy_bound_mgr<T_app>::center(const size_t &ix)
 {
 	switch(map[ix].first) {
-		case box: return b1[map[ix].second].Center;
-		case ori_box: return b2[map[ix].second].Center;
-		case sphere: return b3[map[ix].second].Center;
+	case box: return b1[map[ix].second].Center;
+	case ori_box: return b2[map[ix].second].Center;
+	case sphere: return b3[map[ix].second].Center;
 	}
 	assert(false);
 	return b1[map[ix].second].Center;
@@ -301,9 +301,9 @@ template <typename T_app>
 float phy_bound_mgr<T_app>::half_y(const size_t &ix)
 {
 	switch(map[ix].first) {
-		case box: return b1[map[ix].second].Extents.y;
-		case ori_box: return b2[map[ix].second].Extents.y;
-		case sphere: return b3[map[ix].second].Radius;
+	case box: return b1[map[ix].second].Extents.y;
+	case ori_box: return b2[map[ix].second].Extents.y;
+	case sphere: return b3[map[ix].second].Radius;
 	}
 	assert(false);
 	return 0.0f;
