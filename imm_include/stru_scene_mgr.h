@@ -29,6 +29,7 @@ struct scene_mgr
 	void update_atmosphere(float dt);
 	void update_listen_thread_for_reload();
 	void draw_d3d_atmosphere(XMMATRIX &shadow_transform);
+	void draw_d3d_atmosphere_last();
 	void reload(const std::wstring &scene_ix_in);
 	void reload_in_main_update();
 	void reload_instance();
@@ -119,6 +120,10 @@ void scene_mgr<T_app>::draw_d3d_atmosphere(XMMATRIX &shadow_transform)
 	terrain1.draw(app->m_D3DDC, app->m_Cam, dir_lights, app->m_Smap, shadow_transform);
 	// Draw liquid
 	liquid.draw(app->m_D3DDC, dir_lights, app->m_Cam);
+}
+template <typename T_app>
+void scene_mgr<T_app>::draw_d3d_atmosphere_last()
+{
 	// Draw particle systems last so it is blended with scene.
 	plasma.draw(app->m_D3DDC, app->m_Cam);
 	// Restore default states.

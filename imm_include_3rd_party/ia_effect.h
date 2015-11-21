@@ -221,24 +221,26 @@ public:
 	static build_shadow_map_effect *m_BuildShadowMapFX;
 	static sky_effect              *m_SkyFX;
 	static terrain_effect          *m_TerrainFX;
-	static particle_effect         *m_FireFX;
-	static particle_effect         *m_RainFX;
 	static debug_tex_effect        *m_DebugTexFX;
 	static color_effect            *m_PosColorFX;
 	static wave_sim_effect         *m_WaveSimFX;
 	static wave_render_effect      *m_WaveRenderFX;
+	static particle_effect         *m_PtFireFX;
+	static particle_effect         *m_PtRainFX;
+	static particle_effect         *m_PtStrikeFX;
 };
 basic_effect            *effects::m_BasicFX          = nullptr;
 normal_map_effect       *effects::m_NormalMapFX      = nullptr;
 build_shadow_map_effect *effects::m_BuildShadowMapFX = nullptr;
 sky_effect              *effects::m_SkyFX            = nullptr;
 terrain_effect          *effects::m_TerrainFX        = nullptr;
-particle_effect         *effects::m_FireFX           = nullptr;
-particle_effect         *effects::m_RainFX           = nullptr;
 debug_tex_effect        *effects::m_DebugTexFX       = nullptr;
 color_effect            *effects::m_PosColorFX       = nullptr;
 wave_sim_effect         *effects::m_WaveSimFX        = nullptr;
 wave_render_effect      *effects::m_WaveRenderFX     = nullptr;
+particle_effect         *effects::m_PtFireFX         = nullptr;
+particle_effect         *effects::m_PtRainFX         = nullptr;
+particle_effect         *effects::m_PtStrikeFX       = nullptr;
 void effects::destroy_all()
 {
 	SAFE_DELETE(m_BasicFX);
@@ -246,12 +248,13 @@ void effects::destroy_all()
 	SAFE_DELETE(m_BuildShadowMapFX);
 	SAFE_DELETE(m_SkyFX);
 	SAFE_DELETE(m_TerrainFX);
-	SAFE_DELETE(m_FireFX);
-	SAFE_DELETE(m_RainFX);
 	SAFE_DELETE(m_DebugTexFX);
 	SAFE_DELETE(m_PosColorFX);
 	SAFE_DELETE(m_WaveSimFX);
 	SAFE_DELETE(m_WaveRenderFX);
+	SAFE_DELETE(m_PtFireFX);
+	SAFE_DELETE(m_PtRainFX);
+	SAFE_DELETE(m_PtStrikeFX);
 }
 //
 void effects::init_all(ID3D11Device *device)
@@ -262,12 +265,13 @@ void effects::init_all(ID3D11Device *device)
 	m_BuildShadowMapFX = new build_shadow_map_effect(device, path+L"build_shadow_map.fxo");
 	m_SkyFX            = new sky_effect(device, path+L"sky.fxo");
 	m_TerrainFX        = new terrain_effect(device, path+L"terrain.fxo");
-	m_FireFX           = new particle_effect(device, path+L"fire.fxo");
-	m_RainFX           = new particle_effect(device, path+L"rain.fxo");
 	m_DebugTexFX       = new debug_tex_effect(device, path+L"debug_texture.fxo");
 	m_PosColorFX       = new color_effect(device, path+L"color.fxo");
 	m_WaveSimFX        = new wave_sim_effect(device, path+L"wave_sim.fxo");
 	m_WaveRenderFX     = new wave_render_effect(device, path+L"wave_render.fxo");
+	m_PtFireFX         = new particle_effect(device, path+L"pt_fire.fxo");
+	m_PtRainFX         = new particle_effect(device, path+L"pt_rain.fxo");
+	m_PtStrikeFX       = new particle_effect(device, path+L"pt_strike.fxo");
 }
 }
 #endif

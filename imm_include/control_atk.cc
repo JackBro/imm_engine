@@ -123,7 +123,8 @@ damage_data::damage_data():
 	ix_dmg(0),
 	combo_ix(-2),
 	count_down(-1.0f),
-	is_calculated(true)
+	is_calculated(true),
+	box_center(nullptr)
 {
 	;
 }
@@ -138,6 +139,11 @@ void damage_data::update(const float &dt)
 			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
 			math::set_face_to_face(ix_atk, ix_dmg);
 			PTR->m_Scene.audio.play_effect("punch0");
+			//
+			assert(box_center);
+			PTR->m_Scene.plasma.list_strike.emplace_back();
+			PTR->m_Scene.plasma.list_strike.back().pos = *box_center;
+			PTR->m_Scene.plasma.list_strike.back().count_down = 0.5f;
 		}
 		else {
 			int focus = PTR->m_Inst.m_Troll[ix_atk].focus;
@@ -194,7 +200,7 @@ void control_atk<T_app>::init_combo_para(const size_t &index_in)
 }
 //
 template <typename T_app>
-void control_atk<T_app>::cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg)
+void control_atk<T_app>::cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg, const XMFLOAT3 &box_center)
 {
 	assert(inst_ix_atk < 1000);
 	assert(inst_ix_dmg < 1000);
@@ -209,8 +215,10 @@ void control_atk<T_app>::cause_damage(const size_t &inst_ix_atk, const size_t &i
 		damage[index].ix_atk = inst_ix_atk;
 		damage[index].ix_dmg = inst_ix_dmg;
 		damage[index].combo_ix = c_para[inst_ix_atk].current_ix;
+		damage[index].box_center = &box_center;
 	}
 	damage[index].stamp();
+	hits[inst_ix_atk].insert(inst_ix_dmg);
 }
 //
 template <typename T_app>

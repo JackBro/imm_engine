@@ -236,7 +236,7 @@ void input_layouts::init_all(ID3D11Device *device)
 		pass_desc.IAInputSignatureSize,
 		&m_Terrain));
 	// m_Particle
-	effects::m_FireFX->m_StreamOutTech->GetPassByIndex(0)->GetDesc(&pass_desc);
+	effects::m_PtFireFX->m_StreamOutTech->GetPassByIndex(0)->GetDesc(&pass_desc);
 	HR(device->CreateInputLayout(
 		input_layout_desc::m_Particle,
 		5,

@@ -244,8 +244,7 @@ void phy_attack_arrange<T_app>::update_collision()
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneGroundIx) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, bbox_w[ix]);
 			if (is_touch) {
-				app->m_Control.atk.cause_damage(map_box_owner[ix], ix_inst);
-				app->m_Control.atk.hits[map_box_owner[ix]].insert(ix_inst);
+				app->m_Control.atk.cause_damage(map_box_owner[ix], ix_inst, bbox_w[ix].Center);
 			}
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),
@@ -272,8 +271,7 @@ void phy_attack_arrange<T_app>::update_collision()
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneGroundIx) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, weapon_ix);
 			if (is_touch) {
-				app->m_Control.atk.cause_damage(owner_ix, ix_inst);
-				app->m_Control.atk.hits[owner_ix].insert(ix_inst);
+				app->m_Control.atk.cause_damage(owner_ix, ix_inst, app->m_Inst.m_BoundW.center(ix));
 			}
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),
@@ -281,7 +279,7 @@ void phy_attack_arrange<T_app>::update_collision()
 				*(app->m_Inst.m_Stat[ix_inst].get_World()),
 				app->m_Inst.m_Stat[owner_ix].phy,
 				app->m_Inst.m_Stat[ix_inst].phy,
-				bbox_w[ix].Center,
+				app->m_Inst.m_BoundW.center(ix),
 				app->m_Inst.m_BoundW.center(ix_inst),
 				is_touch);
 			//

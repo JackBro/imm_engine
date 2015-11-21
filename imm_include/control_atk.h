@@ -72,6 +72,7 @@ struct damage_data
 	int combo_ix;
 	float count_down;
 	bool is_calculated;
+	const XMFLOAT3 *box_center;
 };
 ////////////////
 // control_atk
@@ -84,7 +85,7 @@ struct control_atk
 	void init(T_app *app_in);
 	void reset();
 	void init_combo_para(const size_t &index_in);
-	void cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg);
+	void cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg, const XMFLOAT3 &box_center);
 	void execute(const size_t &index_in);
 	void update(const float &dt);
 	T_app *app;

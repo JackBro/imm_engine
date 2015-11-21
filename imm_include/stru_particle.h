@@ -10,6 +10,7 @@
 #include "render_particle.h"
 #include "mesh_d3d_util.h"
 #include "stru_lua_help.h"
+#include <list>
 namespace imm
 {
 ////////////////
@@ -21,74 +22,102 @@ struct state_plasma
 	state_plasma();
 	~state_plasma();
 	void init_load(ID3D11Device *device, ID3D11DeviceContext *context);
-	void update(float dt, float total_time);
+	void update(const float &dt, const float &total_time);
 	void draw(ID3D11DeviceContext *context, const camera &cam);
-	void reset();
-	particle fire;
-	std::vector<XMFLOAT3> fire_emit_pos;
+	void remove_all();
+	particle pt_fire;
+	particle pt_strike;
+	std::list<inst_plasam> list_fire;
+	std::list<inst_plasam> list_strike;
 	bool is_active;
-	ID3D11ShaderResourceView *fire_tex_srv;
-	ID3D11ShaderResourceView *random_tex_srv;
+	ID3D11ShaderResourceView *tex_fire_srv;
+	ID3D11ShaderResourceView *tex_strike_srv;
+	ID3D11ShaderResourceView *tex_random_srv;
 private:
 	state_plasma(const state_plasma &rhs);
 	state_plasma &operator=(const state_plasma &rhs);
 };
 //
 state_plasma::state_plasma():
+	pt_fire(),
+	pt_strike(),
+	list_fire(),
+	list_strike(),
 	is_active(true),
-	fire_tex_srv(nullptr),
-	random_tex_srv(nullptr)
+	tex_fire_srv(nullptr),
+	tex_strike_srv(nullptr),
+	tex_random_srv(nullptr)
 {
 	;
 }
 //
 state_plasma::~state_plasma()
 {
-	RELEASE_COM(fire_tex_srv);
-	RELEASE_COM(random_tex_srv);
+	RELEASE_COM(tex_fire_srv);
+	RELEASE_COM(tex_strike_srv);
+	RELEASE_COM(tex_random_srv);
 }
 //
 void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 {
-	// Fire
 	std::string concrete = IMM_PATH["script"]+"scene_common\\state_plasma.lua";
 	std::map<std::string, std::string> get_dds;
 	get_dds["plasma_fire_dds"] = "";
+	get_dds["plasma_strike_dds"] = "";
 	lua_reader l_reader;
 	l_reader.loadfile(concrete);
 	l_reader.map_from_string(get_dds);
-	if (csv_value_is_empty(get_dds["plasma_fire_dds"])) {
+	if (csv_value_is_empty(get_dds["plasma_fire_dds"]) ||
+		csv_value_is_empty(get_dds["plasma_strike_dds"])) {
+	//
 		is_active = false;
 		return;
 	}
 	std::wstring path_tex = str_to_wstr(IMM_PATH["texture"]+"particle\\");
-	random_tex_srv = create_RandomTexture1DSRV(device);
-	std::vector<std::wstring> flares;
-	flares.push_back(path_tex+str_to_wstr(get_dds["plasma_fire_dds"]));
-	fire_tex_srv = create_Texture2DArraySRV(device, context, flares);
-	fire.init(device, effects::m_FireFX, fire_tex_srv, random_tex_srv, 500);
-	// Dummy set
-	fire.set_EmitPos(XMFLOAT3(0.0f, 0.0f, 0.0f));
-	//fire_emit_pos.push_back(XMFLOAT3(10.0f, 0.0f, 0.0f));
+	tex_random_srv = create_RandomTexture1DSRV(device);
+	std::vector<std::wstring> file_names;
+	// Fire
+	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_fire_dds"]));
+	tex_fire_srv = create_Texture2DArraySRV(device, context, file_names);
+	pt_fire.init(device, effects::m_PtFireFX, tex_fire_srv, tex_random_srv, 500);
+	// Strike
+	file_names.clear();
+	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_strike_dds"]));
+	tex_strike_srv = create_Texture2DArraySRV(device, context, file_names);
+	pt_strike.init(device, effects::m_PtFireFX, tex_strike_srv, tex_random_srv, 500);
+	// Test
+	list_fire.emplace_back();
+	list_fire.back().pos = XMFLOAT3(10.0f, 20.0f, 0.0f);
+	list_fire.back().count_down = 10.0f;
 }
 //
-void state_plasma::update(float dt, float total_time)
+void state_plasma::update(const float &dt, const float &total_time)
 {
 	if (!is_active) return;
-	fire.update(dt, total_time);
+	pt_fire.update(dt, total_time);
+	pt_strike.update(dt, total_time);
+	for (auto &inst: list_fire) inst.update(dt);
+	for (auto &inst: list_strike) inst.update(dt);
+	auto is_should_del =
+		[](const inst_plasam &pla){return (pla.count_down > -99.0f && pla.count_down < 0.0f);};
+	list_fire.remove_if(is_should_del);
+	list_strike.remove_if(is_should_del);
+	//
 }
 //
 void state_plasma::draw(ID3D11DeviceContext *context, const camera &cam)
 {
 	if (!is_active) return;
-	fire.set_EyePos(cam.get_Position());
-	fire.draw_list(context, cam, fire_emit_pos);
+	pt_fire.set_EyePos(cam.get_Position());
+	pt_strike.set_EyePos(cam.get_Position());
+	pt_fire.draw_list(context, cam, list_fire);
+	pt_strike.draw_list(context, cam, list_strike);
 }
 //
-void state_plasma::reset()
+void state_plasma::remove_all()
 {
-	if (!is_active) return;
-	fire.reset();
+	list_fire.clear();
+	list_strike.clear();
 }
 //
 }

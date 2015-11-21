@@ -130,7 +130,7 @@ public:
 		CXMMATRIX cam_view,
 		int &out_ix);
 	//
-	XMFLOAT3 center(const size_t &ix);
+	const XMFLOAT3& center(const size_t &ix);
 	float half_y(const size_t &ix);
 	void remove_all();
 };
@@ -286,7 +286,7 @@ void phy_bound_mgr<T_app>::pick(
 }
 //
 template <typename T_app>
-XMFLOAT3 phy_bound_mgr<T_app>::center(const size_t &ix)
+const XMFLOAT3& phy_bound_mgr<T_app>::center(const size_t &ix)
 {
 	switch(map[ix].first) {
 		case box: return b1[map[ix].second].Center;
@@ -294,7 +294,7 @@ XMFLOAT3 phy_bound_mgr<T_app>::center(const size_t &ix)
 		case sphere: return b3[map[ix].second].Center;
 	}
 	assert(false);
-	return XMFLOAT3();
+	return b1[map[ix].second].Center;
 }
 //
 template <typename T_app>

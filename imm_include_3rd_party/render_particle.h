@@ -10,6 +10,31 @@
 namespace imm
 {
 ////////////////
+// inst_plasam
+////////////////
+////////////////
+struct inst_plasam
+{
+	inst_plasam();
+	void update(const float &dt);
+	XMFLOAT3 pos;
+	float count_down;
+	bool is_first_run;
+};
+//
+inst_plasam::inst_plasam():
+	pos(),
+	count_down(-100.0f),
+	is_first_run(true)
+{
+	;
+}
+//
+void inst_plasam::update(const float &dt)
+{
+	count_down -= dt;	
+}
+////////////////
 // particle
 ////////////////
 ////////////////
@@ -32,7 +57,8 @@ public:
 	void reset();
 	void update(float dt, float game_time);
 	void draw(ID3D11DeviceContext *dc, const camera &cam1);
-	void draw_list(ID3D11DeviceContext *dc, const camera &cam1, const std::vector<XMFLOAT3> &list_emit_pos);
+	template <typename list_plasam>
+	void draw_list(ID3D11DeviceContext *dc, const camera &cam1, list_plasam &list);
 private:
 	void build_VB(ID3D11Device *device);
 	particle (const particle &rhs);
@@ -156,7 +182,8 @@ void particle::draw(ID3D11DeviceContext *dc, const camera &cam1)
 	}
 }
 //
-void particle::draw_list(ID3D11DeviceContext *dc, const camera &cam1, const std::vector<XMFLOAT3> &list_emit_pos)
+template <typename list_plasam>
+void particle::draw_list(ID3D11DeviceContext *dc, const camera &cam1, list_plasam &list)
 {
 	XMMATRIX view_proj = cam1.get_ViewProj();
 	// Set constants.
@@ -172,8 +199,8 @@ void particle::draw_list(ID3D11DeviceContext *dc, const camera &cam1, const std:
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	UINT stride = sizeof(vertex::particle);
 	UINT offset = 0;
-	for (auto &emit_pos: list_emit_pos) {
-		m_FX->set_EmitPosW(emit_pos);
+	for (auto &inst: list) {
+		m_FX->set_EmitPosW(inst.pos);
 		// On the first pass, use the initialization VB.  Otherwise, use
 		// the VB that contains the current particle list.
 		if (m_FirstRun) dc->IASetVertexBuffers(0, 1, &m_InitVB, &stride, &offset);
