@@ -71,7 +71,9 @@ struct damage_data
 	size_t ix_dmg;
 	int combo_ix;
 	float count_down;
+	float delay;
 	bool is_calculated;
+	bool is_delay;
 	const XMFLOAT3 *box_center;
 };
 ////////////////

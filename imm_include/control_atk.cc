@@ -123,7 +123,9 @@ damage_data::damage_data():
 	ix_dmg(0),
 	combo_ix(-2),
 	count_down(-1.0f),
+	delay(-1.0f),
 	is_calculated(true),
+	is_delay(false),
 	box_center(nullptr)
 {
 	;
@@ -138,18 +140,25 @@ void damage_data::update(const float &dt)
 		if (PTR->m_Inst.m_Stat[ix_dmg].type == skinned) {
 			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
 			math::set_face_to_face(ix_atk, ix_dmg);
-			PTR->m_Scene.audio.play_effect("punch0");
 			//
-			assert(box_center);
-			PTR->m_Scene.plasma.push_back(plasma_type::strike, 0.5f, *box_center);
-		}
-		else {
-			int focus = PTR->m_Inst.m_Troll[ix_atk].focus;
-			if (!PTR->m_Control.atk.hits[ix_atk].count(focus)) {
-				math::set_inst_face_to_inst2(ix_atk, ix_dmg);
-			}
+			is_delay = true;
+			delay = 0.07f;
 		}
 		is_calculated = true;
+	}
+	if (is_delay) {
+		delay -= dt;
+		if (delay < 0.0f) {
+			assert(box_center);
+			//hit postion roughly
+			XMFLOAT3 box = *box_center;
+			XMFLOAT4X4 &world_dmg = *PTR->m_Inst.m_Stat[ix_dmg].get_World();
+			box.x = world_dmg._41;
+			box.z = world_dmg._43;
+			PTR->m_Scene.plasma.push_back(strike, 0.5f, box);
+			PTR->m_Scene.audio.play_effect("punch0");
+			is_delay = false;
+		}
 	}
 }
 //

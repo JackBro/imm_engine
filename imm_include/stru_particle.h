@@ -98,7 +98,7 @@ void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 	file_names.clear();
 	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_strike_dds"]));
 	tex_strike_srv = create_Texture2DArraySRV(device, context, file_names);
-	pt_strike.init(device, effects::m_PtFireFX, tex_strike_srv, tex_random_srv, 500, 10);
+	pt_strike.init(device, effects::m_PtStrikeFX, tex_strike_srv, tex_random_srv, 500, 10);
 	// Test
 	list_fire.emplace_back();
 	list_fire.back().pos = XMFLOAT3(10.0f, 20.0f, 0.0f);
@@ -146,7 +146,7 @@ void state_plasma::push_back(plasma_type type, const float &count_down, const XM
 		list_fire.back().slot = index_fire;
 		break;
 	case strike:
-	++index_strike;
+		++index_strike;
 		if (index_strike > pt_strike.get_ListSize()-1) index_strike = 0;
 		list_strike.emplace_back();
 		list_strike.back().pos = pos;

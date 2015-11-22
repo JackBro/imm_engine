@@ -132,6 +132,8 @@ public:
 	//
 	const XMFLOAT3& center(const size_t &ix);
 	float half_y(const size_t &ix);
+	float extents_x(const size_t &ix);
+	float extents_z(const size_t &ix);
 	void remove_all();
 };
 //
@@ -303,6 +305,30 @@ float phy_bound_mgr<T_app>::half_y(const size_t &ix)
 	switch(map[ix].first) {
 	case box: return b1[map[ix].second].Extents.y;
 	case ori_box: return b2[map[ix].second].Extents.y;
+	case sphere: return b3[map[ix].second].Radius;
+	}
+	assert(false);
+	return 0.0f;
+}
+//
+template <typename T_app>
+float phy_bound_mgr<T_app>::extents_x(const size_t &ix)
+{
+	switch(map[ix].first) {
+	case box: return b1[map[ix].second].Extents.x;
+	case ori_box: return b2[map[ix].second].Extents.x;
+	case sphere: return b3[map[ix].second].Radius;
+	}
+	assert(false);
+	return 0.0f;
+}
+//
+template <typename T_app>
+float phy_bound_mgr<T_app>::extents_z(const size_t &ix)
+{
+	switch(map[ix].first) {
+	case box: return b1[map[ix].second].Extents.z;
+	case ori_box: return b2[map[ix].second].Extents.z;
 	case sphere: return b3[map[ix].second].Radius;
 	}
 	assert(false);

@@ -84,41 +84,6 @@ void phy_position_update(
 	return;
 }
 ////////////////
-// phy_boxA_normal
-// bad!! it is not works, for test only
-////////////////
-////////////////
-XMVECTORF32 phy_boxA_normal(const BoundingBox &bbox_A, const BoundingBox &bbox_B)
-{
-	// get boxA vertex
-	XMFLOAT3 corners[8];
-	bbox_A.GetCorners(corners);
-	std::vector<XMVECTOR> bv;
-	for (size_t ix = 0; ix != 8; ++ix) bv.push_back(XMLoadFloat3(&corners[ix]));
-	// get boxB center
-	XMVECTOR bbox_B_center = XMLoadFloat3(&bbox_B.Center);
-	// boxA six face, calculate each midpoint
-	std::vector<XMVECTOR> bm(6);
-	bm[0] = XMVectorScale(XMVectorAdd(bv[0], bv[2]), 0.5f);
-	bm[1] = XMVectorScale(XMVectorAdd(bv[7], bv[2]), 0.5f);
-	bm[2] = XMVectorScale(XMVectorAdd(bv[4], bv[6]), 0.5f);
-	bm[3] = XMVectorScale(XMVectorAdd(bv[0], bv[5]), 0.5f);
-	bm[4] = XMVectorScale(XMVectorAdd(bv[4], bv[3]), 0.5f);
-	bm[5] = XMVectorScale(XMVectorAdd(bv[1], bv[6]), 0.5f);
-	// determine boxA which face nearest boxB center
-	float length;
-	float length_min = FLT_MAX;
-	size_t min = 0;
-	for (size_t ix = 0; ix != 6; ++ix) {
-		length = XMVectorGetX(XMVector3Length(XMVectorSubtract(bm[ix], bbox_B_center)));
-		if (length < length_min) {
-			length_min = length;
-			min = ix;
-		}
-	}
-	return PHY_AABB_NORMAL[min];
-}
-////////////////
 // phy_impulse_casual
 // collision impulse method modify from
 // \Microsoft DirectX SDK (June 2010)\Samples\C++\Direct3D\ConfigSystem\main.cpp
@@ -179,6 +144,10 @@ void phy_impulse_casual(
 	XMStoreFloat4x4(&world_B, w_B);
 	return;
 }
+////////////////
+// phy
+////////////////
+////////////////
 //
 }
 #endif
