@@ -17,7 +17,7 @@ void mouse_inst_move(const size_t &index, const float &speed)
 	if (PTR->m_Inst.m_IsTerrainUse) mouse_hit_terrain(hit_pos);
 	else mouse_hit_plane_y(hit_pos);
 	mouse_move_toward_hit(hit_pos, index, speed);
-	PTR->m_Control.map_stop[index].set_destination(speed, hit_pos, PTR->m_Inst.m_BoundW.half_y(index));
+	PTR->m_Control.map_stop[index].set_destination(speed, hit_pos, PTR->m_Inst.m_BoundW.extents_y(index));
 }
 //
 void mouse_move_toward_hit(
@@ -147,7 +147,7 @@ void mouse_hit_terrain(XMVECTOR &hit_pos_out)
 	hit_pos_out = ray_origin;
 	size_t steps = 50;
 	float terrain_height = PTR->m_Scene.terrain1.m_Info.height_scale;
-	float terrain_half_y = terrain_height/2.0f;
+	float terrain_half_y = terrain_height*0.5f;
 	float plane_y = terrain_half_y;
 	float delt_y = terrain_height / steps;
 	float comp_y = delt_y;
@@ -324,7 +324,7 @@ void ai_move_pos(const size_t &index, const float &speed)
 	}
 	XMVECTOR hit_pos = XMLoadFloat3(pos);
 	mouse_move_toward_hit(hit_pos, index, speed);
-	PTR->m_Control.map_stop[index].set_destination(speed, hit_pos, PTR->m_Inst.m_BoundW.half_y(index));
+	PTR->m_Control.map_stop[index].set_destination(speed, hit_pos, PTR->m_Inst.m_BoundW.extents_y(index));
 }
 //
 }}

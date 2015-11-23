@@ -247,8 +247,8 @@ void scene_mgr<T_app>::relaod_terrain_after_instance()
 		XMFLOAT4X4 *world = inst.get_World();
 		XMMATRIX W = XMLoadFloat4x4(world);
 		app->m_Inst.m_BoundL.transform(ix, app->m_Inst.m_BoundW, W);
-		float half_y = app->m_Inst.m_BoundW.half_y(ix);
-		float height = terrain1.get_Height(world->_41, world->_43) + half_y*2.0f;
+		float extents_y = app->m_Inst.m_BoundW.extents_y(ix);
+		float height = terrain1.get_Height(world->_41, world->_43) + extents_y*2.0f;
 		if (world->_42 < height) world->_42 = height+1.0f;
 		ix++;
 	}

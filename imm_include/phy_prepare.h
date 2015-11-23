@@ -24,10 +24,10 @@ struct phy_property
 	XMFLOAT3 vel_indirect; // velcoity of no direct mechanical motion, for example: walk, run
 	XMFLOAT3 vel_bring;
 	XMFLOAT3 acceleration;
-	float mass;
+	float mass; // not use now
 	float friction_rev; // reversed coefficient of friction, 0 <= this <= 1, ignore original friction > 1
 	float bounce;
-	int stand_from;
+	int stand_on;
 	bool is_ground;
 	bool is_on_ground;
 	bool is_abnormal;
@@ -41,7 +41,7 @@ phy_property::phy_property():
 	mass(0.0f),
 	friction_rev(0.3f),
 	bounce(0.3f),
-	stand_from(-1),
+	stand_on(-1),
 	is_ground(false),
 	is_on_ground(false),
 	is_abnormal(false)	
@@ -131,7 +131,7 @@ public:
 		int &out_ix);
 	//
 	const XMFLOAT3& center(const size_t &ix);
-	float half_y(const size_t &ix);
+	float extents_y(const size_t &ix);
 	float extents_x(const size_t &ix);
 	float extents_z(const size_t &ix);
 	void remove_all();
@@ -300,7 +300,7 @@ const XMFLOAT3& phy_bound_mgr<T_app>::center(const size_t &ix)
 }
 //
 template <typename T_app>
-float phy_bound_mgr<T_app>::half_y(const size_t &ix)
+float phy_bound_mgr<T_app>::extents_y(const size_t &ix)
 {
 	switch(map[ix].first) {
 	case box: return b1[map[ix].second].Extents.y;

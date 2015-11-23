@@ -41,12 +41,11 @@ void phy_position_update(
 	phy_property &prop,
 	phy_property &prop_ground,
 	const XMFLOAT3 &center,
-	const bool &is_on_ground,
-	const float &half_y,
+	const float &extents_y,
 	const float &ground_y)
 {
 	if (prop.is_abnormal) return;
-	if (!is_on_ground) {
+	if (!prop.is_on_ground) {
 		prop.velocity.x += prop.acceleration.x*dt;
 		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt;
 		prop.velocity.z += prop.acceleration.z*dt;
@@ -67,7 +66,7 @@ void phy_position_update(
 		// stand_adjust keep object full stand on ground
 		// guarantee object.intersects(ground) return true, exclude if they have a little gap
 		float stand_adjust = -0.01f;
-		float stand = half_y+ground_y+stand_adjust;
+		float stand = extents_y+ground_y+stand_adjust;
 		center_y += prop.velocity.y*dt + prop.vel_indirect.y*dt;
 		world._41 += prop.velocity.x*dt + prop.vel_indirect.x*dt;
 		world._43 += prop.velocity.z*dt + prop.vel_indirect.z*dt;
@@ -93,13 +92,18 @@ void phy_position_update(
 ////////////////
 void phy_impulse_casual(
 	const float &dt,
+	const float &extents_y_A,
+	const float &extents_y_B,
+	const size_t &ix_A,
+	const size_t &ix_B,
+	
 	XMFLOAT4X4 &world_A,
 	XMFLOAT4X4 &world_B,
 	phy_property &prop_A,
 	phy_property &prop_B,
 	const XMFLOAT3 &center_A,
 	const XMFLOAT3 &center_B,
-	const bool &is_touch = true,
+	const bool &is_touch,
 	const bool &is_A_atk = false)
 {
 	if (!is_touch) return;
@@ -136,18 +140,30 @@ void phy_impulse_casual(
 	w_B.r[3] = XMVectorAdd(c_B, offset_B);
 	w_A.r[3] = XMVectorSetW(w_A.r[3], 1.0f);
 	w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
-	if (!is_A_atk) {
-		XMStoreFloat3(&prop_A.velocity, vel_A);
-		XMStoreFloat4x4(&world_A, w_A);
-	}
+	// store result
 	XMStoreFloat3(&prop_B.velocity, vel_B);
 	XMStoreFloat4x4(&world_B, w_B);
+	// if A is attacking, do not move
+	if (is_A_atk) return;
+	XMStoreFloat3(&prop_A.velocity, vel_A);
+	XMStoreFloat4x4(&world_A, w_A);
+	// check if instance stand on instance
+	if (center_A.y > center_B.y) {
+		float diff = center_A.y-extents_y_A-(center_B.y+extents_y_B);
+		if (abs(diff) < extents_y_B*0.1f) {
+			prop_A.stand_on = static_cast<int>(ix_B);
+			prop_A.is_on_ground = true;
+		}
+	}
+	else {
+		float diff = center_B.y-extents_y_B-(center_A.y+extents_y_A);
+		if (abs(diff) < extents_y_A*0.1f) {
+			prop_B.stand_on = static_cast<int>(ix_A);
+			prop_B.is_on_ground = true;
+		}
+	}
 	return;
 }
-////////////////
-// phy
-////////////////
-////////////////
 //
 }
 #endif

@@ -43,9 +43,9 @@ struct instance_mgr
 	void update_all_physics(const float &dt);
 	void update_bound();
 	void update_collision(float dt);
+	void update_collision_impulse(float dt);
 	void update_collision_plane(float dt);
 	void update_collision_terrain(float dt);
-	void update_collision_impulse(float dt);
 	void update_collision_liquid(float dt);
 	void update_skinned(const float &dt);
 	void update_frustum_culling();
@@ -260,9 +260,45 @@ void instance_mgr<T_app>::update_collision(float dt)
 {
 	// if runtime stun
 	if (dt > PHY_MAX_DELTA_TIME) dt = PHY_MAX_DELTA_TIME;
+	update_collision_impulse(dt);
 	if (m_IsTerrainUse) update_collision_terrain(dt);
 	else update_collision_plane(dt);
-	update_collision_impulse(dt);
+}
+//
+template <typename T_app>
+void instance_mgr<T_app>::update_collision_impulse(float dt)
+{
+	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
+	for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
+		//
+		if (static_cast<int>(ix) == m_PlaneGroundIx || static_cast<int>(ix2) == m_PlaneGroundIx) continue;
+		if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
+		// record sensor
+		bool is_touch = m_BoundW.intersects(ix, ix2);
+		if (m_Stat[ix].type == skinned) {
+			m_Steering[ix].sensor[ix2] = is_touch;
+		}
+		if (m_Stat[ix2].type == skinned) {
+			m_Steering[ix2].sensor[ix] = is_touch;
+		}
+		// if instance stand on instance, continue;
+		if (m_Stat[ix].phy.stand_on == ix2 || m_Stat[ix2].phy.stand_on == ix) continue;
+		//
+		phy_impulse_casual(
+			dt,
+			m_BoundW.extents_y(ix),
+			m_BoundW.extents_y(ix2),
+			ix,
+			ix2,
+			*(m_Stat[ix].get_World()),
+			*(m_Stat[ix2].get_World()),
+			m_Stat[ix].phy,
+			m_Stat[ix2].phy,
+			m_BoundW.center(ix),
+			m_BoundW.center(ix2),
+			is_touch);
+		//
+	}}
 }
 //
 template <typename T_app>
@@ -270,21 +306,42 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 {
 	if (m_PlaneGroundIx < 0) return;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
+		//
 		if (static_cast<int>(ix) == m_PlaneGroundIx) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
-		// ix_gro reserve
-		int ix_gro = m_PlaneGroundIx;
-		if (m_Stat[ix].phy.stand_from >= 0) ix_gro = m_Stat[ix].phy.stand_from;
-		m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
+		//
+		int ix_gro;		
+		float ground_y;
+		if (m_Stat[ix].phy.stand_on >= 0) {
+			ix_gro = m_Stat[ix].phy.stand_on;
+			m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
+			if (!m_Stat[ix].phy.is_on_ground) {
+				ix_gro = m_PlaneGroundIx;
+				m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
+				ground_y = (m_Stat[m_PlaneGroundIx].get_World())->_42;
+				if (m_BoundW.intersects(m_PlaneGroundIx, ix)) {
+					ix_gro = m_PlaneGroundIx;
+					m_Stat[ix].phy.stand_on = -1;
+				}
+			}
+			else {
+				ground_y = (m_Stat[ix_gro].get_World())->_42 + m_BoundW.extents_y(ix_gro);
+			}
+		}
+		else {
+			ix_gro = m_PlaneGroundIx;
+			m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
+			ground_y = (m_Stat[m_PlaneGroundIx].get_World())->_42;
+		}
+		//
 		phy_position_update(
 			dt,
 			*(m_Stat[ix].get_World()),
 			m_Stat[ix].phy,
 			m_Stat[ix_gro].phy,
 			m_BoundW.center(ix),
-			m_Stat[ix].phy.is_on_ground,
-			m_BoundW.half_y(ix),
-			(m_Stat[m_PlaneGroundIx].get_World())->_42);
+			m_BoundW.extents_y(ix),
+			ground_y);
 		//
 	}
 }
@@ -293,10 +350,11 @@ template <typename T_app>
 void instance_mgr<T_app>::update_collision_terrain(float dt)
 {
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
+		//
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		// ix_gro reserve
 		int ix_gro = -1;
-		if (m_Stat[ix].phy.stand_from >= 0) ix_gro = m_Stat[ix].phy.stand_from;
+		if (m_Stat[ix].phy.stand_on >= 0) ix_gro = m_Stat[ix].phy.stand_on;
 		XMFLOAT4X4 *world = m_Stat[ix].get_World();
 		float terrain_height = m_App->m_Scene.terrain1.get_Height(world->_41, world->_43);
 		XMVECTOR terrain_point = XMVectorSet(world->_41, terrain_height, world->_43, 0.0f);
@@ -308,43 +366,13 @@ void instance_mgr<T_app>::update_collision_terrain(float dt)
 			m_Stat[ix].phy,
 			m_App->m_Scene.terrain1_phy,
 			m_BoundW.center(ix),
-			m_Stat[ix].phy.is_on_ground,
-			m_BoundW.half_y(ix),
+			m_BoundW.extents_y(ix),
 			terrain_height);
 		// inaccuracy touch ground, logically assume it touches gourond, because terrain is not flat
 		// this is not for physics
-		float half_y = m_BoundW.half_y(ix);
-		if (world->_42 - half_y - terrain_height < 0.3f) m_Stat[ix].phy.is_on_ground = true;
+		float extents_y = m_BoundW.extents_y(ix);
+		if (world->_42 - extents_y - terrain_height < 0.3f) m_Stat[ix].phy.is_on_ground = true;
 		//else m_Stat[ix].phy.is_on_ground = false;
-	}
-}
-//
-template <typename T_app>
-void instance_mgr<T_app>::update_collision_impulse(float dt)
-{
-	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
-		for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
-			if (static_cast<int>(ix) == m_PlaneGroundIx || static_cast<int>(ix2) == m_PlaneGroundIx) continue;
-			if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
-			// sensor
-			bool is_touch = m_BoundW.intersects(ix, ix2);
-			if (m_Stat[ix].type == skinned) {
-				m_Steering[ix].sensor[ix2] = is_touch;
-			}
-			if (m_Stat[ix2].type == skinned) {		
-				m_Steering[ix2].sensor[ix] = is_touch;
-			}
-			//
-			phy_impulse_casual(
-				dt,
-				*(m_Stat[ix].get_World()),
-				*(m_Stat[ix2].get_World()),
-				m_Stat[ix].phy,
-				m_Stat[ix2].phy,
-				m_BoundW.center(ix),
-				m_BoundW.center(ix2),
-				is_touch);
-		}
 	}
 }
 //
