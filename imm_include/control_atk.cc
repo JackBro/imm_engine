@@ -142,7 +142,7 @@ void damage_data::update(const float &dt)
 			math::set_face_to_face(ix_atk, ix_dmg);
 			//
 			is_delay = true;
-			delay = 0.07f;
+			delay = 0.03f;
 		}
 		is_calculated = true;
 	}
@@ -152,9 +152,9 @@ void damage_data::update(const float &dt)
 			assert(box_center);
 			//hit postion roughly
 			XMFLOAT3 box = *box_center;
-			XMFLOAT4X4 &world_dmg = *PTR->m_Inst.m_Stat[ix_dmg].get_World();
-			box.x = world_dmg._41;
-			box.z = world_dmg._43;
+			XMFLOAT3 center = PTR->m_Inst.m_BoundW.center(ix_dmg);
+			box.x += (center.x-box.x)*0.5f;
+			box.z += (center.z-box.z)*0.5f;
 			PTR->m_Scene.plasma.push_back(strike, 0.5f, box);
 			PTR->m_Scene.audio.play_effect("punch0");
 			is_delay = false;

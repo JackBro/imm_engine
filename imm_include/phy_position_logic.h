@@ -22,15 +22,6 @@ static const float PHY_GRAVITY = -9.8f*PHY_FLOAT_EQUAL_1METER*PHY_GRAVITY_RATE;
 static const float PHY_IGNORE_GRAVITY = 1.8f;
 // if runtime stun, restrict delta time not too big
 static const float PHY_MAX_DELTA_TIME = 0.1f;
-// AABB six face normal
-XMGLOBALCONST XMVECTORF32 PHY_AABB_NORMAL[6] = {
-	{0.0f, 0.0f, 1.0f, 0.0f},
-	{0.0f, 1.0f, 0.0f, 0.0f},
-	{0.0f, 0.0f, -1.0f, 0.0f},
-	{0.0f, -1.0f, 0.0f, 0.0f},
-	{1.0f, 0.0f, 0.0f, 0.0f},
-	{-1.0f, 0.0f, 0.0f, 0.0f}
-};
 ////////////////
 // phy_position_update
 ////////////////
@@ -96,7 +87,6 @@ void phy_impulse_casual(
 	const float &extents_y_B,
 	const size_t &ix_A,
 	const size_t &ix_B,
-	
 	XMFLOAT4X4 &world_A,
 	XMFLOAT4X4 &world_B,
 	phy_property &prop_A,
@@ -148,16 +138,19 @@ void phy_impulse_casual(
 	XMStoreFloat3(&prop_A.velocity, vel_A);
 	XMStoreFloat4x4(&world_A, w_A);
 	// check if instance stand on instance
+	// c_A, c_B is updated, but center_A, center_B is not
+	// currently using center_A, center_B
+	static const float proportion_extens_y = 0.1f;
 	if (center_A.y > center_B.y) {
 		float diff = center_A.y-extents_y_A-(center_B.y+extents_y_B);
-		if (abs(diff) < extents_y_B*0.1f) {
+		if (abs(diff) < extents_y_B*proportion_extens_y) {
 			prop_A.stand_on = static_cast<int>(ix_B);
 			prop_A.is_on_ground = true;
 		}
 	}
 	else {
 		float diff = center_B.y-extents_y_B-(center_A.y+extents_y_A);
-		if (abs(diff) < extents_y_A*0.1f) {
+		if (abs(diff) < extents_y_A*proportion_extens_y) {
 			prop_B.stand_on = static_cast<int>(ix_A);
 			prop_B.is_on_ground = true;
 		}

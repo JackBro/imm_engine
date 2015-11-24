@@ -46,12 +46,13 @@ struct instance_mgr
 	void update_collision_impulse(float dt);
 	void update_collision_plane(float dt);
 	void update_collision_terrain(float dt);
+	void update_collision_terrain_height(const size_t &ix, float &get_height);
 	void update_collision_liquid(float dt);
 	void update_skinned(const float &dt);
 	void update_frustum_culling();
 	void remove_all();
 	model_mgr m_Model;
-	// Bounding only use BoundingBox for lazy develop
+	// bounding only use AABB for lazy develop and fast
 	phy_bound_mgr<T_app> m_BoundL;
 	phy_bound_mgr<T_app> m_BoundW;
 	inst_adapter<T_app> m_Adapter;
@@ -309,29 +310,28 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 		//
 		if (static_cast<int>(ix) == m_PlaneGroundIx) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
-		//
+		// physcis logic
 		int ix_gro;		
 		float ground_y;
 		if (m_Stat[ix].phy.stand_on >= 0) {
 			ix_gro = m_Stat[ix].phy.stand_on;
 			m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
-			if (!m_Stat[ix].phy.is_on_ground) {
-				ix_gro = m_PlaneGroundIx;
-				m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
-				ground_y = (m_Stat[m_PlaneGroundIx].get_World())->_42;
-				if (m_BoundW.intersects(m_PlaneGroundIx, ix)) {
-					ix_gro = m_PlaneGroundIx;
-					m_Stat[ix].phy.stand_on = -1;
-				}
+			if (m_Stat[ix].phy.is_on_ground) {
+				ground_y = m_BoundW.center(ix_gro).y + m_BoundW.extents_y(ix_gro);
 			}
 			else {
-				ground_y = (m_Stat[ix_gro].get_World())->_42 + m_BoundW.extents_y(ix_gro);
+				ix_gro = m_PlaneGroundIx;
+				m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
+				ground_y = m_BoundW.center(ix_gro).y + m_BoundW.extents_y(ix_gro);
+				if (m_Stat[ix].phy.is_on_ground) {
+					m_Stat[ix].phy.stand_on = -1;
+				}
 			}
 		}
 		else {
 			ix_gro = m_PlaneGroundIx;
 			m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
-			ground_y = (m_Stat[m_PlaneGroundIx].get_World())->_42;
+			ground_y = m_BoundW.center(ix_gro).y + m_BoundW.extents_y(ix_gro);
 		}
 		//
 		phy_position_update(
@@ -352,28 +352,56 @@ void instance_mgr<T_app>::update_collision_terrain(float dt)
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		//
 		if (!m_Stat[ix].is_invoke_physics()) continue;
-		// ix_gro reserve
-		int ix_gro = -1;
-		if (m_Stat[ix].phy.stand_on >= 0) ix_gro = m_Stat[ix].phy.stand_on;
-		XMFLOAT4X4 *world = m_Stat[ix].get_World();
-		float terrain_height = m_App->m_Scene.terrain1.get_Height(world->_41, world->_43);
-		XMVECTOR terrain_point = XMVectorSet(world->_41, terrain_height, world->_43, 0.0f);
-		int contains = m_BoundW.contains(ix, terrain_point);
-		m_Stat[ix].phy.is_on_ground = (contains != 0);
+		// physcis logic
+		int ix_gro;
+		float height;
+		phy_property *phy_gro;
+		if (m_Stat[ix].phy.stand_on >= 0) {
+			ix_gro = m_Stat[ix].phy.stand_on;
+			m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
+			if (m_Stat[ix].phy.is_on_ground) {
+				height = m_BoundW.center(ix_gro).y + m_BoundW.extents_y(ix_gro);
+			}
+			else {
+				ix_gro = -1;
+				update_collision_terrain_height(ix, height);
+				if (m_Stat[ix].phy.is_on_ground) {
+					m_Stat[ix].phy.stand_on = -1;
+				}
+			}
+		}
+		else {
+			ix_gro = -1;
+			update_collision_terrain_height(ix, height);
+		}
+		if (ix_gro < 0) phy_gro = &m_App->m_Scene.terrain1_phy;
+		else phy_gro = &m_Stat[ix_gro].phy;
+		//
 		phy_position_update(
 			dt,
-			*world,
+			*(m_Stat[ix].get_World()),
 			m_Stat[ix].phy,
-			m_App->m_Scene.terrain1_phy,
+			*phy_gro,
 			m_BoundW.center(ix),
 			m_BoundW.extents_y(ix),
-			terrain_height);
+			height);
 		// inaccuracy touch ground, logically assume it touches gourond, because terrain is not flat
 		// this is not for physics
-		float extents_y = m_BoundW.extents_y(ix);
-		if (world->_42 - extents_y - terrain_height < 0.3f) m_Stat[ix].phy.is_on_ground = true;
-		//else m_Stat[ix].phy.is_on_ground = false;
+		if (ix_gro < 0) {
+			float extents_y = m_BoundW.extents_y(ix);
+			if (m_BoundW.center(ix).y - extents_y - height < 0.3f) m_Stat[ix].phy.is_on_ground = true;
+		}
 	}
+}
+//
+template <typename T_app>
+void instance_mgr<T_app>::update_collision_terrain_height(const size_t &ix, float &get_height)
+{
+	XMFLOAT3 center = m_BoundW.center(ix);
+	get_height = m_App->m_Scene.terrain1.get_Height(center.x, center.z);
+	XMVECTOR terrain_point = XMVectorSet(center.x, get_height, center.z, 0.0f);
+	int contains = m_BoundW.contains(ix, terrain_point);
+	m_Stat[ix].phy.is_on_ground = (contains != 0);
 }
 //
 template <typename T_app>
@@ -402,6 +430,7 @@ void instance_mgr<T_app>::update_frustum_culling()
 	XMVECTOR det_view = XMMatrixDeterminant(m_App->m_Cam.get_View());
 	XMMATRIX inv_view = XMMatrixInverse(&det_view, m_App->m_Cam.get_View());
 	m_CamFrustumL.Transform(m_CamFrustumW, inv_view);
+	// disappear if not in frustum
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		if (m_CamFrustumW.Intersects(m_BoundW.b1[m_BoundW.map[ix].second])) {
 			m_Stat[ix].set_IsAppear(true);
