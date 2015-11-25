@@ -153,8 +153,8 @@ void damage_data::update(const float &dt)
 			//hit postion roughly
 			XMFLOAT3 box = *box_center;
 			XMFLOAT3 center = PTR->m_Inst.m_BoundW.center(ix_dmg);
-			box.x += (center.x-box.x)*0.5f;
-			box.z += (center.z-box.z)*0.5f;
+			box.x += (center.x-box.x)*0.7f;
+			box.z += (center.z-box.z)*0.7f;
 			PTR->m_Scene.plasma.push_back(strike, 0.5f, box);
 			PTR->m_Scene.audio.play_effect("punch0");
 			is_delay = false;

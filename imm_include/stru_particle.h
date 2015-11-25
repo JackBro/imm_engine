@@ -37,13 +37,17 @@ struct state_plasma
 	void push_back(plasma_type type, const float &count_down, const XMFLOAT3 &pos);
 	particle pt_fire;
 	particle pt_strike;
+	particle pt_lightning;
 	std::list<inst_plasam> list_fire;
 	std::list<inst_plasam> list_strike;
+	std::list<inst_plasam> list_lightning;
 	bool is_active;
 	size_t index_fire;
 	size_t index_strike;
+	size_t index_lightning;
 	ID3D11ShaderResourceView *tex_fire_srv;
 	ID3D11ShaderResourceView *tex_strike_srv;
+	ID3D11ShaderResourceView *tex_lightning_srv;
 	ID3D11ShaderResourceView *tex_random_srv;
 private:
 	state_plasma(const state_plasma &rhs);
@@ -53,13 +57,17 @@ private:
 state_plasma::state_plasma():
 	pt_fire(),
 	pt_strike(),
+	pt_lightning(),
 	list_fire(),
 	list_strike(),
+	list_lightning(),
 	is_active(true),
 	index_fire(0),
 	index_strike(0),
+	index_lightning(0),
 	tex_fire_srv(nullptr),
 	tex_strike_srv(nullptr),
+	tex_lightning_srv(nullptr),
 	tex_random_srv(nullptr)
 {
 	;

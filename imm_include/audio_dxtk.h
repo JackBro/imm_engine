@@ -37,7 +37,7 @@ struct audio_dxtk
 };
 //
 audio_dxtk::audio_dxtk():
-	wave_bank_volume(1.0f),
+	wave_bank_volume(0.7f),
 	current_bgm_name("none"),
 	aud_engine(nullptr),
 	sound_effect(nullptr),
@@ -83,6 +83,7 @@ void audio_dxtk::update()
 //
 void audio_dxtk::set_effect_inst_volume(float volume)
 {
+	assert(effect_inst);
 	effect_inst->SetVolume(volume);
 }
 //
