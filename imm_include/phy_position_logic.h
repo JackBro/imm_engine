@@ -106,6 +106,7 @@ void phy_impulse_casual(
 	// AtoB is the collision normal vector.
 	XMVECTOR AtoB = XMVector3Normalize(XMVectorSubtract(c_B, c_A));
 	XMVECTOR vel_A = XMLoadFloat3(&prop_A.velocity);
+	if (is_A_atk) vel_A += XMLoadFloat3(&prop_A.vel_indirect);
 	XMVECTOR vel_B = XMLoadFloat3(&prop_B.velocity);
 	// empirical formula, vel_indirect is different from velocity
 	XMVECTOR vel_A_nm = XMLoadFloat3(&prop_A.vel_indirect);

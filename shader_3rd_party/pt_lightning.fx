@@ -1,5 +1,5 @@
 ////////////////
-// pt_strike.fx
+// pt_lightning.fx
 // Fire.fx by Frank Luna (C) 2011 All Rights Reserved.
 // Fire particle system.  Particles are emitted directly in world space.
 ////////////////
@@ -20,7 +20,7 @@ cbuffer cbPerFrame
 cbuffer cbFixed
 {
 	// Net constant acceleration used to accerlate the particles.
-	float3 gAccelW = {0.0f, -5.0f, 0.0f};
+	float3 gAccelW = {0.0f, 0.0f, 0.0f};
 	// Texture coordinates used to stretch texture over quad
 	// when we expand point particle into a quad.
 	float2 gQuadTexC[4] =
@@ -97,7 +97,7 @@ Particle StreamOutVS(Particle vin)
 // programed here will generally vary from particle system
 // to particle system, as the destroy/spawn rules will be
 // different.
-[maxvertexcount(4)]
+[maxvertexcount(2)]
 void StreamOutGS(
 	point Particle gin[1],
 	inout PointStream<Particle> ptStream)
@@ -110,22 +110,14 @@ void StreamOutGS(
 			Particle p;
 			p.InitialPosW = gEmitPosW.xyz;
 			p.InitialVelW = 4.0f*vRandom;
-			p.SizeW       = float2(0.15f, 0.15f);
+			p.SizeW       = float2(5.0f, 5.0f);
 			p.Age         = 0.0f;
 			p.Type        = PT_FLARE;
 			ptStream.Append(p);
 			// reset the time to emit
 			gin[0].Age = 0.0f;
-			// more particles
-			vRandom = RandUnitVec3(0.1f);
-			p.InitialVelW = 4.0f*vRandom;
-			ptStream.Append(p);
-			vRandom = RandUnitVec3(0.2f);
-			p.InitialVelW = 4.0f*vRandom;
-			ptStream.Append(p);
 		}
-		// always keep emitters
-		ptStream.Append(gin[0]);
+		// only one particle
 	}
 	else {
 		// Specify conditions to keep particle; this may vary from system to system.
@@ -163,7 +155,7 @@ VertexOut DrawVS(Particle vin)
 	VertexOut vout;
 	float t = vin.Age;
 	// constant acceleration equation
-	vout.PosW = 0.5f*t*t*gAccelW + t*vin.InitialVelW + vin.InitialPosW;
+	vout.PosW = t*vin.InitialVelW + vin.InitialPosW;
 	// fade color with time
 	vout.Color = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	vout.SizeW = vin.SizeW;

@@ -23,7 +23,7 @@ Disadvantage List:
 * No visualization scene editor.
 * Some game date is directly mixed with source code, such as UI and game logic.
 * The platform only supports Microsoft Windows. 
-* No traditional API design, evil magic style.
+* Horrible API design, evil magic code style.
 
 Compile Environment:
 --------------------
@@ -60,7 +60,7 @@ In demo folder, every subfolder include a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: A basic window draw empty.
 * **simple_scene**: A very simple scene draw 4 basic geometrics. 
-This program is almost the same as the Released Demo (github's is updated, but not include assets).
+This program is almost the same as the Released Demo, but not include media (Released Demo is old version).
 
 Runtime Folder Tree:
 --------------------
