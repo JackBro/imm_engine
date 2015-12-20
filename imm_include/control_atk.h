@@ -13,12 +13,21 @@
 namespace imm
 {
 ////////////////
-// combo_para
+// SKILL_TYPE
 ////////////////
 ////////////////
-struct combo_para
+enum SKILL_TYPE
 {
-	combo_para();
+	SKILL_TYPE_WEAPON,
+	SKILL_TYPE_MAGIC,
+};
+////////////////
+// skill_para
+////////////////
+////////////////
+struct skill_para
+{
+	skill_para();
 	std::string model_name;
 	int combo_ix;
 	int current_ix;
@@ -28,7 +37,7 @@ struct combo_para
 	float count_down;
 };
 //
-combo_para::combo_para():
+skill_para::skill_para():
 	combo_ix(-1),
 	current_ix(-1),
 	inst_ix(0),
@@ -39,24 +48,25 @@ combo_para::combo_para():
 	;
 }
 ////////////////
-// combo_data
+// skill_data
 ////////////////
 ////////////////
-struct combo_data
+struct skill_data
 {
-	combo_data();
+	skill_data();
 	void build(const std::string &name);
 private:
-	void current_apply(combo_para &pa);
-	void current_over(combo_para &pa);
+	void current_apply(skill_para &pa);
+	void current_over(skill_para &pa);
 public:
-	void strike(combo_para &pa);
-	void update(const float &dt, combo_para &pa);
+	void strike(skill_para &pa);
+	void update(const float &dt, skill_para &pa);
 	std::vector<std::string> atk;
 	std::vector<float> frame_end;
 	std::vector<float> frame_turn;
 	std::vector<float> frame_speed;
 	std::vector<std::vector<std::string>> atk_box;
+	SKILL_TYPE type;
 };
 ////////////////
 // damage_data
@@ -84,15 +94,16 @@ template <typename T_app>
 struct control_atk
 {
 	control_atk();
-	void init(T_app *app_in);
+	void init(T_app *app_in, const std::string suffix_in);
 	void reset();
-	void init_combo_para(const size_t &index_in);
+	void init_skill_para(const size_t &index_in);
 	void cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg, const XMFLOAT3 &box_center);
 	void execute(const size_t &index_in);
 	void update(const float &dt);
 	T_app *app;
-	std::map<std::string, combo_data> combo_d;
-	std::map<size_t, combo_para> c_para;
+	std::string suffix;
+	std::map<std::string, skill_data> data_ski;
+	std::map<size_t, skill_para> para_ski;
 	std::map<int, damage_data> damage;
 	std::map<size_t, std::set<size_t>> hits;
 };

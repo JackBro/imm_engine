@@ -1,7 +1,8 @@
 ////////////////
 // pt_lightning.fx
-// Fire.fx by Frank Luna (C) 2011 All Rights Reserved.
-// Fire particle system.  Particles are emitted directly in world space.
+// method: (Stormy Night By: Brandon Fogerty)
+// from: http://glslsandbox.com/e#25418.10
+//       http://xdpixel.com/stormy-night/
 ////////////////
 ////////////////
 //***********************************************
@@ -19,8 +20,6 @@ cbuffer cbPerFrame
 };
 cbuffer cbFixed
 {
-	// Net constant acceleration used to accerlate the particles.
-	float3 gAccelW = {0.0f, 0.0f, 0.0f};
 	// Texture coordinates used to stretch texture over quad
 	// when we expand point particle into a quad.
 	float2 gQuadTexC[4] =
@@ -30,16 +29,6 @@ cbuffer cbFixed
 		float2(0.0f, 1.0f),
 		float2(0.0f, 0.0f)
 	};
-};
-// Array of textures for texturing the particles.
-Texture2DArray gTexArray;
-// Random texture used to generate random numbers in shaders.
-Texture1D gRandomTex;
-SamplerState samLinear
-{
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = WRAP;
-	AddressV = WRAP;
 };
 DepthStencilState DisableDepth
 {
@@ -66,14 +55,43 @@ BlendState AdditiveBlending
 //***********************************************
 // HELPER FUNCTIONS                             *
 //***********************************************
-float3 RandUnitVec3(float offset)
+float Hash(float2 p)
 {
-	// Use game time plus offset to sample random texture.
-	float u = (gGameTime + offset);
-	// coordinates in [-1,1]
-	float3 v = gRandomTex.SampleLevel(samLinear, u, 0).xyz;
-	// project onto unit sphere
-	return normalize(v);
+	float3 p2 = float3(p.xy, 1.0f);
+	return frac(sin(dot(p2, float3(37.1f, 61.7f, 12.4f)))*3758.54f);
+}
+float Noise(float2 p)
+{
+	float2 i = floor(p);
+	float2 f = frac(p);
+	f *= f * (3.0f-2.0f*f);
+	return lerp(lerp(Hash(i + float2(0.0f, 0.0f)), Hash(i + float2(1.0f, 0.0f)), f.x),
+	            lerp(Hash(i + float2(0.0f, 1.0f)), Hash(i + float2(1.0f, 1.0f)), f.x),
+	            f.y);
+}
+float FBM(float2 p)
+{
+	float v = 0.0f;
+	v += Noise(p*1.0f)*0.5f;
+	v += Noise(p*2.0f)*0.25f;
+	v += Noise(p*4.0f)*0.125f;
+	return v;
+}
+float3 Lightning(float2 uv)
+{
+	float3 finalColor = float3(0.0f, 0.0f, 0.0f);
+	for(int i=0; i < 3; ++i) {
+		float indexAsFloat = float(i);
+		float amp = 40.0f + (indexAsFloat*1.0f);
+		float period = 2.0f + (indexAsFloat+2.0f);
+		float thickness = lerp(1.1f, 1.7f, uv.y * 0.5f + 0.5f);
+		float intensity = lerp(0.5f, 1.5f, Noise(uv*10.0f));
+		float t = abs(thickness / (sin(uv.x + FBM(uv + gGameTime * period)) * amp) * intensity);
+		float show = frac(abs(sin(gGameTime))) >= 0.3 ? 1.0 : 0.0;
+		show *= step(abs(FBM(float2(sin(gGameTime * 50.0f), 0.0f))), 0.4f);
+		finalColor +=  t * float3(0.3f, 0.5f, 2.0f) * show;
+	}
+	return finalColor;
 }
 //***********************************************
 // STREAM-OUT TECH                              *
@@ -97,33 +115,23 @@ Particle StreamOutVS(Particle vin)
 // programed here will generally vary from particle system
 // to particle system, as the destroy/spawn rules will be
 // different.
-[maxvertexcount(2)]
+[maxvertexcount(1)]
 void StreamOutGS(
 	point Particle gin[1],
 	inout PointStream<Particle> ptStream)
 {
-	gin[0].Age += gTimeStep;
 	if (gin[0].Type == PT_EMITTER) {
-		// time to emit a new particle?
-		if (gin[0].Age > 0.005f) {
-			float3 vRandom = RandUnitVec3(0.0f);
-			Particle p;
-			p.InitialPosW = gEmitPosW.xyz;
-			p.InitialVelW = 4.0f*vRandom;
-			p.SizeW       = float2(5.0f, 5.0f);
-			p.Age         = 0.0f;
-			p.Type        = PT_FLARE;
-			ptStream.Append(p);
-			// reset the time to emit
-			gin[0].Age = 0.0f;
-		}
-		// only one particle
+		// only use one particle
+		Particle p;
+		p.InitialPosW = gEmitPosW.xyz;
+		p.InitialVelW = float3(0.0f, 0.0f, 0.0f);
+		p.SizeW       = float2(50.0f, 50.0f);
+		p.Age         = 0.0f;
+		p.Type        = PT_FLARE;
+		ptStream.Append(p);
 	}
 	else {
-		// Specify conditions to keep particle; this may vary from system to system.
-		if (gin[0].Age <= 1.0f) {
-			ptStream.Append(gin[0]);
-		}
+		ptStream.Append(gin[0]);
 	}
 }
 GeometryShader gsStreamOut = ConstructGSWithSO(
@@ -153,10 +161,8 @@ struct VertexOut
 VertexOut DrawVS(Particle vin)
 {
 	VertexOut vout;
-	float t = vin.Age;
 	// constant acceleration equation
-	vout.PosW = t*vin.InitialVelW + vin.InitialPosW;
-	// fade color with time
+	vout.PosW = vin.InitialPosW;
 	vout.Color = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	vout.SizeW = vin.SizeW;
 	vout.Type  = vin.Type;
@@ -174,41 +180,46 @@ void DrawGS(
 	point VertexOut gin[1],
 	inout TriangleStream<GeoOut> triStream)
 {
-	// do not draw emitter particles.
-	if (gin[0].Type != PT_EMITTER) {
-		//
-		// Compute world matrix so that billboard faces the camera.
-		//
-		float3 look  = normalize(gEyePosW.xyz - gin[0].PosW);
-		float3 right = normalize(cross(float3(0,1,0), look));
-		float3 up    = cross(look, right);
-		//
-		// Compute triangle strip vertices (quad) in world space.
-		//
-		float halfWidth  = 0.5f*gin[0].SizeW.x;
-		float halfHeight = 0.5f*gin[0].SizeW.y;
-		float4 v[4];
-		v[0] = float4(gin[0].PosW + halfWidth*right - halfHeight*up, 1.0f);
-		v[1] = float4(gin[0].PosW + halfWidth*right + halfHeight*up, 1.0f);
-		v[2] = float4(gin[0].PosW - halfWidth*right - halfHeight*up, 1.0f);
-		v[3] = float4(gin[0].PosW - halfWidth*right + halfHeight*up, 1.0f);
-		//
-		// Transform quad vertices to world space and output
-		// them as a triangle strip.
-		//
-		GeoOut gout;
-		[unroll]
-		for(int i = 0; i < 4; ++i) {
-			gout.PosH  = mul(v[i], gViewProj);
-			gout.Tex   = gQuadTexC[i];
-			gout.Color = gin[0].Color;
-			triStream.Append(gout);
-		}
+	// Compute world matrix so that billboard faces the camera.
+	float3 look  = normalize(gEyePosW.xyz - gin[0].PosW);
+	look.xz = gEyePosW.xz;
+	look = normalize(look);
+	float3 right = normalize(cross(float3(0,1,0), look));
+	float3 up    = cross(look, right);
+	// Compute triangle strip vertices (quad) in world space.
+	float halfWidth  = 0.5f*gin[0].SizeW.x;
+	float halfHeight = 0.5f*gin[0].SizeW.y;
+	float4 v[4];
+	v[0] = float4(gin[0].PosW + halfWidth*right - halfHeight*up, 1.0f);
+	v[1] = float4(gin[0].PosW + halfWidth*right + halfHeight*up, 1.0f);
+	v[2] = float4(gin[0].PosW - halfWidth*right - halfHeight*up, 1.0f);
+	v[3] = float4(gin[0].PosW - halfWidth*right + halfHeight*up, 1.0f);
+	// Transform quad vertices to world space and output
+	// them as a triangle strip.
+	GeoOut gout;
+	[unroll]
+	for(int i = 0; i < 4; ++i) {
+		gout.PosH  = mul(v[i], gViewProj);
+		gout.Tex   = gQuadTexC[i];
+		gout.Color = gin[0].Color;
+		triStream.Append(gout);
 	}
 }
 float4 DrawPS(GeoOut pin) : SV_TARGET
 {
-	return gTexArray.Sample(samLinear, float3(pin.Tex, 0))*pin.Color;
+	float2 resolution = float2(1.0f, 1.0f);
+	float2 uv = (pin.Tex.xy / resolution.xy) * 2.0f - 1.0f;
+	uv.x *= resolution.x/resolution.y;
+	float3 finalColor = float3(0.0f, 0.0f, 0.0f);
+	float2 uvOffset = float2(-0.5f, 0.0f);
+	float2 lightningUV = uv + uvOffset;
+	float theta = 0.0f;
+	lightningUV.x = uv.x * cos(theta) - uv.y*sin(theta);
+	lightningUV.y = uv.x * sin(theta) + uv.y*cos(theta);
+	finalColor += Lightning(lightningUV + uvOffset);
+	finalColor *= float3(0.93f, 0.21f, 0.34f);
+	finalColor -= float3(0.93f, 0.21f, 0.34f);
+	return float4(finalColor, 1.0f);
 }
 technique11 DrawTech
 {

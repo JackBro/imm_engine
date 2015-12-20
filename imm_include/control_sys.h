@@ -51,6 +51,7 @@ struct control_sys
 	control_xinput pad;
 	control_cam<T_app> cam;
 	control_atk<T_app> atk;
+	control_atk<T_app> atk_B;
 };
 //
 template <typename T_app>
@@ -74,7 +75,7 @@ void control_sys<T_app>::init(T_app *app_in)
 {
 	app = app_in;
 	cam.init(app);
-	atk.init(app);
+	atk.init(app, "");
 }
 //
 template <typename T_app>
@@ -83,6 +84,7 @@ void control_sys<T_app>::reset()
 	map_stop.clear();
 	cam.reset();
 	atk.reset();
+	atk_B.reset();
 	player1 = -1;
 	picked1 = -1;
 }

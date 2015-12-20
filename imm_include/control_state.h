@@ -15,7 +15,8 @@ namespace imm
 // ORDER_ACT_TYPE
 ////////////////
 ////////////////
-enum ORDER_ACT_TYPE {
+enum ORDER_ACT_TYPE
+{
 	ORDER_NONE        = 0x0,
 	ORDER_JUMP        = 0x1,
 	ORDER_MOVE_HIT    = 0x2,
@@ -26,7 +27,8 @@ enum ORDER_ACT_TYPE {
 	ORDER_DMG         = 0x40,
 };
 //
-enum ORDER_STAT_TYPE {
+enum ORDER_STAT_TYPE
+{
 	ORDER_IS_CLEAR = 0x0,
 	ORDER_IS_WALK  = 0x1, // NOT: ORDER_IS_RUN
 };
