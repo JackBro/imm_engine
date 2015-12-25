@@ -18,7 +18,7 @@ namespace imm
 struct condition_task
 {
 	enum type {
-		once_time
+		once_time,
 	};
 	condition_task();
 	bool is_ran;

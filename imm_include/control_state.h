@@ -24,7 +24,8 @@ enum ORDER_ACT_TYPE
 	ORDER_MOVE_WASD   = 0x8,
 	ORDER_IDLE        = 0x10,
 	ORDER_ATK_X       = 0x20,
-	ORDER_DMG         = 0x40,
+	ORDER_ATK_Y       = 0x40,
+	ORDER_DMG         = 0x80,
 };
 //
 enum ORDER_STAT_TYPE

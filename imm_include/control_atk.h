@@ -8,6 +8,7 @@
 #ifndef CONTROL_ATK_H
 #define CONTROL_ATK_H
 #include "control_state.h"
+#include "phy_magic.h"
 #include <vector>
 #include <set>
 namespace imm
@@ -18,7 +19,7 @@ namespace imm
 ////////////////
 enum SKILL_TYPE
 {
-	SKILL_TYPE_WEAPON,
+	SKILL_TYPE_MELEE,
 	SKILL_TYPE_MAGIC,
 };
 ////////////////
@@ -29,21 +30,23 @@ struct skill_para
 {
 	skill_para();
 	std::string model_name;
-	int combo_ix;
+	int skill_ix;
 	int current_ix;
 	size_t inst_ix;
 	bool is_busy;
 	bool is_turn_next;
 	float count_down;
+	char symbol;
 };
 //
 skill_para::skill_para():
-	combo_ix(-1),
+	skill_ix(-1),
 	current_ix(-1),
 	inst_ix(0),
 	is_busy(false),
 	is_turn_next(false),
-	count_down(-1.0f)
+	count_down(-1.0f),
+	symbol('A')
 {
 	;
 }
@@ -65,8 +68,11 @@ public:
 	std::vector<float> frame_end;
 	std::vector<float> frame_turn;
 	std::vector<float> frame_speed;
+	std::vector<int> next_ix;
+	std::vector<SKILL_TYPE> type;
+	std::vector<SKILL_SPECIFY> specify;
 	std::vector<std::vector<std::string>> atk_box;
-	SKILL_TYPE type;
+	std::map<char, int> chunk;
 };
 ////////////////
 // damage_data
@@ -79,7 +85,7 @@ struct damage_data
 	void stamp();
 	size_t ix_atk;
 	size_t ix_dmg;
-	int combo_ix;
+	int skill_ix;
 	float count_down;
 	float delay;
 	bool is_calculated;
@@ -94,14 +100,13 @@ template <typename T_app>
 struct control_atk
 {
 	control_atk();
-	void init(T_app *app_in, const std::string suffix_in);
+	void init(T_app *app_in);
 	void reset();
 	void init_skill_para(const size_t &index_in);
 	void cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg, const XMFLOAT3 &box_center);
-	void execute(const size_t &index_in);
+	void execute(const size_t &index_in, const char &symbol);
 	void update(const float &dt);
 	T_app *app;
-	std::string suffix;
 	std::map<std::string, skill_data> data_ski;
 	std::map<size_t, skill_para> para_ski;
 	std::map<int, damage_data> damage;

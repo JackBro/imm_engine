@@ -106,7 +106,7 @@ void instance_mgr<T_app>::reload()
 	remove_all();
 	instance_stat inst_stat;
 	size_t k = 0;
-	inst_stat.type = basic;
+	inst_stat.type = INST_BASIC;
 	push_back_basic(
 		m_Model.m_InstBasic,
 		inst_stat,
@@ -119,7 +119,7 @@ void instance_mgr<T_app>::reload()
 		k,
 		[](const vertex::pntt2 &x) {return &x.pos;},
 		m_Model.m_NameBasicAlpha);
-	inst_stat.type = skinned;
+	inst_stat.type = INST_SKINNED;
 	push_back_basic(
 		m_Model.m_InstSkinned,
 		inst_stat,
@@ -132,7 +132,7 @@ void instance_mgr<T_app>::reload()
 		k,
 		[](const vertex::pntt_skinned &x) {return &x.pos;},
 		m_Model.m_NameSkinnedAlpha);
-	inst_stat.type = simple_pntt;
+	inst_stat.type = INST_SIMPLE_P;
 	push_back_pntt(
 		m_Model.m_InstPNTT,
 		inst_stat,
@@ -142,7 +142,7 @@ void instance_mgr<T_app>::reload()
 	m_Troll.resize(m_Stat.size());
 	for (size_t ix = 0; ix != m_Troll.size(); ++ix) {
 		m_Troll[ix].index = ix;
-		if (m_Stat[ix].type == skinned) m_Steering[ix].init(ix);
+		if (m_Stat[ix].type == INST_SKINNED) m_Steering[ix].init(ix);
 	}
 	reload_scene_instance_relate();
 	on_resize();
@@ -180,8 +180,8 @@ void instance_mgr<T_app>::push_back_basic(
 		m_NameMap[name[ix]] = k;
 		inst_stat.p = &v_inst[ix];
 		m_Stat.push_back(inst_stat);
-		m_BoundL.push_back_empty(phy_bound_type::box);
-		m_BoundW.push_back_empty(phy_bound_type::box);
+		m_BoundL.push_back_empty(PHY_BOUND_BOX);
+		m_BoundW.push_back_empty(PHY_BOUND_BOX);
 		phy_set_aabb(
 			m_BoundL.b1[k],
 			v_inst[ix].model->m_Vertices,
@@ -206,8 +206,8 @@ void instance_mgr<T_app>::push_back_pntt(
 		m_NameMap[name[ix]] = k;
 		inst_stat.p = &v_inst[ix];
 		m_Stat.push_back(inst_stat);
-		m_BoundL.push_back_empty(phy_bound_type::box);
-		m_BoundW.push_back_empty(phy_bound_type::box);
+		m_BoundL.push_back_empty(PHY_BOUND_BOX);
+		m_BoundW.push_back_empty(PHY_BOUND_BOX);
 		auto vert_range = v_inst[ix].model->get_VertexRange(v_inst[ix].subid);
 		phy_set_aabb(
 			m_BoundL.b1[k],
@@ -276,10 +276,10 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 		if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
 		// record sensor
 		bool is_touch = m_BoundW.intersects(ix, ix2);
-		if (m_Stat[ix].type == skinned) {
+		if (m_Stat[ix].type == INST_SKINNED) {
 			m_Steering[ix].sensor[ix2] = is_touch;
 		}
-		if (m_Stat[ix2].type == skinned) {
+		if (m_Stat[ix2].type == INST_SKINNED) {
 			m_Steering[ix2].sensor[ix] = is_touch;
 		}
 		// if instance stand on instance, continue;

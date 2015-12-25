@@ -29,6 +29,7 @@ struct control_sys
 	void key_instance_move_switch_stat();
 	void instance_jump();
 	void instance_atk_x();
+	void instance_atk_y();
 	void mouse_pick();
 	void update_scene(const float &dt);
 	void update_scene_bounds();
@@ -51,7 +52,6 @@ struct control_sys
 	control_xinput pad;
 	control_cam<T_app> cam;
 	control_atk<T_app> atk;
-	control_atk<T_app> atk_B;
 };
 //
 template <typename T_app>
@@ -75,7 +75,7 @@ void control_sys<T_app>::init(T_app *app_in)
 {
 	app = app_in;
 	cam.init(app);
-	atk.init(app, "");
+	atk.init(app);
 }
 //
 template <typename T_app>
@@ -84,7 +84,6 @@ void control_sys<T_app>::reset()
 	map_stop.clear();
 	cam.reset();
 	atk.reset();
-	atk_B.reset();
 	player1 = -1;
 	picked1 = -1;
 }
@@ -135,6 +134,12 @@ template <typename T_app>
 void control_sys<T_app>::instance_atk_x()
 {
 	app->m_Inst.m_Troll[player1].order |= ORDER_ATK_X;
+}
+//
+template <typename T_app>
+void control_sys<T_app>::instance_atk_y()
+{
+	app->m_Inst.m_Troll[player1].order |= ORDER_ATK_Y;
 }
 //
 template <typename T_app>
@@ -212,12 +217,18 @@ void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 	mouse_down.x = pos_x;
 	mouse_down.y = pos_y;
 	if (app->m_UiMgr.on_mouse_down(btn_state, mouse_down.x, mouse_down.y)) return;
-	if (btn_state & MOUSE_P1_PICK) mouse_pick();
+	//if (btn_state & MOUSE_P1_PICK) mouse_pick();
+	
+	
+	
 	if (pad.is_enable()) return;
 	if (app->m_Cmd.is_active) return;
 	// player
 	if (btn_state & MOUSE_P1_MOVE) mouse_instance_move();
 	if (btn_state & MOUSE_P1_ATK_X) instance_atk_x();
+	if (btn_state & MOUSE_P1_ATK_Y) instance_atk_y();
+	
+	
 }
 //
 template <typename T_app>

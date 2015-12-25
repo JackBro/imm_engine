@@ -18,6 +18,7 @@ imm_app::imm_app():
 	m_Scene(),
 	m_Inst(),
 	m_Attack(),
+	m_Magic(),
 	m_UiMgr(),
 	m_Condition(),
 	m_Config(this),

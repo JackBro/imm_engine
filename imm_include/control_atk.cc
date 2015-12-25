@@ -13,8 +13,7 @@ namespace imm
 // skill_data
 ////////////////
 ////////////////
-skill_data::skill_data():
-	type(SKILL_TYPE_WEAPON)
+skill_data::skill_data()
 {
 	;
 }
@@ -22,13 +21,16 @@ skill_data::skill_data():
 void skill_data::current_apply(skill_para &pa)
 {
 	// deactive the previous box
-	if (pa.combo_ix > 0) PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.combo_ix-1], false);
-	pa.count_down = frame_end[pa.combo_ix];
-	PTR->m_Inst.m_Stat[pa.inst_ix].check_set_ClipName(atk[pa.combo_ix], true);
-	math::set_inst_speed(pa.inst_ix, frame_speed[pa.combo_ix]);
+	if (pa.skill_ix > 0) PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.skill_ix-1], false);
+	pa.count_down = frame_end[pa.skill_ix];
+	PTR->m_Inst.m_Stat[pa.inst_ix].check_set_ClipName(atk[pa.skill_ix], true);
+	math::set_inst_speed(pa.inst_ix, frame_speed[pa.skill_ix]);
 	pa.is_busy = true;
-	pa.current_ix = pa.combo_ix;
-	PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.combo_ix], true);
+	pa.current_ix = pa.skill_ix;
+	PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.skill_ix], true);
+	if (type[pa.current_ix] == SKILL_TYPE_MAGIC) {
+		PTR->m_Magic.invoke(specify[pa.current_ix]);
+	}
 }
 //
 void skill_data::current_over(skill_para &pa)
@@ -40,14 +42,18 @@ void skill_data::current_over(skill_para &pa)
 //
 void skill_data::strike(skill_para &pa)
 {
-	if (pa.combo_ix < 0 && pa.count_down > 0.0f) return;
-	if (pa.combo_ix == -1) {
-		++pa.combo_ix;
+	if (pa.skill_ix < 0 && pa.count_down > 0.0f) return;
+	if (pa.skill_ix == -1) {
+		if (!chunk.count(pa.symbol)) return;
+		pa.skill_ix = chunk[pa.symbol];
 		current_apply(pa);
 		return;
 	}
-	if (!pa.is_turn_next && pa.count_down > frame_turn[pa.combo_ix]) {
-		++pa.combo_ix;
+	// if skill only one hit
+	if (next_ix[pa.skill_ix] == -1) return;
+	// if trun next hit
+	if (!pa.is_turn_next && pa.count_down > frame_turn[pa.skill_ix]) {
+		++pa.skill_ix;
 		pa.is_turn_next = true;
 		return;
 	}
@@ -60,7 +66,7 @@ void skill_data::update(const float &dt, skill_para &pa)
 	if (pa.is_busy && pa.count_down < 0.0f) {
 		tro.order |= ORDER_IDLE;
 		current_over(pa);
-		pa.combo_ix = -1;
+		pa.skill_ix = -1;
 		return;
 	}
 	if (!pa.is_busy && pa.count_down < -2.0f) {
@@ -69,10 +75,10 @@ void skill_data::update(const float &dt, skill_para &pa)
 		pa.count_down = -6.0f;
 		return;
 	}
-	if (pa.is_turn_next && pa.count_down < frame_turn[pa.combo_ix]) {
+	if (pa.is_turn_next && pa.count_down < frame_turn[pa.skill_ix]) {
 		current_apply(pa);
 		pa.is_turn_next = false;
-		if (pa.combo_ix == atk.size()-1) pa.combo_ix = -1;
+		if (next_ix[pa.skill_ix] == -1) pa.skill_ix = -1;
 		return;
 	}
 }
@@ -83,7 +89,7 @@ void skill_data::update(const float &dt, skill_para &pa)
 damage_data::damage_data():
 	ix_atk(0),
 	ix_dmg(0),
-	combo_ix(-2),
+	skill_ix(-2),
 	count_down(-1.0f),
 	delay(-1.0f),
 	is_calculated(true),
@@ -99,7 +105,7 @@ void damage_data::update(const float &dt)
 	if (!is_calculated) {
 		PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
 		math::set_inst_speed(ix_dmg, 0.0f);
-		if (PTR->m_Inst.m_Stat[ix_dmg].type == skinned) {
+		if (PTR->m_Inst.m_Stat[ix_dmg].type == INST_SKINNED) {
 			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
 			math::set_face_to_face(ix_atk, ix_dmg);
 			//
@@ -117,7 +123,7 @@ void damage_data::update(const float &dt)
 			XMFLOAT3 center = PTR->m_Inst.m_BoundW.center(ix_dmg);
 			box.x += (center.x-box.x)*0.7f;
 			box.z += (center.z-box.z)*0.7f;
-			PTR->m_Scene.plasma.push_back(strike, 0.5f, box);
+			PTR->m_Scene.plasma.push_back(PLASMA_STRIKE, 0.5f, box);
 			PTR->m_Scene.audio.play_effect("punch0");
 			is_delay = false;
 		}
@@ -140,8 +146,7 @@ void damage_data::stamp()
 ////////////////
 template <typename T_app>
 control_atk<T_app>::control_atk():
-	app(nullptr),
-	suffix("")
+	app(nullptr)
 {
 	;
 }
@@ -176,7 +181,7 @@ void control_atk<T_app>::cause_damage(const size_t &inst_ix_atk, const size_t &i
 		// init
 		damage[index].ix_atk = inst_ix_atk;
 		damage[index].ix_dmg = inst_ix_dmg;
-		damage[index].combo_ix = para_ski[inst_ix_atk].current_ix;
+		damage[index].skill_ix = para_ski[inst_ix_atk].current_ix;
 		damage[index].box_center = &box_center;
 	}
 	damage[index].stamp();
@@ -184,13 +189,14 @@ void control_atk<T_app>::cause_damage(const size_t &inst_ix_atk, const size_t &i
 }
 //
 template <typename T_app>
-void control_atk<T_app>::execute(const size_t &index_in)
+void control_atk<T_app>::execute(const size_t &index_in, const char &symbol)
 {
 	if (!data_ski.count(*app->m_Inst.m_Stat[index_in].get_ModelName())) {
 		PTR->m_Inst.m_Troll[index_in].revert_previous_state();
 		return;
 	}
 	if (!para_ski.count(index_in)) init_skill_para(index_in);
+	if (para_ski[index_in].skill_ix == -1) para_ski[index_in].symbol = symbol;
 	data_ski[para_ski[index_in].model_name].strike(para_ski[index_in]);
 }
 //

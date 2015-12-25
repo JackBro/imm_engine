@@ -94,6 +94,7 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 	audio.init_load();
 	phy_wire.init(app);
 	app->m_Attack.init_load(app);
+	app->m_Magic.init(app);
 	reload(L"00");
 }
 //

@@ -57,6 +57,7 @@ static int MOUSE_P1_MOVE  = MK_LBUTTON;
 static int MOUSE_UI_PICK  = MK_LBUTTON;
 // CONTORL_MOVE_BY_WASD
 static int MOUSE_P1_ATK_X = MK_LBUTTON;
+static int MOUSE_P1_ATK_Y = MK_RBUTTON;
 ////////////////
 // pad static
 //
@@ -67,6 +68,7 @@ static int MOUSE_P1_ATK_X = MK_LBUTTON;
 ////////////////
 static int PAD_P1_JUMP               = VK_PAD_A;
 static int PAD_P1_ATK_X              = VK_PAD_X;
+static int PAD_P1_ATK_Y              = VK_PAD_Y;
 static int PAD_CAM_FOLLOW_RESET      = VK_PAD_RSHOULDER;
 static int PAD_UI_MENU               = VK_PAD_START;
 static int PAD_UI_DWON1              = VK_PAD_DPAD_DOWN;

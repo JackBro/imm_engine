@@ -13,8 +13,9 @@ the [DirectX 11 book](http://www.amazon.com/Introduction-3D-Game-Programming-Dir
 
 In Development:
 ---------------
-There is less document now, and on low completion status.
-The framework of the engine is instability, will be changed frequently.
+The major goal of immature engine is making the game Dragon's Ingot.
+Development task is focusing on this goal.
+Besides, all kinds of other things will not be considered.
 Just guarantee the able to compile the project correctly.
 
 Disadvantage List:
@@ -24,6 +25,7 @@ Disadvantage List:
 * Some game date is directly mixed with source code, such as UI and game logic.
 * The platform only supports Microsoft Windows. 
 * Horrible API design, evil magic code style.
+* Very high coupling class structure.
 
 Compile Environment:
 --------------------

@@ -53,6 +53,7 @@ public:
 	scene_mgr<imm_app> m_Scene;
 	instance_mgr<imm_app> m_Inst;
 	phy_attack_arrange<imm_app> m_Attack;
+	phy_magic<imm_app> m_Magic;
 	ui_mgr<imm_app> m_UiMgr;
 	condition_trigger<imm_app> m_Condition;
 	lua_config<imm_app> m_Config;

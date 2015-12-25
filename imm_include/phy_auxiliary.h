@@ -114,7 +114,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 	XMFLOAT4 color;
 	for (size_t ix = 0; ix != app->m_Inst.m_BoundL.map.size(); ++ix) {
 		XMFLOAT3 corners[8];
-		assert(app->m_Inst.m_BoundL.map[ix].first == phy_bound_type::box);
+		assert(app->m_Inst.m_BoundL.map[ix].first == PHY_BOUND_BOX);
 		app->m_Inst.m_BoundL.b1[app->m_Inst.m_BoundL.map[ix].second].GetCorners(corners);
 		if (app->m_Inst.m_Stat[ix].is_attach) color = XMFLOAT4(Colors::Orange);
 		else color = XMFLOAT4(Colors::Yellow);

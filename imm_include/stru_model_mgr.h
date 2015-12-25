@@ -14,14 +14,14 @@
 namespace imm
 {
 ////////////////
-// instance_type
+// INSTANCE_TYPE
 ////////////////
 ////////////////
-enum instance_type
+enum INSTANCE_TYPE
 {
-	basic,
-	skinned,
-	simple_pntt
+	INST_BASIC,
+	INST_SKINNED,
+	INST_SIMPLE_P
 };
 ////////////////
 // instance_stat
@@ -32,7 +32,7 @@ struct instance_stat
 	instance_stat();
 	const void *p;
 	phy_property phy;
-	instance_type type;
+	INSTANCE_TYPE type;
 	bool is_attach;
 	//
 	XMFLOAT4X4 *get_World();
@@ -50,7 +50,7 @@ struct instance_stat
 instance_stat::instance_stat():
 	p(nullptr),
 	phy(),
-	type(basic),
+	type(INST_BASIC),
 	is_attach(false)
 {
 	;
@@ -59,9 +59,9 @@ instance_stat::instance_stat():
 XMFLOAT4X4 *instance_stat::get_World()
 {
 	switch(type) {
-	case basic: return &(((basic_model_instance*)p)->world);
-	case skinned: return &(((skinned_model_instance*)p)->world);
-	case simple_pntt: return &(((simple_model_instance<vertex::pntt>*)p)->world);
+	case INST_BASIC: return &(((basic_model_instance*)p)->world);
+	case INST_SKINNED: return &(((skinned_model_instance*)p)->world);
+	case INST_SIMPLE_P: return &(((simple_model_instance<vertex::pntt>*)p)->world);
 	}
 	assert(false);
 	// bad
@@ -71,9 +71,9 @@ XMFLOAT4X4 *instance_stat::get_World()
 XMFLOAT4X4 *instance_stat::get_RotFront()
 {
 	switch(type) {
-	case basic: return &(((basic_model_instance*)p)->rot_front);
-	case skinned: return &(((skinned_model_instance*)p)->rot_front);
-	case simple_pntt: return &(((simple_model_instance<vertex::pntt>*)p)->rot_front);
+	case INST_BASIC: return &(((basic_model_instance*)p)->rot_front);
+	case INST_SKINNED: return &(((skinned_model_instance*)p)->rot_front);
+	case INST_SIMPLE_P: return &(((simple_model_instance<vertex::pntt>*)p)->rot_front);
 	}
 	assert(false);
 	// bad
@@ -82,16 +82,16 @@ XMFLOAT4X4 *instance_stat::get_RotFront()
 //
 XMFLOAT4X4 *instance_stat::get_FinalTransform(size_t ix)
 {
-	assert(type == skinned);
+	assert(type == INST_SKINNED);
 	return &((skinned_model_instance*)p)->final_transforms[ix];
 }
 //
 std::string *instance_stat::get_ModelName()
 {
 	switch(type) {
-	case basic: return &(((basic_model_instance*)p)->model_name);
-	case skinned: return &(((skinned_model_instance*)p)->model_name);
-	case simple_pntt: return &(((simple_model_instance<vertex::pntt>*)p)->model_name);
+	case INST_BASIC: return &(((basic_model_instance*)p)->model_name);
+	case INST_SKINNED: return &(((skinned_model_instance*)p)->model_name);
+	case INST_SIMPLE_P: return &(((simple_model_instance<vertex::pntt>*)p)->model_name);
 	}
 	assert(false);
 	// bad
@@ -102,9 +102,9 @@ std::string *instance_stat::get_ModelName()
 void instance_stat::set_World(const XMFLOAT4X4 &world)
 {
 	switch(type) {
-	case basic: ((basic_model_instance*)p)->world = world; return;
-	case skinned: ((skinned_model_instance*)p)->world = world; return;
-	case simple_pntt: ((simple_model_instance<vertex::pntt>*)p)->world = world; return;
+	case INST_BASIC: ((basic_model_instance*)p)->world = world; return;
+	case INST_SKINNED: ((skinned_model_instance*)p)->world = world; return;
+	case INST_SIMPLE_P: ((simple_model_instance<vertex::pntt>*)p)->world = world; return;
 	}
 	assert(false);
 }
@@ -112,9 +112,9 @@ void instance_stat::set_World(const XMFLOAT4X4 &world)
 void instance_stat::set_World(const XMMATRIX &world)
 {
 	switch(type) {
-	case basic: XMStoreFloat4x4(&((basic_model_instance*)p)->world, world); return;
-	case skinned: XMStoreFloat4x4(&((skinned_model_instance*)p)->world, world); return;
-	case simple_pntt: XMStoreFloat4x4(&((simple_model_instance<vertex::pntt>*)p)->world, world); return;
+	case INST_BASIC: XMStoreFloat4x4(&((basic_model_instance*)p)->world, world); return;
+	case INST_SKINNED: XMStoreFloat4x4(&((skinned_model_instance*)p)->world, world); return;
+	case INST_SIMPLE_P: XMStoreFloat4x4(&((simple_model_instance<vertex::pntt>*)p)->world, world); return;
 	}
 	assert(false);
 }
@@ -122,22 +122,22 @@ void instance_stat::set_World(const XMMATRIX &world)
 void instance_stat::set_IsAppear(const bool &is_appear)
 {
 	switch(type) {
-	case basic: ((basic_model_instance*)p)->is_appear = is_appear; return;
-	case skinned: ((skinned_model_instance*)p)->is_appear = is_appear; return;
-	case simple_pntt: ((simple_model_instance<vertex::pntt>*)p)->is_appear = is_appear; return;
+	case INST_BASIC: ((basic_model_instance*)p)->is_appear = is_appear; return;
+	case INST_SKINNED: ((skinned_model_instance*)p)->is_appear = is_appear; return;
+	case INST_SIMPLE_P: ((simple_model_instance<vertex::pntt>*)p)->is_appear = is_appear; return;
 	}
 	assert(false);
 }
 //
 void instance_stat::set_ClipName(const std::string &clip_name, const bool &is_reset_time = false)
 {
-	if (type != skinned) return;
+	if (type != INST_SKINNED) return;
 	((skinned_model_instance*)p)->set_ClipName(clip_name, is_reset_time);
 }
 //
 void instance_stat::check_set_ClipName(const std::string &clip_name, const bool &is_reset_time = false)
 {
-	if (type != skinned) return;
+	if (type != INST_SKINNED) return;
 	((skinned_model_instance*)p)->check_set_ClipName(clip_name, is_reset_time);
 }
 //

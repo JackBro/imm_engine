@@ -60,7 +60,7 @@ void pose_Idle::execute(troll *tro)
 			tro->change_state(pose_Jump::instance());
 		}
 	}
-	if (tro->order & ORDER_ATK_X) {
+	if (tro->order & ORDER_ATK_X || tro->order & ORDER_ATK_Y) {
 		tro->change_state(pose_Atk::instance());
 	}
 	if (tro->order & ORDER_DMG) {
@@ -125,7 +125,7 @@ void pose_Move::execute(troll *tro)
 			tro->change_state(pose_Jump::instance());
 		}
 	}
-	if (tro->order & ORDER_ATK_X) {
+	if (tro->order & ORDER_ATK_X || tro->order & ORDER_ATK_Y) {
 		tro->change_state(pose_Atk::instance());
 	}
 }
@@ -199,8 +199,12 @@ void pose_Atk::execute(troll *tro)
 {
 	if (tro->order & ORDER_ATK_X) {
 		tro->order = ORDER_NONE;
-		PTR->m_Control.atk.execute(tro->index);
+		PTR->m_Control.atk.execute(tro->index, 'A');
 	}
+	if (tro->order & ORDER_ATK_Y) {
+		tro->order = ORDER_NONE;
+		PTR->m_Control.atk.execute(tro->index, 'B');
+	}	
 	if (tro->order & ORDER_IDLE) {
 		tro->order = ORDER_NONE;
 		tro->change_state(pose_Idle::instance());

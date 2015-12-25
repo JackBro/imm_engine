@@ -14,14 +14,14 @@
 namespace imm
 {
 ////////////////
-// plasma_type
+// PLASMA_TYPE
 ////////////////
 ////////////////
-enum plasma_type
+enum PLASMA_TYPE
 {
-	fire,
-	strike,
-	lightning,
+	PLASMA_FIRE,
+	PLASMA_STRIKE,
+	PLASMA_LIGHTNING,
 };
 ////////////////
 // state_plasma
@@ -35,7 +35,7 @@ struct state_plasma
 	void update(const float &dt, const float &total_time);
 	void draw(ID3D11DeviceContext *context, const camera &cam);
 	void remove_all();
-	void push_back(plasma_type type, const float &count_down, const XMFLOAT3 &pos);
+	void push_back(PLASMA_TYPE type, const float &count_down, const XMFLOAT3 &pos);
 	particle pt_fire;
 	particle pt_strike;
 	particle pt_lightning;
@@ -160,7 +160,7 @@ void state_plasma::remove_all()
 	list_lightning.clear();
 }
 //
-void state_plasma::push_back(plasma_type type, const float &count_down, const XMFLOAT3 &pos)
+void state_plasma::push_back(PLASMA_TYPE type, const float &count_down, const XMFLOAT3 &pos)
 {
 	auto do_push_back =
 		[&](size_t &myindex, std::list<inst_plasam> &mylist, const particle &mypt) {
@@ -173,13 +173,13 @@ void state_plasma::push_back(plasma_type type, const float &count_down, const XM
 		};
 	//
 	switch(type) {
-	case fire:
+	case PLASMA_FIRE:
 		do_push_back(index_fire, list_fire, pt_fire);
 		break;
-	case strike:
+	case PLASMA_STRIKE:
 		do_push_back(index_strike, list_strike, pt_strike);
 		break;
-	case lightning:
+	case PLASMA_LIGHTNING:
 		do_push_back(index_lightning, list_lightning, pt_lightning);
 		break;
 	}
