@@ -62,7 +62,7 @@ In demo folder, every subfolder include a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: A basic window draw empty.
 * **simple_scene**: A very simple scene draw 4 basic geometrics. 
-This program is almost the same as the Released Demo, but not include media (Released Demo is old version).
+[(Screen Capture)](https://github.com/endrollex/imm_engine/tree/master/demo/simple_scene/simple_scene.png)
 
 Runtime Folder Tree:
 --------------------
