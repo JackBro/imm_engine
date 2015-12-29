@@ -17,7 +17,6 @@ void skill_data::build(const std::string &name)
 		frame_turn.push_back(4.5f-2.0f);
 		frame_speed.push_back(1.0f);
 		next_ix.push_back(1);
-		type.push_back(SKILL_TYPE_MELEE);
 		specify.push_back(SKILL_MELEE_UNARMED);
 		box_name.clear();
 		box_name.push_back("hand_L");
@@ -28,7 +27,6 @@ void skill_data::build(const std::string &name)
 		frame_turn.push_back(5.5f-2.0f);
 		frame_speed.push_back(0.5f);
 		next_ix.push_back(-1);
-		type.push_back(SKILL_TYPE_MELEE);
 		specify.push_back(SKILL_MELEE_UNARMED);
 		box_name.clear();
 		box_name.push_back("foot_R");
@@ -39,11 +37,20 @@ void skill_data::build(const std::string &name)
 		frame_end.push_back(9.0f);
 		frame_turn.push_back(4.5f-2.0f);
 		frame_speed.push_back(1.0f);
-		next_ix.push_back(-1);
-		type.push_back(SKILL_TYPE_MAGIC);
+		next_ix.push_back(3);
 		specify.push_back(SKILL_MAGIC_PREPARE1);
 		box_name.clear();
-		//box_name.push_back("hand_L");
+		box_name;
+		atk_box.push_back(box_name);
+		//
+		atk.push_back("Atk01");
+		frame_end.push_back(9.0f);
+		frame_turn.push_back(4.5f-2.0f);
+		frame_speed.push_back(1.0f);
+		next_ix.push_back(-1);
+		specify.push_back(SKILL_MAGIC_LIGHTNING);
+		box_name.clear();
+		box_name;
 		atk_box.push_back(box_name);
 	}
 	if (name == "pepper") {
@@ -55,7 +62,6 @@ void skill_data::build(const std::string &name)
 		frame_turn.push_back(4.5f-2.0f);
 		frame_speed.push_back(1.0f);
 		next_ix.push_back(1);
-		type.push_back(SKILL_TYPE_MELEE);
 		specify.push_back(SKILL_MELEE_UNARMED);
 		box_name.clear();
 		box_name.push_back("hand_L");
@@ -66,7 +72,6 @@ void skill_data::build(const std::string &name)
 		frame_turn.push_back(5.5f-2.0f);
 		frame_speed.push_back(0.5f);
 		next_ix.push_back(-1);
-		type.push_back(SKILL_TYPE_MELEE);
 		specify.push_back(SKILL_MELEE_UNARMED);
 		box_name.clear();
 		box_name.push_back("foot_R");
@@ -77,11 +82,20 @@ void skill_data::build(const std::string &name)
 		frame_end.push_back(9.0f);
 		frame_turn.push_back(4.5f-2.0f);
 		frame_speed.push_back(1.0f);
-		next_ix.push_back(-1);
-		type.push_back(SKILL_TYPE_MAGIC);
+		next_ix.push_back(3);
 		specify.push_back(SKILL_MAGIC_PREPARE1);
 		box_name.clear();
-		//box_name.push_back("hand_L");
+		box_name;
+		atk_box.push_back(box_name);
+		//
+		atk.push_back("Atk01");
+		frame_end.push_back(9.0f);
+		frame_turn.push_back(4.5f-2.0f);
+		frame_speed.push_back(1.0f);
+		next_ix.push_back(-1);
+		specify.push_back(SKILL_MAGIC_PREPARE1);
+		box_name.clear();
+		box_name;
 		atk_box.push_back(box_name);
 	}
 	for (auto &end: frame_end) end /= FRAME_RATE;

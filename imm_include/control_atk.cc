@@ -28,7 +28,7 @@ void skill_data::current_apply(skill_para &pa)
 	pa.is_busy = true;
 	pa.current_ix = pa.skill_ix;
 	PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.skill_ix], true);
-	if (type[pa.current_ix] == SKILL_TYPE_MAGIC) {
+	if (get_skill_type(pa) == SKILL_TYPE_MAGIC) {
 		PTR->m_Magic.invoke(specify[pa.current_ix]);
 	}
 }
@@ -82,6 +82,12 @@ void skill_data::update(const float &dt, skill_para &pa)
 		return;
 	}
 }
+//
+SKILL_TYPE skill_data::get_skill_type(const skill_para &pa)
+{
+	if (specify[pa.current_ix] > 0) return SKILL_TYPE_MAGIC;
+	return SKILL_TYPE_MELEE;
+}
 ////////////////
 // damage_data
 ////////////////
@@ -124,7 +130,7 @@ void damage_data::update(const float &dt)
 			box.x += (center.x-box.x)*0.7f;
 			box.z += (center.z-box.z)*0.7f;
 			PTR->m_Scene.plasma.push_back(PLASMA_STRIKE, 0.5f, box);
-			PTR->m_Scene.audio.play_effect("punch0");
+			PTR->m_Scene.audio.play_effect("punch00");
 			is_delay = false;
 		}
 	}

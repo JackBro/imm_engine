@@ -45,6 +45,7 @@ void texture_mgr::init(ID3D11Device *device) {m_D3DDevice = device;}
 //
 ID3D11ShaderResourceView *texture_mgr::create_texture(std::wstring filename)
 {
+	if (!m_D3DDevice) return nullptr;
 	ID3D11ShaderResourceView *srv = 0;
 	// Does it already exist?
 	if (m_TextureSRV.find(filename) != m_TextureSRV.end()) srv = m_TextureSRV[filename];

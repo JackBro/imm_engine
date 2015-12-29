@@ -17,9 +17,9 @@ namespace imm
 ////////////////
 enum SKILL_SPECIFY
 {
-	SKILL_MELEE_UNARMED,
-	SKILL_MAGIC_PREPARE1,
-	SKILL_MAGIC_LIGHTNING,
+	SKILL_MELEE_UNARMED   = 0,
+	SKILL_MAGIC_PREPARE1  = 1,
+	SKILL_MAGIC_LIGHTNING = 2,
 };
 ////////////////
 // magic_inst
@@ -93,8 +93,10 @@ void phy_magic<T_app>::invoke(const SKILL_SPECIFY &specify)
 {
 	switch (specify) {
 	case SKILL_MAGIC_PREPARE1:
+		app->m_Scene.audio.play_effect("electricity_spark");
 		break;
 	case SKILL_MAGIC_LIGHTNING:
+		app->m_Scene.audio.play_effect("electricity_voltage");
 		break;
 	}
 }

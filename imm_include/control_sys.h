@@ -31,6 +31,7 @@ struct control_sys
 	void instance_atk_x();
 	void instance_atk_y();
 	void mouse_pick();
+	void set_player1(const size_t &p1);
 	void update_scene(const float &dt);
 	void update_scene_bounds();
 	void update_stop(const float &dt);
@@ -155,7 +156,13 @@ void control_sys<T_app>::mouse_pick()
 		picked1);
 	//
 	if (picked1 < 0) return;
-	player1 = picked1;
+	set_player1(picked1);
+}
+//
+template <typename T_app>
+void control_sys<T_app>::set_player1(const size_t &p1)
+{
+	player1 = static_cast<int>(p1);
 	map_stop[player1].is_stop = true;
 }
 //
@@ -217,18 +224,15 @@ void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 	mouse_down.x = pos_x;
 	mouse_down.y = pos_y;
 	if (app->m_UiMgr.on_mouse_down(btn_state, mouse_down.x, mouse_down.y)) return;
+	//
 	//if (btn_state & MOUSE_P1_PICK) mouse_pick();
-	
-	
-	
+	//
 	if (pad.is_enable()) return;
 	if (app->m_Cmd.is_active) return;
 	// player
 	if (btn_state & MOUSE_P1_MOVE) mouse_instance_move();
 	if (btn_state & MOUSE_P1_ATK_X) instance_atk_x();
 	if (btn_state & MOUSE_P1_ATK_Y) instance_atk_y();
-	
-	
 }
 //
 template <typename T_app>

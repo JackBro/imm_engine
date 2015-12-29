@@ -64,12 +64,12 @@ private:
 public:
 	void strike(skill_para &pa);
 	void update(const float &dt, skill_para &pa);
+	SKILL_TYPE get_skill_type(const skill_para &pa);
 	std::vector<std::string> atk;
 	std::vector<float> frame_end;
 	std::vector<float> frame_turn;
 	std::vector<float> frame_speed;
 	std::vector<int> next_ix;
-	std::vector<SKILL_TYPE> type;
 	std::vector<SKILL_SPECIFY> specify;
 	std::vector<std::vector<std::string>> atk_box;
 	std::map<char, int> chunk;

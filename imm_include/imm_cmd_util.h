@@ -21,6 +21,7 @@ struct atomic_wstring
 	std::wstring str;
 	template <typename T_wadde>
 	atomic_wstring &operator+=(const T_wadde &str2);
+	std::string get_string();
 	void pop_back();
 	template <typename T_itor>
 	atomic_wstring &assign(const T_itor &first, const T_itor &last);
@@ -39,6 +40,12 @@ atomic_wstring &atomic_wstring::operator+=(const T_wadde &str2)
 	std::lock_guard<std::recursive_mutex> lock(mutex1);
 	str += str2;
 	return *this;
+}
+//
+std::string atomic_wstring::get_string()
+{
+	std::lock_guard<std::recursive_mutex> lock(mutex1);
+	return wstr_to_str(str);
 }
 //
 void atomic_wstring::pop_back()
@@ -93,42 +100,83 @@ void atomic_wstring::clear()
 	str.clear();
 }
 ////////////////
-// misc_util_b3m
+// m3d_util_b3m
 ////////////////
 ////////////////
 template <typename T_wstring>
-void misc_util_b3m(ID3D11Device *d3d_device, T_wstring &input_str, std::atomic<bool> &is_busy)
+void m3d_util_b3m(T_wstring &input_str, std::atomic<bool> &is_busy)
 {
 	is_busy = true;
+	// no init tex_mgr, it is dummy
 	texture_mgr tex_mgr;
-	tex_mgr.init(d3d_device);
 	lua_reader l_reader;
-	l_reader.loadfile(IMM_PATH["script"]+"cmd_util_b3m.lua");
+	l_reader.loadfile(IMM_PATH["script"]+"m3d_utility.lua");
 	bin_m3d model_bin;
 	std::vector<std::vector<std::string>> model_m3d;
 	l_reader.vec2d_str_from_table("csv_model_input", model_m3d);
 	std::wstring path_tex(str_to_wstr(IMM_PATH["texture"]));
 	auto it = model_m3d.begin()+1;
 	while (it != model_m3d.end()) {
+		std::ifstream fin(IMM_PATH["input"]+(*it)[1]);
+		bool is_open = fin.is_open();
+		fin.close();
+		if (!is_open) {
+			++it;
+			continue;
+		}
 		basic_model model_bas;
 		skinned_model model_ski;
 		bool is_skinned = false;
 		l_reader.assign_bool(is_skinned, (*it)[2]);
 		if (is_skinned) {
-			model_ski.set(d3d_device, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
+			model_ski.set(nullptr, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
 			model_bin.write_to_bin(model_ski, IMM_PATH["output"]+(*it)[0]+".b3m");
 		}
 		else {
-			model_bas.set(d3d_device, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
+			model_bas.set(nullptr, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
 			model_bin.write_to_bin(model_bas, IMM_PATH["output"]+(*it)[0]+".b3m");
 		}
 		std::wstring temp((*it)[1].begin(), (*it)[1].end());
 		input_str += L"\n> ";
 		input_str += temp+L" exported OK";
 		++it;
+		if (IS_STANDALONE_M3DTOB3M) {
+			std::string temp_str = wstr_to_str(temp)+" exported OK";
+			std::cout << temp_str << std::endl;
+		}
 	}
 	input_str += L"\n> util b3m has finished all conversion.\n";
 	is_busy = false;
+}
+//
+void m3d_util_b3m(const std::string &m3d_name, const bool &is_skinned)
+{
+	m3d_name;
+	is_skinned;
+	texture_mgr tex_mgr;
+	bin_m3d model_bin;
+	std::wstring path_tex(str_to_wstr(IMM_PATH["texture"]));
+	basic_model model_bas;
+	skinned_model model_ski;
+	std::ifstream fin(IMM_PATH["input"]+m3d_name);
+	bool is_open = fin.is_open();
+	fin.close();
+	if (!is_open) {
+		std::cout << "ERROR: filename: " << m3d_name << " not found." << std::endl;
+		return;
+	}
+	std::string b3m_name(m3d_name);
+	if (b3m_name.substr(b3m_name.size()-4) == ".m3d")
+		b3m_name = b3m_name.substr(0, b3m_name.size()-4);
+	if (is_skinned) {
+		model_ski.set(nullptr, tex_mgr, IMM_PATH["input"]+m3d_name, path_tex);
+		model_bin.write_to_bin(model_ski, IMM_PATH["output"]+b3m_name+".b3m");
+	}
+	else {
+		model_bas.set(nullptr, tex_mgr, IMM_PATH["input"]+m3d_name, path_tex);
+		model_bin.write_to_bin(model_bas, IMM_PATH["output"]+b3m_name+".b3m");
+	}
+	std::cout << m3d_name << " exported OK" << std::endl;
 }
 }
 #endif

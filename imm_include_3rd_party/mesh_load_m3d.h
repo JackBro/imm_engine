@@ -143,11 +143,11 @@ void m3d_loader::read_Materials(std::ifstream &fin, UINT num_materials, std::vec
 	 std::string normal_map_name;
 	 fin >> ignore; // materials header text
 	 for (UINT i = 0; i < num_materials; ++i) {
-		fin >> ignore >> mats[i].mat.ambient.x  >> mats[i].mat.ambient.y    >> mats[i].mat.ambient.z;
-		fin >> ignore >> mats[i].mat.diffuse.x  >> mats[i].mat.diffuse.y    >> mats[i].mat.diffuse.z;
-		fin >> ignore >> mats[i].mat.specular.x >> mats[i].mat.specular.y   >> mats[i].mat.specular.z;
+		fin >> ignore >> mats[i].mat.ambient.x  >> mats[i].mat.ambient.y  >> mats[i].mat.ambient.z;
+		fin >> ignore >> mats[i].mat.diffuse.x  >> mats[i].mat.diffuse.y  >> mats[i].mat.diffuse.z;
+		fin >> ignore >> mats[i].mat.specular.x >> mats[i].mat.specular.y >> mats[i].mat.specular.z;
 		fin >> ignore >> mats[i].mat.specular.w;
-		fin >> ignore >> mats[i].mat.reflect.x  >> mats[i].mat.reflect.y    >> mats[i].mat.reflect.z;
+		fin >> ignore >> mats[i].mat.reflect.x  >> mats[i].mat.reflect.y  >> mats[i].mat.reflect.z;
 		fin >> ignore >> mats[i].alpha_clip;
 		fin >> ignore >> mats[i].effect_type_name;
 		fin >> ignore >> diffuse_map_name;

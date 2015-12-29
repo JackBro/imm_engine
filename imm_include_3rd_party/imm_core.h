@@ -59,13 +59,13 @@ namespace imm
 ////////////////
 static std::map<std::string, std::string> IMM_PATH
 {
-	{"shader", "ass_shader\\"},
-	{"model", "ass_model\\"},
-	{"texture", "ass_texture\\"},
-	{"media", "ass_media\\"},
+	{"shader", "ast_shader\\"},
+	{"model", "ast_model\\"},
+	{"texture", "ast_texture\\"},
+	{"media", "ast_media\\"},
 	{"script", "script\\"},
-	{"output", "misc\\output\\"},
-	{"input", "misc\\input\\"},
+	{"output", "script\\m3d_input_output\\"},
+	{"input", "script\\m3d_input_output\\"},
 	{"text", "script\\text_en\\"},
 };
 // for calclate UI size with factor
@@ -75,6 +75,7 @@ static const float UI_RESOLUTION_HEIGHT = 768.0f;
 static const float BLEND_FACTOR_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
 // frame rate, Blender's default setting is 24.0f
 static const float FRAME_RATE = 24.0f;
+static bool IS_STANDALONE_M3DTOB3M = false;
 ////////////////
 // str, wstr
 ////////////////

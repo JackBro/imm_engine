@@ -61,23 +61,21 @@ How to Compile:
 In demo folder, every subfolder include a signle demo.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: A basic window draw empty.
+* **m3dtob3m**: Asset tool, convert .m3d file to binary .b3m file. Those two types both can be read by engine.
 * **simple_scene**: A very simple scene draw 4 basic geometrics. 
 [(Screen Capture)](https://github.com/endrollex/imm_engine/tree/master/demo/simple_scene/simple_scene.png)
 
 Runtime Folder Tree:
 --------------------
-See minimum_root\, represents following tree.
+See demo\simple_scene\, represents following tree.
 
-	 |--ass_media
-	 |--ass_model
-	 |--ass_shader
-	 |--ass_texture
-	 |--misc
-	 |   |--input
-	 |   |--output
+	 |--ast_media
+	 |--ast_model
+	 |--ast_shader
+	 |--ast_texture
 	 |--script
-	     |--cmd_util
-	     |--library
+         |--library
+	     |--m3d_input_output
 	     |--scene_common
 	     |--scene00
 	     |--text_en
@@ -88,10 +86,12 @@ Asset Tools:
 * **immature Blender export**: 
 Export Blender model data to .m3d file format for immature engine. 
 https://github.com/endrollex/imm_blender_export
-* **immature engine console util b3m tool**: 
-Convert .m3d file to binary .b3m file, it can be found in game input mode, 
-"Alt+Delete" then type "help" for more info. 
+* **m3dtob3m.exe**: 
+Convert .m3d file to binary .b3m file. 
 Notice .b3m file corresponding x64/x86 version.
+* **CSV based scene data**: 
+Unfortunately, this engine has not a scene editor let you can "drag and drop".
+You must write a game object by handwriting, this limits the complexity of a scene.
 
 Released Demo:
 --------------

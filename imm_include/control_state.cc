@@ -209,6 +209,10 @@ void pose_Atk::execute(troll *tro)
 		tro->order = ORDER_NONE;
 		tro->change_state(pose_Idle::instance());
 	}
+	if (tro->order & ORDER_DMG) {
+		tro->order = ORDER_NONE;
+		tro->change_state(pose_Damage::instance());
+	}
 }
 //
 void pose_Atk::exit(troll *tro)

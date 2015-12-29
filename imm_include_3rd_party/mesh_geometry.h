@@ -63,7 +63,7 @@ void mesh_geometry::set_Vertices(ID3D11Device *device, const vertex_type *vertic
 	vbd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA vinit_data;
 	vinit_data.pSysMem = vertices;
-	HR(device->CreateBuffer(&vbd, &vinit_data, &m_VB));
+	if (device) HR(device->CreateBuffer(&vbd, &vinit_data, &m_VB));
 }
 //
 mesh_geometry::mesh_geometry():
@@ -91,7 +91,7 @@ void mesh_geometry::set_Indices(ID3D11Device *device, const UINT *indices, UINT 
 	ibd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA iinit_data;
 	iinit_data.pSysMem = indices;
-	HR(device->CreateBuffer(&ibd, &iinit_data, &m_IB));
+	if (device) HR(device->CreateBuffer(&ibd, &iinit_data, &m_IB));
 }
 //
 void mesh_geometry::set_SubsetTable(std::vector<subset> &subset_table) {m_SubsetTable = subset_table;}

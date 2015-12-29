@@ -110,6 +110,7 @@ void cmd_shell<T_app>::apply()
 		input += L"\n> util                 Development tools.";
 		input += L"\n> reload               Reload scene.";
 		input += L"\n> draw_wire            Draw BoundingBox wireframe or not.";
+		input += L"\n> set_player           Set an instance as a player.";
 		input += L"\n";
 		return;
 	}
@@ -180,21 +181,19 @@ void cmd_shell<T_app>::apply()
 			input += L"\n> #####################################################################";
 			input += L"\n> ## util b3m manual";
 			input += L"\n> #####################################################################";
+			input += L"\n> !Recommend using standalone [m3dtob3m.exe], is easier than this tool.";
+			input += L"\n>";
 			input += L"\n> [util b3m] is a tool convert .m3d file to binary file .b3m, the .m3d ";
 			input += L"\n> file is a custom text file format to store meshes. For more ";
 			input += L"\n> information about .m3d, see d3dcoder.net, DirectX 11 Book by Frank ";
 			input += L"\n> Luna.";
 			input += L"\n>";
-			input += L"\n> To use this tool, you need prepare lua script tell tool which files ";
-			input += L"\n> to convert, the lua script is on "+path_lua;
-			input += L"cmd_util_b3m.lua, ";
-			input += L"\n> it should be writen correct data according a sample from the demo.";
+			input += L"\n> To use this tool, you need prepare m3d_list.csv tell tool which files ";
+			input += L"\n> to convert, the m3d_list.csv file is on "+path_lua;
+			input += L"m3d_list.csv, ";
+			input += L"\n> it should be writen correct data according a sample from a demo.";
 			input += L"\n>";
-			input += L"\n> The convert process will spend a lot of time depends files size. If ";
-			input += L"\n> any error occur, the program will be abort, you need figure out the ";
-			input += L"\n> problem and try again.";
-			input += L"\n>";
-			input += L"\n> The output folder is on "+path_out;
+			input += L"\n> The input/output folder is on "+path_out;
 			input += L"\n> #####################################################################";
 			input += L"\n";
 			return;
@@ -205,8 +204,8 @@ void cmd_shell<T_app>::apply()
 			input += L"\n> util b3m processing...";
 			if (!is_busying) {
 				std::thread(
-				misc_util_b3m<atomic_wstring>,
-				app->m_D3DDevice, std::ref(input), std::ref(is_busying)).detach();
+				m3d_util_b3m<atomic_wstring>,
+				std::ref(input), std::ref(is_busying)).detach();
 			}
 			return;
 		}
@@ -237,6 +236,25 @@ void cmd_shell<T_app>::apply()
 		if (app->m_Scene.phy_wire.is_drawing) info_mes = L"on, but AABB is not displayed correctly.";
 		input += L"\n> Drawing BoundingBox wireframe is "+info_mes;
 		input += L"\n";
+	}
+	if (cmd_get.substr(0, 10) == L"set_player") {
+		if (cmd_get.size() < 12) {
+			input += L"\n> Usage: set_player [instance_name]";
+			input += L"\n";
+			return;
+		}
+		std::wstring inst_name_w = cmd_get.substr(11);
+		std::string inst_name = wstr_to_str(inst_name_w);
+		if (app->m_Inst.m_NameMap.count(inst_name)) {
+			size_t inst_ix = app->m_Inst.m_NameMap[inst_name];
+			app->m_Control.set_player1(inst_ix);
+			input += L"\n> Now player is "+inst_name_w+L".";
+			input += L"\n";
+		}
+		else {
+			input += L"\n> Instance "+inst_name_w+L" not found.";
+			input += L"\n";
+		}
 	}
 }
 //
