@@ -204,7 +204,7 @@ void pose_Atk::execute(troll *tro)
 	if (tro->order & ORDER_ATK_Y) {
 		tro->order = ORDER_NONE;
 		PTR->m_Control.atk.execute(tro->index, 'B');
-	}	
+	}
 	if (tro->order & ORDER_IDLE) {
 		tro->order = ORDER_NONE;
 		tro->change_state(pose_Idle::instance());
@@ -238,7 +238,7 @@ void pose_Damage::enter(troll *tro)
 void pose_Damage::execute(troll *tro)
 {
 	tro->count_down -= PTR->m_Timer.delta_time();
-	if (tro->count_down < 0.0f) tro->change_state(pose_Idle::instance());
+	if (tro->count_down < 0.0f) tro->change_state(pose_Atk::instance());
 }
 //
 void pose_Damage::exit(troll *tro)

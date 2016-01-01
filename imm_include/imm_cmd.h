@@ -107,7 +107,6 @@ void cmd_shell<T_app>::apply()
 		input += L"\n> exit                 Quits this program.";
 		input += L"\n> help                 Prints command briefs.";
 		input += L"\n> slient               Switches between slient and normal.";
-		input += L"\n> util                 Development tools.";
 		input += L"\n> reload               Reload scene.";
 		input += L"\n> draw_wire            Draw BoundingBox wireframe or not.";
 		input += L"\n> set_player           Set an instance as a player.";
@@ -166,49 +165,6 @@ void cmd_shell<T_app>::apply()
 		if (is_slient) do_slient_on();
 		else is_active = false;
 		return;
-	}
-	if (cmd_get.substr(0, 4) == L"util") {
-		if (cmd_get.size() < 6) {
-			input += L"\n> Specify following command to use a tool:";
-			input += L"\n> util b3m             util b3m manual.";
-			input += L"\n> util b3m start       Convert .m3d file to binary file.";
-			input += L"\n";
-			return;
-		}
-		if (cmd_get == L"util b3m") {
-			std::wstring path_lua(str_to_wstr(IMM_PATH["script"]));
-			std::wstring path_out(str_to_wstr(IMM_PATH["output"]));
-			input += L"\n> #####################################################################";
-			input += L"\n> ## util b3m manual";
-			input += L"\n> #####################################################################";
-			input += L"\n> !Recommend using standalone [m3dtob3m.exe], is easier than this tool.";
-			input += L"\n>";
-			input += L"\n> [util b3m] is a tool convert .m3d file to binary file .b3m, the .m3d ";
-			input += L"\n> file is a custom text file format to store meshes. For more ";
-			input += L"\n> information about .m3d, see d3dcoder.net, DirectX 11 Book by Frank ";
-			input += L"\n> Luna.";
-			input += L"\n>";
-			input += L"\n> To use this tool, you need prepare m3d_list.csv tell tool which files ";
-			input += L"\n> to convert, the m3d_list.csv file is on "+path_lua;
-			input += L"m3d_list.csv, ";
-			input += L"\n> it should be writen correct data according a sample from a demo.";
-			input += L"\n>";
-			input += L"\n> The input/output folder is on "+path_out;
-			input += L"\n> #####################################################################";
-			input += L"\n";
-			return;
-		}
-		if (cmd_get == L"util b3m start") {
-			is_slient = true;
-			do_slient_on();
-			input += L"\n> util b3m processing...";
-			if (!is_busying) {
-				std::thread(
-				m3d_util_b3m<atomic_wstring>,
-				std::ref(input), std::ref(is_busying)).detach();
-			}
-			return;
-		}
 	}
 	if (cmd_get.substr(0, 6) == L"reload") {
 		if (cmd_get.size() < 8) {

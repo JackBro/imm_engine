@@ -75,7 +75,6 @@ See demo\simple_scene\, represents following tree.
 	 |--ast_texture
 	 |--script
          |--library
-	     |--m3d_input_output
 	     |--scene_common
 	     |--scene00
 	     |--text_en

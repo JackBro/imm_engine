@@ -24,11 +24,7 @@ int main(int argc, char* argv[])
 	if (argc > 1) {
 		std::string argv1 = argv[1];
 		if (argv1 == "/uselist") {
-			std::cout << "m3dtob3m processing..." << std::endl;
-			std::wstring dummy_str;
-			std::atomic<bool> dummy_bool;
-			imm::m3d_util_b3m(dummy_str, dummy_bool);
-			std::cout << "m3dtob3m has finished all conversion." << std::endl;
+			imm::m3d_util_b3m();
 			return 0;
 		}
 		if (argv1 == "/basic" || argv1 == "/skinned") {
@@ -43,8 +39,10 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 	}
-	if (argc < 10) {
-		std::cout << "M3D to B3M Tool" << std::endl;
+	if (argc) {
+		int bit = sizeof(int*)*8;
+		std::string bit_version = " x"+std::to_string(bit);
+		std::cout << "M3D to B3M Tool" << bit_version << std::endl;
 		std::cout << "immature engine Utility" << std::endl;
 		std::cout << std::endl;
 		std::cout << "Usage: m3dtob3m <options> <.m3d_filename>" << std::endl;
