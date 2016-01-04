@@ -38,7 +38,7 @@ void skill_data::build(const std::string &name)
 		frame_turn.push_back(4.5f-2.0f);
 		frame_speed.push_back(1.0f);
 		next_ix.push_back(3);
-		specify.push_back(SKILL_MAGIC_PREPARE1);
+		specify.push_back(SKILL_MAGIC_PREPARE01);
 		box_name.clear();
 		box_name;
 		atk_box.push_back(box_name);
@@ -83,7 +83,7 @@ void skill_data::build(const std::string &name)
 		frame_turn.push_back(4.5f-2.0f);
 		frame_speed.push_back(1.0f);
 		next_ix.push_back(3);
-		specify.push_back(SKILL_MAGIC_PREPARE1);
+		specify.push_back(SKILL_MAGIC_PREPARE01);
 		box_name.clear();
 		box_name;
 		atk_box.push_back(box_name);
@@ -93,7 +93,7 @@ void skill_data::build(const std::string &name)
 		frame_turn.push_back(4.5f-2.0f);
 		frame_speed.push_back(1.0f);
 		next_ix.push_back(-1);
-		specify.push_back(SKILL_MAGIC_PREPARE1);
+		specify.push_back(SKILL_MAGIC_PREPARE01);
 		box_name.clear();
 		box_name;
 		atk_box.push_back(box_name);

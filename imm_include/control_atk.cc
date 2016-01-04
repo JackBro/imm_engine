@@ -62,17 +62,11 @@ void skill_data::strike(skill_para &pa)
 void skill_data::update(const float &dt, skill_para &pa)
 {
 	auto &tro = PTR->m_Inst.m_Troll[pa.inst_ix];
-	if (pa.count_down > -5.0f) pa.count_down -= dt;
+	if (pa.count_down > 0.0f) pa.count_down -= dt;
 	if (pa.is_busy && pa.count_down < 0.0f) {
 		tro.order |= ORDER_IDLE;
 		current_over(pa);
 		pa.skill_ix = -1;
-		return;
-	}
-	if (!pa.is_busy && pa.count_down < -2.0f) {
-		if (tro.current_state == pose_Idle::instance())
-			PTR->m_Inst.m_Stat[pa.inst_ix].check_set_ClipName(act::Idle);
-		pa.count_down = -6.0f;
 		return;
 	}
 	if (pa.is_turn_next && pa.count_down < frame_turn[pa.skill_ix]) {
@@ -85,7 +79,7 @@ void skill_data::update(const float &dt, skill_para &pa)
 //
 SKILL_TYPE skill_data::get_skill_type(const skill_para &pa)
 {
-	if (specify[pa.current_ix] > 0) return SKILL_TYPE_MAGIC;
+	if (specify[pa.current_ix] > SKILL_MELEE_UNARMED) return SKILL_TYPE_MAGIC;
 	return SKILL_TYPE_MELEE;
 }
 ////////////////
@@ -198,7 +192,7 @@ template <typename T_app>
 void control_atk<T_app>::execute(const size_t &index_in, const char &symbol)
 {
 	if (!data_ski.count(*app->m_Inst.m_Stat[index_in].get_ModelName())) {
-		PTR->m_Inst.m_Troll[index_in].revert_previous_state();
+		PTR->m_Inst.m_Troll[index_in].order |= ORDER_IDLE;
 		return;
 	}
 	if (!para_ski.count(index_in)) init_skill_para(index_in);

@@ -21,10 +21,13 @@ pose_Idle *pose_Idle::instance()
 //
 void pose_Idle::enter(troll *tro)
 {
-	if (tro->previous_state == pose_Atk::instance()) {
+	if (tro->previous_state == pose_Atk::instance() ||
+		tro->previous_state == pose_Damage::instance()) {
+		tro->count_down = 5.0f;
 		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::BattleReady);
 	}
 	else {
+		tro->count_down = -1.0f;
 		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Idle);
 	}
 }
@@ -66,6 +69,13 @@ void pose_Idle::execute(troll *tro)
 	if (tro->order & ORDER_DMG) {
 		tro->order = ORDER_NONE;
 		tro->change_state(pose_Damage::instance());
+	}
+	// 
+	if (tro->current_state != pose_Idle::instance()) return;
+	if ((tro->count_down > 0.0f)) tro->count_down -= PTR->m_Timer.delta_time();
+	if (tro->count_down < 0.0f && tro->count_down > -0.9f) {
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Idle);
+		tro->count_down = -1.0f;
 	}
 }
 //
@@ -160,6 +170,7 @@ void pose_Jump::execute(troll *tro)
 	if (tro->is_on_air && is_on_ground) {
 		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::JumpGround, true);
 		tro->is_on_air = false;
+		// Idle do full JumpGround
 		if (tro->previous_state == pose_Idle::instance()) tro->count_down = 0.3f;
 		else tro->count_down = 0.1f;
 	}
@@ -238,7 +249,9 @@ void pose_Damage::enter(troll *tro)
 void pose_Damage::execute(troll *tro)
 {
 	tro->count_down -= PTR->m_Timer.delta_time();
-	if (tro->count_down < 0.0f) tro->change_state(pose_Atk::instance());
+	if (tro->count_down < 0.0f) {
+		tro->change_state(pose_Idle::instance());
+	}
 }
 //
 void pose_Damage::exit(troll *tro)

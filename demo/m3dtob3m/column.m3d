@@ -1,4 +1,4 @@
-----------------------------M3D_File_Header-
+---------------------------M3D_File_Header-
 Materials 1
 Vertices 100
 Triangles 74
@@ -8,7 +8,7 @@ AnimationClips 0
 ----------------------------------Materials-
 Ambient: 1.0 1.0 1.0
 Diffuse: 0.64 0.64 0.64
-Specular: 0.0 0.0 0.0
+Specular: 0.5 0.5 0.5
 SpecPower: 12.298
 Reflectivity: 0.0 0.0 0.0
 AlphaClip: 0
