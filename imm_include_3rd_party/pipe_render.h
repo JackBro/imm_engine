@@ -4,8 +4,8 @@
 // Defines render state objects.
 ////////////////
 ////////////////
-#ifndef IA_RENDER_H
-#define IA_RENDER_H
+#ifndef PIPE_RENDER_H
+#define PIPE_RENDER_H
 #include "imm_core.h"
 namespace imm
 {

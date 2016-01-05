@@ -5,10 +5,10 @@
 // Also defines a static Effects class from which we can access all of our effects.
 ////////////////
 ////////////////
-#ifndef IA_EFFECT_H
-#define IA_EFFECT_H
+#ifndef PIPE_EFFECT_H
+#define PIPE_EFFECT_H
 #include "imm_core.h"
-#include "ia_effect_misc.h"
+#include "pipe_effect_misc.h"
 namespace imm
 {
 ////////////////

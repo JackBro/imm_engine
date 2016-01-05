@@ -8,7 +8,7 @@
 ////////////////
 #ifndef RENDER_WAVE_H
 #define RENDER_WAVE_H
-#include "ia_effect.h"
+#include "pipe_effect.h"
 #include "mesh_d3d_util.h"
 namespace imm
 {

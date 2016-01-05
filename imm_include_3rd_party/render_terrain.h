@@ -7,7 +7,7 @@
 #ifndef RENDER_TERRAIN_H
 #define RENDER_TERRAIN_H
 #include "mesh_d3d_util.h"
-#include "ia_vertex.h"
+#include "pipe_vertex.h"
 #include "imm_camera.h"
 #include "render_shadow.h"
 #include "DDSTextureLoader.h"

@@ -8,7 +8,7 @@
 #define RENDER_SKY_H
 #include "imm_camera.h"
 #include "mesh_geometry_gen.h"
-#include "ia_vertex.h"
+#include "pipe_vertex.h"
 #include "DDSTextureLoader.h"
 namespace imm
 {

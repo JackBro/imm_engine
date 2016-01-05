@@ -6,7 +6,7 @@
 #ifndef RENDER_PARTICLE_H
 #define RENDER_PARTICLE_H
 #include "imm_camera.h"
-#include "ia_vertex.h"
+#include "pipe_vertex.h"
 namespace imm
 {
 ////////////////

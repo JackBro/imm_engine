@@ -4,9 +4,9 @@
 // Defines vertex structures and input layouts.
 ////////////////
 ////////////////
-#ifndef IA_VERTEX_H
-#define IA_VERTEX_H
-#include "ia_effect.h"
+#ifndef PIPE_VERTEX_H
+#define PIPE_VERTEX_H
+#include "pipe_effect.h"
 namespace imm
 {
 ////////////////

@@ -7,7 +7,7 @@
 ////////////////
 #ifndef PHY_AUXILIARY_H
 #define PHY_AUXILIARY_H
-#include "ia_vertex.h"
+#include "pipe_vertex.h"
 #include "imm_camera.h"
 #include <DirectXColors.h>
 namespace imm

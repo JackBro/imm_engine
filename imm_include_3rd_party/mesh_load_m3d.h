@@ -7,7 +7,7 @@
 #define MESH_LOAD_M3D_H
 #include "mesh_skinned_data.h"
 #include "mesh_geometry.h"
-#include "ia_vertex.h"
+#include "pipe_vertex.h"
 namespace imm
 {
 ////////////////
