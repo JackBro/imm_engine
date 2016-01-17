@@ -11,12 +11,10 @@ the [DirectX 11 book](http://www.amazon.com/Introduction-3D-Game-Programming-Dir
 **It is very difficult to use due to weak development scale and absence of visualization scene editor.**
 **Not recommended this engine for serious use.**
 
-In Development:
+Current State:
 ---------------
-The major goal of immature engine is making the game Dragon's Ingot.
-Development task is focusing on this goal.
-Besides, all kinds of other things will not be considered.
-Just guarantee the able to compile the project correctly.
+The development task is focusing on making the game Dragon's Ingot.
+Just guarantee the able to compile the engine demo correctly.
 
 Disadvantage List:
 ------------------
@@ -26,6 +24,7 @@ Disadvantage List:
 * The platform only supports Microsoft Windows. 
 * Horrible API design, evil magic code style.
 * Very high coupling class structure.
+* Little document support.
 
 Compile Environment:
 --------------------
@@ -82,9 +81,8 @@ See demo\simple_scene\, represents following tree.
 
 Asset Tools:
 ------------
-* **immature Blender export**: 
-Export Blender model data to .m3d file format for immature engine. 
-https://github.com/endrollex/imm_blender_export
+* **[immature Blender export](https://github.com/endrollex/imm_blender_export)**: 
+Export Blender model data to .m3d file format for immature engine.
 * **m3dtob3m.exe**: 
 Convert .m3d file to binary .b3m file. 
 Notice .b3m file corresponding x64/x86 version.
