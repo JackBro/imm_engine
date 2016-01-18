@@ -14,7 +14,7 @@ the [DirectX 11 book](http://www.amazon.com/Introduction-3D-Game-Programming-Dir
 Current State:
 ---------------
 The development task is focusing on making the game Dragon's Ingot.
-Just guarantee the able to compile the engine demo correctly.
+Just guarantee the able to compile the engine demos correctly.
 
 Disadvantage List:
 ------------------
@@ -89,11 +89,6 @@ Notice .b3m file corresponding x64/x86 version.
 * **CSV based scene data**: 
 Unfortunately, this engine has not a scene editor let you can "drag and drop".
 You must write a game object by handwriting, this limits the complexity of a scene.
-
-Released Demo:
---------------
-* **x64**: http://pan.baidu.com/s/1c0yFrCc
-* **x86**: http://pan.baidu.com/s/1mg5k7XY
 
 Copyright and License:
 ----------------------

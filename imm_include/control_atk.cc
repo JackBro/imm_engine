@@ -52,7 +52,7 @@ void skill_data::strike(skill_para &pa)
 	// if skill only one hit
 	if (next_ix[pa.skill_ix] == -1) return;
 	// if trun next hit
-	if (!pa.is_turn_next && pa.count_down > frame_turn[pa.skill_ix]) {
+	if (!pa.is_turn_next && pa.count_down > 0.01f) {
 		++pa.skill_ix;
 		pa.is_turn_next = true;
 		return;
@@ -69,7 +69,7 @@ void skill_data::update(const float &dt, skill_para &pa)
 		pa.skill_ix = -1;
 		return;
 	}
-	if (pa.is_turn_next && pa.count_down < frame_turn[pa.skill_ix]) {
+	if (pa.is_turn_next && pa.count_down < frame_turn[pa.skill_ix-1]) {
 		current_apply(pa);
 		pa.is_turn_next = false;
 		if (next_ix[pa.skill_ix] == -1) pa.skill_ix = -1;

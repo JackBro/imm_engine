@@ -14,7 +14,7 @@ void skill_data::build(const std::string &name)
 		chunk['A'] = static_cast<int>(atk.size());
 		atk.push_back("Atk01");
 		frame_end.push_back(9.0f);
-		frame_turn.push_back(4.5f-2.0f);
+		frame_turn.push_back(4.5f-1.0f);
 		frame_speed.push_back(1.0f);
 		next_ix.push_back(1);
 		specify.push_back(SKILL_MELEE_UNARMED);
@@ -24,7 +24,7 @@ void skill_data::build(const std::string &name)
 		//
 		atk.push_back("Atk02");
 		frame_end.push_back(11.0f);
-		frame_turn.push_back(5.5f-2.0f);
+		frame_turn.push_back(5.5f-1.0f);
 		frame_speed.push_back(0.5f);
 		next_ix.push_back(-1);
 		specify.push_back(SKILL_MELEE_UNARMED);
@@ -35,7 +35,7 @@ void skill_data::build(const std::string &name)
 		chunk['B'] = static_cast<int>(atk.size());
 		atk.push_back("Atk01");
 		frame_end.push_back(9.0f);
-		frame_turn.push_back(4.5f-2.0f);
+		frame_turn.push_back(4.5f-1.0f);
 		frame_speed.push_back(1.0f);
 		next_ix.push_back(3);
 		specify.push_back(SKILL_MAGIC_PREPARE01);
@@ -45,7 +45,7 @@ void skill_data::build(const std::string &name)
 		//
 		atk.push_back("Atk01");
 		frame_end.push_back(9.0f);
-		frame_turn.push_back(4.5f-2.0f);
+		frame_turn.push_back(4.5f-1.0f);
 		frame_speed.push_back(1.0f);
 		next_ix.push_back(-1);
 		specify.push_back(SKILL_MAGIC_LIGHTNING);
@@ -59,7 +59,7 @@ void skill_data::build(const std::string &name)
 		chunk['A'] = static_cast<int>(atk.size());
 		atk.push_back("Atk01");
 		frame_end.push_back(9.0f);
-		frame_turn.push_back(4.5f-2.0f);
+		frame_turn.push_back(4.5f-1.0f);
 		frame_speed.push_back(1.0f);
 		next_ix.push_back(1);
 		specify.push_back(SKILL_MELEE_UNARMED);
@@ -69,7 +69,7 @@ void skill_data::build(const std::string &name)
 		//
 		atk.push_back("Atk02");
 		frame_end.push_back(11.0f);
-		frame_turn.push_back(5.5f-2.0f);
+		frame_turn.push_back(5.5f-1.0f);
 		frame_speed.push_back(0.5f);
 		next_ix.push_back(-1);
 		specify.push_back(SKILL_MELEE_UNARMED);
@@ -78,22 +78,22 @@ void skill_data::build(const std::string &name)
 		atk_box.push_back(box_name);
 		//
 		chunk['B'] = static_cast<int>(atk.size());
-		atk.push_back("Atk01");
-		frame_end.push_back(9.0f);
-		frame_turn.push_back(4.5f-2.0f);
-		frame_speed.push_back(1.0f);
+		atk.push_back("Prepare01");
+		frame_end.push_back(28.0f);
+		frame_turn.push_back(1.0f);
+		frame_speed.push_back(-4.5f);
 		next_ix.push_back(3);
 		specify.push_back(SKILL_MAGIC_PREPARE01);
 		box_name.clear();
 		box_name;
 		atk_box.push_back(box_name);
 		//
-		atk.push_back("Atk01");
-		frame_end.push_back(9.0f);
-		frame_turn.push_back(4.5f-2.0f);
-		frame_speed.push_back(1.0f);
+		atk.push_back("Prepare02");
+		frame_end.push_back(30.0f);
+		frame_turn.push_back(1.0f);
+		frame_speed.push_back(0.0f);
 		next_ix.push_back(-1);
-		specify.push_back(SKILL_MAGIC_PREPARE01);
+		specify.push_back(SKILL_MAGIC_LIGHTNING);
 		box_name.clear();
 		box_name;
 		atk_box.push_back(box_name);

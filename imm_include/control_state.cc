@@ -23,7 +23,7 @@ void pose_Idle::enter(troll *tro)
 {
 	if (tro->previous_state == pose_Atk::instance() ||
 		tro->previous_state == pose_Damage::instance()) {
-		tro->count_down = 5.0f;
+		tro->count_down = 5.0f+tro->index%3;
 		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::BattleReady);
 	}
 	else {
