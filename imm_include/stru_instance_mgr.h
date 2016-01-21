@@ -2,12 +2,13 @@
 // stru_instance_mgr.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
-// Copyright 2015 Huang Yiting (http://endrollex.com)
+// Copyright 2015-2016 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
 #ifndef STRU_INSTANCE_MGR_H
 #define STRU_INSTANCE_MGR_H
 #include "ai_steering.h"
+#include "ai_information.h"
 #include "stru_inst_adapter.h"
 #include "stru_model_mgr.h"
 #include "control_state.h"
@@ -244,6 +245,7 @@ void instance_mgr<T_app>::update_all_physics(const float &dt)
 	update_collision_liquid(dt);
 	m_Adapter.update_world();
 	m_App->m_Attack.update();
+	m_App->m_Magic.update();
 }
 //
 template <typename T_app>

@@ -2,7 +2,7 @@
 // imm_cmd.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
-// Copyright 2015 Huang Yiting (http://endrollex.com)
+// Copyright 2015-2016 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
 #ifndef IMM_CMD_H
@@ -119,7 +119,7 @@ void cmd_shell<T_app>::apply()
 	}
 	if (cmd_get == L"about") {
 		input += L"\n> immature engine Demo [Development testing 001]";
-		input += L"\n> Copyright 2015 Huang Yiting (http://endrollex.com)";
+		input += L"\n> Copyright 2015-2016 Huang Yiting (http://endrollex.com)";
 		input += L"\n";
 		return;
 	}

@@ -2,7 +2,7 @@
 // imm_app.cc
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
-// Copyright 2015 Huang Yiting (http://endrollex.com)
+// Copyright 2015-2016 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
 #include "imm_app.h"

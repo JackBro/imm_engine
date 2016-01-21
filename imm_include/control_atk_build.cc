@@ -2,7 +2,7 @@
 // control_atk_build.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
-// Copyright 2015 Huang Yiting (http://endrollex.com)
+// Copyright 2015-2016 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
 void skill_data::build(const std::string &name)
@@ -89,7 +89,7 @@ void skill_data::build(const std::string &name)
 		atk_box.push_back(box_name);
 		//
 		atk.push_back("Prepare02");
-		frame_end.push_back(30.0f);
+		frame_end.push_back(25.0f);
 		frame_turn.push_back(1.0f);
 		frame_speed.push_back(0.0f);
 		next_ix.push_back(-1);

@@ -10,6 +10,7 @@
 #include "control_math.cc"
 #include "control_atk.cc"
 #include "ai_steering.cc"
+#include "phy_magic.cc"
 //
 #pragma comment(lib, "User32")
 #pragma comment(lib, "Effects11")

@@ -2,7 +2,7 @@
 // stru_wave.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
-// Copyright 2015 Huang Yiting (http://endrollex.com)
+// Copyright 2015-2016 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
 #ifndef STRU_WAVE_H

@@ -14,7 +14,7 @@ the [DirectX 11 book](http://www.amazon.com/Introduction-3D-Game-Programming-Dir
 Current State:
 ---------------
 The development task is focusing on making the game Dragon's Ingot.
-Just guarantee the able to compile the engine demos correctly.
+For the responsibility of a open source project, just guarantee the able to compile the engine demos correctly and resolving bugs.
 
 Disadvantage List:
 ------------------
@@ -92,6 +92,6 @@ You must write a game object by handwriting, this limits the complexity of a sce
 
 Copyright and License:
 ----------------------
-* Copyright 2015 Huang Yiting (http://endrollex.com)
+* Copyright 2015-2016 Huang Yiting (http://endrollex.com)
 * immature engine is distributed under the the terms of the BSD license
 * Not include the files in folders of suffix "_3rd_party".
