@@ -95,6 +95,7 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 	phy_wire.init(app);
 	app->m_Attack.init_load(app);
 	app->m_Magic.init(app);
+	app->m_AiInfo.init(app);
 	reload(L"00");
 }
 //
@@ -155,7 +156,6 @@ template <typename T_app>
 void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 {
 	assert(!is_reload_schedule);
-	if (is_reload_schedule) return;
 	is_reload_schedule = true;
 	is_loading_atmosphere = true;
 	is_reload_done = false;
@@ -193,6 +193,7 @@ void scene_mgr<T_app>::reload_instance()
 {
 	// Stop control first
 	app->m_Control.reset();
+	// Some reload after instance see instance_mgr<T_app>::reload_scene_instance_relate()
 	std::thread(&instance_mgr<T_app>::reload, &app->m_Inst).detach();
 	liquid.reload(app->m_D3DDevice, scene_ix);
 }

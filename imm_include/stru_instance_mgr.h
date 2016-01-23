@@ -8,7 +8,6 @@
 #ifndef STRU_INSTANCE_MGR_H
 #define STRU_INSTANCE_MGR_H
 #include "ai_steering.h"
-#include "ai_information.h"
 #include "stru_inst_adapter.h"
 #include "stru_model_mgr.h"
 #include "control_state.h"
@@ -107,7 +106,7 @@ void instance_mgr<T_app>::reload()
 	remove_all();
 	instance_stat inst_stat;
 	size_t k = 0;
-	inst_stat.type = INST_BASIC;
+	inst_stat.type = MODEL_BASIC;
 	push_back_basic(
 		m_Model.m_InstBasic,
 		inst_stat,
@@ -120,7 +119,7 @@ void instance_mgr<T_app>::reload()
 		k,
 		[](const vertex::pntt2 &x) {return &x.pos;},
 		m_Model.m_NameBasicAlpha);
-	inst_stat.type = INST_SKINNED;
+	inst_stat.type = MODEL_SKINNED;
 	push_back_basic(
 		m_Model.m_InstSkinned,
 		inst_stat,
@@ -133,7 +132,7 @@ void instance_mgr<T_app>::reload()
 		k,
 		[](const vertex::pntt_skinned &x) {return &x.pos;},
 		m_Model.m_NameSkinnedAlpha);
-	inst_stat.type = INST_SIMPLE_P;
+	inst_stat.type = MODEL_SIMPLE_P;
 	push_back_pntt(
 		m_Model.m_InstPNTT,
 		inst_stat,
@@ -143,7 +142,7 @@ void instance_mgr<T_app>::reload()
 	m_Troll.resize(m_Stat.size());
 	for (size_t ix = 0; ix != m_Troll.size(); ++ix) {
 		m_Troll[ix].index = ix;
-		if (m_Stat[ix].type == INST_SKINNED) m_Steering[ix].init(ix);
+		if (m_Stat[ix].type == MODEL_SKINNED) m_Steering[ix].init(ix);
 	}
 	reload_scene_instance_relate();
 	on_resize();
@@ -163,9 +162,11 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 		m_PlaneGroundIx = -1;
 		m_IsTerrainUse = true;
 	}
+	// after instance load over
 	m_App->m_Control.rebuild_player();
 	m_App->m_Attack.rebuild();
 	m_App->m_Scene.phy_wire.rebuild_buffer();
+	m_App->m_AiInfo.rebuild();
 }
 //
 template <typename T_app>
@@ -179,7 +180,7 @@ void instance_mgr<T_app>::push_back_basic(
 {
 	for (size_t ix = 0; ix != v_inst.size(); ++ix) {
 		m_NameMap[name[ix]] = k;
-		inst_stat.p = &v_inst[ix];
+		inst_stat.ptr = &v_inst[ix];
 		m_Stat.push_back(inst_stat);
 		m_BoundL.push_back_empty(PHY_BOUND_BOX);
 		m_BoundW.push_back_empty(PHY_BOUND_BOX);
@@ -205,7 +206,7 @@ void instance_mgr<T_app>::push_back_pntt(
 {
 	for (size_t ix = 0; ix != v_inst.size(); ++ix) {
 		m_NameMap[name[ix]] = k;
-		inst_stat.p = &v_inst[ix];
+		inst_stat.ptr = &v_inst[ix];
 		m_Stat.push_back(inst_stat);
 		m_BoundL.push_back_empty(PHY_BOUND_BOX);
 		m_BoundW.push_back_empty(PHY_BOUND_BOX);
@@ -278,10 +279,10 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 		if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
 		// record sensor
 		bool is_touch = m_BoundW.intersects(ix, ix2);
-		if (m_Stat[ix].type == INST_SKINNED) {
+		if (m_Stat[ix].type == MODEL_SKINNED) {
 			m_Steering[ix].sensor[ix2] = is_touch;
 		}
-		if (m_Stat[ix2].type == INST_SKINNED) {
+		if (m_Stat[ix2].type == MODEL_SKINNED) {
 			m_Steering[ix2].sensor[ix] = is_touch;
 		}
 		// if instance stand on instance, continue;

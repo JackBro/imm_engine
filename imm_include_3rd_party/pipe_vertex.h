@@ -1,5 +1,5 @@
 ////////////////
-// ia_vertex.h
+// pipe_vertex.h
 // Vertex.h by Frank Luna (C) 2011 All Rights Reserved.
 // Defines vertex structures and input layouts.
 ////////////////

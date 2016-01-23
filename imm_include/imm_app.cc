@@ -23,6 +23,7 @@ imm_app::imm_app():
 	m_Condition(),
 	m_Config(this),
 	m_Control(),
+	m_AiInfo(),
 	m_MouseMode(CAM_MOVE_BY_BUTTON)
 {
 	m_WindowName = L"immature engine Demo";
@@ -43,6 +44,7 @@ imm_app::~imm_app()
 //
 bool imm_app::init_imm()
 {
+	srand(static_cast<unsigned>(time(NULL)));
 	effects::init_all(m_D3DDevice);
 	input_layouts::init_all(m_D3DDevice);
 	render::init_all(m_D3DDevice);

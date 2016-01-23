@@ -1,5 +1,5 @@
 ////////////////
-// ia_render.h
+// pipe_render.h
 // RenderStates.h by Frank Luna (C) 2011 All Rights Reserved.
 // Defines render state objects.
 ////////////////

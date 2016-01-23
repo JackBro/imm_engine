@@ -29,7 +29,7 @@ void skill_data::current_apply(skill_para &pa)
 	pa.current_ix = pa.skill_ix;
 	PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.skill_ix], true);
 	if (get_skill_type(pa) == SKILL_TYPE_MAGIC) {
-		PTR->m_Magic.invoke(specify[pa.current_ix]);
+		PTR->m_Magic.invoke(specify[pa.current_ix], pa.inst_ix);
 	}
 }
 //
@@ -105,7 +105,7 @@ void damage_data::update(const float &dt)
 	if (!is_calculated) {
 		PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
 		math::set_inst_speed(ix_dmg, 0.0f);
-		if (PTR->m_Inst.m_Stat[ix_dmg].type == INST_SKINNED) {
+		if (PTR->m_Inst.m_Stat[ix_dmg].type == MODEL_SKINNED) {
 			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
 			math::set_face_to_face(ix_atk, ix_dmg);
 			//
