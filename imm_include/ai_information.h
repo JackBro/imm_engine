@@ -31,12 +31,14 @@ struct ai_info
 	void init(T_app *app_in);
 	void reset();
 	void rebuild();
-	size_t random_an_enemy(const size_t &caster);
+	size_t random_an_enemy(const size_t &caller);
 	T_app *app;
 	std::set<size_t> set_friend;
 	std::set<size_t> set_enemy;
+	std::set<size_t> set_all;
 	std::vector<size_t> vec_friend;
 	std::vector<size_t> vec_enemy;
+	std::vector<size_t> vec_all;
 };
 //
 template <typename T_app>
@@ -57,10 +59,13 @@ void ai_info<T_app>::reset()
 {
 	set_friend.clear();
 	set_enemy.clear();
+	set_all.clear();
 	vec_friend.clear();
 	vec_enemy.clear();
+	vec_all.clear();
 	vec_friend.shrink_to_fit();
 	vec_enemy.shrink_to_fit();
+	vec_all.shrink_to_fit();
 }
 //
 template <typename T_app>
@@ -72,15 +77,17 @@ void ai_info<T_app>::rebuild()
 		if (stat.type == MODEL_SKINNED) {
 			set_enemy.insert(ix);
 			vec_enemy.push_back(ix);
+			set_all.insert(ix);
+			vec_all.push_back(ix);
 		}
 		++ix;
 	}
 }
 //
 template <typename T_app>
-size_t ai_info<T_app>::random_an_enemy(const size_t &caster)
+size_t ai_info<T_app>::random_an_enemy(const size_t &caller)
 {
-	caster;
+	caller;
 	size_t range = vec_enemy.size();
 	int offset = rand() % range;
 	return vec_enemy[offset];

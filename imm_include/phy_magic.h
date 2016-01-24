@@ -8,6 +8,7 @@
 #ifndef PHY_MAGIC_H
 #define PHY_MAGIC_H
 #include "phy_prepare.h"
+#include "control_math.h"
 #include <list>
 namespace imm
 {
@@ -31,7 +32,7 @@ struct magic_inst
 	void update(const float &dt);
 	void apply_MAGIC_LIGHTNING();
 	SKILL_SPECIFY specify;
-	BoundingSphere shpere;
+	BoundingSphere sphere;
 	float count_down;
 	float duration;
 	size_t caster;
@@ -103,6 +104,7 @@ void phy_magic<T_app>::push_MAGIC_LIGHTNING(const size_t &caster)
 	inst.back().count_down = 0.5f;
 	inst.back().specify = SKILL_MAGIC_LIGHTNING;
 	inst.back().caster = caster;
+	inst.back().sphere.Radius = 4.0f;
 }
 //
 }

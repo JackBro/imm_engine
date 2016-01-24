@@ -38,10 +38,21 @@ void magic_inst::update(const float &dt)
 //
 void magic_inst::apply_MAGIC_LIGHTNING()
 {
-	size_t ix_dmg = PTR->m_AiInfo.random_an_enemy(caster);
-	XMFLOAT3 center = PTR->m_Inst.m_BoundW.center(ix_dmg);
-	PTR->m_Scene.plasma.push_back(PLASMA_LIGHTNING, 3.0f, center);
-	PTR->m_Scene.audio.play_effect("electricity_voltage");	
+	size_t ix_tar = PTR->m_AiInfo.random_an_enemy(caster);
+	sphere.Center = PTR->m_Inst.m_BoundW.center(ix_tar);
+	PTR->m_Scene.plasma.push_back(PLASMA_LIGHTNING, 3.0f, sphere.Center);
+	PTR->m_Scene.audio.play_effect("electricity_voltage");
+	for (auto &ix_inst: PTR->m_AiInfo.vec_all) {
+		bool is_touch = PTR->m_Inst.m_BoundW.intersects(ix_inst, sphere);
+		if (is_touch) {
+			PTR->m_Control.atk.cause_damage(
+				caster,
+				ix_inst,
+				math::VECTOR3_NULL,
+				SKILL_MAGIC_LIGHTNING);
+			//
+		}
+	}
 }
 //
 }

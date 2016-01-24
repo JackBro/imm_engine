@@ -19,6 +19,7 @@ namespace imm {namespace math
 ////////////////
 static const XMVECTORF32 VECTOR_AXIS_Y = {0.0f, 1.0f, 0.0f, 0.0f};
 static const XMVECTORF32 VECTOR_FRONT_FACING = {0.0f, 0.0f, -1.0f, 0.0f};
+static const XMFLOAT3 VECTOR3_NULL = {0.0f, 10.0f, 0.0f};
 ////////////////
 // functions
 ////////////////

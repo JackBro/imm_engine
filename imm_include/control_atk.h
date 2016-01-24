@@ -82,6 +82,8 @@ struct damage_data
 {
 	damage_data();
 	void update(const float &dt);
+	void update_melee(const float &dt);
+	void update_magic(const float &dt);
 	void stamp();
 	size_t ix_atk;
 	size_t ix_dmg;
@@ -91,6 +93,7 @@ struct damage_data
 	bool is_calculated;
 	bool is_delay;
 	const XMFLOAT3 *box_center;
+	SKILL_SPECIFY specify;
 };
 ////////////////
 // control_atk
@@ -103,7 +106,11 @@ struct control_atk
 	void init(T_app *app_in);
 	void reset();
 	void init_skill_para(const size_t &index_in);
-	void cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg, const XMFLOAT3 &box_center);
+	void cause_damage(
+		const size_t &inst_ix_atk,
+		const size_t &inst_ix_dmg,
+		const XMFLOAT3 &box_center,
+		const SKILL_SPECIFY &specify);
 	void execute(const size_t &index_in, const char &symbol);
 	void update(const float &dt);
 	T_app *app;

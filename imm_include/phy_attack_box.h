@@ -9,6 +9,7 @@
 #define PHY_ATTACK_BOX_H
 #include "phy_prepare.h"
 #include "stru_inst_adapter.h"
+#include "phy_magic.h"
 #include <map>
 namespace imm
 {
@@ -244,7 +245,12 @@ void phy_attack_arrange<T_app>::update_collision()
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneGroundIx) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, bbox_w[ix]);
 			if (is_touch) {
-				app->m_Control.atk.cause_damage(map_box_owner[ix], ix_inst, bbox_w[ix].Center);
+				app->m_Control.atk.cause_damage(
+					map_box_owner[ix],
+					ix_inst,
+					bbox_w[ix].Center,
+					SKILL_MELEE_UNARMED);
+				//
 			}
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),
@@ -275,7 +281,11 @@ void phy_attack_arrange<T_app>::update_collision()
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneGroundIx) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, weapon_ix);
 			if (is_touch) {
-				app->m_Control.atk.cause_damage(owner_ix, ix_inst, app->m_Inst.m_BoundW.center(ix));
+				app->m_Control.atk.cause_damage(
+					owner_ix,
+					ix_inst,
+					app->m_Inst.m_BoundW.center(ix),
+					SKILL_MELEE_UNARMED);
 			}
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),

@@ -94,7 +94,8 @@ damage_data::damage_data():
 	delay(-1.0f),
 	is_calculated(true),
 	is_delay(false),
-	box_center(nullptr)
+	box_center(nullptr),
+	specify(SKILL_MELEE_UNARMED)
 {
 	;
 }
@@ -102,16 +103,28 @@ damage_data::damage_data():
 void damage_data::update(const float &dt)
 {
 	if (count_down > 0.0f) count_down -= dt;
+	if (PTR->m_Inst.m_Stat[ix_dmg].type != MODEL_SKINNED) {
+		is_calculated = true;
+		return;
+	}
+	if (specify <= SKILL_MELEE_UNARMED) {
+		update_melee(dt);
+	}
+	else {
+		update_magic(dt);
+	}
+}
+//
+void damage_data::update_melee(const float &dt)
+{
 	if (!is_calculated) {
 		PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
 		math::set_inst_speed(ix_dmg, 0.0f);
-		if (PTR->m_Inst.m_Stat[ix_dmg].type == MODEL_SKINNED) {
-			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
-			math::set_face_to_face(ix_atk, ix_dmg);
-			//
-			is_delay = true;
-			delay = 0.03f;
-		}
+		PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
+		math::set_face_to_face(ix_atk, ix_dmg);
+		//
+		is_delay = true;
+		delay = 0.03f;
 		is_calculated = true;
 	}
 	if (is_delay) {
@@ -130,8 +143,29 @@ void damage_data::update(const float &dt)
 	}
 }
 //
+void damage_data::update_magic(const float &dt)
+{
+	if (!is_calculated) {
+		is_delay = true;
+		delay = 0.2f;
+		is_calculated = true;
+	}
+	if (is_delay) {
+		delay -= dt;
+		if (delay < 0.0f) {
+			PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
+			math::set_inst_speed(ix_dmg, 0.0f);
+			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
+			math::set_face_to_face(ix_atk, ix_dmg);
+			PTR->m_Scene.audio.play_effect("punch00");
+			is_delay = false;
+		}
+	}
+}
+//
 void damage_data::stamp()
 {
+	// avoid hits at one time
 	if (count_down > 0.0f) {
 		return;
 	}
@@ -167,7 +201,11 @@ void control_atk<T_app>::init_skill_para(const size_t &index_in)
 }
 //
 template <typename T_app>
-void control_atk<T_app>::cause_damage(const size_t &inst_ix_atk, const size_t &inst_ix_dmg, const XMFLOAT3 &box_center)
+void control_atk<T_app>::cause_damage(
+	const size_t &inst_ix_atk,
+	const size_t &inst_ix_dmg,
+	const XMFLOAT3 &box_center,
+	const SKILL_SPECIFY &specify)
 {
 	assert(inst_ix_atk < 1000);
 	assert(inst_ix_dmg < 1000);
@@ -183,6 +221,7 @@ void control_atk<T_app>::cause_damage(const size_t &inst_ix_atk, const size_t &i
 		damage[index].ix_dmg = inst_ix_dmg;
 		damage[index].skill_ix = para_ski[inst_ix_atk].current_ix;
 		damage[index].box_center = &box_center;
+		damage[index].specify = specify;
 	}
 	damage[index].stamp();
 	hits[inst_ix_atk].insert(inst_ix_dmg);

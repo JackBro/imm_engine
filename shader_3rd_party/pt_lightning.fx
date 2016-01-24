@@ -181,11 +181,11 @@ void DrawGS(
 	inout TriangleStream<GeoOut> triStream)
 {
 	// Compute world matrix so that billboard faces the camera.
-	float3 look  = normalize(gEyePosW.xyz - gin[0].PosW);
-	look.xz = gEyePosW.xz;
+	float3 look = gEyePosW.xyz - gin[0].PosW;
+	look.y = 0.0f;
 	look = normalize(look);
 	float3 right = normalize(cross(float3(0,1,0), look));
-	float3 up    = cross(look, right);
+	float3 up = cross(look, right);
 	// Compute triangle strip vertices (quad) in world space.
 	float halfWidth  = 0.5f*gin[0].SizeW.x;
 	float halfHeight = 0.5f*gin[0].SizeW.y;
