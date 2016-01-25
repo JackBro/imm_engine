@@ -167,6 +167,8 @@ struct troll
 	int focus;
 	bool is_on_air;
 	float velocity_jump;
+	float speed_walk;
+	float speed_run;
 	float count_down;
 };
 //
@@ -179,6 +181,8 @@ troll::troll():
 	focus(-1),
 	is_on_air(false),
 	velocity_jump(35.0f),
+	speed_walk(4.5f),
+	speed_run(13.5f),
 	count_down(-1.0f)
 {
 	;
@@ -205,8 +209,8 @@ void troll::revert_previous_state()
 //
 float troll::speed_move()
 {
-	if (order_stat & ORDER_IS_WALK)	return 4.5f;
-	return 13.5f;
+	if (order_stat & ORDER_IS_WALK)	return speed_walk;
+	return speed_run;
 }
 //
 std::string &troll::act_move()

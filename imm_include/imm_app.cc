@@ -24,6 +24,7 @@ imm_app::imm_app():
 	m_Config(this),
 	m_Control(),
 	m_AiInfo(),
+	m_AiAttr(),
 	m_MouseMode(CAM_MOVE_BY_BUTTON)
 {
 	m_WindowName = L"immature engine Demo";

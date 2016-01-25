@@ -8,6 +8,7 @@
 #ifndef IMM_APP_H
 #define IMM_APP_H
 #include <ctime>
+#include "ai_attribute.h"
 #include "ai_information.h"
 #include "condition_trigger.h"
 #include "phy_attack_box.h"
@@ -61,6 +62,7 @@ public:
 	lua_config<imm_app> m_Config;
 	control_sys<imm_app> m_Control;
 	ai_info<imm_app> m_AiInfo;
+	ai_attr<imm_app> m_AiAttr;
 	MOUSE_MODEL m_MouseMode;
 	XMFLOAT4X4 m_LightView;
 	XMFLOAT4X4 m_LightProj;

@@ -301,10 +301,7 @@ void ui_def_main_menu<T_app>::define_deactivate_all_cmd_slient()
 	deactivate_all();
 	group_active("fps", true);
 }
-////////////////
-// define_txt_str
-////////////////
-////////////////
+//
 template <typename T_app>
 void ui_def_main_menu<T_app>::define_text()
 {
@@ -318,5 +315,7 @@ void ui_def_main_menu<T_app>::define_text()
 	for (auto it = get_welcome.begin(); it != get_welcome.end(); ++it) {
 		m_DefineTxt[it->first] = str_to_wstr(it->second);
 	}
-}}
+}
+//
+}
 #endif

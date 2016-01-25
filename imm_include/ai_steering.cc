@@ -36,8 +36,6 @@ void ai_Standby::enter(steering *ste)
 //
 void ai_Standby::execute(steering *ste)
 {
-	ste;
-	//PTR->m_Inst.m_Troll[ste->index].order |= ORDER_JUMP;
 	XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[PTR->m_Control.player1].get_World();
 	ste->desired_pos.x = world._41;
 	ste->desired_pos.z = world._43;

@@ -10,6 +10,7 @@
 #include "ui_def_main_menu.h"
 #include "ui_def_welcome.h"
 #include "ui_def_dialogue.h"
+#include "ui_def_status.h"
 namespace imm
 {
 ////////////////
@@ -41,6 +42,7 @@ struct ui_mgr
 	ui_def_main_menu<T_app> main_menu;
 	ui_def_welcome<T_app> welcome;
 	ui_def_dialogue<T_app> dialogue;
+	ui_def_status<T_app> status;
 	std::vector<ui_base<T_app>*> ui_together;
 	std::map<std::string, size_t> map_name;
 	bool is_not_draw_response;
@@ -63,12 +65,15 @@ void ui_mgr<T_app>::init(T_app *app_in)
 	main_menu.init(app_in);
 	welcome.init(app_in);
 	dialogue.init(app_in);
+	status.init(app_in);
 	ui_together.push_back(&main_menu);
 	ui_together.push_back(&welcome);
 	ui_together.push_back(&dialogue);
+	ui_together.push_back(&status);
 	map_name["main_menu"] = 0;
 	map_name["welcome"] = 1;
 	map_name["dialogue"] = 2;
+	map_name["status"] = 2;
 }
 //
 template <typename T_app>

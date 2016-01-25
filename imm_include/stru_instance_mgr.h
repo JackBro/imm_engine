@@ -167,6 +167,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 	m_App->m_Attack.rebuild();
 	m_App->m_Scene.phy_wire.rebuild_buffer();
 	m_App->m_AiInfo.rebuild();
+	m_App->m_AiAttr.rebuild();
 }
 //
 template <typename T_app>
