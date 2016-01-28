@@ -21,11 +21,12 @@ struct ui_def_main_menu: public ui_base<T_app>
 	~ui_def_main_menu() {;}
 	void define_style();
 	bool define_apply_ix_if(int &index);
-	void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
-	void define_on_pad_keydown(const WORD &vkey);
+	bool define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
+	bool define_on_pad_keydown(const WORD &vkey);
 	void define_update(float dt);
 	void define_deactivate_all_default();
 	void define_deactivate_all_cmd_slient();
+	void define_enter_and_exit();
 	void define_text();
 };
 //
@@ -253,31 +254,33 @@ bool ui_def_main_menu<T_app>::define_apply_ix_if(int &index)
 }
 //
 template <typename T_app>
-void ui_def_main_menu<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
+bool ui_def_main_menu<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	DUMMY(l_param);
 	if (w_param == KEY_UI_ESC) {
 		if (is_ui_appear()) define_deactivate_all_default();
 		else group_active("menu", true);
-		return;
+		return true;
 	}
 	if (w_param == KEY_UI_FPS1 && GetKeyState(KEY_UI_FPS2)) {
 		group_active_switch("fps");
-		return;
+		return true;
 	}
+	return false;
 }
 //
 template <typename T_app>
-void ui_def_main_menu<T_app>::define_on_pad_keydown(const WORD &vkey)
+bool ui_def_main_menu<T_app>::define_on_pad_keydown(const WORD &vkey)
 {
 	if (vkey == PAD_UI_MENU) {
 		group_active_switch("menu");
-		return;
+		return true;
 	}
 	if (vkey == PAD_UI_DEACTIVATE) {
 		define_deactivate_all_default();
-		return;
+		return true;
 	}
+	return false;
 }
 //
 template <typename T_app>
@@ -300,6 +303,13 @@ void ui_def_main_menu<T_app>::define_deactivate_all_cmd_slient()
 {
 	deactivate_all();
 	group_active("fps", true);
+}
+//
+
+template <typename T_app>
+void ui_def_main_menu<T_app>::define_enter_and_exit()
+{
+	m_App->m_UiMgr.status.define_show(!is_ui_appear());
 }
 //
 template <typename T_app>

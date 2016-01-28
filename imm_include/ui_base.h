@@ -38,8 +38,8 @@ struct ui_base
 	bool on_mouse_wheel(const short &z_delta);
 	void on_mouse_over(const int &pos_x, const int &pos_y);
 	void mouse_pick(const int &pos_x, const int &pos_y);
-	void on_pad_keydown(const WORD &vkey);
-	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
+	bool on_pad_keydown(const WORD &vkey);
+	bool on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void group_active_switch(const std::string &name);
 	void group_active(const std::string &name, const bool &is_act, const bool &is_switched = false);
 	void pad_loop_button(const bool &is_down, const std::string &select_none = "");
@@ -51,11 +51,12 @@ struct ui_base
 	// virtual
 	virtual void define_style() = 0;
 	virtual bool define_apply_ix_if(int &index) = 0;
-	virtual void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param) = 0;
-	virtual void define_on_pad_keydown(const WORD &vkey) = 0;
+	virtual bool define_on_input_keydown(WPARAM &w_param, LPARAM &l_param) = 0;
+	virtual bool define_on_pad_keydown(const WORD &vkey) = 0;
 	virtual void define_update(float dt) = 0;
 	virtual void define_deactivate_all_default() = 0;
 	virtual void define_deactivate_all_cmd_slient() = 0;
+	virtual void define_enter_and_exit() = 0;
 	virtual void define_sprite_build_buffer() {;}
 	virtual void define_on_resize_sprite() {;}
 	virtual void define_text() = 0;
@@ -326,55 +327,57 @@ void ui_base<T_app>::mouse_pick(const int &pos_x, const int &pos_y)
 }
 //
 template <typename T_app>
-void ui_base<T_app>::on_pad_keydown(const WORD &vkey)
+bool ui_base<T_app>::on_pad_keydown(const WORD &vkey)
 {
-	if (is_waiting_for_something()) return;
+	if (is_waiting_for_something()) return false;
 	m_IsPadUsing = true;
-	define_on_pad_keydown(vkey);
+	if (define_on_pad_keydown(vkey)) return true;
 	if (vkey == PAD_UI_DWON1 || vkey == PAD_UI_DWON2) {
 		pad_loop_button(true);
 		if (vkey == PAD_UI_DWON1) pad_roll_text_layout(true);
-		return;
+		return true;
 	}
 	if (vkey == PAD_UI_UP1 || vkey == PAD_UI_UP2) {
 		pad_loop_button(false);
 		if (vkey == PAD_UI_UP1) pad_roll_text_layout(false);
-		return;
+		return true;
 	}
 	//
 	if (m_ClickableActived != "none") {
 		if (vkey == PAD_UI_APPLY) apply_ix(m_ClickIxPad);
-		return;
+		return true;
 	}
+	return false;
 }
 //
 template <typename T_app>
-void ui_base<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
+bool ui_base<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
-	if (is_waiting_for_something()) return;
+	if (is_waiting_for_something()) return false;
 	m_IsPadUsing = false;
-	define_on_input_keydown(w_param, l_param);
+	if (define_on_input_keydown(w_param, l_param)) return true;
 	// if not use a mouse, only use keyboard, this behavior is similar as using pad
 	if (w_param == KEY_UI_DOWN1 || w_param == KEY_UI_DOWN2) {
 		pad_loop_button(true);
-		return;
+		return true;
 	}
 	if (w_param == KEY_UI_UP1 || w_param == KEY_UI_UP2) {
 		pad_loop_button(false);
-		return;
+		return true;
 	}
 	if (w_param == KEY_UI_PAGEDOWN) {
 		pad_roll_text_layout(true);
-		return;
+		return true;
 	}
 	if (w_param == KEY_UI_PAGEUP) {
 		pad_roll_text_layout(false);
-		return;
+		return true;
 	}
-	if (m_ClickableActived != "none") {
-		if (w_param == KEY_UI_ENTER) apply_ix(m_ClickIxPad, true);
-		return;
+	if (m_ClickableActived != "none" && w_param == KEY_UI_ENTER) {
+		apply_ix(m_ClickIxPad, true);
+		return true;
 	}
+	return false;
 }
 //
 template <typename T_app>

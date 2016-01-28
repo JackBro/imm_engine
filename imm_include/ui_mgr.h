@@ -125,11 +125,14 @@ void ui_mgr<T_app>::draw_d3d()
 template <typename T_app>
 bool ui_mgr<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y)
 {
-	if (is_not_draw_response) false;
+	if (is_not_draw_response) return false;
 	bool rt_bool = false;
 	for (auto &ui: ui_together) {
 		rt_bool = ui->on_mouse_down(btn_state, pos_x, pos_y);
-		if (rt_bool) return rt_bool;
+		if (rt_bool) {
+			ui->define_enter_and_exit();
+			return rt_bool;
+		}
 	}
 	return rt_bool;
 }
@@ -167,14 +170,18 @@ template <typename T_app>
 void ui_mgr<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
 	if (is_not_draw_response) return;
-	for (auto &ui: ui_together) ui->on_input_keydown(w_param, l_param);
+	for (auto &ui: ui_together) {
+		if (ui->on_input_keydown(w_param, l_param)) ui->define_enter_and_exit();
+	}
 }
 //
 template <typename T_app>
 void ui_mgr<T_app>::on_pad_keydown(const WORD &vkey)
 {
 	if (is_not_draw_response) return;
-	for (auto &ui: ui_together) ui->on_pad_keydown(vkey);
+	for (auto &ui: ui_together) {
+		if (ui->on_pad_keydown(vkey)) ui->define_enter_and_exit();
+	}
 }
 //
 template <typename T_app>
@@ -202,6 +209,9 @@ void ui_mgr<T_app>::reload_active(const std::string &ui_class, const std::string
 		main_menu.m_IsMute = true;
 		welcome.m_IsMute = false;
 		welcome.group_active(ui_group, true);
+	}
+	else {
+		status.define_show(true);		
 	}
 }
 //

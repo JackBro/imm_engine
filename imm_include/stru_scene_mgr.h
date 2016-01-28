@@ -36,7 +36,7 @@ struct scene_mgr
 	void reload_skybox();
 	void reload_terrain(lua_reader &l_reader);
 	void relaod_terrain_after_instance();
-	void reload_media();
+	void reload_media_misc();
 	T_app *app;
 	std::map<std::string, std::string> get_misc;
 	light_dir dir_lights[3];
@@ -185,7 +185,7 @@ void scene_mgr<T_app>::reload_in_main_update()
 	reload_instance();
 	reload_skybox();
 	reload_terrain(l_reader);
-	reload_media();
+	reload_media_misc();
 	is_loading_atmosphere = false;
 }
 //
@@ -257,15 +257,16 @@ void scene_mgr<T_app>::relaod_terrain_after_instance()
 	}
 }
 template <typename T_app>
-void scene_mgr<T_app>::reload_media()
+void scene_mgr<T_app>::reload_media_misc()
 {
 	// Audio
 	audio.stop_bgm();
 	if (!csv_value_is_empty(get_misc["play_bgm"])) audio.play_bgm(get_misc["play_bgm"]);
 	// UI
 	app->m_UiMgr.reload_active(get_misc["ui_class"], get_misc["ui_group"]);
-	app->m_Condition.reset();
 	app->m_UiMgr.dialogue.rebuild_text();
+	// misc
+	app->m_Condition.reset();
 }
 //
 }

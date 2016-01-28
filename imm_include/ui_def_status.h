@@ -17,47 +17,112 @@ namespace imm
 template <class T_app>
 struct ui_def_status: public ui_base<T_app>
 {
-	ui_def_status() {;}
+	ui_def_status();
 	~ui_def_status() {;}
 	void define_style();
 	bool define_apply_ix_if(int &index);
-	void define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
-	void define_on_pad_keydown(const WORD &vkey);
+	bool define_on_input_keydown(WPARAM &w_param, LPARAM &l_param);
+	bool define_on_pad_keydown(const WORD &vkey);
 	void define_update(float dt);
 	void define_deactivate_all_default();
 	void define_deactivate_all_cmd_slient();
+	void define_enter_and_exit() {;}
+	void define_show(const bool &is_show);
 	void define_text();
 };
+//
+//
+template <typename T_app>
+ui_def_status<T_app>::ui_def_status()
+{
+	;
+}
 //
 template <typename T_app>
 void ui_def_status<T_app>::define_style()
 {
-	m_TitleFontFactor = 32.0f;
-	m_Dwrite["32"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 32.0f, DWRITE_ALIG_STYLE_CENTER);
-	m_Dwrite["24"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 24.0f, DWRITE_ALIG_STYLE_CENTER);
-	m_Dwrite["22_page"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 22.0f, DWRITE_ALIG_STYLE_PAGE);
+	m_Dwrite["status"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 10.0f, DWRITE_ALIG_STYLE_CENTER);
 	// brush
 	m_Brush["black"];
-	set_Brush(D2D1::ColorF::Black, 0.7f, "black");
-	m_Brush["yellow"];
-	set_Brush(D2D1::ColorF::Orange, 0.7f, "yellow");
-	m_Brush["red"];
-	set_Brush(D2D1::ColorF::DarkRed, 0.7f, "red");
-	m_Brush["transparent"];
-	set_Brush(D2D1::ColorF::Black, 0.0f, "transparent");
+	set_Brush(D2D1::ColorF::Black, 0.3f, "black");
+	m_Brush["hp_color"];
+	set_Brush(D2D1::ColorF::Red, 1.0f, "hp_color");
+	m_Brush["mp_color"];
+	set_Brush(D2D1::ColorF::Blue, 1.0f, "mp_color");
 	////////////////
 	// hp
 	////////////////
 	////////////////
 	m_Rect.emplace_back();
-	m_Rect.back().id_str = "hp";
+	m_Rect.back().id_str = "hp_backg";
 	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "hp";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.7f, 0.95f);
+	//m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.6f, 0.93f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "hp_rect";
+	m_Rect.back().parent_str = "hp_backg";
+	m_Rect.back().group = "hp_nodraw";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"hp_color"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().margin = XMFLOAT4(0.1f, 0.175f, 0.1f, 0.575f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "mp_rect";
+	m_Rect.back().parent_str = "hp_backg";
+	m_Rect.back().group = "hp_nodraw";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"mp_color"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().margin = XMFLOAT4(0.1f, 0.575f, 0.1f, 0.175f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "hp_bar";
+	m_Rect.back().parent_str = "hp_rect";
+	m_Rect.back().group = "hp";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"hp_color"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "mp_bar";
+	m_Rect.back().parent_str = "mp_rect";
+	m_Rect.back().group = "hp";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"mp_color"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "hp_txt";
+	m_Rect.back().parent_str = "hp_rect";
 	m_Rect.back().group = "hp";
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "24";
-	m_Rect.back().margin = XMFLOAT4(0.85f, 0.0f, 0.0f, 0.9f);
+	m_Rect.back().text = L"HP";
+	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "mp_txt";
+	m_Rect.back().parent_str = "mp_rect";
+	m_Rect.back().group = "hp";
+	m_Rect.back().tp = ui_rect::type::text_pure;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"MP";
+	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
 	////////////////
 	//
 	////////////////
@@ -77,21 +142,23 @@ void ui_def_status<T_app>::define_style()
 template <typename T_app>
 bool ui_def_status<T_app>::define_apply_ix_if(int &index)
 {
-	index;
+	DUMMY(index);
 	return false;
 }
 //
 template <typename T_app>
-void ui_def_status<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
+bool ui_def_status<T_app>::define_on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
-	w_param;
-	l_param;
+	DUMMY(w_param);
+	DUMMY(l_param);
+	return false;
 }
 //
 template <typename T_app>
-void ui_def_status<T_app>::define_on_pad_keydown(const WORD &vkey)
+bool ui_def_status<T_app>::define_on_pad_keydown(const WORD &vkey)
 {
-	vkey;
+	DUMMY(vkey);
+	return false;
 }
 //
 template <typename T_app>
@@ -110,6 +177,13 @@ template <typename T_app>
 void ui_def_status<T_app>::define_deactivate_all_cmd_slient()
 {
 	deactivate_all();
+	group_active("hp", true);
+}
+//
+template <typename T_app>
+void ui_def_status<T_app>::define_show(const bool &is_show)
+{
+	group_active("hp", is_show);
 }
 //
 template <typename T_app>
