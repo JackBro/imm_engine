@@ -85,6 +85,7 @@ void imm_app::update_scene(float dt)
 	m_Condition.update();
 	m_Control.update_scene(dt);
 	m_Scene.update_atmosphere(dt);
+	m_AiAttr.update();
 }
 //
 void imm_app::update_scene_keydown(float dt)
