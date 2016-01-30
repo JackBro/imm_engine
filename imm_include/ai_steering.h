@@ -44,7 +44,9 @@ struct steering
 	size_t index;
 	bool is_active;
 	XMFLOAT3 desired_pos;
-	std::map<size_t, bool> sensor;
+	std::map<size_t, bool> touch;
+	std::vector<size_t> attack;
+	std::vector<size_t> damage;
 };
 //
 steering::steering():
@@ -53,7 +55,9 @@ steering::steering():
 	index(0),
 	is_active(false),
 	desired_pos(0.0f, 0.0f, 0.0f),
-	sensor()
+	touch(),
+	attack(),
+	damage()
 {
 	;
 }

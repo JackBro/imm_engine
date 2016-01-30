@@ -183,7 +183,7 @@ void DrawGS(
 		// Compute world matrix so that billboard faces the camera.
 		//
 		float3 look  = normalize(gEyePosW.xyz - gin[0].PosW);
-		float3 right = normalize(cross(float3(0,1,0), look));
+		float3 right = normalize(cross(float3(0, 1, 0), look));
 		float3 up    = cross(look, right);
 		//
 		// Compute triangle strip vertices (quad) in world space.

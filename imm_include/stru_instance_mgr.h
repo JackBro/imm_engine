@@ -281,10 +281,10 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 		// record sensor
 		bool is_touch = m_BoundW.intersects(ix, ix2);
 		if (m_Stat[ix].type == MODEL_SKINNED) {
-			m_Steering[ix].sensor[ix2] = is_touch;
+			m_Steering[ix].touch[ix2] = is_touch;
 		}
 		if (m_Stat[ix2].type == MODEL_SKINNED) {
-			m_Steering[ix2].sensor[ix] = is_touch;
+			m_Steering[ix2].touch[ix] = is_touch;
 		}
 		// if instance stand on instance, continue;
 		if (m_Stat[ix].phy.stand_on == ix2 || m_Stat[ix2].phy.stand_on == ix) continue;

@@ -19,7 +19,6 @@ For the responsibility of a open source project, just guarantee the able to comp
 Disadvantage List:
 ------------------
 * The disavantage list is the bad features that will not change even in the future.
-* Weird project build method.
 * No visualization scene editor.
 * Some game date is directly mixed with source code, such as UI and game logic.
 * The platform only supports Microsoft Windows. 

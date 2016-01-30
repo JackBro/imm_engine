@@ -31,7 +31,7 @@ struct ai_points
 ai_points::ai_points():
 	hp_max(20),
 	mp_max(20),
-	hp(13),
+	hp(15),
 	mp(20),
 	str(5),
 	mgc(5),
@@ -51,16 +51,25 @@ struct ui_attr
 	void init(T_app *app_in);
 	void reset();
 	void update();
+	void update_target();
 	T_app *app;
 	int p1_hp;
 	int p1_mp;
+	int tar_hp;
+	size_t tar_ix;
+	size_t tar_flush;
+	float count_down;
 };
 //
 template <typename T_app>
 ui_attr<T_app>::ui_attr():
 	app(nullptr),
 	p1_hp(1),
-	p1_mp(1)
+	p1_mp(1),
+	tar_hp(1),
+	tar_ix(0),
+	tar_flush(0),
+	count_down(-1.0f)
 {
 	;
 }
@@ -88,6 +97,41 @@ void ui_attr<T_app>::update()
 			static_cast<float>(app->m_AiAttr.points[app->m_Control.player1].hp_max);
 		z = 1.0f - z;
 		app->m_UiMgr.status.m_Rect[app->m_UiMgr.status.m_MapID["hp_bar"]].margin.z = z;
+		app->m_UiMgr.status.on_resize();
+	}
+	if (p1_mp != app->m_AiAttr.points[app->m_Control.player1].mp) {
+		p1_mp = app->m_AiAttr.points[app->m_Control.player1].mp;
+		float z = static_cast<float>(p1_mp) /
+			static_cast<float>(app->m_AiAttr.points[app->m_Control.player1].mp_max);
+		z = 1.0f - z;
+		app->m_UiMgr.status.m_Rect[app->m_UiMgr.status.m_MapID["mp_bar"]].margin.z = z;
+		app->m_UiMgr.status.on_resize();
+	}
+	update_target();
+}
+//
+template <typename T_app>
+void ui_attr<T_app>::update_target()
+{
+	if (count_down > 0.0f) {
+		count_down -= app->m_Timer.delta_time();
+	}
+	else {
+		app->m_UiMgr.status.m_IsTarShow = false;
+		app->m_UiMgr.status.group_active("tar", false);
+	}
+	if (tar_flush == app->m_Inst.m_Steering[app->m_Control.player1].attack.size()) return;
+	tar_flush = app->m_Inst.m_Steering[app->m_Control.player1].attack.size();
+	tar_ix = app->m_Inst.m_Steering[app->m_Control.player1].attack.back();
+	count_down = 3.0f;
+	app->m_UiMgr.status.group_active("tar", true);
+	app->m_UiMgr.status.m_Rect[app->m_UiMgr.status.m_MapID["tar_name"]].text = L"Pepper";
+	if (tar_hp != app->m_AiAttr.points[tar_ix].hp) {
+		tar_hp = app->m_AiAttr.points[tar_ix].hp;
+		float z = static_cast<float>(tar_hp) /
+			static_cast<float>(app->m_AiAttr.points[tar_ix].hp_max);
+		z = 1.0f - z;
+		app->m_UiMgr.status.m_Rect[app->m_UiMgr.status.m_MapID["tar_hp_bar"]].margin.z = z;
 		app->m_UiMgr.status.on_resize();
 	}
 }

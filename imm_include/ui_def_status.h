@@ -30,12 +30,13 @@ struct ui_def_status: public ui_base<T_app>
 	void define_show(const bool &is_show);
 	void define_text();
 	bool m_IsActive;
+	bool m_IsTarShow;
 };
-//
 //
 template <typename T_app>
 ui_def_status<T_app>::ui_def_status():
-	m_IsActive(true)
+	m_IsActive(true),
+	m_IsTarShow(false)
 {
 	;
 }
@@ -43,12 +44,13 @@ ui_def_status<T_app>::ui_def_status():
 template <typename T_app>
 void ui_def_status<T_app>::define_style()
 {
-	m_Dwrite["status"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 10.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["hp_txt"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 10.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["tar_name"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 24.0f, DWRITE_ALIG_STYLE_CENTER);
 	// brush
 	m_Brush["black"];
 	set_Brush(D2D1::ColorF::Black, 0.3f, "black");
 	m_Brush["hp_color"];
-	set_Brush(D2D1::ColorF::Firebrick, 1.0f, "hp_color");
+	set_Brush(D2D1::ColorF::Red, 1.0f, "hp_color");
 	m_Brush["mp_color"];
 	set_Brush(D2D1::ColorF::Blue, 1.0f, "mp_color");
 	////////////////
@@ -62,27 +64,27 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().tp = ui_rect::type::background;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.7f, 0.93f);
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "hp_rect";
 	m_Rect.back().parent_str = "hp_backg";
-	m_Rect.back().group = "hp_nodraw";
+	m_Rect.back().group = "no_draw";
 	m_Rect.back().tp = ui_rect::type::background;
 	m_Rect.back().brush_sel = {"hp_color"};
 	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.1f, 0.175f, 0.1f, 0.475f);
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "mp_rect";
 	m_Rect.back().parent_str = "hp_backg";
-	m_Rect.back().group = "hp_nodraw";
+	m_Rect.back().group = "no_draw";
 	m_Rect.back().tp = ui_rect::type::background;
 	m_Rect.back().brush_sel = {"mp_color"};
 	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.1f, 0.675f, 0.1f, 0.175f);
 	//
 	m_Rect.emplace_back();
@@ -92,7 +94,7 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().tp = ui_rect::type::background;
 	m_Rect.back().brush_sel = {"hp_color"};
 	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	//
 	m_Rect.emplace_back();
@@ -102,7 +104,7 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().tp = ui_rect::type::background;
 	m_Rect.back().brush_sel = {"mp_color"};
 	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	//
 	m_Rect.emplace_back();
@@ -112,7 +114,7 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"HP";
-	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
 	//
 	m_Rect.emplace_back();
@@ -122,7 +124,7 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"MP";
-	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
 	////////////////
 	// target
@@ -135,8 +137,38 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().tp = ui_rect::type::background;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"";
-	m_Rect.back().dwrite_ix = "status";
+	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.93f, 0.7f, 0.0f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "tar_hp_rect";
+	m_Rect.back().parent_str = "tar_backg";
+	m_Rect.back().group = "no_draw";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"hp_color"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "hp_txt";
+	m_Rect.back().margin = XMFLOAT4(0.1f, 0.475f, 0.1f, 0.175f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "tar_hp_bar";
+	m_Rect.back().parent_str = "tar_hp_rect";
+	m_Rect.back().group = "tar";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"hp_color"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "hp_txt";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "tar_name";
+	m_Rect.back().parent_str = "tar_backg";
+	m_Rect.back().group = "tar";
+	m_Rect.back().tp = ui_rect::type::text_pure;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"Enemy";
+	m_Rect.back().dwrite_ix = "tar_name";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	////////////////
 	//
 	////////////////
@@ -193,6 +225,7 @@ void ui_def_status<T_app>::define_deactivate_all_cmd_slient()
 	if (!m_IsActive) return;
 	deactivate_all();
 	group_active("hp", true);
+	if (m_IsTarShow) group_active("tar", true);
 }
 //
 template <typename T_app>
@@ -200,7 +233,7 @@ void ui_def_status<T_app>::define_show(const bool &is_show)
 {
 	if (!m_IsActive) return;
 	group_active("hp", is_show);
-	group_active("tar", is_show);
+	group_active("tar", m_IsTarShow && is_show);
 }
 //
 template <typename T_app>

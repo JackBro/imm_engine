@@ -1,6 +1,7 @@
 1.bat:
 The compile option see bat_tool\1.bat
 Modify the bat file according to your situation.
+"Ashlotte" is my project's nickname.
 
 fx.bat:
 This is a bat for compiling hlsl shaders.

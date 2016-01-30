@@ -16,6 +16,8 @@ namespace imm
 //
 void steering::update()
 {
+	if (attack.size() > 100) attack.erase(attack.begin()+50);
+	if (damage.size() > 100) damage.erase(damage.begin()+50);
 	if (PTR->m_Control.player1 == index || !is_active) return;
 	current_state->execute(this);
 }
@@ -45,7 +47,7 @@ void ai_Standby::execute(steering *ste)
 		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_MOVE_HIT;
 		cnt = 1.0f;
 	}
-	if (ste->sensor[PTR->m_Inst.m_NameMap["sinon"]]) touch = 1;
+	if (ste->touch[PTR->m_Inst.m_NameMap["sinon"]]) touch = 1;
 	if (PTR->m_Control.map_stop[ste->index].is_stop) {
 		if (touch == 0) cnt -= PTR->m_Timer.delta_time();
 	}
