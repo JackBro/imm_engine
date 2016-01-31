@@ -1,5 +1,5 @@
 ////////////////
-// control_atk_build.h
+// ingot_atk.cc -> control_atk.cc
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015-2016 Huang Yiting (http://endrollex.com)

@@ -89,7 +89,7 @@ void phy_magic<T_app>::invoke(const SKILL_SPECIFY &specify, const size_t &caster
 {
 	switch (specify) {
 	case SKILL_MAGIC_PREPARE01:
-		app->m_Scene.audio.play_effect("electricity_spark");
+		app->m_Scene.audio.play_effect(sfx::Prepare01);
 		break;
 	case SKILL_MAGIC_LIGHTNING:
 		push_MAGIC_LIGHTNING(caster);

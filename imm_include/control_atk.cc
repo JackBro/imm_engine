@@ -137,7 +137,7 @@ void damage_data::update_melee(const float &dt)
 			box.x += (center.x-box.x)*0.7f;
 			box.z += (center.z-box.z)*0.7f;
 			PTR->m_Scene.plasma.push_back(PLASMA_STRIKE, 0.5f, box);
-			PTR->m_Scene.audio.play_effect("punch00");
+			PTR->m_Scene.audio.play_effect(sfx::Punch);
 			is_delay = false;
 		}
 	}
@@ -157,7 +157,7 @@ void damage_data::update_magic(const float &dt)
 			math::set_inst_speed(ix_dmg, 0.0f);
 			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
 			math::set_face_to_face(ix_atk, ix_dmg);
-			PTR->m_Scene.audio.play_effect("punch00");
+			PTR->m_Scene.audio.play_effect(sfx::Punch);
 			is_delay = false;
 		}
 	}
@@ -255,5 +255,5 @@ void control_atk<T_app>::update(const float &dt)
 // inl
 ////////////////
 ////////////////
-#include "control_atk_build.cc"
+#include "ingot_atk.cc"
 }

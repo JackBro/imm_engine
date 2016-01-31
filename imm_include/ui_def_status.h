@@ -29,14 +29,25 @@ struct ui_def_status: public ui_base<T_app>
 	void define_enter_and_exit() {;}
 	void define_show(const bool &is_show);
 	void define_text();
+	void define_set_hp_rect(const int &hp_max);
+	void define_set_mp_rect(const int &mp_max);
+	void define_set_hp_bar(const float &z);
+	void define_set_mp_bar(const float &z);
+	void define_set_tar_hp_rect(const int &hp_max);
+	void define_set_tar_hp_bar(const float &z);
+	void define_set_tar_name(const std::wstring &name);
 	bool m_IsActive;
 	bool m_IsTarShow;
+	float m_FixZ1;
+	float m_FixXZ1;
 };
 //
 template <typename T_app>
 ui_def_status<T_app>::ui_def_status():
 	m_IsActive(true),
-	m_IsTarShow(false)
+	m_IsTarShow(false),
+	m_FixZ1(0.3f),
+	m_FixXZ1(0.1f)
 {
 	;
 }
@@ -68,6 +79,16 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.7f, 0.93f);
 	//
 	m_Rect.emplace_back();
+	m_Rect.back().id_str = "mp_backg";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "no_draw";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "hp_txt";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.7f, 0.93f);
+	//
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "hp_rect";
 	m_Rect.back().parent_str = "hp_backg";
 	m_Rect.back().group = "no_draw";
@@ -79,7 +100,7 @@ void ui_def_status<T_app>::define_style()
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "mp_rect";
-	m_Rect.back().parent_str = "hp_backg";
+	m_Rect.back().parent_str = "mp_backg";
 	m_Rect.back().group = "no_draw";
 	m_Rect.back().tp = ui_rect::type::background;
 	m_Rect.back().brush_sel = {"mp_color"};
@@ -108,24 +129,34 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	//
 	m_Rect.emplace_back();
+	m_Rect.back().id_str = "hp_backg_fix";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "no_draw";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "hp_txt";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.7f, 0.93f);
+	//
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "hp_txt";
-	m_Rect.back().parent_str = "hp_rect";
+	m_Rect.back().parent_str = "hp_backg_fix";
 	m_Rect.back().group = "hp";
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"HP";
 	m_Rect.back().dwrite_ix = "hp_txt";
-	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.175f, 0.4f, 0.475f);
 	//
 	m_Rect.emplace_back();
 	m_Rect.back().id_str = "mp_txt";
-	m_Rect.back().parent_str = "mp_rect";
+	m_Rect.back().parent_str = "hp_backg_fix";
 	m_Rect.back().group = "hp";
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"MP";
 	m_Rect.back().dwrite_ix = "hp_txt";
-	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.675f, 0.4f, 0.175f);
 	////////////////
 	// target
 	////////////////
@@ -161,14 +192,24 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	//
 	m_Rect.emplace_back();
+	m_Rect.back().id_str = "tar_backg_fix";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "no_draw";
+	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "hp_txt";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.93f, 0.7f, 0.0f);
+	//
+	m_Rect.emplace_back();
 	m_Rect.back().id_str = "tar_name";
-	m_Rect.back().parent_str = "tar_backg";
+	m_Rect.back().parent_str = "tar_backg_fix";
 	m_Rect.back().group = "tar";
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = L"Enemy";
+	m_Rect.back().text = L"Unknow";
 	m_Rect.back().dwrite_ix = "tar_name";
-	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.3f, 0.3f);
 	////////////////
 	//
 	////////////////
@@ -240,6 +281,60 @@ template <typename T_app>
 void ui_def_status<T_app>::define_text()
 {
 	;
+}
+//
+template <typename T_app>
+void ui_def_status<T_app>::define_set_hp_rect(const int &hp_max)
+{
+	float hp_rate = static_cast<float>(hp_max)/20.0f;
+	m_Rect[m_MapID["hp_backg"]].margin.z = 1.0f-(m_FixZ1*hp_rate);
+	float x = m_FixXZ1/hp_rate;
+	m_Rect[m_MapID["hp_rect"]].margin.x = x;
+	m_Rect[m_MapID["hp_rect"]].margin.z = x;
+}
+//
+template <typename T_app>
+void ui_def_status<T_app>::define_set_mp_rect(const int &mp_max)
+{
+	float mp_rate = static_cast<float>(mp_max)/20.0f;
+	m_Rect[m_MapID["mp_backg"]].margin.z = 1.0f-(m_FixZ1*mp_rate);
+	float x = m_FixXZ1/mp_rate;
+	m_Rect[m_MapID["mp_rect"]].margin.x = x;
+	m_Rect[m_MapID["mp_rect"]].margin.z = x;
+}
+//
+template <typename T_app>
+void ui_def_status<T_app>::define_set_hp_bar(const float &z)
+{
+	m_Rect[m_MapID["hp_bar"]].margin.z = z;
+}
+//
+template <typename T_app>
+void ui_def_status<T_app>::define_set_mp_bar(const float &z)
+{
+	m_Rect[m_MapID["mp_bar"]].margin.z = z;
+}
+//
+template <typename T_app>
+void ui_def_status<T_app>::define_set_tar_hp_rect(const int &hp_max)
+{
+	float hp_rate = static_cast<float>(hp_max)/20.0f;
+	m_Rect[m_MapID["tar_backg"]].margin.z = 1.0f-(m_FixZ1*hp_rate);
+	float x = m_FixXZ1/hp_rate;
+	m_Rect[m_MapID["tar_hp_rect"]].margin.x = x;
+	m_Rect[m_MapID["tar_hp_rect"]].margin.z = x;
+}
+//
+template <typename T_app>
+void ui_def_status<T_app>::define_set_tar_hp_bar(const float &z)
+{
+	m_Rect[m_MapID["tar_hp_bar"]].margin.z = z;
+}
+//
+template <typename T_app>
+void ui_def_status<T_app>::define_set_tar_name(const std::wstring &name)
+{
+	m_Rect[m_MapID["tar_name"]].text = name;
 }
 //
 }

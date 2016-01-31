@@ -6,6 +6,7 @@
 ////////////////
 ////////////////
 #include "phy_magic.h"
+#include "control_atk.h"
 #include "imm_ptr.h"
 namespace imm
 {
@@ -41,7 +42,7 @@ void magic_inst::apply_MAGIC_LIGHTNING()
 	size_t ix_tar = PTR->m_AiInfo.random_an_enemy(caster);
 	sphere.Center = PTR->m_Inst.m_BoundW.center(ix_tar);
 	PTR->m_Scene.plasma.push_back(PLASMA_LIGHTNING, 3.0f, sphere.Center);
-	PTR->m_Scene.audio.play_effect("electricity_voltage");
+	PTR->m_Scene.audio.play_effect(sfx::Lightning);
 	for (auto &ix_inst: PTR->m_AiInfo.vec_all) {
 		bool is_touch = PTR->m_Inst.m_BoundW.intersects(ix_inst, sphere);
 		if (is_touch) {

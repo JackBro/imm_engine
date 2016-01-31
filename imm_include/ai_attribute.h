@@ -31,7 +31,7 @@ struct ai_points
 ai_points::ai_points():
 	hp_max(20),
 	mp_max(20),
-	hp(15),
+	hp(20),
 	mp(20),
 	str(5),
 	mgc(5),
@@ -55,10 +55,14 @@ struct ui_attr
 	T_app *app;
 	int p1_hp;
 	int p1_mp;
+	int p1_hp_max;
+	int p1_mp_max;
 	int tar_hp;
+	int tar_hp_max;
 	size_t tar_ix;
 	size_t tar_flush;
 	float count_down;
+	bool need_resize;
 };
 //
 template <typename T_app>
@@ -66,10 +70,14 @@ ui_attr<T_app>::ui_attr():
 	app(nullptr),
 	p1_hp(1),
 	p1_mp(1),
+	p1_hp_max(1),
+	p1_mp_max(1),
 	tar_hp(1),
+	tar_hp_max(1),
 	tar_ix(0),
 	tar_flush(0),
-	count_down(-1.0f)
+	count_down(-1.0f),
+	need_resize(false)
 {
 	;
 }
@@ -91,23 +99,33 @@ template <typename T_app>
 void ui_attr<T_app>::update()
 {
 	if (!app->m_UiMgr.status.m_IsActive) return;
+	need_resize = false;
+	if (p1_hp_max != app->m_AiAttr.points[app->m_Control.player1].hp_max) {
+		p1_hp_max = app->m_AiAttr.points[app->m_Control.player1].hp_max;
+		app->m_UiMgr.status.define_set_hp_rect(p1_hp_max);
+		need_resize = true;
+	}
+	if (p1_mp_max != app->m_AiAttr.points[app->m_Control.player1].mp_max) {
+		p1_mp_max = app->m_AiAttr.points[app->m_Control.player1].mp_max;
+		app->m_UiMgr.status.define_set_mp_rect(p1_mp_max);
+		need_resize = true;
+	}
 	if (p1_hp != app->m_AiAttr.points[app->m_Control.player1].hp) {
 		p1_hp = app->m_AiAttr.points[app->m_Control.player1].hp;
-		float z = static_cast<float>(p1_hp) /
-			static_cast<float>(app->m_AiAttr.points[app->m_Control.player1].hp_max);
+		float z = static_cast<float>(p1_hp) / static_cast<float>(p1_hp_max);
 		z = 1.0f - z;
-		app->m_UiMgr.status.m_Rect[app->m_UiMgr.status.m_MapID["hp_bar"]].margin.z = z;
-		app->m_UiMgr.status.on_resize();
+		app->m_UiMgr.status.define_set_hp_bar(z);
+		need_resize = true;
 	}
 	if (p1_mp != app->m_AiAttr.points[app->m_Control.player1].mp) {
 		p1_mp = app->m_AiAttr.points[app->m_Control.player1].mp;
-		float z = static_cast<float>(p1_mp) /
-			static_cast<float>(app->m_AiAttr.points[app->m_Control.player1].mp_max);
+		float z = static_cast<float>(p1_mp) / static_cast<float>(p1_mp_max);
 		z = 1.0f - z;
-		app->m_UiMgr.status.m_Rect[app->m_UiMgr.status.m_MapID["mp_bar"]].margin.z = z;
-		app->m_UiMgr.status.on_resize();
+		app->m_UiMgr.status.define_set_mp_bar(z);
+		need_resize = true;
 	}
 	update_target();
+	if (need_resize) app->m_UiMgr.status.on_resize();
 }
 //
 template <typename T_app>
@@ -122,18 +140,23 @@ void ui_attr<T_app>::update_target()
 	}
 	if (tar_flush == app->m_Inst.m_Steering[app->m_Control.player1].attack.size()) return;
 	tar_flush = app->m_Inst.m_Steering[app->m_Control.player1].attack.size();
+	if (tar_flush == 0) return;
 	tar_ix = app->m_Inst.m_Steering[app->m_Control.player1].attack.back();
+	if (app->m_Inst.m_Stat[tar_ix].type != MODEL_SKINNED) return;
+	if (tar_hp_max != app->m_AiAttr.points[tar_ix].hp_max ||
+		tar_hp != app->m_AiAttr.points[tar_ix].hp) {
+		tar_hp_max = app->m_AiAttr.points[tar_ix].hp_max;
+		tar_hp = app->m_AiAttr.points[tar_ix].hp;
+		float z = static_cast<float>(tar_hp) / static_cast<float>(tar_hp_max);
+		z = 1.0f - z;
+		app->m_UiMgr.status.define_set_tar_hp_bar(z);
+		app->m_UiMgr.status.define_set_tar_hp_rect(tar_hp_max);
+		need_resize = true;
+	}
 	count_down = 3.0f;
 	app->m_UiMgr.status.group_active("tar", true);
-	app->m_UiMgr.status.m_Rect[app->m_UiMgr.status.m_MapID["tar_name"]].text = L"Pepper";
-	if (tar_hp != app->m_AiAttr.points[tar_ix].hp) {
-		tar_hp = app->m_AiAttr.points[tar_ix].hp;
-		float z = static_cast<float>(tar_hp) /
-			static_cast<float>(app->m_AiAttr.points[tar_ix].hp_max);
-		z = 1.0f - z;
-		app->m_UiMgr.status.m_Rect[app->m_UiMgr.status.m_MapID["tar_hp_bar"]].margin.z = z;
-		app->m_UiMgr.status.on_resize();
-	}
+	app->m_UiMgr.status.define_set_tar_name(
+		*app->m_Ingot.get_name(*app->m_Inst.m_Stat[tar_ix].get_ModelName()));
 }
 ////////////////
 // ai_attr
@@ -195,6 +218,7 @@ void ai_attr<T_app>::rebuild_points()
 	for (auto &stat: app->m_Inst.m_Stat) {
 		if (stat.type == MODEL_SKINNED) {
 			points[ix];
+			app->m_Ingot.assign_attr(points[ix], *(app->m_Inst.m_Stat[ix].get_ModelName()));
 			points_name[*(app->m_Inst.m_Stat[ix].get_ModelName())] = ix;
 		}
 		++ix;
