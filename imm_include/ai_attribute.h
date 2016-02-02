@@ -7,7 +7,7 @@
 ////////////////
 #ifndef AI_ATTRIBUTE_H
 #define AI_ATTRIBUTE_H
-#include <string>
+#include "phy_magic.h"
 #include <map>
 namespace imm
 {
@@ -91,8 +91,7 @@ void ui_attr<T_app>::init(T_app *app_in)
 template <typename T_app>
 void ui_attr<T_app>::reset()
 {
-	p1_hp = 1;
-	p1_mp = 1;
+	count_down = -1.0f;
 }
 //
 template <typename T_app>
@@ -141,8 +140,8 @@ void ui_attr<T_app>::update_target()
 	if (tar_flush == app->m_Inst.m_Steering[app->m_Control.player1].attack.size()) return;
 	tar_flush = app->m_Inst.m_Steering[app->m_Control.player1].attack.size();
 	if (tar_flush == 0) return;
-	tar_ix = app->m_Inst.m_Steering[app->m_Control.player1].attack.back();
-	if (app->m_Inst.m_Stat[tar_ix].type != MODEL_SKINNED) return;
+	size_t tmp_ix = app->m_Inst.m_Steering[app->m_Control.player1].attack.back();
+	if (app->m_Inst.m_Stat[tmp_ix].type == MODEL_SKINNED) tar_ix = tmp_ix;
 	if (tar_hp_max != app->m_AiAttr.points[tar_ix].hp_max ||
 		tar_hp != app->m_AiAttr.points[tar_ix].hp) {
 		tar_hp_max = app->m_AiAttr.points[tar_ix].hp_max;
@@ -172,6 +171,7 @@ struct ai_attr
 	void rebuild_points();
 	void rebuild_troll();
 	void update();
+	void calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg);
 	T_app *app;
 	ui_attr<T_app> ui;
 	std::map<size_t, ai_points> points;
@@ -239,5 +239,16 @@ void ai_attr<T_app>::update()
 	ui.update();
 }
 //
+template <typename T_app>
+void ai_attr<T_app>::calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg)
+{
+	ix_atk;
+	switch (specify) {
+	case SKILL_MELEE_UNARMED:
+		points[ix_dmg].hp -= 3;
+		if (points[ix_dmg].hp < 0) points[ix_dmg].hp = points[ix_dmg].hp_max;
+		break;
+	}
+}
 }
 #endif

@@ -49,8 +49,8 @@ std::wstring *ingot_data::get_name(const std::string &name_in)
 //
 void ingot_data::build_attr()
 {
-	attr["pepper"].hp_max = 16;
-	attr["pepper"].hp = 16;
+	attr["pepper"].hp_max = 60;
+	attr["pepper"].hp = 60;
 }
 void ingot_data::assign_attr(ai_points &points, const std::string &inst_name)
 {

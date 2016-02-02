@@ -138,6 +138,7 @@ void damage_data::update_melee(const float &dt)
 			box.z += (center.z-box.z)*0.7f;
 			PTR->m_Scene.plasma.push_back(PLASMA_STRIKE, 0.5f, box);
 			PTR->m_Scene.audio.play_effect(sfx::Punch);
+			PTR->m_AiAttr.calc_skill(specify, ix_atk, ix_dmg);
 			is_delay = false;
 		}
 	}
@@ -158,6 +159,7 @@ void damage_data::update_magic(const float &dt)
 			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
 			math::set_face_to_face(ix_atk, ix_dmg);
 			PTR->m_Scene.audio.play_effect(sfx::Punch);
+			PTR->m_AiAttr.calc_skill(specify, ix_atk, ix_dmg);
 			is_delay = false;
 		}
 	}

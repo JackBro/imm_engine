@@ -7,6 +7,7 @@
 ////////////////
 #ifndef AI_STEERING_H
 #define AI_STEERING_H
+#include "ai_decision.h"
 #include "control_state.h"
 namespace imm
 {
