@@ -142,6 +142,7 @@ void ui_attr<T_app>::update_target()
 	if (tar_flush == 0) return;
 	size_t tmp_ix = app->m_Inst.m_Steering[app->m_Control.player1].attack.back();
 	if (app->m_Inst.m_Stat[tmp_ix].type == MODEL_SKINNED) tar_ix = tmp_ix;
+	else return;
 	if (tar_hp_max != app->m_AiAttr.points[tar_ix].hp_max ||
 		tar_hp != app->m_AiAttr.points[tar_ix].hp) {
 		tar_hp_max = app->m_AiAttr.points[tar_ix].hp_max;

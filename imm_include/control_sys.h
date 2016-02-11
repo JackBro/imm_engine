@@ -28,6 +28,7 @@ struct control_sys
 	void key_instance_move_update();
 	void key_instance_move_switch_stat();
 	void instance_jump();
+	void instance_dash();
 	void instance_atk_x();
 	void instance_atk_y();
 	void mouse_pick();
@@ -129,6 +130,12 @@ template <typename T_app>
 void control_sys<T_app>::instance_jump()
 {
 	app->m_Inst.m_Troll[player1].order |= ORDER_JUMP;
+}
+//
+template <typename T_app>
+void control_sys<T_app>::instance_dash()
+{
+	app->m_Inst.m_Troll[player1].order |= ORDER_DASH;
 }
 //
 template <typename T_app>
@@ -250,6 +257,7 @@ void control_sys<T_app>::on_pad_down_update(const float &dt)
 	if (player1 < 0) return;
 	if (get_vkey == PAD_P1_JUMP) instance_jump();
 	if (get_vkey == PAD_P1_ATK_X) instance_atk_x();
+	if (get_vkey == PAD_P1_ATK_Y) instance_atk_y();
 }
 //
 template <typename T_app>
@@ -261,6 +269,7 @@ void control_sys<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 	if (player1 < 0) return;
 	if (w_param == KEY_P1_WALK_RUN) key_instance_move_switch_stat();
 	if (w_param == KEY_P1_JUMP) instance_jump();
+	if (w_param == KEY_P1_DASH) instance_dash();
 }
 //
 template <typename T_app>

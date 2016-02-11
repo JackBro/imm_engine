@@ -22,10 +22,13 @@ struct control_xinput
 	bool is_L_active();
 	bool is_R_active();
 	bool is_RT_press();
+	bool is_LT_press();
+	bool is_LB_press();
 	bool is_on_keydown(WORD &vkey);
 	float L_radians();
 	float R_radians();
 	bool is_force_disable;
+	bool is_LB_press_on;
 	XINPUT_STATE state;
 	XINPUT_KEYSTROKE key;
 	float deadzone;
@@ -34,6 +37,7 @@ struct control_xinput
 //
 control_xinput::control_xinput():
 	is_force_disable(false),
+	is_LB_press_on(false),
 	deadzone(5000.0f),
 	user_index(0)
 {
@@ -73,11 +77,25 @@ bool control_xinput::is_RT_press()
 	return (state.Gamepad.bRightTrigger > 50);
 }
 //
+bool control_xinput::is_LT_press()
+{
+	return (state.Gamepad.bLeftTrigger > 50);
+}
+//
+bool control_xinput::is_LB_press()
+{
+	return is_LB_press_on;
+}
+//
 bool control_xinput::is_on_keydown(WORD &vkey)
 {
 	if (XInputGetKeystroke(user_index, 0, &key) == ERROR_SUCCESS) {
+		if (key.Flags & XINPUT_KEYSTROKE_KEYUP) {
+			if (key.VirtualKey == VK_PAD_LSHOULDER) is_LB_press_on = false;
+		}
 		if (key.Flags & XINPUT_KEYSTROKE_KEYDOWN) {
 			vkey = key.VirtualKey;
+			if (key.VirtualKey == VK_PAD_LSHOULDER) is_LB_press_on = true;
 			return true;
 		}
 	}

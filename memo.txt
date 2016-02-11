@@ -1,0 +1,3 @@
+Visual Studio 2015 Update 1 bug: C4592 warning, it looks like the warning has been fixed for next VS Update.
+https://github.com/Microsoft/cpprestsdk/issues/34
+http://stackoverflow.com/questions/34013930/error-c4592-symbol-will-be-dynamically-initialized-vs2015-1-static-const-std

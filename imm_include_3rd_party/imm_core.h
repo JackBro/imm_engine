@@ -30,6 +30,9 @@
 #include "d3dx11effect.h"
 #include <DirectXMath.h>
 #include "debug_console.h"
+// http://stackoverflow.com/questions/34013930/error-c4592-symbol-will-be-dynamically-initialized-vs2015-1-static-const-std
+// https://github.com/Microsoft/cpprestsdk/issues/34
+#pragma warning(disable: 4592)
 using namespace DirectX;
 namespace imm
 {

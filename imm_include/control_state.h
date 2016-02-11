@@ -8,6 +8,7 @@
 #ifndef CONTROL_STATE_H
 #define CONTROL_STATE_H
 #include "control_math.h"
+#include "imm_core.h"
 #include <string>
 namespace imm
 {
@@ -26,12 +27,15 @@ enum ORDER_ACT_TYPE
 	ORDER_ATK_X       = 0x20,
 	ORDER_ATK_Y       = 0x40,
 	ORDER_DMG         = 0x80,
+	ORDER_DASH        = 0x100,
 };
 //
 enum ORDER_STAT_TYPE
 {
-	ORDER_IS_CLEAR = 0x0,
-	ORDER_IS_WALK  = 0x1, // NOT: ORDER_IS_RUN
+	ORDER_IS_CLEAR        = 0x0,
+	ORDER_IS_WALK         = 0x1, // NOT: ORDER_IS_RUN
+	ORDER_IS_DASH         = 0x2,
+	ORDER_IS_BATTLE_READY = 0x4,
 };
 ////////////////
 // state
@@ -138,6 +142,7 @@ struct act
 	static std::string JumpGround;
 	static std::string BattleReady;
 	static std::string Damage;
+	static std::string Dash;
 };
 //
 std::string act::Idle        = "Idle";
@@ -147,6 +152,7 @@ std::string act::Jump        = "Jump";
 std::string act::JumpGround  = "JumpGround";
 std::string act::BattleReady = "BattleReady";
 std::string act::Damage      = "Damage";
+std::string act::Dash        = "Dash";
 ////////////////
 // troll
 ////////////////
@@ -169,7 +175,15 @@ struct troll
 	float velocity_jump;
 	float speed_walk;
 	float speed_run;
-	float count_down;
+	float speed_dash;
+	float frame_damage;
+	float frame_dash;
+	float frame_dash2;
+	float cd_Idle;
+	float cd_Jump;
+	float cd_Damage;
+	float cd_Move;
+	float cd_Move2;
 };
 //
 troll::troll():
@@ -183,7 +197,15 @@ troll::troll():
 	velocity_jump(35.0f),
 	speed_walk(4.5f),
 	speed_run(13.5f),
-	count_down(-1.0f)
+	speed_dash(30.0f),
+	frame_damage(7.0f/FRAME_RATE),
+	frame_dash(10.0f/FRAME_RATE),
+	frame_dash2(12.0f/FRAME_RATE),
+	cd_Idle(-1.0f),
+	cd_Jump(-1.0f),
+	cd_Damage(-1.0f),
+	cd_Move(-1.0f),
+	cd_Move2(-1.0f)
 {
 	;
 }
