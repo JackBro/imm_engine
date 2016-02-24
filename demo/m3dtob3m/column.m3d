@@ -13,8 +13,8 @@ SpecPower: 12.298
 Reflectivity: 0.0 0.0 0.0
 AlphaClip: 0
 Effect: Normal
-DiffuseMap: column_BC7.dds
-NormalMap: column_nrm_BC7.dds
+DiffuseMap: column_d.dds
+NormalMap: column_n.dds
 
 -------------------------------Subset_Table-
 SubsetID: 0 VertexStart: 0 VertexCount: 100 FaceStart: 0 FaceCount: 74

@@ -100,7 +100,7 @@ void control_sys<T_app>::rebuild_player()
 template <typename T_app>
 void control_sys<T_app>::mouse_instance_move()
 {
-	if (player1 < 0 || !(style1 & CONTORL_CAM_FREE)) return;
+	if (player1 < 0 || !(style1 & CONTROL_CAM_FREE)) return;
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_HIT;
 }
 //
@@ -116,7 +116,7 @@ void control_sys<T_app>::pad_instance_move_update()
 template <typename T_app>
 void control_sys<T_app>::key_instance_move_update()
 {
-	if (player1 < 0 || (style1 & CONTORL_CAM_FREE)) return;
+	if (player1 < 0 || (style1 & CONTROL_CAM_FREE)) return;
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_WASD;
 }
 //
@@ -231,15 +231,17 @@ void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 	mouse_down.x = pos_x;
 	mouse_down.y = pos_y;
 	if (app->m_UiMgr.on_mouse_down(btn_state, mouse_down.x, mouse_down.y)) return;
-	//
-	//if (btn_state & MOUSE_P1_PICK) mouse_pick();
-	//
 	if (pad.is_enable()) return;
 	if (app->m_Cmd.is_active) return;
 	// player
-	if (btn_state & MOUSE_P1_MOVE) mouse_instance_move();
-	if (btn_state & MOUSE_P1_ATK_X) instance_atk_x();
-	if (btn_state & MOUSE_P1_ATK_Y) instance_atk_y();
+	if (style1 & CONTROL_CAM_FREE) {
+		if (btn_state & MOUSE_P1_PICK) mouse_pick();
+		if (btn_state & MOUSE_P1_MOVE) mouse_instance_move();
+	}
+	else {
+		if (btn_state & MOUSE_P1_ATK_X) instance_atk_x();
+		if (btn_state & MOUSE_P1_ATK_Y) instance_atk_y();
+	}
 }
 //
 template <typename T_app>

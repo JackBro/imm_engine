@@ -116,14 +116,6 @@ float4 PS(
 		// Modulate with late add.
 		litColor = texColor*(ambient + diffuse) + spec;
 	}
-	//
-	// Fogging
-	//
-	if (gFogEnabled) {
-		float fogLerp = saturate((distToEye - gFogStart) / gFogRange);
-		// Blend the fog color and the lit color.
-		litColor = lerp(litColor, gFogColor, fogLerp);
-	}
 	// Common to take alpha from diffuse material and texture.
 	litColor.a = gMaterial.Diffuse.a * texColor.a;
 	return litColor;

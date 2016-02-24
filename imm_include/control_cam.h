@@ -17,7 +17,7 @@ namespace imm
 ////////////////
 enum CONTROL_STYLE_TYPE {
 	CONTROL_CAM_FOLLOW = 0x0, // MOVE_BY_WASD
-	CONTORL_CAM_FREE   = 0x1, // MOVE_BY_MOUSE
+	CONTROL_CAM_FREE   = 0x1, // MOVE_BY_MOUSE
 };
 ////////////////
 // control_cam
@@ -87,7 +87,7 @@ void control_cam<T_app>::pad_update(const float &dt)
 	}
 	if (app->m_UiMgr.is_ui_appear()) return;
 	WORD w_buttons = app->m_Control.pad.state.Gamepad.wButtons;
-	if (app->m_Control.style1 & CONTORL_CAM_FREE) {
+	if (app->m_Control.style1 & CONTROL_CAM_FREE) {
 		if (w_buttons & XGPAD_CAM_FREE_UP) app->m_Cam.up_down(10.0f*dt);
 		if (w_buttons & XGPAD_CAM_FREE_DOWN) app->m_Cam.up_down(-10.0f*dt);
 		if (w_buttons & XGPAD_CAM_FREE_LEFT) app->m_Cam.strafe(-10.0f*dt);
@@ -106,14 +106,14 @@ void control_cam<T_app>::pad_update(const float &dt)
 template <typename T_app>
 void control_cam<T_app>::on_pad_follow(const WORD &vkey)
 {
-	if (app->m_Control.style1 & CONTORL_CAM_FREE) return;
+	if (app->m_Control.style1 & CONTROL_CAM_FREE) return;
 	if (vkey == PAD_CAM_FOLLOW_RESET) is_pad_follow_reset = true;
 }
 //
 template <typename T_app>
 void control_cam<T_app>::key_free_update(const float &dt)
 {
-	if (!(app->m_Control.style1 & CONTORL_CAM_FREE)) return;
+	if (!(app->m_Control.style1 & CONTROL_CAM_FREE)) return;
 	if (GetKeyState(KEY_CAM_FREE_LEFT) & 0x8000) app->m_Cam.strafe(-10.0f*dt);
 	if (GetKeyState(KEY_CAM_FREE_RIGHT) & 0x8000) app->m_Cam.strafe(10.0f*dt);
 	if (GetKeyState(KEY_CAM_FREE_UP) & 0x8000) app->m_Cam.up_down(10.0f*dt);
@@ -123,7 +123,7 @@ void control_cam<T_app>::key_free_update(const float &dt)
 template <typename T_app>
 void control_cam<T_app>::mouse_wheel(const short &z_delta)
 {
-	if (app->m_Control.style1 & CONTORL_CAM_FREE) {
+	if (app->m_Control.style1 & CONTROL_CAM_FREE) {
 		app->m_Cam.walk(z_delta/120*1.0f);
 	}
 	else {
@@ -150,7 +150,7 @@ void control_cam<T_app>::mouse_move()
 template <typename T_app>
 void control_cam<T_app>::follow_update()
 {
-	if (app->m_Control.player1 < 0 || app->m_Control.style1 & CONTORL_CAM_FREE) return;
+	if (app->m_Control.player1 < 0 || app->m_Control.style1 & CONTROL_CAM_FREE) return;
 	int player1 = app->m_Control.player1;
 	XMFLOAT4X4 player_world = *(app->m_Inst.m_Stat[player1].get_World());
 	XMMATRIX W = XMLoadFloat4x4(&player_world);

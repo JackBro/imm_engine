@@ -189,14 +189,6 @@ float4 PS(
 			litColor += gMaterial.Reflect*reflectionColor;
 		}
 	}
-	//
-	// Fogging
-	//
-	if (gFogEnabled) {
-		float fogLerp = saturate((distToEye - gFogStart) / gFogRange);
-		// Blend the fog color and the lit color.
-		litColor = lerp(litColor, gFogColor, fogLerp);
-	}
 	// Common to take alpha from diffuse material and texture.
 	litColor.a = gMaterial.Diffuse.a * texColor.a;
 	return litColor;

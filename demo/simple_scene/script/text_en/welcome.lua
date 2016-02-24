@@ -5,6 +5,8 @@ welcome = {}
 welcome["credit"] = [[
 
 Credit
+
+Test
 ]]
 welcome["about"] = [[
 

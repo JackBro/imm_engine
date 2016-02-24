@@ -3,5 +3,5 @@ ren lua.obj lua.o
 ren luac.obj luac.o
 link /DLL /IMPLIB:lua.lib /OUT:lua.dll *.obj
 link /OUT:lua.exe lua.o lua.lib
-lib /out:lua_static.lib *.obj
+lib /OUT:lua_static.lib *.obj
 link /OUT:luac.exe luac.o lua.lib lua_static.lib

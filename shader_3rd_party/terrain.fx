@@ -297,14 +297,6 @@ float4 PS(
 		}
 		litColor = texColor*(ambient + diffuse) + spec;
 	}
-	//
-	// Fogging
-	//
-	if (gFogEnabled) {
-		float fogLerp = saturate((distToEye - gFogStart) / gFogRange);
-		// Blend the fog color and the lit color.
-		litColor = lerp(litColor, gFogColor, fogLerp);
-	}
 	return litColor;
 }
 technique11 Light3
