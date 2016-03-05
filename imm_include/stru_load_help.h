@@ -182,6 +182,7 @@ void model_load_csv_basic(
 			model_bin.read_from_bin(model[model_name], model_file);
 			model[model_name].set(device, tex_mgr, texture_path);
 		}
+		model[model_name].m_BoundType = math::calc_clamp(stoi(csv_model[ix][4]), 0, 2);
 	}
 }
 ////////////////

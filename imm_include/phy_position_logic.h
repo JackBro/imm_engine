@@ -49,8 +49,8 @@ void phy_position_update(
 		float friction_rev = prop.friction_rev*prop_ground.friction_rev;
 		prop.acceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		if (prop.velocity.y < 0.0f) prop.velocity.y = -prop.velocity.y*bounce;
-		prop.velocity.x *= friction_rev;
-		prop.velocity.z *= friction_rev;
+		prop.velocity.x *= friction_rev*0.1f;
+		prop.velocity.z *= friction_rev*0.1f;
 		// use center compare stand
 		float offset_y = world._42-center.y;
 		float center_y = center.y;

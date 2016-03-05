@@ -11,7 +11,7 @@ W, A, S, D             Move
 Space                  Jump
 Right Click            Melee attack
 Left Click             Special attack
-Shift                  Switch between Walk and Run
+Q                      Switch between Walk and Run
 Middle Mouse Button    Camera pitch/yaw
 Wheel Up/Down          Camera forward/backward
 Z                      Camera reset

@@ -52,7 +52,6 @@ struct instance_mgr
 	void update_frustum_culling();
 	void remove_all();
 	model_mgr m_Model;
-	// bounding only use AABB for lazy develop and fast
 	phy_bound_mgr<T_app> m_BoundL;
 	phy_bound_mgr<T_app> m_BoundW;
 	inst_adapter<T_app> m_Adapter;
@@ -180,19 +179,37 @@ void instance_mgr<T_app>::push_back_basic(
 	const std::vector<std::string> &name)
 {
 	for (size_t ix = 0; ix != v_inst.size(); ++ix) {
-		m_NameMap[name[ix]] = k;
+		m_NameMap[name[ix]] = k++;
 		inst_stat.ptr = &v_inst[ix];
 		m_Stat.push_back(inst_stat);
-		m_BoundL.push_back_empty(PHY_BOUND_BOX);
-		m_BoundW.push_back_empty(PHY_BOUND_BOX);
-		phy_set_aabb(
-			m_BoundL.b1[k],
-			v_inst[ix].model->m_Vertices,
-			get_pos_f);
-		if (m_App->m_Attack.model_bound_offset.count(name[ix])) {
-			phy_set_aabb_scale(m_BoundL.b1[k], m_App->m_Attack.model_bound_offset[name[ix]]);
+		m_BoundL.push_back_empty(m_Stat.back().get_BoundType());
+		m_BoundW.push_back_empty(m_Stat.back().get_BoundType());
+		switch(m_Stat.back().get_BoundType()) {
+		case PHY_BOUND_BOX:
+			phy_set_box(
+				m_BoundL.bd0.back(),
+				v_inst[ix].model->m_Vertices,
+				get_pos_f);
+			if (m_App->m_Attack.model_bound_offset.count(name[ix])) {
+				phy_set_box_scale(m_BoundL.bd0.back(), m_App->m_Attack.model_bound_offset[name[ix]]);
+			}
+			break;
+		case PHY_BOUND_ORI_BOX:
+			// only for attachment weapon now
+			phy_set_box(
+				m_BoundL.bd1.back(),
+				v_inst[ix].model->m_Vertices,
+				get_pos_f);
+			m_BoundL.bd1.back().Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+			if (m_App->m_Attack.model_bound_offset.count(name[ix])) {
+				phy_set_box_scale(m_BoundL.bd1.back(), m_App->m_Attack.model_bound_offset[name[ix]]);
+			}
+			break;
+		case PHY_BOUND_SPHERE:
+			// not implement
+			assert(false);
+			break;
 		}
-		++k;
 	}
 }
 //
@@ -206,19 +223,19 @@ void instance_mgr<T_app>::push_back_pntt(
 	const std::vector<std::string> &name)
 {
 	for (size_t ix = 0; ix != v_inst.size(); ++ix) {
-		m_NameMap[name[ix]] = k;
+		m_NameMap[name[ix]] = k++;
 		inst_stat.ptr = &v_inst[ix];
 		m_Stat.push_back(inst_stat);
 		m_BoundL.push_back_empty(PHY_BOUND_BOX);
 		m_BoundW.push_back_empty(PHY_BOUND_BOX);
 		auto vert_range = v_inst[ix].model->get_VertexRange(v_inst[ix].subid);
-		phy_set_aabb(
-			m_BoundL.b1[k],
+		phy_set_box(
+			m_BoundL.bd0.back(),
 			v_inst[ix].model->m_Vertices,
 			get_pos_f,
 			vert_range.first,
 			vert_range.second);
-		++k;
+		//
 	}
 }
 //
@@ -411,8 +428,20 @@ void instance_mgr<T_app>::update_collision_terrain_height(const size_t &ix, floa
 template <typename T_app>
 void instance_mgr<T_app>::update_collision_liquid(float dt)
 {
-	// test
-	m_App->m_Scene.liquid.intersects(m_BoundW.b1[m_App->m_Control.player1], dt, m_App->m_Control.player1);
+	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
+		if (!m_Stat[ix].is_invoke_physics()) continue;
+		switch(m_BoundW.map[ix].first) {
+		case PHY_BOUND_BOX:
+			m_App->m_Scene.liquid.intersects(m_BoundW.bd0[m_BoundW.map[ix].second], dt, ix);
+			break;
+		case PHY_BOUND_ORI_BOX:
+			m_App->m_Scene.liquid.intersects(m_BoundW.bd1[m_BoundW.map[ix].second], dt, ix);
+			break;
+		case PHY_BOUND_SPHERE:
+			m_App->m_Scene.liquid.intersects(m_BoundW.bd2[m_BoundW.map[ix].second], dt, ix);
+			break;
+		}
+	}
 	m_App->m_Scene.liquid.frustum_culling(m_CamFrustumW);
 }
 //
@@ -436,11 +465,16 @@ void instance_mgr<T_app>::update_frustum_culling()
 	m_CamFrustumL.Transform(m_CamFrustumW, inv_view);
 	// disappear if not in frustum
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
-		if (m_CamFrustumW.Intersects(m_BoundW.b1[m_BoundW.map[ix].second])) {
-			m_Stat[ix].set_IsAppear(true);
-		}
-		else {
-			m_Stat[ix].set_IsAppear(false);
+		switch(m_BoundW.map[ix].first) {
+		case PHY_BOUND_BOX:
+			m_Stat[ix].set_IsAppear(m_CamFrustumW.Intersects(m_BoundW.bd0[m_BoundW.map[ix].second]));
+			break;
+		case PHY_BOUND_ORI_BOX:
+			m_Stat[ix].set_IsAppear(m_CamFrustumW.Intersects(m_BoundW.bd1[m_BoundW.map[ix].second]));
+			break;
+		case PHY_BOUND_SPHERE:
+			m_Stat[ix].set_IsAppear(m_CamFrustumW.Intersects(m_BoundW.bd2[m_BoundW.map[ix].second]));
+			break;
 		}
 	}
 }

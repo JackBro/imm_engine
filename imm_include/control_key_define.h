@@ -24,7 +24,7 @@ namespace imm
 ////////////////
 ////////////////
 static int KEY_P1_JUMP          = VK_SPACE;
-static int KEY_P1_WALK_RUN      = VK_SHIFT;
+static int KEY_P1_WALK_RUN      = 'Q';
 static int KEY_P1_W             = 'W';
 static int KEY_P1_A             = 'A';
 static int KEY_P1_S             = 'S';

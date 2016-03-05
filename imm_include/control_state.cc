@@ -117,7 +117,6 @@ void pose_Move::execute(troll *tro)
 		tro->change_state(pose_Move::instance());
 	}
 	if (tro->order & ORDER_MOVE_TOWARD) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
 		// dash
 		if (tro->cd_Move > 0.0f) {
 			tro->cd_Move -= PTR->m_Timer.delta_time();
@@ -131,6 +130,9 @@ void pose_Move::execute(troll *tro)
 			tro->order_stat |= ORDER_IS_BATTLE_READY;
 			return;
 		}
+		//
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
+		// dash
 		if (PTR->m_Control.pad.is_LB_press()) {
 			tro->order ^= ORDER_DASH;
 			if (PTR->m_Control.pad.is_L_active()) {
@@ -157,7 +159,6 @@ void pose_Move::execute(troll *tro)
 		}
 	}
 	if (tro->order & ORDER_MOVE_WASD) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
 		// dash
 		if (tro->cd_Move > 0.0f) {
 			tro->cd_Move -= PTR->m_Timer.delta_time();
@@ -171,6 +172,9 @@ void pose_Move::execute(troll *tro)
 			tro->order_stat |= ORDER_IS_BATTLE_READY;
 			return;
 		}
+		//
+		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_ground) return;
+		// dash
 		if (tro->order & ORDER_DASH) {
 			tro->order ^= ORDER_DASH;
 			if (!math::key_move_wasd(tro->index, tro->speed_dash)) return;
@@ -230,7 +234,7 @@ void pose_Jump::execute(troll *tro)
 		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::JumpGround, true);
 		tro->is_on_air = false;
 		// Idle do full JumpGround
-		if (tro->previous_state == pose_Idle::instance()) tro->cd_Jump = 0.3f;
+		if (tro->previous_state == pose_Idle::instance()) tro->cd_Jump = tro->frame_jump_ground;
 		else tro->cd_Jump = 0.1f;
 	}
 	if (!tro->is_on_air && is_on_ground && tro->cd_Jump < 59.0f) {
@@ -241,7 +245,7 @@ void pose_Jump::execute(troll *tro)
 			tro->revert_previous_state();
 		}
 	}
-	if (tro->order & ORDER_JUMP && tro->cd_Jump > 0.3f) {
+	if (tro->order & ORDER_JUMP && tro->cd_Jump > tro->frame_jump_ground) {
 		tro->order = ORDER_NONE;
 	}
 }

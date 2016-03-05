@@ -35,7 +35,8 @@ struct state_liquid
 		const float &speed,
 		const float &damping);
 	void update(ID3D11DeviceContext *context, float dt, float total_time);
-	void intersects(const BoundingBox &box_in, float dt, int index);
+	template <typename T_bound>
+	void intersects(const T_bound &box_in, const float &dt, const size_t &index);
 	void frustum_culling(const BoundingFrustum &frustum);
 	void draw(ID3D11DeviceContext *context, const camera &cam1);
 	gpu_wave wave;
@@ -53,7 +54,7 @@ struct state_liquid
 	float offset_y;
 	BoundingBox bbox_w;
 	std::vector<POINT> collision;
-	std::map<int, POINT> last_pos;
+	std::map<size_t, POINT> last_pos;
 	// wave parameter
 	UINT pa_num_rows;
 	UINT pa_num_cols;
@@ -155,7 +156,7 @@ void state_liquid::init(
 	HR(device->CreateBuffer(&ibd, &iinit_data, &wave_ib));
 	//
 	BoundingBox bbox_l;
-	phy_set_aabb(bbox_l, grid.vertices, [](const geometry::vertex &x) {return &x.position;});
+	phy_set_box(bbox_l, grid.vertices, [](const geometry::vertex &x) {return &x.position;});
 	XMMATRIX world = XMLoadFloat4x4(&wave_world);
 	bbox_l.Transform(bbox_w, world);
 	offset_x = pa_num_rows*pa_spatial_step*0.5f;
@@ -175,7 +176,8 @@ void state_liquid::update(ID3D11DeviceContext *context, float dt, float total_ti
 	wave.update(context, dt, total_time);
 }
 //
-void state_liquid::intersects(const BoundingBox &box_in, float dt, int index)
+template <typename T_bound>
+void state_liquid::intersects(const T_bound &box_in, const float &dt, const size_t &index)
 {
 	if (is_disappear) return;
 	time_intersects += dt;
@@ -252,7 +254,8 @@ struct envi_liquid
 	~envi_liquid();
 	void reload(ID3D11Device* device, const std::string &scene);
 	void update(ID3D11DeviceContext *context, float dt, float total_time);
-	void intersects(const BoundingBox &box_in, float dt, int index);
+	template <typename T_bound>
+	void intersects(const T_bound &box_in, const float &dt, const size_t &index);
 	void frustum_culling(const BoundingFrustum &frustum);
 	void draw(ID3D11DeviceContext *context, light_dir lights[3], const camera &cam1);
 	std::vector<state_liquid> liquid;
@@ -305,7 +308,8 @@ void envi_liquid::update(ID3D11DeviceContext *context, float dt, float total_tim
 	for (auto &liq: liquid) liq.update(context, dt, total_time);
 }
 //
-void envi_liquid::intersects(const BoundingBox &box_in, float dt, int index)
+template <typename T_bound>
+void envi_liquid::intersects(const T_bound &box_in, const float &dt, const size_t &index)
 {
 	for (auto &liq: liquid) liq.intersects(box_in, dt, index);
 }

@@ -49,12 +49,12 @@ phy_property::phy_property():
 	;
 }
 ////////////////
-// phy_set_aabb
+// phy_set_box
 ////////////////
 ////////////////
-template <typename T_vertices, typename T_pos>
-void phy_set_aabb(
-	BoundingBox &bbox,
+template <typename T_vertices, typename T_pos, typename T_bound>
+void phy_set_box(
+	T_bound &bbox,
 	const T_vertices &vertices,
 	const T_pos get_pos,
 	size_t ix_begin = 0,
@@ -76,10 +76,38 @@ void phy_set_aabb(
 	return;
 }
 ////////////////
-// phy_set_aabb_scale
+// phy_set_sphere
 ////////////////
 ////////////////
-void phy_set_aabb_scale(BoundingBox &bbox, const std::vector<float> &offset)
+template <typename T_vertices, typename T_pos>
+void phy_set_sphere(
+	BoundingSphere &sphere,
+	const T_vertices &vertices,
+	const T_pos get_pos,
+	size_t ix_begin = 0,
+	size_t ix_end = 0)
+{
+	if (ix_end == 0) ix_end = vertices.size();
+	if (ix_begin > ix_end) ix_begin = 0;
+	XMFLOAT3 v_minf3(+FLT_MAX, +FLT_MAX, +FLT_MAX);
+	XMFLOAT3 v_maxf3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	XMVECTOR v_min = XMLoadFloat3(&v_minf3);
+	XMVECTOR v_max = XMLoadFloat3(&v_maxf3);
+	for (; ix_begin != ix_end; ++ix_begin) {
+		XMVECTOR P = XMLoadFloat3(get_pos(vertices[ix_begin]));
+		v_min = XMVectorMin(v_min, P);
+		v_max = XMVectorMax(v_max, P);
+	}
+	XMStoreFloat3(&sphere.Center, XMVectorScale(XMVectorAdd(v_min, v_max), 0.5f));
+	XMStoreFloat3(&sphere.Radius, XMVectorScale(XMVectorSubtract(v_max, v_min), 0.5f));
+	return;
+}
+////////////////
+// phy_set_box_scale
+////////////////
+////////////////
+template <typename T_bound>
+void phy_set_box_scale(T_bound &bbox, const std::vector<float> &offset)
 {
 	assert(offset.size() == 3);
 	bbox.Extents.x = bbox.Extents.x*offset[0];
@@ -92,10 +120,10 @@ void phy_set_aabb_scale(BoundingBox &bbox, const std::vector<float> &offset)
 ////////////////
 enum PHY_BOUND_TYPE
 {
-	PHY_BOUND_BOX,
-	PHY_BOUND_ORI_BOX,
-	PHY_BOUND_SPHERE,
-	PHY_BOUND_NULL,
+	PHY_BOUND_BOX     = 0,
+	PHY_BOUND_ORI_BOX = 1,
+	PHY_BOUND_SPHERE  = 2,
+	PHY_BOUND_NULL    = 3,
 };
 ////////////////
 // phy_bound_mgr
@@ -108,9 +136,9 @@ class phy_bound_mgr
 public:
 	phy_bound_mgr();
 	T_app *app;
-	std::vector<BoundingBox> b1;
-	std::vector<BoundingOrientedBox> b2;
-	std::vector<BoundingSphere> b3;
+	std::vector<BoundingBox> bd0;
+	std::vector<BoundingOrientedBox> bd1;
+	std::vector<BoundingSphere> bd2;
 	std::vector<std::pair<PHY_BOUND_TYPE, size_t>> map;
 	void init(T_app *app_in);
 	void push_back_empty(const PHY_BOUND_TYPE &type);
@@ -139,9 +167,9 @@ public:
 //
 template <typename T_app>
 phy_bound_mgr<T_app>::phy_bound_mgr():
-	b1(),
-	b2(),
-	b3(),
+	bd0(),
+	bd1(),
+	bd2(),
 	map()
 {
 	;
@@ -158,16 +186,16 @@ void phy_bound_mgr<T_app>::push_back_empty(const PHY_BOUND_TYPE &type)
 {
 	switch(type) {
 	case PHY_BOUND_BOX:
-		b1.emplace_back();
-		map.emplace_back(type, b1.size()-1);
+		bd0.emplace_back();
+		map.emplace_back(type, bd0.size()-1);
 		return;
 	case PHY_BOUND_ORI_BOX:
-		b2.emplace_back();
-		map.emplace_back(type, b2.size()-1);
+		bd1.emplace_back();
+		map.emplace_back(type, bd1.size()-1);
 		return;
 	case PHY_BOUND_SPHERE:
-		b3.emplace_back();
-		map.emplace_back(type, b3.size()-1);
+		bd2.emplace_back();
+		map.emplace_back(type, bd2.size()-1);
 		return;
 	case PHY_BOUND_NULL:
 		map.emplace_back(type, 0);
@@ -180,9 +208,9 @@ template <typename T_app>
 void phy_bound_mgr<T_app>::transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world)
 {
 	switch(map[ix].first) {
-	case PHY_BOUND_BOX: b1[map[ix].second].Transform(out.b1[map[ix].second], world); return;
-	case PHY_BOUND_ORI_BOX: b2[map[ix].second].Transform(out.b2[map[ix].second], world); return;
-	case PHY_BOUND_SPHERE: b3[map[ix].second].Transform(out.b3[map[ix].second], world); return;
+	case PHY_BOUND_BOX: bd0[map[ix].second].Transform(out.bd0[map[ix].second], world); return;
+	case PHY_BOUND_ORI_BOX: bd1[map[ix].second].Transform(out.bd1[map[ix].second], world); return;
+	case PHY_BOUND_SPHERE: bd2[map[ix].second].Transform(out.bd2[map[ix].second], world); return;
 	}
 }
 //
@@ -192,21 +220,21 @@ bool phy_bound_mgr<T_app>::intersects(const size_t &ixA, const size_t &ixB)
 	switch(map[ixA].first) {
 	case PHY_BOUND_BOX:
 		switch(map[ixB].first) {
-		case PHY_BOUND_BOX: return b1[map[ixA].second].Intersects(b1[map[ixB].second]);
-		case PHY_BOUND_ORI_BOX: return b1[map[ixA].second].Intersects(b2[map[ixB].second]);
-		case PHY_BOUND_SPHERE: return b1[map[ixA].second].Intersects(b3[map[ixB].second]);
+		case PHY_BOUND_BOX: return bd0[map[ixA].second].Intersects(bd0[map[ixB].second]);
+		case PHY_BOUND_ORI_BOX: return bd0[map[ixA].second].Intersects(bd1[map[ixB].second]);
+		case PHY_BOUND_SPHERE: return bd0[map[ixA].second].Intersects(bd2[map[ixB].second]);
 		}
 	case PHY_BOUND_ORI_BOX:
 		switch(map[ixB].first) {
-		case PHY_BOUND_BOX: return b2[map[ixA].second].Intersects(b1[map[ixB].second]);
-		case PHY_BOUND_ORI_BOX: return b2[map[ixA].second].Intersects(b2[map[ixB].second]);
-		case PHY_BOUND_SPHERE: return b2[map[ixA].second].Intersects(b3[map[ixB].second]);
+		case PHY_BOUND_BOX: return bd1[map[ixA].second].Intersects(bd0[map[ixB].second]);
+		case PHY_BOUND_ORI_BOX: return bd1[map[ixA].second].Intersects(bd1[map[ixB].second]);
+		case PHY_BOUND_SPHERE: return bd1[map[ixA].second].Intersects(bd2[map[ixB].second]);
 		}
 	case PHY_BOUND_SPHERE:
 		switch(map[ixB].first) {
-		case PHY_BOUND_BOX: return b3[map[ixA].second].Intersects(b1[map[ixB].second]);
-		case PHY_BOUND_ORI_BOX: return b3[map[ixA].second].Intersects(b2[map[ixB].second]);
-		case PHY_BOUND_SPHERE: return b3[map[ixA].second].Intersects(b3[map[ixB].second]);
+		case PHY_BOUND_BOX: return bd2[map[ixA].second].Intersects(bd0[map[ixB].second]);
+		case PHY_BOUND_ORI_BOX: return bd2[map[ixA].second].Intersects(bd1[map[ixB].second]);
+		case PHY_BOUND_SPHERE: return bd2[map[ixA].second].Intersects(bd2[map[ixB].second]);
 		}
 	}
 	assert(false);
@@ -217,9 +245,9 @@ template <typename T_app>
 bool phy_bound_mgr<T_app>::intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &direction, float &dist)
 {
 	switch(map[ix].first) {
-	case PHY_BOUND_BOX: return b1[map[ix].second].Intersects(origin, direction, dist);
-	case PHY_BOUND_ORI_BOX: return b2[map[ix].second].Intersects(origin, direction, dist);
-	case PHY_BOUND_SPHERE: return b3[map[ix].second].Intersects(origin, direction, dist);
+	case PHY_BOUND_BOX: return bd0[map[ix].second].Intersects(origin, direction, dist);
+	case PHY_BOUND_ORI_BOX: return bd1[map[ix].second].Intersects(origin, direction, dist);
+	case PHY_BOUND_SPHERE: return bd2[map[ix].second].Intersects(origin, direction, dist);
 	}
 	assert(false);
 	return false;
@@ -230,9 +258,9 @@ template <typename T_bound>
 bool phy_bound_mgr<T_app>::intersects(const size_t &ix, const T_bound &bound)
 {
 	switch(map[ix].first) {
-	case PHY_BOUND_BOX: return b1[map[ix].second].Intersects(bound);
-	case PHY_BOUND_ORI_BOX: return b2[map[ix].second].Intersects(bound);
-	case PHY_BOUND_SPHERE: return b3[map[ix].second].Intersects(bound);
+	case PHY_BOUND_BOX: return bd0[map[ix].second].Intersects(bound);
+	case PHY_BOUND_ORI_BOX: return bd1[map[ix].second].Intersects(bound);
+	case PHY_BOUND_SPHERE: return bd2[map[ix].second].Intersects(bound);
 	}
 	assert(false);
 	return false;
@@ -243,9 +271,9 @@ template <typename T_object>
 ContainmentType phy_bound_mgr<T_app>::contains(const size_t &ix, const T_object &object)
 {
 	switch(map[ix].first) {
-	case PHY_BOUND_BOX: return b1[map[ix].second].Contains(object);
-	case PHY_BOUND_ORI_BOX: return b2[map[ix].second].Contains(object);
-	case PHY_BOUND_SPHERE: return b3[map[ix].second].Contains(object);
+	case PHY_BOUND_BOX: return bd0[map[ix].second].Contains(object);
+	case PHY_BOUND_ORI_BOX: return bd1[map[ix].second].Contains(object);
+	case PHY_BOUND_SPHERE: return bd2[map[ix].second].Contains(object);
 	}
 	assert(false);
 	return ContainmentType::DISJOINT;
@@ -291,21 +319,21 @@ template <typename T_app>
 const XMFLOAT3& phy_bound_mgr<T_app>::center(const size_t &ix)
 {
 	switch(map[ix].first) {
-	case PHY_BOUND_BOX: return b1[map[ix].second].Center;
-	case PHY_BOUND_ORI_BOX: return b2[map[ix].second].Center;
-	case PHY_BOUND_SPHERE: return b3[map[ix].second].Center;
+	case PHY_BOUND_BOX: return bd0[map[ix].second].Center;
+	case PHY_BOUND_ORI_BOX: return bd1[map[ix].second].Center;
+	case PHY_BOUND_SPHERE: return bd2[map[ix].second].Center;
 	}
 	assert(false);
-	return b1[map[ix].second].Center;
+	return bd0[map[ix].second].Center;
 }
 //
 template <typename T_app>
 float phy_bound_mgr<T_app>::extents_y(const size_t &ix)
 {
 	switch(map[ix].first) {
-	case PHY_BOUND_BOX: return b1[map[ix].second].Extents.y;
-	case PHY_BOUND_ORI_BOX: return b2[map[ix].second].Extents.y;
-	case PHY_BOUND_SPHERE: return b3[map[ix].second].Radius;
+	case PHY_BOUND_BOX: return bd0[map[ix].second].Extents.y;
+	case PHY_BOUND_ORI_BOX: return bd1[map[ix].second].Extents.y;
+	case PHY_BOUND_SPHERE: return bd2[map[ix].second].Radius;
 	}
 	assert(false);
 	return 0.0f;
@@ -315,9 +343,9 @@ template <typename T_app>
 float phy_bound_mgr<T_app>::extents_x(const size_t &ix)
 {
 	switch(map[ix].first) {
-	case PHY_BOUND_BOX: return b1[map[ix].second].Extents.x;
-	case PHY_BOUND_ORI_BOX: return b2[map[ix].second].Extents.x;
-	case PHY_BOUND_SPHERE: return b3[map[ix].second].Radius;
+	case PHY_BOUND_BOX: return bd0[map[ix].second].Extents.x;
+	case PHY_BOUND_ORI_BOX: return bd1[map[ix].second].Extents.x;
+	case PHY_BOUND_SPHERE: return bd2[map[ix].second].Radius;
 	}
 	assert(false);
 	return 0.0f;
@@ -327,9 +355,9 @@ template <typename T_app>
 float phy_bound_mgr<T_app>::extents_z(const size_t &ix)
 {
 	switch(map[ix].first) {
-	case PHY_BOUND_BOX: return b1[map[ix].second].Extents.z;
-	case PHY_BOUND_ORI_BOX: return b2[map[ix].second].Extents.z;
-	case PHY_BOUND_SPHERE: return b3[map[ix].second].Radius;
+	case PHY_BOUND_BOX: return bd0[map[ix].second].Extents.z;
+	case PHY_BOUND_ORI_BOX: return bd1[map[ix].second].Extents.z;
+	case PHY_BOUND_SPHERE: return bd2[map[ix].second].Radius;
 	}
 	assert(false);
 	return 0.0f;
@@ -338,13 +366,13 @@ float phy_bound_mgr<T_app>::extents_z(const size_t &ix)
 template <typename T_app>
 void phy_bound_mgr<T_app>::remove_all()
 {
-	b1.clear();
-	b2.clear();
-	b3.clear();
+	bd0.clear();
+	bd1.clear();
+	bd2.clear();
 	map.clear();
-	b1.shrink_to_fit();
-	b2.shrink_to_fit();
-	b3.shrink_to_fit();
+	bd0.shrink_to_fit();
+	bd1.shrink_to_fit();
+	bd2.shrink_to_fit();
 	map.shrink_to_fit();
 }
 //

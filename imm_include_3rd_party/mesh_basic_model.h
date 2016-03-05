@@ -17,7 +17,7 @@ namespace imm
 class basic_model
 {
 public:
-	basic_model() {;}
+	basic_model();
 	// base class must have virtual destructor
 	// tex_mgr will kill ID3D11ShaderResourceView*
 	virtual ~basic_model() {;}
@@ -41,7 +41,14 @@ public:
 	std::vector<UINT> m_Indices;
 	std::vector<mesh_geometry::subset> m_Subsets;
 	mesh_geometry m_ModelMesh;
+	int m_BoundType;
 };
+//
+basic_model::basic_model():
+	m_BoundType(0)
+{
+	;
+}
 ////////////////
 // basic_model_instance
 ////////////////
@@ -251,6 +258,8 @@ class simple_model: public basic_model
 	simple_model() {;}
 	~simple_model() {;}
 	std::vector<vertex_type> m_Vertices;
+	std::map<std::string, UINT> m_NameSubid;
+	std::map<std::string, int> m_NameBoundType;
 	void set_MeshBuffer(ID3D11Device *device);
 	void set_SingleSubset();
 	void set_MapSRV(

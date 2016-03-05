@@ -39,6 +39,7 @@ struct instance_stat
 	XMFLOAT4X4 *get_RotFront();
 	XMFLOAT4X4 *get_FinalTransform(size_t ix);
 	std::string *get_ModelName();
+	PHY_BOUND_TYPE get_BoundType();
 	void set_World(const XMFLOAT4X4 &world);
 	void set_World(const XMMATRIX &world);
 	void set_IsAppear(const bool &is_appear);
@@ -97,7 +98,25 @@ std::string *instance_stat::get_ModelName()
 	// bad
 	return &(((basic_model_instance*)ptr)->model_name);
 }
-
+//
+PHY_BOUND_TYPE instance_stat::get_BoundType()
+{
+	int bound_t = 0;
+	switch(type) {
+	case MODEL_BASIC:
+		bound_t = ((basic_model_instance*)ptr)->model->m_BoundType;
+		break;
+	case MODEL_SKINNED:
+		bound_t = ((skinned_model_instance*)ptr)->model->m_BoundType;
+		break;
+	case MODEL_SIMPLE_P:
+		bound_t = ((simple_model_instance<vertex::pntt>*)ptr)->model->m_NameBoundType.at(
+			((simple_model_instance<vertex::pntt>*)ptr)->model_name);
+		break;
+	}
+	assert(bound_t <= 2 && bound_t >= 0);
+	return static_cast<PHY_BOUND_TYPE>(bound_t);
+}
 //
 void instance_stat::set_World(const XMFLOAT4X4 &world)
 {
@@ -210,7 +229,6 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 	std::vector<std::vector<std::string>> vec2d_model;
 	std::vector<std::vector<std::string>> vec2d_instance;
 	std::map<std::string, rotation_xyz> model_rot_front;
-	std::map<std::string, UINT> model_index;
 	std::map<std::string, bool> model_is_tex;
 	std::map<std::string, std::string> model_tex_trans;
 	// build model
@@ -221,28 +239,29 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 	std::wstring path_tex(str_to_wstr(IMM_PATH["texture"]));
 	for (size_t ix = 1; ix < vec2d_model.size(); ++ix) {
 		std::string model_name = vec2d_model[ix][0];
-		model_index[model_name] = static_cast<UINT>(ix-1);
+		m_PNTT["default"].m_NameSubid[model_name] = static_cast<UINT>(ix-1);
 		geo_mesh.push_back(geometry::mesh_data());
 		std::vector<float> para;
 		if (vec2d_model[ix][1] == "box") {
 			para = csv_string_to_float(vec2d_model[ix][2], 3);
 			geo_gen.create_box(para[0], para[1], para[2], geo_mesh.back());
 		}
-		if (vec2d_model[ix][1] == "grid") {
+		else if (vec2d_model[ix][1] == "grid") {
 			para = csv_string_to_float(vec2d_model[ix][2], 4);
 			geo_gen.create_grid(para[0], para[1],
 				static_cast<int>(para[2]), static_cast<int>(para[3]), geo_mesh.back());
 		}
-		if (vec2d_model[ix][1] == "sphere") {
+		else if (vec2d_model[ix][1] == "sphere") {
 			para = csv_string_to_float(vec2d_model[ix][2], 3);
 			geo_gen.create_sphere(para[0],
 				static_cast<int>(para[1]), static_cast<int>(para[2]), geo_mesh.back());
 		}
-		if (vec2d_model[ix][1] == "cylinder") {
+		else if (vec2d_model[ix][1] == "cylinder") {
 			para = csv_string_to_float(vec2d_model[ix][2], 5);
 			geo_gen.create_cylinder(para[0], para[1], para[2],
 				static_cast<int>(para[3]), static_cast<int>(para[4]), geo_mesh.back());
 		}
+		else ERROR_MESA("model_geometry.csv load type error.");
 		//
 		m_PNTT["default"].m_Mat.push_back(material());
 		para = csv_string_to_float(vec2d_model[ix][4], 2);
@@ -256,6 +275,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 		model_is_tex[model_name] = (std::stoi(vec2d_model[ix][7]) != 0);
 		m_PNTT["default"].set_MapSRV(m_TexMgr, tex_diffuse, tex_normal, model_is_tex[model_name]);
 		model_tex_trans[model_name] = vec2d_model[ix][8];
+		m_PNTT["default"].m_NameBoundType[model_name] = math::calc_clamp(stoi(vec2d_model[ix][9]), 0, 2);
 	}
 	model_load_geo_mesh(device, m_PNTT["default"], geo_mesh);
 	// build instance
@@ -263,7 +283,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 	for (size_t ix = 1; ix < vec2d_instance.size(); ++ix) {
 		std::string model_name = vec2d_instance[ix][1];
 		m_NamePNTT.push_back(vec2d_instance[ix][0]);
-		assert(model_index.count(model_name));
+		assert(m_PNTT["default"].m_NameSubid.count(model_name));
 		m_InstPNTT.push_back(simple_model_instance<vertex::pntt>());
 		std::vector<simple_model_instance<vertex::pntt>>::iterator it;
 		it = m_InstPNTT.end();
@@ -271,7 +291,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 		--it;
 		it->model = &m_PNTT["default"];
 		it->model_name = model_name;
-		it->subid = model_index[model_name];
+		it->subid = m_PNTT["default"].m_NameSubid[model_name];
 		instance_assign_csv_basic(
 			it,
 			ix,

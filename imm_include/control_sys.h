@@ -265,7 +265,7 @@ void control_sys<T_app>::on_pad_down_update(const float &dt)
 template <typename T_app>
 void control_sys<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 {
-	app->m_UiMgr.on_input_keydown(w_param, l_param);
+	if (!app->m_Cmd.is_active) app->m_UiMgr.on_input_keydown(w_param, l_param);
 	if (pad.is_enable()) return;
 	if (app->m_Cmd.is_active) return;
 	if (player1 < 0) return;

@@ -27,8 +27,7 @@ struct phy_wireframe
 	void rebuild_buffer();
 	void draw();
 	bool is_drawing;
-	// Notice Bounding only use BoundingBox for lazy develop!!
-	std::vector<ID3D11Buffer*> box_collision;
+	std::map<size_t, ID3D11Buffer*> box_collision;
 	std::vector<ID3D11Buffer*> box_attack;
 	ID3D11Buffer *box_ib;
 	T_app *app;
@@ -56,7 +55,8 @@ phy_wireframe<T_app>::~phy_wireframe()
 template <typename T_app>
 void phy_wireframe<T_app>::remove_buffer()
 {
-	for (auto &vb: box_collision) RELEASE_COM(vb);
+	for (auto &vb: box_collision) RELEASE_COM(vb.second);
+	for (auto &vb: box_attack) RELEASE_COM(vb);
 }
 //
 template <typename T_app>
@@ -64,7 +64,6 @@ void phy_wireframe<T_app>::remove_all()
 {
 	remove_buffer();
 	box_collision.clear();
-	box_collision.shrink_to_fit();
 	box_attack.clear();
 	box_attack.shrink_to_fit();
 }
@@ -114,8 +113,8 @@ void phy_wireframe<T_app>::rebuild_buffer()
 	XMFLOAT4 color;
 	for (size_t ix = 0; ix != app->m_Inst.m_BoundL.map.size(); ++ix) {
 		XMFLOAT3 corners[8];
-		assert(app->m_Inst.m_BoundL.map[ix].first == PHY_BOUND_BOX);
-		app->m_Inst.m_BoundL.b1[app->m_Inst.m_BoundL.map[ix].second].GetCorners(corners);
+		if (app->m_Inst.m_BoundL.map[ix].first != PHY_BOUND_BOX) continue;
+		app->m_Inst.m_BoundL.bd0[app->m_Inst.m_BoundL.map[ix].second].GetCorners(corners);
 		if (app->m_Inst.m_Stat[ix].is_attach) color = XMFLOAT4(Colors::Orange);
 		else color = XMFLOAT4(Colors::Yellow);
 		vertex::pos_color vertices[] = {
@@ -128,7 +127,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 			{corners[6], color},
 			{corners[7], color}
 		};
-		box_collision.push_back(nullptr);
+		box_collision[ix] = nullptr;
 		D3D11_BUFFER_DESC vbd;
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
 		vbd.ByteWidth = sizeof(vertex::pos_color)*8;
@@ -138,7 +137,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 		vbd.StructureByteStride = 0;
 		D3D11_SUBRESOURCE_DATA vinit_data;
 		vinit_data.pSysMem = vertices;
-		HR(app->m_D3DDevice->CreateBuffer(&vbd, &vinit_data, &box_collision.back()));
+		HR(app->m_D3DDevice->CreateBuffer(&vbd, &vinit_data, &box_collision[ix]));
 	}
 	// box_attack
 	color = XMFLOAT4(Colors::Red);
@@ -184,6 +183,8 @@ void phy_wireframe<T_app>::draw()
 	XMMATRIX view_proj = app->m_Cam.get_ViewProj();
 	// Draw collision box
 	for (size_t ix = 0; ix != app->m_Inst.m_BoundL.map.size(); ++ix) {
+		if (app->m_Inst.m_BoundL.map[ix].first != PHY_BOUND_BOX) continue;
+		assert(box_collision.count(ix));
 		app->m_D3DDC->IASetVertexBuffers(0, 1, &box_collision[ix], &stride, &offset);
 		XMFLOAT4X4 *inst_world = app->m_Inst.m_Stat[ix].get_World();
 		XMMATRIX world = XMLoadFloat4x4(inst_world);

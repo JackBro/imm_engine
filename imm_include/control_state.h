@@ -179,6 +179,7 @@ struct troll
 	float frame_damage;
 	float frame_dash;
 	float frame_dash2;
+	float frame_jump_ground;
 	float cd_Idle;
 	float cd_Jump;
 	float cd_Damage;
@@ -200,7 +201,8 @@ troll::troll():
 	speed_dash(30.0f),
 	frame_damage(7.0f/FRAME_RATE),
 	frame_dash(10.0f/FRAME_RATE),
-	frame_dash2(12.0f/FRAME_RATE),
+	frame_dash2(10.0f/FRAME_RATE),
+	frame_jump_ground(7.0f/FRAME_RATE),
 	cd_Idle(-1.0f),
 	cd_Jump(-1.0f),
 	cd_Damage(-1.0f),
