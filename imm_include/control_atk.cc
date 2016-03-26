@@ -64,7 +64,7 @@ void skill_data::update(const float &dt, skill_para &pa)
 	auto &tro = PTR->m_Inst.m_Troll[pa.inst_ix];
 	if (pa.count_down > 0.0f) pa.count_down -= dt;
 	if (pa.is_busy && pa.count_down < 0.0f) {
-		tro.order_stat |= ORDER_IS_BATTLE_READY;
+		tro.order_stat |= ORDER_IS_ENGAGE;
 		tro.order |= ORDER_IDLE;
 		current_over(pa);
 		pa.skill_ix = -1;

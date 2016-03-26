@@ -154,7 +154,7 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().group = "hp";
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = L"MP";
+	m_Rect.back().text = L"STA";
 	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.675f, 0.4f, 0.175f);
 	////////////////

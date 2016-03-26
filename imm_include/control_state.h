@@ -27,15 +27,15 @@ enum ORDER_ACT_TYPE
 	ORDER_ATK_X       = 0x20,
 	ORDER_ATK_Y       = 0x40,
 	ORDER_DMG         = 0x80,
-	ORDER_DASH        = 0x100,
+	ORDER_ROLL        = 0x100,
 };
 //
 enum ORDER_STAT_TYPE
 {
-	ORDER_IS_CLEAR        = 0x0,
-	ORDER_IS_WALK         = 0x1, // NOT: ORDER_IS_RUN
-	ORDER_IS_DASH         = 0x2,
-	ORDER_IS_BATTLE_READY = 0x4,
+	ORDER_IS_CLEAR  = 0x0,
+	ORDER_IS_WALK   = 0x1, // NOT: ORDER_IS_RUN
+	ORDER_IS_ROLL   = 0x2,
+	ORDER_IS_ENGAGE = 0x4,
 };
 ////////////////
 // state
@@ -139,20 +139,22 @@ struct act
 	static std::string Walk;
 	static std::string Run;
 	static std::string Jump;
-	static std::string JumpGround;
-	static std::string BattleReady;
+	static std::string JumpLand;
+	static std::string Engage;
 	static std::string Damage;
-	static std::string Dash;
+	static std::string Roll;
+	static std::string WalkRev;
 };
 //
-std::string act::Idle        = "Idle";
-std::string act::Walk        = "Walk";
-std::string act::Run         = "Run";
-std::string act::Jump        = "Jump";
-std::string act::JumpGround  = "JumpGround";
-std::string act::BattleReady = "BattleReady";
-std::string act::Damage      = "Damage";
-std::string act::Dash        = "Dash";
+std::string act::Idle     = "Idle";
+std::string act::Walk     = "Walk";
+std::string act::Run      = "Run";
+std::string act::Jump     = "Jump";
+std::string act::JumpLand = "JumpLand";
+std::string act::Engage   = "Engage";
+std::string act::Damage   = "Damage";
+std::string act::Roll     = "Roll";
+std::string act::WalkRev  = "WalkRev";
 ////////////////
 // troll
 ////////////////
