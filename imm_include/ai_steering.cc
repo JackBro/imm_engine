@@ -41,6 +41,7 @@ void ai_Standby::execute(steering *ste)
 	XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[PTR->m_Control.player1].get_World();
 	ste->desired_pos.x = world._41;
 	ste->desired_pos.z = world._43;
+	// test
 	static float cnt = -1.0f;
 	static int touch = 0;
 	if (cnt < 0.0f) {

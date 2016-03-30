@@ -170,7 +170,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 template <typename T_app>
 void scene_mgr<T_app>::reload_in_main_update()
 {
-	get_misc["plane_ground"] = "";
+	get_misc["plane_land"] = "";
 	get_misc["player1"] = "";
 	get_misc["skybox_dds"] = "";
 	get_misc["play_bgm"] = "";

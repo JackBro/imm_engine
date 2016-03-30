@@ -30,13 +30,13 @@ void phy_position_update(
 	const float &dt,
 	XMFLOAT4X4 &world,
 	phy_property &prop,
-	phy_property &prop_ground,
+	phy_property &prop_Land,
 	const XMFLOAT3 &center,
 	const float &extents_y,
-	const float &ground_y)
+	const float &Land_y)
 {
 	if (prop.is_abnormal) return;
-	if (!prop.is_on_ground) {
+	if (!prop.is_on_land) {
 		prop.velocity.x += prop.acceleration.x*dt;
 		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt;
 		prop.velocity.z += prop.acceleration.z*dt;
@@ -45,8 +45,8 @@ void phy_position_update(
 		world._43 += prop.velocity.z*dt + prop.vel_indirect.z*dt;
 	}
 	else {
-		float bounce = prop.bounce*prop_ground.bounce;
-		float friction_rev = prop.friction_rev*prop_ground.friction_rev;
+		float bounce = prop.bounce*prop_Land.bounce;
+		float friction_rev = prop.friction_rev*prop_Land.friction_rev;
 		prop.acceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		if (prop.velocity.y < 0.0f) prop.velocity.y = -prop.velocity.y*bounce;
 		prop.velocity.x *= friction_rev*0.1f;
@@ -54,10 +54,10 @@ void phy_position_update(
 		// use center compare stand
 		float offset_y = world._42-center.y;
 		float center_y = center.y;
-		// stand_adjust keep object full stand on ground
-		// guarantee object.intersects(ground) return true, exclude if they have a little gap
+		// stand_adjust keep object full stand on Land
+		// guarantee object.intersects(Land) return true, exclude if they have a little gap
 		float stand_adjust = -0.01f;
-		float stand = extents_y+ground_y+stand_adjust;
+		float stand = extents_y+Land_y+stand_adjust;
 		center_y += prop.velocity.y*dt + prop.vel_indirect.y*dt;
 		world._41 += prop.velocity.x*dt + prop.vel_indirect.x*dt;
 		world._43 += prop.velocity.z*dt + prop.vel_indirect.z*dt;
@@ -78,7 +78,7 @@ void phy_position_update(
 // collision impulse method modify from
 // \Microsoft DirectX SDK (June 2010)\Samples\C++\Direct3D\ConfigSystem\main.cpp
 // it is originally used with two spheres, but there is used with two AABB or others, inaccuracy solution
-// defect1: if objects chain impulse, object on ground will not apart enough with velocity compare to on air
+// defect1: if objects chain impulse, object on Land will not apart enough with velocity compare to on air
 ////////////////
 ////////////////
 void phy_impulse_casual(
@@ -146,14 +146,14 @@ void phy_impulse_casual(
 		float diff = center_A.y-extents_y_A-(center_B.y+extents_y_B);
 		if (abs(diff) < extents_y_B*proportion_extens_y) {
 			prop_A.stand_on = static_cast<int>(ix_B);
-			prop_A.is_on_ground = true;
+			prop_A.is_on_land = true;
 		}
 	}
 	else {
 		float diff = center_B.y-extents_y_B-(center_A.y+extents_y_A);
 		if (abs(diff) < extents_y_A*proportion_extens_y) {
 			prop_B.stand_on = static_cast<int>(ix_A);
-			prop_B.is_on_ground = true;
+			prop_B.is_on_land = true;
 		}
 	}
 	return;

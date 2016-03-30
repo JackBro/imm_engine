@@ -63,7 +63,7 @@ struct instance_mgr
 	std::map<std::string, std::size_t> m_NameMap;
 	bool m_IsLoading;
 	bool m_IsTerrainUse;
-	int m_PlaneGroundIx;
+	int m_PlaneLandIx;
 	T_app *m_App;
 };
 //
@@ -75,7 +75,7 @@ instance_mgr<T_app>::instance_mgr():
 	m_Adapter(),
 	m_IsLoading(false),
 	m_IsTerrainUse(false),
-	m_PlaneGroundIx(-1),
+	m_PlaneLandIx(-1),
 	m_App(nullptr)
 {
 	;
@@ -154,11 +154,11 @@ template <typename T_app>
 void instance_mgr<T_app>::reload_scene_instance_relate()
 {
 	if (csv_value_is_empty(m_App->m_Scene.get_misc["terrain_info"])) {
-		m_PlaneGroundIx = get_index(m_App->m_Scene.get_misc["plane_ground"]);
+		m_PlaneLandIx = get_index(m_App->m_Scene.get_misc["plane_land"]);
 		m_IsTerrainUse = false;
 	}
 	else {
-		m_PlaneGroundIx = -1;
+		m_PlaneLandIx = -1;
 		m_IsTerrainUse = true;
 	}
 	// after instance load over
@@ -293,7 +293,7 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
 	for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
 		//
-		if (static_cast<int>(ix) == m_PlaneGroundIx || static_cast<int>(ix2) == m_PlaneGroundIx) continue;
+		if (static_cast<int>(ix) == m_PlaneLandIx || static_cast<int>(ix2) == m_PlaneLandIx) continue;
 		if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
 		// record sensor
 		bool is_touch = m_BoundW.intersects(ix, ix2);
@@ -326,43 +326,43 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 template <typename T_app>
 void instance_mgr<T_app>::update_collision_plane(float dt)
 {
-	if (m_PlaneGroundIx < 0) return;
+	if (m_PlaneLandIx < 0) return;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		//
-		if (static_cast<int>(ix) == m_PlaneGroundIx) continue;
+		if (static_cast<int>(ix) == m_PlaneLandIx) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		// physcis logic
-		int ix_gro;		
-		float ground_y;
+		int ix_land;		
+		float land_y;
 		if (m_Stat[ix].phy.stand_on >= 0) {
-			ix_gro = m_Stat[ix].phy.stand_on;
-			m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
-			if (m_Stat[ix].phy.is_on_ground) {
-				ground_y = m_BoundW.center(ix_gro).y + m_BoundW.extents_y(ix_gro);
+			ix_land = m_Stat[ix].phy.stand_on;
+			m_Stat[ix].phy.is_on_land = m_BoundW.intersects(ix_land, ix);
+			if (m_Stat[ix].phy.is_on_land) {
+				land_y = m_BoundW.center(ix_land).y + m_BoundW.extents_y(ix_land);
 			}
 			else {
-				ix_gro = m_PlaneGroundIx;
-				m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
-				ground_y = m_BoundW.center(ix_gro).y + m_BoundW.extents_y(ix_gro);
-				if (m_Stat[ix].phy.is_on_ground) {
+				ix_land = m_PlaneLandIx;
+				m_Stat[ix].phy.is_on_land = m_BoundW.intersects(ix_land, ix);
+				land_y = m_BoundW.center(ix_land).y + m_BoundW.extents_y(ix_land);
+				if (m_Stat[ix].phy.is_on_land) {
 					m_Stat[ix].phy.stand_on = -1;
 				}
 			}
 		}
 		else {
-			ix_gro = m_PlaneGroundIx;
-			m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
-			ground_y = m_BoundW.center(ix_gro).y + m_BoundW.extents_y(ix_gro);
+			ix_land = m_PlaneLandIx;
+			m_Stat[ix].phy.is_on_land = m_BoundW.intersects(ix_land, ix);
+			land_y = m_BoundW.center(ix_land).y + m_BoundW.extents_y(ix_land);
 		}
 		//
 		phy_position_update(
 			dt,
 			*(m_Stat[ix].get_World()),
 			m_Stat[ix].phy,
-			m_Stat[ix_gro].phy,
+			m_Stat[ix_land].phy,
 			m_BoundW.center(ix),
 			m_BoundW.extents_y(ix),
-			ground_y);
+			land_y);
 		//
 	}
 }
@@ -374,29 +374,29 @@ void instance_mgr<T_app>::update_collision_terrain(float dt)
 		//
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		// physcis logic
-		int ix_gro;
+		int ix_land;
 		float height;
 		phy_property *phy_gro;
 		if (m_Stat[ix].phy.stand_on >= 0) {
-			ix_gro = m_Stat[ix].phy.stand_on;
-			m_Stat[ix].phy.is_on_ground = m_BoundW.intersects(ix_gro, ix);
-			if (m_Stat[ix].phy.is_on_ground) {
-				height = m_BoundW.center(ix_gro).y + m_BoundW.extents_y(ix_gro);
+			ix_land = m_Stat[ix].phy.stand_on;
+			m_Stat[ix].phy.is_on_land = m_BoundW.intersects(ix_land, ix);
+			if (m_Stat[ix].phy.is_on_land) {
+				height = m_BoundW.center(ix_land).y + m_BoundW.extents_y(ix_land);
 			}
 			else {
-				ix_gro = -1;
+				ix_land = -1;
 				update_collision_terrain_height(ix, height);
-				if (m_Stat[ix].phy.is_on_ground) {
+				if (m_Stat[ix].phy.is_on_land) {
 					m_Stat[ix].phy.stand_on = -1;
 				}
 			}
 		}
 		else {
-			ix_gro = -1;
+			ix_land = -1;
 			update_collision_terrain_height(ix, height);
 		}
-		if (ix_gro < 0) phy_gro = &m_App->m_Scene.terrain1_phy;
-		else phy_gro = &m_Stat[ix_gro].phy;
+		if (ix_land < 0) phy_gro = &m_App->m_Scene.terrain1_phy;
+		else phy_gro = &m_Stat[ix_land].phy;
 		//
 		phy_position_update(
 			dt,
@@ -406,11 +406,11 @@ void instance_mgr<T_app>::update_collision_terrain(float dt)
 			m_BoundW.center(ix),
 			m_BoundW.extents_y(ix),
 			height);
-		// inaccuracy touch ground, logically assume it touches gourond, because terrain is not flat
+		// inaccuracy touch Land, logically assume it touches gourond, because terrain is not flat
 		// this is not for physics
-		if (ix_gro < 0) {
+		if (ix_land < 0) {
 			float extents_y = m_BoundW.extents_y(ix);
-			if (m_BoundW.center(ix).y - extents_y - height < 0.3f) m_Stat[ix].phy.is_on_ground = true;
+			if (m_BoundW.center(ix).y - extents_y - height < 0.3f) m_Stat[ix].phy.is_on_land = true;
 		}
 	}
 }
@@ -422,7 +422,7 @@ void instance_mgr<T_app>::update_collision_terrain_height(const size_t &ix, floa
 	get_height = m_App->m_Scene.terrain1.get_Height(center.x, center.z);
 	XMVECTOR terrain_point = XMVectorSet(center.x, get_height, center.z, 0.0f);
 	int contains = m_BoundW.contains(ix, terrain_point);
-	m_Stat[ix].phy.is_on_ground = (contains != 0);
+	m_Stat[ix].phy.is_on_land = (contains != 0);
 }
 //
 template <typename T_app>

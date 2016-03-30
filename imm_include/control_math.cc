@@ -12,7 +12,7 @@ namespace imm {namespace math
 //
 void mouse_inst_move(const size_t &index, const float &speed)
 {
-	if (!PTR->m_Inst.m_Stat[index].phy.is_on_ground) return;
+	if (!PTR->m_Inst.m_Stat[index].phy.is_on_land) return;
 	XMVECTOR hit_pos;
 	if (PTR->m_Inst.m_IsTerrainUse) mouse_hit_terrain(hit_pos);
 	else mouse_hit_plane_y(hit_pos);
@@ -110,7 +110,7 @@ void mouse_hit_plane_y(XMVECTOR &hit_pos_out)
 		ray_dir = XMVector3Normalize(ray_dir);
 	}	
 	// Ray hit y=value plane at plane_p
-	XMFLOAT4X4 *world = PTR->m_Inst.m_Stat[PTR->m_Inst.m_PlaneGroundIx].get_World();
+	XMFLOAT4X4 *world = PTR->m_Inst.m_Stat[PTR->m_Inst.m_PlaneLandIx].get_World();
 	float plane_y = world->_42;
 	hit_pos_out = ray_origin;
 	float ratio_y = -XMVectorGetY(ray_origin)/XMVectorGetY(ray_dir)+(plane_y/XMVectorGetY(ray_dir));
@@ -320,7 +320,7 @@ void ai_move_pos(const size_t &index, const float &speed)
 		pos->y = PTR->m_Scene.terrain1.get_Height(pos->x, pos->z);
 	}
 	else {
-		pos->y = PTR->m_Inst.m_Stat[PTR->m_Inst.m_PlaneGroundIx].get_World()->_42;
+		pos->y = PTR->m_Inst.m_Stat[PTR->m_Inst.m_PlaneLandIx].get_World()->_42;
 	}
 	XMVECTOR hit_pos = XMLoadFloat3(pos);
 	mouse_move_toward_hit(hit_pos, index, speed);

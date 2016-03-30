@@ -166,23 +166,25 @@ void model_load_csv_basic(
 	// build model
 	l_reader.vec2d_str_from_table(csv_name, csv_model);
 	for (size_t ix = 1; ix < csv_model.size(); ++ix) {
-		assert(csv_model[ix].size() > 3);
-		std::string model_file = model_path+csv_model[ix][1];
+		assert(csv_model[ix].size() > 5);
 		std::string model_name = csv_model[ix][0];
-		rot_front[model_name] = rotation_xyz(csv_model[ix][2]);
-		// assign alpha
-		model_alpha[model_name] = stoi(csv_model[ix][3]);
-		// load model
 		if (model.count(model_name)) continue;
+		std::string subpath = csv_model[ix][1];
+		std::string model_file = model_path+subpath+csv_model[ix][2];
+		rot_front[model_name] = rotation_xyz(csv_model[ix][3]);
+		// assign alpha
+		model_alpha[model_name] = stoi(csv_model[ix][4]);
+		// load model
+		std::wstring texture_path_full = texture_path+str_to_wstr(subpath);
 		if (model_file.substr(model_file.size()-3) == "m3d") {
-			model[model_name].set(device, tex_mgr, model_file, texture_path);
+			model[model_name].set(device, tex_mgr, model_file, texture_path_full);
 		}
 		else {
 			bin_m3d model_bin;
 			model_bin.read_from_bin(model[model_name], model_file);
-			model[model_name].set(device, tex_mgr, texture_path);
+			model[model_name].set(device, tex_mgr, texture_path_full);
 		}
-		model[model_name].m_BoundType = math::calc_clamp(stoi(csv_model[ix][4]), 0, 2);
+		model[model_name].m_BoundType = math::calc_clamp(stoi(csv_model[ix][5]), 0, 2);
 	}
 }
 ////////////////

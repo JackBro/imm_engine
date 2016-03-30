@@ -174,14 +174,14 @@ struct troll
 	int order_stat;
 	int focus;
 	bool is_on_air;
-	float velocity_jump;
-	float speed_walk;
-	float speed_run;
-	float speed_dash;
-	float frame_damage;
-	float frame_dash;
-	float frame_dash2;
-	float frame_jump_ground;
+	float velocity_Jump;
+	float speed_Walk;
+	float speed_Run;
+	float speed_Roll;
+	float frame_Damage;
+	float frame_Roll;
+	float frame_Roll2;
+	float frame_JumpLand;
 	float cd_Idle;
 	float cd_Jump;
 	float cd_Damage;
@@ -197,14 +197,14 @@ troll::troll():
 	order_stat(ORDER_IS_CLEAR),
 	focus(-1),
 	is_on_air(false),
-	velocity_jump(35.0f),
-	speed_walk(4.5f),
-	speed_run(13.5f),
-	speed_dash(30.0f),
-	frame_damage(7.0f/FRAME_RATE),
-	frame_dash(10.0f/FRAME_RATE),
-	frame_dash2(10.0f/FRAME_RATE),
-	frame_jump_ground(7.0f/FRAME_RATE),
+	velocity_Jump(35.0f),
+	speed_Walk(4.5f),
+	speed_Run(13.5f),
+	speed_Roll(30.0f),
+	frame_Damage(7.0f/FRAME_RATE),
+	frame_Roll(10.0f/FRAME_RATE),
+	frame_Roll2(10.0f/FRAME_RATE),
+	frame_JumpLand(7.0f/FRAME_RATE),
 	cd_Idle(-1.0f),
 	cd_Jump(-1.0f),
 	cd_Damage(-1.0f),
@@ -235,8 +235,8 @@ void troll::revert_previous_state()
 //
 float troll::speed_move()
 {
-	if (order_stat & ORDER_IS_WALK)	return speed_walk;
-	return speed_run;
+	if (order_stat & ORDER_IS_WALK)	return speed_Walk;
+	return speed_Run;
 }
 //
 std::string &troll::act_move()

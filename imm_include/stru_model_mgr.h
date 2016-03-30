@@ -268,11 +268,12 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 		model_material_common(
 			m_PNTT["default"].m_Mat.back(), para[0], static_cast<int>(para[1]));
 		model_rot_front[model_name] = rotation_xyz(vec2d_model[ix][3]);
-		std::wstring tex_diffuse(vec2d_model[ix][5].begin(), vec2d_model[ix][5].end());
-		tex_diffuse = path_tex+tex_diffuse;
-		std::wstring tex_normal(vec2d_model[ix][6].begin(), vec2d_model[ix][6].end());
-		tex_normal = path_tex+tex_normal;
-		model_is_tex[model_name] = (std::stoi(vec2d_model[ix][7]) != 0);
+		std::wstring tex_subpath = str_to_wstr(vec2d_model[ix][5]);
+		std::wstring tex_diffuse(vec2d_model[ix][6].begin(), vec2d_model[ix][6].end());
+		tex_diffuse = path_tex+tex_subpath+tex_diffuse;
+		std::wstring tex_normal(vec2d_model[ix][7].begin(), vec2d_model[ix][7].end());
+		tex_normal = path_tex+tex_subpath+tex_normal;
+		model_is_tex[model_name] = !csv_value_is_empty(vec2d_model[ix][6]);
 		m_PNTT["default"].set_MapSRV(m_TexMgr, tex_diffuse, tex_normal, model_is_tex[model_name]);
 		model_tex_trans[model_name] = vec2d_model[ix][8];
 		m_PNTT["default"].m_NameBoundType[model_name] = math::calc_clamp(stoi(vec2d_model[ix][9]), 0, 2);

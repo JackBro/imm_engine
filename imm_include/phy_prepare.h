@@ -28,8 +28,8 @@ struct phy_property
 	float friction_rev; // reversed coefficient of friction, 0 <= this <= 1, ignore original friction > 1
 	float bounce;
 	int stand_on;
-	bool is_ground;
-	bool is_on_ground;
+	bool is_land;
+	bool is_on_land;
 	bool is_abnormal;
 };
 //
@@ -42,9 +42,9 @@ phy_property::phy_property():
 	friction_rev(0.3f),
 	bounce(0.3f),
 	stand_on(-1),
-	is_ground(false),
-	is_on_ground(false),
-	is_abnormal(false)	
+	is_land(false),
+	is_on_land(false),
+	is_abnormal(false)
 {
 	;
 }
