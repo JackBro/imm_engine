@@ -19,9 +19,9 @@ struct ai_points
 {
 	ai_points();
 	int hp_max;
-	int mp_max;
+	int ap_max;
 	int hp;
-	int mp;
+	int ap;
 	int str;
 	int mgc;
 	int def;
@@ -30,9 +30,9 @@ struct ai_points
 //
 ai_points::ai_points():
 	hp_max(20),
-	mp_max(20),
+	ap_max(20),
 	hp(20),
-	mp(20),
+	ap(20),
 	str(5),
 	mgc(5),
 	def(5),
@@ -54,9 +54,9 @@ struct ui_attr
 	void update_target();
 	T_app *app;
 	int p1_hp;
-	int p1_mp;
+	int p1_ap;
 	int p1_hp_max;
-	int p1_mp_max;
+	int p1_ap_max;
 	int tar_hp;
 	int tar_hp_max;
 	size_t tar_ix;
@@ -69,9 +69,9 @@ template <typename T_app>
 ui_attr<T_app>::ui_attr():
 	app(nullptr),
 	p1_hp(1),
-	p1_mp(1),
+	p1_ap(1),
 	p1_hp_max(1),
-	p1_mp_max(1),
+	p1_ap_max(1),
 	tar_hp(1),
 	tar_hp_max(1),
 	tar_ix(0),
@@ -104,9 +104,9 @@ void ui_attr<T_app>::update()
 		app->m_UiMgr.status.define_set_hp_rect(p1_hp_max);
 		need_resize = true;
 	}
-	if (p1_mp_max != app->m_AiAttr.points[app->m_Control.player1].mp_max) {
-		p1_mp_max = app->m_AiAttr.points[app->m_Control.player1].mp_max;
-		app->m_UiMgr.status.define_set_mp_rect(p1_mp_max);
+	if (p1_ap_max != app->m_AiAttr.points[app->m_Control.player1].ap_max) {
+		p1_ap_max = app->m_AiAttr.points[app->m_Control.player1].ap_max;
+		app->m_UiMgr.status.define_set_ap_rect(p1_ap_max);
 		need_resize = true;
 	}
 	if (p1_hp != app->m_AiAttr.points[app->m_Control.player1].hp) {
@@ -116,11 +116,11 @@ void ui_attr<T_app>::update()
 		app->m_UiMgr.status.define_set_hp_bar(z);
 		need_resize = true;
 	}
-	if (p1_mp != app->m_AiAttr.points[app->m_Control.player1].mp) {
-		p1_mp = app->m_AiAttr.points[app->m_Control.player1].mp;
-		float z = static_cast<float>(p1_mp) / static_cast<float>(p1_mp_max);
+	if (p1_ap != app->m_AiAttr.points[app->m_Control.player1].ap) {
+		p1_ap = app->m_AiAttr.points[app->m_Control.player1].ap;
+		float z = static_cast<float>(p1_ap) / static_cast<float>(p1_ap_max);
 		z = 1.0f - z;
-		app->m_UiMgr.status.define_set_mp_bar(z);
+		app->m_UiMgr.status.define_set_ap_bar(z);
 		need_resize = true;
 	}
 	update_target();

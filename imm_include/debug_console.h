@@ -96,10 +96,11 @@ void echo_close()
 ////////////////
 ////////////////
 template <typename T>
-void echo(const T &info)
+void echo(const T &info, const bool &is_flush = false)
 {
 	echo_init();
-	std::cout << info << std::endl;
+	if (is_flush) std::cout << info << std::flush;
+	else std::cout << info << std::endl;
 }
 //
 template <typename T>

@@ -98,6 +98,21 @@ void skill_data::build(const std::string &name)
 		box_name;
 		atk_box.push_back(box_name);
 	}
+	if (name == "black_warrior") {
+		std::vector<std::string> box_name;
+		//
+		chunk['A'] = static_cast<int>(atk.size());
+		atk.push_back("Atk01");
+		frame_end.push_back(30.0f);
+		frame_turn.push_back(9.5f-1.0f);
+		frame_speed.push_back(0.0f);
+		next_ix.push_back(-1);
+		specify.push_back(SKILL_MELEE_UNARMED);
+		box_name.clear();
+		box_name.push_back("black_warrior_axe");
+		atk_box.push_back(box_name);
+		//
+	}
 	for (auto &end: frame_end) end /= FRAME_RATE;
 	for (auto &turn: frame_turn) turn /= FRAME_RATE;
 }
@@ -108,4 +123,5 @@ void control_atk<T_app>::init(T_app *app_in)
 	app = app_in;
 	data_ski["sinon"].build("sinon");
 	data_ski["pepper"].build("pepper");
+	data_ski["black_warrior"].build("black_warrior");
 }

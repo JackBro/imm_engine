@@ -30,9 +30,9 @@ struct ui_def_status: public ui_base<T_app>
 	void define_show(const bool &is_show);
 	void define_text();
 	void define_set_hp_rect(const int &hp_max);
-	void define_set_mp_rect(const int &mp_max);
+	void define_set_ap_rect(const int &ap_max);
 	void define_set_hp_bar(const float &z);
-	void define_set_mp_bar(const float &z);
+	void define_set_ap_bar(const float &z);
 	void define_set_tar_hp_rect(const int &hp_max);
 	void define_set_tar_hp_bar(const float &z);
 	void define_set_tar_name(const std::wstring &name);
@@ -62,8 +62,8 @@ void ui_def_status<T_app>::define_style()
 	set_Brush(D2D1::ColorF::Black, 0.3f, "black");
 	m_Brush["hp_color"];
 	set_Brush(D2D1::ColorF::Red, 1.0f, "hp_color");
-	m_Brush["mp_color"];
-	set_Brush(D2D1::ColorF::Blue, 1.0f, "mp_color");
+	m_Brush["ap_color"];
+	set_Brush(D2D1::ColorF::Blue, 1.0f, "ap_color");
 	////////////////
 	// hp
 	////////////////
@@ -79,7 +79,7 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.7f, 0.93f);
 	//
 	m_Rect.emplace_back();
-	m_Rect.back().id_str = "mp_backg";
+	m_Rect.back().id_str = "ap_backg";
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "no_draw";
 	m_Rect.back().tp = ui_rect::type::background;
@@ -99,11 +99,11 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().margin = XMFLOAT4(0.1f, 0.175f, 0.1f, 0.475f);
 	//
 	m_Rect.emplace_back();
-	m_Rect.back().id_str = "mp_rect";
-	m_Rect.back().parent_str = "mp_backg";
+	m_Rect.back().id_str = "ap_rect";
+	m_Rect.back().parent_str = "ap_backg";
 	m_Rect.back().group = "no_draw";
 	m_Rect.back().tp = ui_rect::type::background;
-	m_Rect.back().brush_sel = {"mp_color"};
+	m_Rect.back().brush_sel = {"ap_color"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.1f, 0.675f, 0.1f, 0.175f);
@@ -119,11 +119,11 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	//
 	m_Rect.emplace_back();
-	m_Rect.back().id_str = "mp_bar";
-	m_Rect.back().parent_str = "mp_rect";
+	m_Rect.back().id_str = "ap_bar";
+	m_Rect.back().parent_str = "ap_rect";
 	m_Rect.back().group = "hp";
 	m_Rect.back().tp = ui_rect::type::background;
-	m_Rect.back().brush_sel = {"mp_color"};
+	m_Rect.back().brush_sel = {"ap_color"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -149,12 +149,12 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.175f, 0.4f, 0.475f);
 	//
 	m_Rect.emplace_back();
-	m_Rect.back().id_str = "mp_txt";
+	m_Rect.back().id_str = "ap_txt";
 	m_Rect.back().parent_str = "hp_backg_fix";
 	m_Rect.back().group = "hp";
 	m_Rect.back().tp = ui_rect::type::text_pure;
 	m_Rect.back().brush_sel = {"black"};
-	m_Rect.back().text = L"STA";
+	m_Rect.back().text = L"AP";
 	m_Rect.back().dwrite_ix = "hp_txt";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.675f, 0.4f, 0.175f);
 	////////////////
@@ -294,13 +294,13 @@ void ui_def_status<T_app>::define_set_hp_rect(const int &hp_max)
 }
 //
 template <typename T_app>
-void ui_def_status<T_app>::define_set_mp_rect(const int &mp_max)
+void ui_def_status<T_app>::define_set_ap_rect(const int &ap_max)
 {
-	float mp_rate = static_cast<float>(mp_max)/20.0f;
-	m_Rect[m_MapID["mp_backg"]].margin.z = 1.0f-(m_FixZ1*mp_rate);
-	float x = m_FixXZ1/mp_rate;
-	m_Rect[m_MapID["mp_rect"]].margin.x = x;
-	m_Rect[m_MapID["mp_rect"]].margin.z = x;
+	float ap_rate = static_cast<float>(ap_max)/20.0f;
+	m_Rect[m_MapID["ap_backg"]].margin.z = 1.0f-(m_FixZ1*ap_rate);
+	float x = m_FixXZ1/ap_rate;
+	m_Rect[m_MapID["ap_rect"]].margin.x = x;
+	m_Rect[m_MapID["ap_rect"]].margin.z = x;
 }
 //
 template <typename T_app>
@@ -310,9 +310,9 @@ void ui_def_status<T_app>::define_set_hp_bar(const float &z)
 }
 //
 template <typename T_app>
-void ui_def_status<T_app>::define_set_mp_bar(const float &z)
+void ui_def_status<T_app>::define_set_ap_bar(const float &z)
 {
-	m_Rect[m_MapID["mp_bar"]].margin.z = z;
+	m_Rect[m_MapID["ap_bar"]].margin.z = z;
 }
 //
 template <typename T_app>

@@ -284,7 +284,7 @@ void phy_attack_arrange<T_app>::update_collision()
 				app->m_Control.atk.cause_damage(
 					owner_ix,
 					ix_inst,
-					app->m_Inst.m_BoundW.center(ix),
+					app->m_Inst.m_BoundW.center(weapon_ix),
 					SKILL_MELEE_UNARMED);
 				//
 			}
@@ -293,7 +293,7 @@ void phy_attack_arrange<T_app>::update_collision()
 				0.0f, // following 4 parameters not use when is_A_atk
 				0.0f,
 				0,
-				0,		
+				0,
 				*(app->m_Inst.m_Stat[owner_ix].get_World()),
 				*(app->m_Inst.m_Stat[ix_inst].get_World()),
 				app->m_Inst.m_Stat[owner_ix].phy,
@@ -317,15 +317,15 @@ void phy_attack_arrange<T_app>::set_active_box(
 	// unarmed
 	if (map_box_active.count(inst_ix)) {
 		for (auto &name: box_name) {
-			if (!map_box_active[inst_ix].count(name)) continue;
+			assert(map_box_active[inst_ix].count(name));
 			is_active_box[map_box_active[inst_ix][name]] = active;
 		}
 	}
 	// weapon
 	if (map_att_active.count(inst_ix)) {
 		for (auto &name: box_name) {
-			if (!map_att_active[inst_ix].count(name)) continue;
-			is_active_box[map_att_active[inst_ix][name]] = active;
+			assert(map_att_active[inst_ix].count(name));
+			is_active_att[map_att_active[inst_ix][name]] = active;
 		}
 	}
 }

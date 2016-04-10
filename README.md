@@ -5,7 +5,7 @@ immature engine
 
 Introduction:
 -------------
-The engine of the action game [Dragon's Ingot](http://dragonsingot.com/). All features tend to be minimized. 
+The special-purpose engine for the action game [Dragon's Ingot](http://dragonsingot.com/). All features tend to be minimized. 
 The fundamental 3D rendering technique is derived from 
 the [DirectX 11 book](http://www.amazon.com/Introduction-3D-Game-Programming-DirectX/dp/1936420228/) by Frank Luna.
 **It is very difficult to use due to weak development scale and absence of visualization scene editor.**

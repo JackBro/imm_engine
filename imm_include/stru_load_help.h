@@ -168,13 +168,13 @@ void model_load_csv_basic(
 	for (size_t ix = 1; ix < csv_model.size(); ++ix) {
 		assert(csv_model[ix].size() > 5);
 		std::string model_name = csv_model[ix][0];
-		if (model.count(model_name)) continue;
 		std::string subpath = csv_model[ix][1];
 		std::string model_file = model_path+subpath+csv_model[ix][2];
 		rot_front[model_name] = rotation_xyz(csv_model[ix][3]);
 		// assign alpha
 		model_alpha[model_name] = stoi(csv_model[ix][4]);
 		// load model
+		if (model.count(model_name)) continue;
 		std::wstring texture_path_full = texture_path+str_to_wstr(subpath);
 		if (model_file.substr(model_file.size()-3) == "m3d") {
 			model[model_name].set(device, tex_mgr, model_file, texture_path_full);

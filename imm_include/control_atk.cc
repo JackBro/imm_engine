@@ -35,7 +35,9 @@ void skill_data::current_apply(skill_para &pa)
 //
 void skill_data::current_over(skill_para &pa)
 {
+	pa.is_turn_next = false;
 	pa.is_busy = false;
+	pa.skill_ix = -1;
 	PTR->m_Control.atk.hits[pa.inst_ix].clear();
 	PTR->m_Attack.deactive_box(pa.inst_ix);
 }
@@ -44,6 +46,7 @@ void skill_data::strike(skill_para &pa)
 {
 	if (pa.skill_ix < 0 && pa.count_down > 0.0f) return;
 	if (pa.skill_ix == -1) {
+		pa.is_turn_next = false;
 		if (!chunk.count(pa.symbol)) return;
 		pa.skill_ix = chunk[pa.symbol];
 		current_apply(pa);
@@ -67,14 +70,21 @@ void skill_data::update(const float &dt, skill_para &pa)
 		tro.order_stat |= ORDER_IS_ENGAGE;
 		tro.order |= ORDER_IDLE;
 		current_over(pa);
-		pa.skill_ix = -1;
 		return;
 	}
-	if (pa.is_turn_next && pa.count_down < frame_turn[pa.skill_ix-1]) {
-		current_apply(pa);
-		pa.is_turn_next = false;
-		if (next_ix[pa.skill_ix] == -1) pa.skill_ix = -1;
-		return;
+	if (pa.is_turn_next) {
+		if (pa.skill_ix < 1 || pa.skill_ix > frame_turn.size()) {
+			assert(pa.skill_ix > 0);
+			assert(pa.skill_ix <= frame_turn.size());
+			pa.is_turn_next = false;
+			return;
+		}
+		if (pa.count_down < frame_turn[pa.skill_ix-1]) {
+			current_apply(pa);
+			pa.is_turn_next = false;
+			if (next_ix[pa.skill_ix] == -1) pa.skill_ix = -1;
+			return;
+		}
 	}
 }
 //
@@ -240,6 +250,11 @@ void control_atk<T_app>::execute(const size_t &index_in, const char &symbol)
 		return;
 	}
 	if (!para_ski.count(index_in)) init_skill_para(index_in);
+	if (!data_ski[para_ski[index_in].model_name].chunk.count(symbol)) {
+		echo(1);
+		return;
+		
+	}
 	if (para_ski[index_in].skill_ix == -1) para_ski[index_in].symbol = symbol;
 	data_ski[para_ski[index_in].model_name].strike(para_ski[index_in]);
 }
