@@ -156,7 +156,7 @@ void ui_attr<T_app>::update_target()
 	count_down = 3.0f;
 	app->m_UiMgr.status.group_active("tar", true);
 	app->m_UiMgr.status.define_set_tar_name(
-		*app->m_Ingot.get_name(*app->m_Inst.m_Stat[tar_ix].get_ModelName()));
+		*app->m_Status.get_name(*app->m_Inst.m_Stat[tar_ix].get_ModelName()));
 }
 ////////////////
 // ai_attr
@@ -219,7 +219,7 @@ void ai_attr<T_app>::rebuild_points()
 	for (auto &stat: app->m_Inst.m_Stat) {
 		if (stat.type == MODEL_SKINNED) {
 			points[ix];
-			app->m_Ingot.assign_attr(points[ix], *(app->m_Inst.m_Stat[ix].get_ModelName()));
+			app->m_Status.assign_attr(points[ix], *(app->m_Inst.m_Stat[ix].get_ModelName()));
 			points_name[*(app->m_Inst.m_Stat[ix].get_ModelName())] = ix;
 		}
 		++ix;
@@ -245,7 +245,7 @@ void ai_attr<T_app>::calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_a
 {
 	ix_atk;
 	switch (specify) {
-	case SKILL_MELEE_UNARMED:
+	case SKILL_MELEE_STANDARD:
 		points[ix_dmg].hp -= 3;
 		if (points[ix_dmg].hp < 0) points[ix_dmg].hp = points[ix_dmg].hp_max;
 		break;

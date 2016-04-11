@@ -278,6 +278,20 @@ bool csv_value_is_empty(const std::string &str)
 	return false;
 }
 ////////////////
+// csv_str_split
+////////////////
+////////////////
+std::vector<std::string> csv_str_split(const std::string &str, const char &sep)
+{
+	std::vector<std::string> ret;
+	std::istringstream ss(str);
+	std::string token;
+	while(std::getline(ss, token, sep)) {
+		ret.push_back(token);
+	}
+	return ret;
+}
+////////////////
 // lua_config
 ////////////////
 ////////////////

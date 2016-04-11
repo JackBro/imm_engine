@@ -24,9 +24,9 @@ struct sfx
 	static std::string Lightning;
 };
 //
-std::string sfx::Punch     = "punch00";
-std::string sfx::Prepare01 = "electricity_spark";
-std::string sfx::Lightning = "electricity_voltage";
+std::string sfx::Punch     = "punch";
+std::string sfx::Prepare01 = "spark";
+std::string sfx::Lightning = "voltage";
 ////////////////
 // SKILL_TYPE
 ////////////////
@@ -71,7 +71,6 @@ skill_para::skill_para():
 struct skill_data
 {
 	skill_data();
-	void build(const std::string &name);
 private:
 	void current_apply(skill_para &pa);
 	void current_over(skill_para &pa);
@@ -82,7 +81,9 @@ public:
 	std::vector<std::string> atk;
 	std::vector<float> frame_end;
 	std::vector<float> frame_turn;
-	std::vector<float> frame_speed;
+	std::vector<float> hit_start;
+	std::vector<float> hit_end;
+	std::vector<float> inst_speed;
 	std::vector<int> next_ix;
 	std::vector<SKILL_SPECIFY> specify;
 	std::vector<std::vector<std::string>> atk_box;

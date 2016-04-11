@@ -11,6 +11,7 @@
 #include "stru_lua_help.h"
 #include "mesh_geometry_gen.h"
 #include "mesh_basic_model.h"
+#include "phy_prepare.h"
 namespace imm
 {
 ////////////////
@@ -184,7 +185,7 @@ void model_load_csv_basic(
 			model_bin.read_from_bin(model[model_name], model_file);
 			model[model_name].set(device, tex_mgr, texture_path_full);
 		}
-		model[model_name].m_BoundType = math::calc_clamp(stoi(csv_model[ix][5]), 0, 2);
+		model[model_name].m_BoundType = phy_bound_type_str(csv_model[ix][5]);
 	}
 }
 ////////////////

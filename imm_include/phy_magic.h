@@ -18,10 +18,19 @@ namespace imm
 ////////////////
 enum SKILL_SPECIFY
 {
-	SKILL_MELEE_UNARMED   = 0,
+	SKILL_MELEE_STANDARD  = 0,
 	SKILL_MAGIC_PREPARE01 = 1,
 	SKILL_MAGIC_LIGHTNING = 2,
 };
+//
+SKILL_SPECIFY skill_specify_str(const std::string &str)
+{
+	if (str == "SKILL_MELEE_STANDARD") return SKILL_MELEE_STANDARD;
+	if (str == "SKILL_MAGIC_PREPARE01") return SKILL_MAGIC_PREPARE01;
+	if (str == "SKILL_MAGIC_LIGHTNING") return SKILL_MAGIC_LIGHTNING;
+	assert(false);
+	return SKILL_MELEE_STANDARD;
+}
 ////////////////
 // magic_inst
 ////////////////

@@ -10,6 +10,7 @@
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 #include <vector>
+#include <string>
 using namespace DirectX;
 namespace imm
 {
@@ -125,6 +126,16 @@ enum PHY_BOUND_TYPE
 	PHY_BOUND_SPHERE  = 2,
 	PHY_BOUND_NULL    = 3,
 };
+//
+PHY_BOUND_TYPE phy_bound_type_str(const std::string &str)
+{
+	if (str == "PHY_BOUND_BOX") return PHY_BOUND_BOX;
+	if (str == "PHY_BOUND_ORI_BOX") return PHY_BOUND_ORI_BOX;
+	if (str == "PHY_BOUND_SPHERE") return PHY_BOUND_SPHERE;
+	if (str == "PHY_BOUND_NULL") return PHY_BOUND_NULL;
+	assert(false);
+	return PHY_BOUND_BOX;
+}
 ////////////////
 // phy_bound_mgr
 // manager various types of bounding

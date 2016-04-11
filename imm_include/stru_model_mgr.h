@@ -276,7 +276,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 		model_is_tex[model_name] = !csv_value_is_empty(vec2d_model[ix][6]);
 		m_PNTT["default"].set_MapSRV(m_TexMgr, tex_diffuse, tex_normal, model_is_tex[model_name]);
 		model_tex_trans[model_name] = vec2d_model[ix][8];
-		m_PNTT["default"].m_NameBoundType[model_name] = math::calc_clamp(stoi(vec2d_model[ix][9]), 0, 2);
+		m_PNTT["default"].m_NameBoundType[model_name] = phy_bound_type_str(vec2d_model[ix][9]);
 	}
 	model_load_geo_mesh(device, m_PNTT["default"], geo_mesh);
 	// build instance

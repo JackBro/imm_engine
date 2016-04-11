@@ -24,7 +24,7 @@ void skill_data::current_apply(skill_para &pa)
 	if (pa.skill_ix > 0) PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.skill_ix-1], false);
 	pa.count_down = frame_end[pa.skill_ix];
 	PTR->m_Inst.m_Stat[pa.inst_ix].check_set_ClipName(atk[pa.skill_ix], true);
-	math::set_inst_speed(pa.inst_ix, frame_speed[pa.skill_ix]);
+	math::set_inst_speed(pa.inst_ix, inst_speed[pa.skill_ix]);
 	pa.is_busy = true;
 	pa.current_ix = pa.skill_ix;
 	PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.skill_ix], true);
@@ -90,7 +90,7 @@ void skill_data::update(const float &dt, skill_para &pa)
 //
 SKILL_TYPE skill_data::get_skill_type(const skill_para &pa)
 {
-	if (specify[pa.current_ix] > SKILL_MELEE_UNARMED) return SKILL_TYPE_MAGIC;
+	if (specify[pa.current_ix] > SKILL_MELEE_STANDARD) return SKILL_TYPE_MAGIC;
 	return SKILL_TYPE_MELEE;
 }
 ////////////////
@@ -106,7 +106,7 @@ damage_data::damage_data():
 	is_calculated(true),
 	is_delay(false),
 	box_center(nullptr),
-	specify(SKILL_MELEE_UNARMED)
+	specify(SKILL_MELEE_STANDARD)
 {
 	;
 }
@@ -118,7 +118,7 @@ void damage_data::update(const float &dt)
 		is_calculated = true;
 		return;
 	}
-	if (specify <= SKILL_MELEE_UNARMED) {
+	if (specify <= SKILL_MELEE_STANDARD) {
 		update_melee(dt);
 	}
 	else {
@@ -251,9 +251,7 @@ void control_atk<T_app>::execute(const size_t &index_in, const char &symbol)
 	}
 	if (!para_ski.count(index_in)) init_skill_para(index_in);
 	if (!data_ski[para_ski[index_in].model_name].chunk.count(symbol)) {
-		echo(1);
 		return;
-		
 	}
 	if (para_ski[index_in].skill_ix == -1) para_ski[index_in].symbol = symbol;
 	data_ski[para_ski[index_in].model_name].strike(para_ski[index_in]);
@@ -269,9 +267,33 @@ void control_atk<T_app>::update(const float &dt)
 		dmg.second.update(dt);
 	}
 }
-////////////////
-// inl
-////////////////
-////////////////
-#include "ingot_atk.cc"
+//
+template <typename T_app>
+void control_atk<T_app>::init(T_app *app_in)
+{
+	app = app_in;
+	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
+	lua_reader l_reader;
+	l_reader.loadfile(concrete);
+	std::vector<std::vector<std::string>> vec2d;
+	l_reader.vec2d_str_from_table("csv_skill", vec2d);
+	for (size_t ix = 1; ix < vec2d.size(); ++ix) {
+		auto d_skill = &data_ski[vec2d[ix][0]];
+		if (!d_skill->chunk.count(vec2d[ix][1][0])) {
+			d_skill->chunk[vec2d[ix][1][0]] = static_cast<int>(data_ski[vec2d[ix][0]].atk.size());
+		}
+		d_skill->atk.push_back(vec2d[ix][2]);
+		d_skill->frame_end.push_back(std::stof(vec2d[ix][3]) / FRAME_RATE);
+		d_skill->frame_turn.push_back(std::stof(vec2d[ix][4]) / FRAME_RATE);
+		d_skill->hit_start.push_back(std::stof(vec2d[ix][5]) / FRAME_RATE);
+		d_skill->hit_end.push_back(std::stof(vec2d[ix][6]) / FRAME_RATE);
+		d_skill->inst_speed.push_back(std::stof(vec2d[ix][7]));
+		d_skill->next_ix.push_back(std::stoi(vec2d[ix][8]));
+		d_skill->specify.push_back(skill_specify_str(vec2d[ix][9]));
+		std::vector<std::string> box_name = csv_str_split(vec2d[ix][10], '$');
+		if (box_name[0].size() == 0) box_name.clear();
+		d_skill->atk_box.push_back(box_name);
+	}
+}
+//
 }
