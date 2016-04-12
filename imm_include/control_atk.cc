@@ -22,24 +22,28 @@ void skill_data::current_apply(skill_para &pa)
 {
 	// deactive the previous box
 	if (pa.skill_ix > 0) PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.skill_ix-1], false);
+	pa.is_judge = false;
 	pa.count_down = frame_end[pa.skill_ix];
 	PTR->m_Inst.m_Stat[pa.inst_ix].check_set_ClipName(atk[pa.skill_ix], true);
 	math::set_inst_speed(pa.inst_ix, inst_speed[pa.skill_ix]);
 	pa.is_busy = true;
 	pa.current_ix = pa.skill_ix;
-	PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.skill_ix], true);
 	if (get_skill_type(pa) == SKILL_TYPE_MAGIC) {
 		PTR->m_Magic.invoke(specify[pa.current_ix], pa.inst_ix);
 	}
 }
 //
-void skill_data::current_over(skill_para &pa)
+void skill_data::chunk_over(skill_para &pa)
 {
 	pa.is_turn_next = false;
 	pa.is_busy = false;
+	pa.is_judge = false;
 	pa.skill_ix = -1;
 	PTR->m_Control.atk.hits[pa.inst_ix].clear();
 	PTR->m_Attack.deactive_box(pa.inst_ix);
+	auto &tro = PTR->m_Inst.m_Troll[pa.inst_ix];
+	tro.order_stat |= ORDER_IS_ENGAGE;
+	tro.order |= ORDER_IDLE;
 }
 //
 void skill_data::strike(skill_para &pa)
@@ -47,7 +51,10 @@ void skill_data::strike(skill_para &pa)
 	if (pa.skill_ix < 0 && pa.count_down > 0.0f) return;
 	if (pa.skill_ix == -1) {
 		pa.is_turn_next = false;
-		if (!chunk.count(pa.symbol)) return;
+		if (!chunk.count(pa.symbol)) {
+			chunk_over(pa);
+			return;
+		}
 		pa.skill_ix = chunk[pa.symbol];
 		current_apply(pa);
 		return;
@@ -64,12 +71,24 @@ void skill_data::strike(skill_para &pa)
 //
 void skill_data::update(const float &dt, skill_para &pa)
 {
-	auto &tro = PTR->m_Inst.m_Troll[pa.inst_ix];
+	if (!pa.is_busy) return;
 	if (pa.count_down > 0.0f) pa.count_down -= dt;
-	if (pa.is_busy && pa.count_down < 0.0f) {
-		tro.order_stat |= ORDER_IS_ENGAGE;
-		tro.order |= ORDER_IDLE;
-		current_over(pa);
+	//
+	if (!pa.is_judge) {
+		if (frame_end[pa.current_ix] - pa.count_down > judge_start[pa.current_ix]) {
+			PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.current_ix], true);
+			pa.is_judge = true;
+		}
+	}
+	if (pa.is_judge) {
+		if (frame_end[pa.current_ix] - pa.count_down > judge_end[pa.current_ix]) {
+			PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.current_ix], false);
+			pa.is_judge = false;
+		}
+	}
+	//
+	if (pa.count_down < 0.0f) {
+		chunk_over(pa);
 		return;
 	}
 	if (pa.is_turn_next) {
@@ -250,9 +269,6 @@ void control_atk<T_app>::execute(const size_t &index_in, const char &symbol)
 		return;
 	}
 	if (!para_ski.count(index_in)) init_skill_para(index_in);
-	if (!data_ski[para_ski[index_in].model_name].chunk.count(symbol)) {
-		return;
-	}
 	if (para_ski[index_in].skill_ix == -1) para_ski[index_in].symbol = symbol;
 	data_ski[para_ski[index_in].model_name].strike(para_ski[index_in]);
 }
@@ -285,8 +301,8 @@ void control_atk<T_app>::init(T_app *app_in)
 		d_skill->atk.push_back(vec2d[ix][2]);
 		d_skill->frame_end.push_back(std::stof(vec2d[ix][3]) / FRAME_RATE);
 		d_skill->frame_turn.push_back(std::stof(vec2d[ix][4]) / FRAME_RATE);
-		d_skill->hit_start.push_back(std::stof(vec2d[ix][5]) / FRAME_RATE);
-		d_skill->hit_end.push_back(std::stof(vec2d[ix][6]) / FRAME_RATE);
+		d_skill->judge_start.push_back(std::stof(vec2d[ix][5]) / FRAME_RATE);
+		d_skill->judge_end.push_back(std::stof(vec2d[ix][6]) / FRAME_RATE);
 		d_skill->inst_speed.push_back(std::stof(vec2d[ix][7]));
 		d_skill->next_ix.push_back(std::stoi(vec2d[ix][8]));
 		d_skill->specify.push_back(skill_specify_str(vec2d[ix][9]));

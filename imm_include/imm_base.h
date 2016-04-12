@@ -112,6 +112,7 @@ base_win<DERIVED_TYPE>::base_win():
 	m_D2DTargetBitmap(nullptr),
 	m_D2DBitMapProp(D2D1::BitmapProperties1())
 {
+	IMM_PATH_init();
 	ZeroMemory(&m_ScreenViewport, sizeof(D3D11_VIEWPORT));
 }
 //

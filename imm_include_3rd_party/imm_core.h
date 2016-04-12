@@ -29,9 +29,6 @@
 #include "d3dx11effect.h"
 #include <DirectXMath.h>
 #include "debug_console.h"
-// http://stackoverflow.com/questions/34013930/error-c4592-symbol-will-be-dynamically-initialized-vs2015-1-static-const-std
-// https://github.com/Microsoft/cpprestsdk/issues/34
-#pragma warning(disable: 4592)
 using namespace DirectX;
 namespace imm
 {
@@ -59,17 +56,18 @@ namespace imm
 // static
 ////////////////
 ////////////////
-static std::map<std::string, std::string> IMM_PATH
+static std::map<std::string, std::string> IMM_PATH;
+void IMM_PATH_init()
 {
-	{"shader", "ast_shader\\"},
-	{"model", "ast_model\\"},
-	{"texture", "ast_texture\\"},
-	{"media", "ast_media\\"},
-	{"script", "script\\"},
-	{"output", "script\\m3d_input_output\\"},
-	{"input", "script\\m3d_input_output\\"},
-	{"text", "script\\text_en\\"},
-};
+	IMM_PATH["shader"]  = "ast_shader\\";
+	IMM_PATH["model"]   = "ast_model\\";
+	IMM_PATH["texture"] = "ast_texture\\";
+	IMM_PATH["media"]   = "ast_media\\";
+	IMM_PATH["script"]  = "script\\";
+	IMM_PATH["output"]  = "script\\m3d_input_output\\";
+	IMM_PATH["input"]   = "script\\m3d_input_output\\";
+	IMM_PATH["text"]    = "script\\text_en\\";
+}
 // for calclate UI size with factor
 static const float UI_RESOLUTION_WIDTH = 1366.0f;
 static const float UI_RESOLUTION_HEIGHT = 768.0f;

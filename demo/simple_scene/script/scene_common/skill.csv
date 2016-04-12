@@ -1,1 +1,1 @@
-model_name,chunk,atk_name,frame_end,frame_turn,hit_start,hit_end,inst_speed,next_ix,specify,bounding_box
+model_name,chunk,atk_name,frame_end,frame_turn,judge_start,judge_end,inst_speed,next_ix,specify,bounding_box

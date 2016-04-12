@@ -49,6 +49,7 @@ struct skill_para
 	size_t inst_ix;
 	bool is_busy;
 	bool is_turn_next;
+	bool is_judge;
 	float count_down;
 	char symbol;
 };
@@ -59,6 +60,7 @@ skill_para::skill_para():
 	inst_ix(0),
 	is_busy(false),
 	is_turn_next(false),
+	is_judge(false),
 	count_down(-1.0f),
 	symbol('A')
 {
@@ -73,7 +75,7 @@ struct skill_data
 	skill_data();
 private:
 	void current_apply(skill_para &pa);
-	void current_over(skill_para &pa);
+	void chunk_over(skill_para &pa);
 public:
 	void strike(skill_para &pa);
 	void update(const float &dt, skill_para &pa);
@@ -81,8 +83,8 @@ public:
 	std::vector<std::string> atk;
 	std::vector<float> frame_end;
 	std::vector<float> frame_turn;
-	std::vector<float> hit_start;
-	std::vector<float> hit_end;
+	std::vector<float> judge_start;
+	std::vector<float> judge_end;
 	std::vector<float> inst_speed;
 	std::vector<int> next_ix;
 	std::vector<SKILL_SPECIFY> specify;
