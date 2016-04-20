@@ -1,6 +1,6 @@
 1.bat:
-The compile option see bat_tool\1.bat
-Modify the bat file according to your situation.
+The compile options see bat_tool\1.bat
+Modify the bat file according to your include/lib path.
 "Ashlotte" is my project's nickname.
 
 Setting the Path and Environment Variables for Command-Line Builds

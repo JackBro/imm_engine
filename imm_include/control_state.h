@@ -28,6 +28,7 @@ enum ORDER_ACT_TYPE
 	ORDER_ATK_Y       = 0x40,
 	ORDER_DMG         = 0x80,
 	ORDER_ROLL        = 0x100,
+	ORDER_GUARD       = 0x200,
 };
 //
 enum ORDER_STAT_TYPE
@@ -36,6 +37,7 @@ enum ORDER_STAT_TYPE
 	ORDER_IS_WALK   = 0x1, // NOT: ORDER_IS_RUN
 	ORDER_IS_ROLL   = 0x2,
 	ORDER_IS_ENGAGE = 0x4,
+	ORDER_IS_GUARD  = 0x8,
 };
 ////////////////
 // state
@@ -130,6 +132,22 @@ private:
 	pose_Damage &operator=(const pose_Damage&);
 };
 ////////////////
+// pose_Guard
+////////////////
+////////////////
+struct troll;
+struct pose_Guard: public state<troll>
+{
+	static pose_Guard *instance();
+	void enter(troll*);
+	void execute(troll*);
+	void exit(troll*);
+private:
+	pose_Guard() {;}
+	pose_Guard(const pose_Damage&);
+	pose_Guard &operator=(const pose_Guard&);
+};
+////////////////
 // act
 ////////////////
 ////////////////
@@ -144,6 +162,7 @@ struct act
 	static std::string Damage;
 	static std::string Roll;
 	static std::string WalkRev;
+	static std::string Guard;
 };
 //
 std::string act::Idle     = "Idle";
@@ -155,6 +174,7 @@ std::string act::Engage   = "Engage";
 std::string act::Damage   = "Damage";
 std::string act::Roll     = "Roll";
 std::string act::WalkRev  = "WalkRev";
+std::string act::Guard    = "Guard";
 ////////////////
 // troll
 ////////////////
@@ -187,6 +207,7 @@ struct troll
 	float cd_Damage;
 	float cd_Move;
 	float cd_Move2;
+	act act_now;
 };
 //
 troll::troll():
@@ -209,7 +230,8 @@ troll::troll():
 	cd_Jump(-1.0f),
 	cd_Damage(-1.0f),
 	cd_Move(-1.0f),
-	cd_Move2(-1.0f)
+	cd_Move2(-1.0f),
+	act_now()
 {
 	;
 }

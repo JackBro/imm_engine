@@ -5,16 +5,19 @@ immature engine
 
 Introduction:
 -------------
-The special-purpose engine for the action game [Dragon's Ingot](http://dragonsingot.com/). All features tend to be minimized. 
+This special-purpose engine only design for the action game [Dragon's Ingot](http://dragonsingot.com/).
+All features tend to be minimized. 
 The fundamental 3D rendering technique is derived from 
 the [DirectX 11 book](http://www.amazon.com/dp/1936420228/) by Frank Luna.
 **It is very difficult to use due to weak development scale and absence of visualization scene editor.**
 **Not recommended this engine for serious using.**
+A wise choice is to use Unity3D or Unreal Engine, compared with them, immature engine has no advantage. 
 
 Current State:
 ---------------
-The development task is focusing on making the game Dragon's Ingot.
-For the responsibility of a open source project, just guarantee the able to compile the engine demos correctly and resolving bugs.
+Dragon's Ingot has not released yet.
+For the responsibility of a open source project, 
+just guarantee the able to compile the engine demos correctly and resolving bugs.
 
 Disadvantage List:
 ------------------

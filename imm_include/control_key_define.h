@@ -30,6 +30,7 @@ static int KEY_P1_A             = 'A';
 static int KEY_P1_S             = 'S';
 static int KEY_P1_D             = 'D';
 static int KEY_P1_ROLL          = 'C';
+static int KEY_P1_GUARD         = 'E';
 static int KEY_UI_ESC           = VK_ESCAPE;
 static int KEY_UI_FPS1          = 'R';
 static int KEY_UI_FPS2          = VK_CONTROL;
