@@ -47,17 +47,19 @@ DirectX 11 capable GPU
 1024X768 minimum display resolution  
 DirectX 9.0c compliant sound card  
 
-Dependent .Lib Files:
+Dependent .Lib Files for compiling:
 ---------------------
 Those files should be in VC++ Library Directories, 
 notice corresponding x64/x86, Debug/Release version.
-* **DirectXTK.lib**: DirectX Tool Kit
-* **Effects11.lib**: Effects for Direct3D 11
-* **lua.lib**: Lua 5.3.0
-* **XInput1_3.lib**: Its orgin name is XInput.lib, from DirectX SDK (June 2010)
-* **X3DAudio.lib**: DirectX SDK (June 2010)
-* **XAPOFX.lib**: DirectX SDK (June 2010)
-* **DirectXTKAudioDX.lib**: DirectXTK Audio
+The .lib files you can get from each corresponding project.
+* **DirectXTK.lib**: [DirectX Tool Kit](https://github.com/Microsoft/DirectXTK) (February 23, 2016)
+* **DirectXTKAudioDX.lib**: [DirectX Tool Kit](https://github.com/Microsoft/DirectXTK)  (February 23, 2016)
+* **Effects11.lib**: [Effects for Direct3D 11](https://github.com/Microsoft/FX11) (November 30, 2015 (11.15))
+* **lua.lib**: [Lua](https://www.lua.org/) 5.3.2
+* **XInput1_3.lib**: Its orgin name is XInput.lib, from 
+[DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
+* **X3DAudio.lib**: [DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
+* **XAPOFX.lib**: [DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
 
 How to Compile:
 ---------------

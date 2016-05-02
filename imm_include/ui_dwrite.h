@@ -33,14 +33,14 @@ struct dwrite_simple
 	float calc_FontSize(HWND &hwnd, const float &font_factor);
 	void on_resize_CreateTextFormat(HWND &hwnd);
 	// for m_LayoutRc as writting area
-	void init_solo(
+	void init_member_rect(
 		ID2D1DeviceContext *d2d_dc,
 		HWND &hwnd,
 		const std::wstring &font_name,
 		const FLOAT &margin_factor,
 		const float &font_factor);
 	// for draw rect form external
-	void init_without_rect(
+	void init_external_rect(
 		ID2D1DeviceContext *d2d_dc,
 		HWND &hwnd,
 		const std::wstring &font_name,
@@ -66,9 +66,13 @@ struct dwrite_simple
 		const size_t &title_len);
 	void on_size_get_TextLayout_height(const size_t &index, float &height);
 	template <typename T_wstring>
-	void draw(ID2D1DeviceContext *d2d_dc, T_wstring &wst_text);
+	void draw_MemberRect(ID2D1DeviceContext *d2d_dc, T_wstring &wst_text);
 	template <typename T_wstring>
-	void draw_Rect(ID2D1DeviceContext *d2d_dc, T_wstring &wst_text, D2D1_RECT_F &rect);
+	void draw_ExternalRect(
+		ID2D1DeviceContext *d2d_dc,
+		const T_wstring &wst_text,
+		const D2D1_RECT_F &rect,
+		const bool &is_brackets_style);
 	void draw_TextLayout(ID2D1DeviceContext *d2d_dc, const D2D1_POINT_2F &origin, const size_t &index);
 	IDWriteFactory *m_WriteFactory;
 	IDWriteTextFormat *m_TextFormat;
@@ -149,7 +153,7 @@ void dwrite_simple::on_resize_CreateTextFormat(HWND &hwnd)
 	assert(false);
 }
 //
-void dwrite_simple::init_solo(
+void dwrite_simple::init_member_rect(
 	ID2D1DeviceContext *d2d_dc,
 	HWND &hwnd,
 	const std::wstring &font_name,
@@ -166,7 +170,7 @@ void dwrite_simple::init_solo(
 	HR(d2d_dc->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_Brush));
 }
 //
-void dwrite_simple::init_without_rect(
+void dwrite_simple::init_external_rect(
 	ID2D1DeviceContext *d2d_dc,
 	HWND &hwnd,
 	const std::wstring &font_name,
@@ -228,6 +232,7 @@ void dwrite_simple::build_TextLayout(
 		height,
 		title_font_factor,
 		title_len);
+	//
 }
 //
 void dwrite_simple::on_resize_TextLayout(
@@ -263,7 +268,7 @@ void dwrite_simple::on_size_get_TextLayout_height(const size_t &index, float &he
 }
 //
 template <typename T_wstring>
-void dwrite_simple::draw(ID2D1DeviceContext *d2d_dc, T_wstring &wst_text)
+void dwrite_simple::draw_MemberRect(ID2D1DeviceContext *d2d_dc, T_wstring &wst_text)
 {
 	if (wst_text.size() > m_MaxSize*2) {
 		wst_text.assign(wst_text.end()-m_MaxSize, wst_text.end());
@@ -278,16 +283,32 @@ void dwrite_simple::draw(ID2D1DeviceContext *d2d_dc, T_wstring &wst_text)
 }
 //
 template <typename T_wstring>
-void dwrite_simple::draw_Rect(ID2D1DeviceContext *d2d_dc, T_wstring &wst_text, D2D1_RECT_F &rect)
+void dwrite_simple::draw_ExternalRect(
+	ID2D1DeviceContext *d2d_dc,
+	const T_wstring &wst_text,
+	const D2D1_RECT_F &rect,
+	const bool &is_brackets_style = false)
 {
 	if (wst_text.size() == 0) return;
-	d2d_dc->DrawText(
-		wst_text.c_str(),
-		static_cast<UINT32>(wst_text.size()),
-		m_TextFormat,
-		rect,
-		m_Brush
-	);
+	if (is_brackets_style) {
+		std::wstring wstr = L"["+wst_text+L"]";
+		d2d_dc->DrawText(
+			wstr.c_str(),
+			static_cast<UINT32>(wstr.size()),
+			m_TextFormat,
+			rect,
+			m_Brush
+		);
+	}
+	else {
+		d2d_dc->DrawText(
+			wst_text.c_str(),
+			static_cast<UINT32>(wst_text.size()),
+			m_TextFormat,
+			rect,
+			m_Brush
+		);
+	}
 }
 //
 void dwrite_simple::draw_TextLayout(ID2D1DeviceContext *d2d_dc, const D2D1_POINT_2F &origin, const size_t &index)

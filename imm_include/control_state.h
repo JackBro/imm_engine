@@ -29,6 +29,7 @@ enum ORDER_ACT_TYPE
 	ORDER_DMG         = 0x80,
 	ORDER_ROLL        = 0x100,
 	ORDER_GUARD       = 0x200,
+	ORDER_GUARD_NO    = 0X400,
 };
 //
 enum ORDER_STAT_TYPE
@@ -132,49 +133,24 @@ private:
 	pose_Damage &operator=(const pose_Damage&);
 };
 ////////////////
-// pose_Guard
+// act_str
 ////////////////
 ////////////////
-struct troll;
-struct pose_Guard: public state<troll>
+struct act_str
 {
-	static pose_Guard *instance();
-	void enter(troll*);
-	void execute(troll*);
-	void exit(troll*);
-private:
-	pose_Guard() {;}
-	pose_Guard(const pose_Damage&);
-	pose_Guard &operator=(const pose_Guard&);
+	act_str();
+	act_str(int &order_stat);
+	std::string Idle();
+	std::string Run();
+	std::string Jump();
+	std::string JumpLand();
+	std::string Engage();
+	std::string Damage();
+	std::string Roll();
+	std::string WalkRev();
+	std::string Guard();
+	int *p_order_s;
 };
-////////////////
-// act
-////////////////
-////////////////
-struct act
-{
-	static std::string Idle;
-	static std::string Walk;
-	static std::string Run;
-	static std::string Jump;
-	static std::string JumpLand;
-	static std::string Engage;
-	static std::string Damage;
-	static std::string Roll;
-	static std::string WalkRev;
-	static std::string Guard;
-};
-//
-std::string act::Idle     = "Idle";
-std::string act::Walk     = "Walk";
-std::string act::Run      = "Run";
-std::string act::Jump     = "Jump";
-std::string act::JumpLand = "JumpLand";
-std::string act::Engage   = "Engage";
-std::string act::Damage   = "Damage";
-std::string act::Roll     = "Roll";
-std::string act::WalkRev  = "WalkRev";
-std::string act::Guard    = "Guard";
 ////////////////
 // troll
 ////////////////
@@ -184,9 +160,9 @@ struct troll
 	troll();
 	void update();
 	void change_state(state<troll> *new_state);
+	void change_state_execute(state<troll> *new_state);
 	void revert_previous_state();
 	float speed_move();
-	std::string &act_move();
 	state<troll> *current_state;
 	state<troll> *previous_state;
 	size_t index;
@@ -207,7 +183,7 @@ struct troll
 	float cd_Damage;
 	float cd_Move;
 	float cd_Move2;
-	act act_now;
+	act_str act;
 };
 //
 troll::troll():
@@ -231,7 +207,7 @@ troll::troll():
 	cd_Damage(-1.0f),
 	cd_Move(-1.0f),
 	cd_Move2(-1.0f),
-	act_now()
+	act(order_stat)
 {
 	;
 }
@@ -250,6 +226,16 @@ void troll::change_state(state<troll> *new_state)
 	current_state->enter(this);
 }
 //
+void troll::change_state_execute(state<troll> *new_state)
+{
+	assert(current_state && new_state);
+	previous_state = current_state;
+	current_state->exit(this);
+	current_state = new_state;
+	current_state->enter(this);
+	current_state->execute(this);
+}
+//
 void troll::revert_previous_state()
 {
 	change_state(previous_state);
@@ -260,12 +246,10 @@ float troll::speed_move()
 	if (order_stat & ORDER_IS_WALK)	return speed_Walk;
 	return speed_Run;
 }
-//
-std::string &troll::act_move()
-{
-	if (order_stat & ORDER_IS_WALK) return act::Walk;
-	return act::Run;
-}
-//
+////////////////
+// inl
+////////////////
+////////////////
+#include "control_state_act.cc"
 }
 #endif

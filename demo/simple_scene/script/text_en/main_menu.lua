@@ -14,7 +14,6 @@ Left Click             Special attack
 Q                      Switch between Walk and Run
 Middle Mouse Button    Camera pitch/yaw
 Wheel Up/Down          Camera forward/backward
-Z                      Camera reset
 
 System hotkeys:
 Ctrl+R                 Prints FPS
@@ -29,7 +28,6 @@ Buttom Y               Special attack
 D-pad                  Menu Up/Down
 Right Stick            Camera pitch/yaw
 Left/Right Thumb       Camera forward/backward
-RB                     Camera reset
 
 Note:
 The program automatically detects the gamepad status, if the gamepad is plugin, the keyboard and mouse control will be disabled.

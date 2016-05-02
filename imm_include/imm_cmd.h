@@ -64,7 +64,7 @@ void cmd_shell<T_app>::init(T_app *app_in)
 {
 	app = app_in;
 	input.assign(L"> immature engine\n");
-	dwrite.init_solo(app->m_D2DDC, app->m_hwnd, L"Consolas", margin_factor, font_factor);
+	dwrite.init_member_rect(app->m_D2DDC, app->m_hwnd, L"Consolas", margin_factor, font_factor);
 }
 //
 template <typename T_app>
@@ -225,7 +225,7 @@ void cmd_shell<T_app>::on_resize()
 template <typename T_app>
 void cmd_shell<T_app>::draw()
 {
-	dwrite.draw(app->m_D2DDC, input);
+	dwrite.draw_MemberRect(app->m_D2DDC, input);
 }
 //
 template <typename T_app>

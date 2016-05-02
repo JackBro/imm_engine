@@ -227,14 +227,10 @@ bool key_move_wasd(const size_t &index, const float &speed)
 	if (GetKeyState(KEY_P1_A) & 0x8000) offset_radians = -XM_PI*0.5f;
 	if (GetKeyState(KEY_P1_S) & 0x8000) offset_radians = XM_PI;
 	if (GetKeyState(KEY_P1_D) & 0x8000) offset_radians = XM_PI*0.5f;
-	if ((GetKeyState(KEY_P1_W) & 0x8000) && (GetKeyState(KEY_P1_A) & 0x8000))
-		offset_radians = -XM_PI*0.25f;
-	if ((GetKeyState(KEY_P1_W) & 0x8000) && (GetKeyState(KEY_P1_D) & 0x8000))
-		offset_radians = XM_PI*0.25f;
-	if ((GetKeyState(KEY_P1_S) & 0x8000) && (GetKeyState(KEY_P1_A) & 0x8000))
-		offset_radians = -XM_PI*0.75f;
-	if ((GetKeyState(KEY_P1_S) & 0x8000) && (GetKeyState(KEY_P1_D) & 0x8000))
-		offset_radians = XM_PI*0.75f;
+	if ((GetKeyState(KEY_P1_W) & 0x8000) && (GetKeyState(KEY_P1_A) & 0x8000)) offset_radians = -XM_PI*0.25f;
+	if ((GetKeyState(KEY_P1_W) & 0x8000) && (GetKeyState(KEY_P1_D) & 0x8000)) offset_radians = XM_PI*0.25f;
+	if ((GetKeyState(KEY_P1_S) & 0x8000) && (GetKeyState(KEY_P1_A) & 0x8000)) offset_radians = -XM_PI*0.75f;
+	if ((GetKeyState(KEY_P1_S) & 0x8000) && (GetKeyState(KEY_P1_D) & 0x8000)) offset_radians = XM_PI*0.75f;
 	//
 	XMVECTOR vel_indirect = PTR->m_Cam.get_LookXM();
 	XMVECTOR offset_rotation = XMQuaternionRotationAxis(VECTOR_AXIS_Y, offset_radians);

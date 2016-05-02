@@ -15,19 +15,24 @@
 
 #pragma once
 
-#define D3DX11_EFFECTS_VERSION 1109
+#define D3DX11_EFFECTS_VERSION 1115
 
+#if defined(_XBOX_ONE) && defined(_TITLE)
+#include <d3d11_x.h>
+#define DCOMMON_H_INCLUDED
+#define NO_D3D11_DEBUG_NAME
+#elif (_WIN32_WINNT >= 0x0602) || defined(_WIN7_PLATFORM_UPDATE) 
+#include <d3d11_1.h>
+#include <d3d11shader.h>
+#else
 #include <d3d11.h>
 #include <d3d11shader.h>
+#endif
 
 #pragma comment( lib, "d3dcompiler.lib" )
 #pragma comment( lib, "dxguid.lib" )
 
-// VS 2010's stdint.h conflicts with intsafe.h
-#pragma warning(push)
-#pragma warning(disable : 4005)
 #include <stdint.h>
-#pragma warning(pop)
 
 #if defined(_MSC_VER) && (_MSC_VER<1610) && !defined(_In_reads_)
 #define _Analysis_assume_(exp) __analysis_assume(exp)

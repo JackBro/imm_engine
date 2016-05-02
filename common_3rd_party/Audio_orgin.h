@@ -32,11 +32,6 @@
 #define XAUDIO2_HELPER_FUNCTIONS
 #endif
 
-// modification: forced to use XAudio 2.7
-int TEMP_HOLD_WIN32_WINNT = _WIN32_WINNT;
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0601
-
 #if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
 #if defined(_MSC_VER) && (_MSC_VER < 1700)
 #error DirectX Tool Kit for Audio does not support VS 2010 without the DirectX SDK 
@@ -685,7 +680,3 @@ namespace DirectX
         std::unique_ptr<Impl> pImpl;
     };
 }
-
-// modification: forced to use XAudio 2.7, recover _WIN32_WINNT
-#undef _WIN32_WINNT
-#define _WIN32_WINNT TEMP_HOLD_WIN32_WINNT

@@ -144,6 +144,11 @@ void imm_app::on_input_keydown(WPARAM w_param, LPARAM l_param)
 	if (m_Cmd.is_waiting_for_something()) return;
 	m_Control.on_input_keydown(w_param, l_param);
 }
+//
+void imm_app::on_input_keyup(WPARAM w_param, LPARAM l_param)
+{
+	m_Control.on_input_keyup(w_param, l_param);
+}
 ////////////////
 // inl
 ////////////////

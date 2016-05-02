@@ -23,14 +23,16 @@ struct control_sys
 	void init(T_app *app_in);
 	void reset();
 	void rebuild_player();
-	void mouse_instance_move();
-	void pad_instance_move_update();
-	void key_instance_move_update();
-	void key_instance_move_switch_stat();
-	void instance_jump();
-	void instance_roll();
-	void instance_atk_x();
-	void instance_atk_y();
+	void mouse_inst_move();
+	void pad_inst_move_update();
+	void key_inst_move_update();
+	void key_inst_guard_update();
+	void key_inst_move_switch_stat();
+	void inst_jump();
+	void inst_roll();
+	void inst_atk_x();
+	void inst_atk_y();
+	void inst_guard(const bool &is_guard);
 	void mouse_pick();
 	void set_player1(const size_t &p1);
 	void update_scene(const float &dt);
@@ -40,6 +42,7 @@ struct control_sys
 	void on_mouse_down(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_pad_down_update(const float &dt);
 	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
+	void on_input_keyup(WPARAM &w_param, LPARAM &l_param);
 	void on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_mouse_wheel(const short &z_delta);
 	// member variable
@@ -98,14 +101,14 @@ void control_sys<T_app>::rebuild_player()
 }
 //
 template <typename T_app>
-void control_sys<T_app>::mouse_instance_move()
+void control_sys<T_app>::mouse_inst_move()
 {
 	if (player1 < 0 || !(style1 & CONTROL_CAM_FREE)) return;
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_HIT;
 }
 //
 template <typename T_app>
-void control_sys<T_app>::pad_instance_move_update()
+void control_sys<T_app>::pad_inst_move_update()
 {
 	if (player1 < 0) return;
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_TOWARD;
@@ -114,40 +117,53 @@ void control_sys<T_app>::pad_instance_move_update()
 }
 //
 template <typename T_app>
-void control_sys<T_app>::key_instance_move_update()
+void control_sys<T_app>::key_inst_move_update()
 {
 	if (player1 < 0 || (style1 & CONTROL_CAM_FREE)) return;
 	app->m_Inst.m_Troll[player1].order |= ORDER_MOVE_WASD;
 }
 //
 template <typename T_app>
-void control_sys<T_app>::key_instance_move_switch_stat()
+void control_sys<T_app>::key_inst_move_switch_stat()
 {
 	app->m_Inst.m_Troll[player1].order_stat ^= ORDER_IS_WALK;
 }
 //
 template <typename T_app>
-void control_sys<T_app>::instance_jump()
+void control_sys<T_app>::inst_jump()
 {
 	app->m_Inst.m_Troll[player1].order |= ORDER_JUMP;
 }
 //
 template <typename T_app>
-void control_sys<T_app>::instance_roll()
+void control_sys<T_app>::inst_roll()
 {
 	app->m_Inst.m_Troll[player1].order |= ORDER_ROLL;
 }
 //
 template <typename T_app>
-void control_sys<T_app>::instance_atk_x()
+void control_sys<T_app>::inst_atk_x()
 {
 	app->m_Inst.m_Troll[player1].order |= ORDER_ATK_X;
 }
 //
 template <typename T_app>
-void control_sys<T_app>::instance_atk_y()
+void control_sys<T_app>::inst_atk_y()
 {
 	app->m_Inst.m_Troll[player1].order |= ORDER_ATK_Y;
+}
+//
+template <typename T_app>
+void control_sys<T_app>::inst_guard(const bool &is_guard)
+{
+	if (is_guard) {
+		app->m_Inst.m_Troll[player1].order_stat |= ORDER_IS_GUARD;
+		app->m_Inst.m_Troll[player1].order |= ORDER_GUARD;
+	}
+	else {
+		app->m_Inst.m_Troll[player1].order_stat &= ~ORDER_IS_GUARD;
+		app->m_Inst.m_Troll[player1].order |= ORDER_GUARD_NO;
+	}
 }
 //
 template <typename T_app>
@@ -216,11 +232,13 @@ void control_sys<T_app>::update_keydown_and_pad(const float &dt)
 	// player1 and camera update, if !m_Cmd.is_active()
 	if (pad.is_enable()) {
 		on_pad_down_update(dt);
-		pad_instance_move_update();
+		pad_inst_move_update();
 		cam.pad_update(dt);
 	}
 	else {
-		key_instance_move_update();
+		key_inst_move_update();
+		if (GetKeyState(KEY_P1_GUARD) & 0x8000) inst_guard(true);
+		else inst_guard(false);
 	}
 	cam.key_free_update(dt);
 }
@@ -236,11 +254,11 @@ void control_sys<T_app>::on_mouse_down(WPARAM btn_state, const int &pos_x, const
 	// player
 	if (style1 & CONTROL_CAM_FREE) {
 		if (btn_state & MOUSE_P1_PICK) mouse_pick();
-		if (btn_state & MOUSE_P1_MOVE) mouse_instance_move();
+		if (btn_state & MOUSE_P1_MOVE) mouse_inst_move();
 	}
 	else {
-		if (btn_state & MOUSE_P1_ATK_X) instance_atk_x();
-		if (btn_state & MOUSE_P1_ATK_Y) instance_atk_y();
+		if (btn_state & MOUSE_P1_ATK_X) inst_atk_x();
+		if (btn_state & MOUSE_P1_ATK_Y) inst_atk_y();
 	}
 }
 //
@@ -248,18 +266,19 @@ template <typename T_app>
 void control_sys<T_app>::on_pad_down_update(const float &dt)
 {
 	if (app->m_Cmd.is_active) return;
-	WORD get_vkey;
-	if (pad.is_on_keydown(get_vkey)) app->m_UiMgr.on_pad_keydown(get_vkey);
+	WORD get_vkey = 0;
+	bool is_on_keydown = pad.is_on_keydown(get_vkey);
+	if (is_on_keydown) app->m_UiMgr.on_pad_keydown(get_vkey);
 	// avoid ui conflict with control
 	if (app->m_UiMgr.is_ui_appear()) wait_ui_disappear = 0.3f;
 	wait_ui_disappear -= dt;
 	if (wait_ui_disappear > 0.0f) return;
 	wait_ui_disappear = -1.0f;
-	cam.on_pad_follow(get_vkey);
+	if (is_on_keydown) cam.on_pad_follow(get_vkey);
 	if (player1 < 0) return;
-	if (get_vkey == PAD_P1_JUMP) instance_jump();
-	if (get_vkey == PAD_P1_ATK_X) instance_atk_x();
-	if (get_vkey == PAD_P1_ATK_Y) instance_atk_y();
+	if (get_vkey == PAD_P1_JUMP) inst_jump();
+	if (get_vkey == PAD_P1_ATK_X) inst_atk_x();
+	if (get_vkey == PAD_P1_ATK_Y) inst_atk_y();
 }
 //
 template <typename T_app>
@@ -269,9 +288,16 @@ void control_sys<T_app>::on_input_keydown(WPARAM &w_param, LPARAM &l_param)
 	if (pad.is_enable()) return;
 	if (app->m_Cmd.is_active) return;
 	if (player1 < 0) return;
-	if (w_param == KEY_P1_WALK_RUN) key_instance_move_switch_stat();
-	if (w_param == KEY_P1_JUMP) instance_jump();
-	if (w_param == KEY_P1_ROLL) instance_roll();
+	if (w_param == KEY_P1_WALK_RUN) key_inst_move_switch_stat();
+	if (w_param == KEY_P1_JUMP) inst_jump();
+	if (w_param == KEY_P1_ROLL) inst_roll();
+}
+//
+template <typename T_app>
+void control_sys<T_app>::on_input_keyup(WPARAM &w_param, LPARAM &l_param)
+{
+	DUMMY(l_param);
+	DUMMY(w_param);
 }
 //
 template <typename T_app>

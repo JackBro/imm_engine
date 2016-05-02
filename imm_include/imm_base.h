@@ -42,6 +42,7 @@ public:
 	virtual void on_mouse_wheel(WPARAM btn_state, int x, int y) {DUMMY(x); DUMMY(y); DUMMY(btn_state);}
 	virtual void on_input_char(WPARAM w_param, LPARAM l_param) {DUMMY(w_param); DUMMY(l_param);}
 	virtual void on_input_keydown(WPARAM w_param, LPARAM l_param) {DUMMY(w_param); DUMMY(l_param);}
+	virtual void on_input_keyup(WPARAM w_param, LPARAM l_param) {DUMMY(w_param); DUMMY(l_param);}
 	virtual PCWSTR class_name() const {return L"Immature Engine Class";}
 	void calc_frmae_stats();
 	//
@@ -522,6 +523,8 @@ LRESULT base_win<DERIVED_TYPE>::handle_message(UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
 		on_input_keydown(wParam, lParam);
+	case WM_KEYUP:
+		on_input_keyup(wParam, lParam);
 		return 0;
 	}
 	return DefWindowProc(m_hwnd, uMsg, wParam, lParam);

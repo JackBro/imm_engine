@@ -34,16 +34,16 @@ template <typename T_app>
 void ui_def_main_menu<T_app>::define_style()
 {
 	m_TitleFontFactor = 32.0f;
-	m_Dwrite["32"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 32.0f, DWRITE_ALIG_STYLE_CENTER);
-	m_Dwrite["24"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 24.0f, DWRITE_ALIG_STYLE_CENTER);
-	m_Dwrite["22_page"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 22.0f, DWRITE_ALIG_STYLE_PAGE);
+	m_Dwrite["32"].init_external_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 32.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["24"].init_external_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 24.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["22_page"].init_external_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 22.0f, DWRITE_ALIG_STYLE_PAGE);
 	// brush
 	m_Brush["black"];
 	set_Brush(D2D1::ColorF::Black, 0.7f, "black");
-	m_Brush["yellow"];
-	set_Brush(D2D1::ColorF::Orange, 0.7f, "yellow");
-	m_Brush["red"];
-	set_Brush(D2D1::ColorF::DarkRed, 0.7f, "red");
+	m_Brush["orange"];
+	set_Brush(D2D1::ColorF::Orange, 0.7f, "orange");
+	m_Brush["darkgray"];
+	set_Brush(D2D1::ColorF::DarkGray, 0.7f, "darkgray");
 	m_Brush["transparent"];
 	set_Brush(D2D1::ColorF::Black, 0.0f, "transparent");
 	////////////////
@@ -89,7 +89,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
 	m_Rect.back().brush_sel = {"transparent"};
-	m_Rect.back().text = L"Help                         -";
+	m_Rect.back().text = L"Help";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.2f, 0.0f, 0.72f);
 	//
@@ -99,7 +99,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
 	m_Rect.back().brush_sel = {"transparent"};
-	m_Rect.back().text = L"Retrun to Title              -";
+	m_Rect.back().text = L"Retrun to Title";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.28f, 0.0f, 0.64f);
 	//
@@ -109,7 +109,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
 	m_Rect.back().brush_sel = {"transparent"};
-	m_Rect.back().text = L"Exit Game                    -";
+	m_Rect.back().text = L"Exit Game";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.36f, 0.0f, 0.56f);
 	//
@@ -119,7 +119,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().group = "menu";
 	m_Rect.back().tp = ui_rect::type::button;
 	m_Rect.back().brush_sel = {"transparent"};
-	m_Rect.back().text = L"Options                      -";
+	m_Rect.back().text = L"Options";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.0f, 0.44f, 0.0f, 0.48f);
 	////////////////
@@ -141,7 +141,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "help";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().brush_sel = {"darkgray"};
 	m_Rect.back().text = L"Close";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.8f, 0.84f, 0.05f, 0.08f);
@@ -174,7 +174,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().brush_sel = {"darkgray"};
 	m_Rect.back().text = L"Yes";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.25f, 0.5f, 0.6f, 0.42f);
@@ -184,7 +184,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().brush_sel = {"darkgray"};
 	m_Rect.back().text = L"No";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.6f, 0.5f, 0.25f, 0.42f);
@@ -207,8 +207,8 @@ void ui_def_main_menu<T_app>::define_style()
 	for (auto &rect: m_Rect) {
 		rect.brush_ix = rect.brush_sel[0];
 		if (rect.tp == ui_rect::type::button) {
-			if (rect.group == "menu") rect.brush_sel.emplace_back("yellow");
-			rect.brush_sel.emplace_back("red");
+			if (rect.group == "menu") rect.brush_sel.emplace_back("orange");
+			else rect.brush_sel.emplace_back("orange");
 		}
 		rect.active = false;
 	}

@@ -253,8 +253,15 @@ void ui_base<T_app>::draw_d2d()
 {
 	for (auto it = m_Rect.begin(); it != m_Rect.end(); ++it) {
 		if (!it->active) continue;
-		if (it->tp < 2) m_App->m_D2DDC->FillRectangle(&it->rc, m_Brush[it->brush_ix]);
-		if (it->tp < 3 || it->tp == 4) m_Dwrite[it->dwrite_ix].draw_Rect(m_App->m_D2DDC, it->text, it->rc);
+		if (it->tp < 2) {
+			m_App->m_D2DDC->FillRectangle(&it->rc, m_Brush[it->brush_ix]);
+		}
+		if (it->tp == 0 || it->tp == 2 || it->tp == 4) {
+			m_Dwrite[it->dwrite_ix].draw_ExternalRect(m_App->m_D2DDC, it->text, it->rc);
+		}
+		if (it->tp == 1) {
+			m_Dwrite[it->dwrite_ix].draw_ExternalRect(m_App->m_D2DDC, it->text, it->rc, it->brush_ix == it->brush_sel[1]);
+		}
 		if (it->tp == 3) {
 			// uses margin.y as origin.x
 			m_TextLayoutOrigin.x = it->margin.y;

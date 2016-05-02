@@ -24,57 +24,50 @@ void pose_Idle::enter(troll *tro)
 	if (tro->order_stat & ORDER_IS_ENGAGE) {
 		tro->order_stat ^= ORDER_IS_ENGAGE;
 		tro->cd_Idle = 5.0f+tro->index%3;
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Engage);
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Engage());
 	}
 	else {
 		tro->cd_Idle = -1.0f;
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Idle);
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Idle());
+	}
+	if (tro->order & ORDER_IDLE) {
+		tro->order = ORDER_NONE;
 	}
 }
 //
 void pose_Idle::execute(troll *tro)
 {
 	if (tro->order & ORDER_MOVE_HIT) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_land) return;
-		tro->order = ORDER_NONE;
-		if (tro->index != PTR->m_Control.player1) math::ai_move_pos(tro->index, tro->speed_move());
-		else math::mouse_inst_move(tro->index, tro->speed_move());
-		tro->change_state(pose_Move::instance());
+		tro->change_state_execute(pose_Move::instance());
 	}
 	if (tro->order & ORDER_MOVE_TOWARD) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_land) return;
-		tro->order ^= ORDER_MOVE_TOWARD;
-		if (PTR->m_Control.pad.is_L_active()) {
-			math::pad_move_toward(tro->index, tro->speed_move());
-			tro->change_state(pose_Move::instance());
-		}
-		else {
-			PTR->m_Inst.m_Stat[tro->index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		}
+		tro->change_state_execute(pose_Move::instance());
 	}
 	if (tro->order & ORDER_MOVE_WASD) {
-		if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_land) return;
-		tro->order ^= ORDER_MOVE_WASD;
-		if (math::key_move_wasd(tro->index, tro->speed_move())) tro->change_state(pose_Move::instance());
+		tro->change_state_execute(pose_Move::instance());
 	}
 	if (tro->order & ORDER_JUMP) {
-		tro->order = ORDER_NONE;
-		if (PTR->m_Inst.m_Stat[tro->index].phy.is_on_land) {
-			tro->change_state(pose_Jump::instance());
-		}
+		tro->change_state_execute(pose_Jump::instance());
 	}
 	if (tro->order & ORDER_ATK_X || tro->order & ORDER_ATK_Y) {
-		tro->change_state(pose_Atk::instance());
+		tro->change_state_execute(pose_Atk::instance());
 	}
 	if (tro->order & ORDER_DMG) {
-		tro->order = ORDER_NONE;
 		tro->change_state(pose_Damage::instance());
 	}
-	// 
+	if (tro->order & ORDER_GUARD) {
+		tro->order = ORDER_NONE;
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Idle());
+	}
+	if (tro->order & ORDER_GUARD_NO) {
+		tro->order = ORDER_NONE;
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Idle());
+	}
+	// Engage to Idle
 	if (tro->current_state != pose_Idle::instance()) return;
 	if ((tro->cd_Idle > 0.0f)) tro->cd_Idle -= PTR->m_Timer.delta_time();
 	if (tro->cd_Idle < 0.0f && tro->cd_Idle > -0.9f) {
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Idle);
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Idle());
 		tro->cd_Idle = -1.0f;
 	}
 }
@@ -95,17 +88,15 @@ pose_Move *pose_Move::instance()
 //
 void pose_Move::enter(troll *tro)
 {
-	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
+	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Run());
 }
 //
 void pose_Move::execute(troll *tro)
 {
 	if (tro->order & ORDER_DMG) {
-		tro->order = ORDER_NONE;
 		tro->change_state(pose_Damage::instance());
 	}
 	if (tro->order & ORDER_IDLE) {
-		tro->order = ORDER_NONE;
 		tro->change_state(pose_Idle::instance());
 	}
 	// just for test
@@ -114,7 +105,6 @@ void pose_Move::execute(troll *tro)
 		tro->order = ORDER_NONE;
 		if (tro->index != PTR->m_Control.player1) math::ai_move_pos(tro->index, tro->speed_move());
 		else math::mouse_inst_move(tro->index, tro->speed_move());
-		tro->change_state(pose_Move::instance());
 	}
 	if (tro->order & ORDER_MOVE_TOWARD) {
 		// roll
@@ -137,7 +127,7 @@ void pose_Move::execute(troll *tro)
 			tro->order ^= ORDER_ROLL;
 			if (PTR->m_Control.pad.is_L_active()) {
 				math::pad_move_toward(tro->index, tro->speed_Roll);
-				PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Roll, true);
+				PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Roll(), true);
 				tro->cd_Move = tro->frame_Roll;
 				tro->cd_Move2 = tro->frame_Roll2;
 				return;
@@ -151,7 +141,7 @@ void pose_Move::execute(troll *tro)
 		tro->order ^= ORDER_MOVE_TOWARD;
 		if (PTR->m_Control.pad.is_L_active()) {
 			math::pad_move_toward(tro->index, tro->speed_move());
-			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
+			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Run());
 		}
 		else {
 			PTR->m_Inst.m_Stat[tro->index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -178,7 +168,7 @@ void pose_Move::execute(troll *tro)
 		if (tro->order & ORDER_ROLL) {
 			tro->order ^= ORDER_ROLL;
 			if (!math::key_move_wasd(tro->index, tro->speed_Roll)) return;
-			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Roll, true);
+			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Roll(), true);
 			tro->cd_Move = tro->frame_Roll;
 			tro->cd_Move2 = tro->frame_Roll2;
 			return;
@@ -190,13 +180,10 @@ void pose_Move::execute(troll *tro)
 		//
 		tro->order ^= ORDER_MOVE_WASD;
 		if (!math::key_move_wasd(tro->index, tro->speed_move())) tro->change_state(pose_Idle::instance());
-		else PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act_move());
+		else PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Run());
 	}
 	if (tro->order & ORDER_JUMP) {
-		tro->order = ORDER_NONE;
-		if (PTR->m_Inst.m_Stat[tro->index].phy.is_on_land) {
-			tro->change_state(pose_Jump::instance());
-		}
+		tro->change_state_execute(pose_Jump::instance());
 	}
 	if (tro->order & ORDER_ATK_X || tro->order & ORDER_ATK_Y) {
 		tro->change_state(pose_Atk::instance());
@@ -219,8 +206,10 @@ pose_Jump *pose_Jump::instance()
 //
 void pose_Jump::enter(troll *tro)
 {
+	tro->order = ORDER_NONE;
+	if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_land) tro->revert_previous_state();
 	PTR->m_Inst.m_Stat[tro->index].phy.velocity.y = tro->velocity_Jump;
-	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Jump);
+	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Jump());
 	tro->cd_Jump = 60.0f;
 }
 //
@@ -231,7 +220,7 @@ void pose_Jump::execute(troll *tro)
 		tro->is_on_air = true;
 	}
 	if (tro->is_on_air && is_on_land) {
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::JumpLand, true);
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.JumpLand(), true);
 		tro->is_on_air = false;
 		// Idle do full JumpLand
 		if (tro->previous_state == pose_Idle::instance()) tro->cd_Jump = tro->frame_JumpLand;
@@ -266,7 +255,7 @@ pose_Atk *pose_Atk::instance()
 //
 void pose_Atk::enter(troll *tro)
 {
-	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Engage);
+	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Engage());
 }
 //
 void pose_Atk::execute(troll *tro)
@@ -280,11 +269,9 @@ void pose_Atk::execute(troll *tro)
 		PTR->m_Control.atk.execute(tro->index, 'B');
 	}
 	if (tro->order & ORDER_IDLE) {
-		tro->order = ORDER_NONE;
 		tro->change_state(pose_Idle::instance());
 	}
 	if (tro->order & ORDER_DMG) {
-		tro->order = ORDER_NONE;
 		tro->change_state(pose_Damage::instance());
 	}
 }
@@ -305,7 +292,8 @@ pose_Damage *pose_Damage::instance()
 //
 void pose_Damage::enter(troll *tro)
 {
-	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(act::Damage, true);
+	tro->order = ORDER_NONE;
+	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Damage(), true);
 	tro->cd_Damage = tro->frame_Damage;
 }
 //

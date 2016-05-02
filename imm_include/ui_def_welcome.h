@@ -36,18 +36,18 @@ template <typename T_app>
 void ui_def_welcome<T_app>::define_style()
 {
 	m_TitleFontFactor = 32.0f;
-	m_Dwrite["32"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 32.0f, DWRITE_ALIG_STYLE_CENTER);
-	m_Dwrite["24"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 24.0f, DWRITE_ALIG_STYLE_CENTER);
-	m_Dwrite["22_page"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 22.0f, DWRITE_ALIG_STYLE_PAGE);
+	m_Dwrite["32"].init_external_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 32.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["24"].init_external_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 24.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["22_page"].init_external_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 22.0f, DWRITE_ALIG_STYLE_PAGE);
 	// brush
 	m_Brush["black"];
 	set_Brush(D2D1::ColorF::Black, 0.5f, "black");
 	m_Brush["transparent"];
 	set_Brush(D2D1::ColorF::Black, 0.0f, "transparent");
-	m_Brush["yellow"];
-	set_Brush(D2D1::ColorF::Orange, 0.5f, "yellow");
-	m_Brush["red"];
-	set_Brush(D2D1::ColorF::DarkRed, 0.5f, "red");
+	m_Brush["darkgray"];
+	set_Brush(D2D1::ColorF::DarkGray, 0.5f, "darkgray");
+	m_Brush["orange"];
+	set_Brush(D2D1::ColorF::Orange, 0.5f, "orange");
 	////////////////
 	// entrance
 	////////////////
@@ -120,7 +120,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "credit";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().brush_sel = {"darkgray"};
 	m_Rect.back().text = L"Close";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.8f, 0.84f, 0.05f, 0.08f);
@@ -153,7 +153,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "about";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().brush_sel = {"darkgray"};
 	m_Rect.back().text = L"Close";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.8f, 0.84f, 0.05f, 0.08f);
@@ -186,7 +186,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().brush_sel = {"darkgray"};
 	m_Rect.back().text = L"Yes";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.25f, 0.5f, 0.6f, 0.42f);
@@ -196,7 +196,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "exit";
 	m_Rect.back().tp = ui_rect::type::button;
-	m_Rect.back().brush_sel = {"yellow"};
+	m_Rect.back().brush_sel = {"darkgray"};
 	m_Rect.back().text = L"No";
 	m_Rect.back().dwrite_ix = "24";
 	m_Rect.back().margin = XMFLOAT4(0.6f, 0.5f, 0.25f, 0.42f);
@@ -220,7 +220,7 @@ void ui_def_welcome<T_app>::define_style()
 		rect.brush_ix = rect.brush_sel[0];
 		if (rect.tp == ui_rect::type::button) {
 			if (rect.group == "entrance") rect.brush_sel.emplace_back("black");
-			else rect.brush_sel.emplace_back("red");
+			else rect.brush_sel.emplace_back("orange");
 		}
 		rect.active = false;
 	}

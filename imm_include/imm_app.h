@@ -41,6 +41,7 @@ public:
 	void on_mouse_wheel(WPARAM btn_state, int x, int y);
 	void on_input_char(WPARAM w_param, LPARAM l_param);
 	void on_input_keydown(WPARAM w_param, LPARAM l_param);
+	void on_input_keyup(WPARAM w_param, LPARAM l_param);
 	void build_shadow_transform();
 	void draw_scene_d3d();
 	void draw_scene_d3d_shadow();

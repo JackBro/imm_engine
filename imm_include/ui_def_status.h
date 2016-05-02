@@ -55,8 +55,8 @@ ui_def_status<T_app>::ui_def_status():
 template <typename T_app>
 void ui_def_status<T_app>::define_style()
 {
-	m_Dwrite["hp_txt"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 10.0f, DWRITE_ALIG_STYLE_CENTER);
-	m_Dwrite["tar_name"].init_without_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 24.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["hp_txt"].init_external_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 10.0f, DWRITE_ALIG_STYLE_CENTER);
+	m_Dwrite["tar_name"].init_external_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 24.0f, DWRITE_ALIG_STYLE_CENTER);
 	// brush
 	m_Brush["black"];
 	set_Brush(D2D1::ColorF::Black, 0.3f, "black");
