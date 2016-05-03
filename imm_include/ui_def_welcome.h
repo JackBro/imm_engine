@@ -47,7 +47,7 @@ void ui_def_welcome<T_app>::define_style()
 	m_Brush["darkgray"];
 	set_Brush(D2D1::ColorF::DarkGray, 0.5f, "darkgray");
 	m_Brush["orange"];
-	set_Brush(D2D1::ColorF::Orange, 0.5f, "orange");
+	set_Brush(D2D1::ColorF::Orange, 0.9f, "orange");
 	////////////////
 	// entrance
 	////////////////

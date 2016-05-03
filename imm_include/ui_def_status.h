@@ -29,11 +29,11 @@ struct ui_def_status: public ui_base<T_app>
 	void define_enter_and_exit() {;}
 	void define_show(const bool &is_show);
 	void define_text();
-	void define_set_hp_rect(const int &hp_max);
-	void define_set_ap_rect(const int &ap_max);
+	void define_set_hp_rect(const float &hp_max);
+	void define_set_ap_rect(const float &ap_max);
 	void define_set_hp_bar(const float &z);
 	void define_set_ap_bar(const float &z);
-	void define_set_tar_hp_rect(const int &hp_max);
+	void define_set_tar_hp_rect(const float &hp_max);
 	void define_set_tar_hp_bar(const float &z);
 	void define_set_tar_name(const std::wstring &name);
 	bool m_IsActive;
@@ -284,9 +284,9 @@ void ui_def_status<T_app>::define_text()
 }
 //
 template <typename T_app>
-void ui_def_status<T_app>::define_set_hp_rect(const int &hp_max)
+void ui_def_status<T_app>::define_set_hp_rect(const float &hp_max)
 {
-	float hp_rate = static_cast<float>(hp_max)/20.0f;
+	float hp_rate = hp_max/GAME_HP_BAR;
 	m_Rect[m_MapID["hp_backg"]].margin.z = 1.0f-(m_FixZ1*hp_rate);
 	float x = m_FixXZ1/hp_rate;
 	m_Rect[m_MapID["hp_rect"]].margin.x = x;
@@ -294,9 +294,9 @@ void ui_def_status<T_app>::define_set_hp_rect(const int &hp_max)
 }
 //
 template <typename T_app>
-void ui_def_status<T_app>::define_set_ap_rect(const int &ap_max)
+void ui_def_status<T_app>::define_set_ap_rect(const float &ap_max)
 {
-	float ap_rate = static_cast<float>(ap_max)/20.0f;
+	float ap_rate = ap_max/GAME_HP_BAR;
 	m_Rect[m_MapID["ap_backg"]].margin.z = 1.0f-(m_FixZ1*ap_rate);
 	float x = m_FixXZ1/ap_rate;
 	m_Rect[m_MapID["ap_rect"]].margin.x = x;
@@ -316,9 +316,9 @@ void ui_def_status<T_app>::define_set_ap_bar(const float &z)
 }
 //
 template <typename T_app>
-void ui_def_status<T_app>::define_set_tar_hp_rect(const int &hp_max)
+void ui_def_status<T_app>::define_set_tar_hp_rect(const float &hp_max)
 {
-	float hp_rate = static_cast<float>(hp_max)/20.0f;
+	float hp_rate = hp_max/20.0f;
 	m_Rect[m_MapID["tar_backg"]].margin.z = 1.0f-(m_FixZ1*hp_rate);
 	float x = m_FixXZ1/hp_rate;
 	m_Rect[m_MapID["tar_hp_rect"]].margin.x = x;

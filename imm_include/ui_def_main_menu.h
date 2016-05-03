@@ -41,7 +41,7 @@ void ui_def_main_menu<T_app>::define_style()
 	m_Brush["black"];
 	set_Brush(D2D1::ColorF::Black, 0.7f, "black");
 	m_Brush["orange"];
-	set_Brush(D2D1::ColorF::Orange, 0.7f, "orange");
+	set_Brush(D2D1::ColorF::Orange, 0.9f, "orange");
 	m_Brush["darkgray"];
 	set_Brush(D2D1::ColorF::DarkGray, 0.7f, "darkgray");
 	m_Brush["transparent"];

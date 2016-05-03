@@ -49,8 +49,8 @@ std::wstring *status_data::get_name(const std::string &name_in)
 //
 void status_data::build_attr()
 {
-	attr["pepper"].hp_max = 60;
-	attr["pepper"].hp = 60;
+	attr["pepper"].hp_max = 60.0f;
+	attr["pepper"].hp = 60.0f;
 }
 void status_data::assign_attr(ai_points &points, const std::string &inst_name)
 {

@@ -11,7 +11,6 @@ The fundamental 3D rendering technique is derived from
 the [DirectX 11 book](http://www.amazon.com/dp/1936420228/) by Frank Luna.
 **It is very difficult to use due to weak development scale and absence of visualization scene editor.**
 **Not recommended this engine for serious using.**
-A wise choice is to use Unity3D or Unreal Engine, compared with them, immature engine has no advantage. 
 
 Current State:
 ---------------
@@ -52,9 +51,9 @@ Dependent .Lib Files for compiling:
 Those files should be in VC++ Library Directories, 
 notice corresponding x64/x86, Debug/Release version.
 The .lib files you can get from each corresponding project.
-* **DirectXTK.lib**: [DirectX Tool Kit](https://github.com/Microsoft/DirectXTK) (February 23, 2016)
-* **DirectXTKAudioDX.lib**: [DirectX Tool Kit](https://github.com/Microsoft/DirectXTK)  (February 23, 2016)
-* **Effects11.lib**: [Effects for Direct3D 11](https://github.com/Microsoft/FX11) (November 30, 2015 (11.15))
+* **DirectXTK.lib**: [DirectX Tool Kit](https://github.com/Microsoft/DirectXTK) (April 26, 2016)
+* **DirectXTKAudioDX.lib**: [DirectX Tool Kit](https://github.com/Microsoft/DirectXTK)  (April 26, 2016)
+* **Effects11.lib**: [Effects for Direct3D 11](https://github.com/Microsoft/FX11) (April 26, 2016 (11.16))
 * **lua.lib**: [Lua](https://www.lua.org/) 5.3.2
 * **XInput1_3.lib**: Its orgin name is XInput.lib, from 
 [DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812)

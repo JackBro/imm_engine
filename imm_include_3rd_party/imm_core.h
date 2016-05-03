@@ -76,6 +76,7 @@ static const float BLEND_FACTOR_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
 // frame rate, Blender's default setting is 24.0f
 static const float FRAME_RATE = 24.0f;
 static bool IS_STANDALONE_M3DTOB3M = false;
+static const float GAME_HP_BAR = 20.0f;
 ////////////////
 // str, wstr
 ////////////////
@@ -190,19 +191,35 @@ void timer::tick()
 namespace math
 {
 // Returns random float in [0, 1).
-float calc_randf() {return (float)(rand())/(float)RAND_MAX;}
+float calc_randf() {
+	return (float)(rand())/(float)RAND_MAX;
+}
 // Returns random float in [a, b).
-float calc_randf(float a, float b) {return a+calc_randf()*(b-a);}
+float calc_randf(const float &a, const float &b) {
+	return a+calc_randf()*(b-a);
+}
+//
 template <typename T>
-T calc_min(const T &a, const T &b) {return a < b ? a : b;}
+T calc_min(const T &a, const T &b) {
+	return a < b ? a : b;
+}
+//
 template <typename T>
-T calc_max(const T &a, const T &b) {return a > b ? a : b;}
+T calc_max(const T &a, const T &b) {
+	return a > b ? a : b;
+}
+//
 template <typename T>
-T calc_lerp(const T &a, const T &b, float t) {return a+(b-a)*t;}
+T calc_lerp(const T &a, const T &b, float t) {
+	return a+(b-a)*t;
+}
+//
 template <typename T>
-T calc_clamp(const T &x, const T &low, const T &high) {return x < low ? low : (x > high ? high : x);}
+T calc_clamp(const T &x, const T &low, const T &high) {
+	return x < low ? low : (x > high ? high : x);
+}
 // Returns the polar angle of the point (x,y) in [0, 2*PI).
-float angle_from_xy(float x, float y)
+float angle_from_xy(const float &x, const float &y)
 {
 	float theta = 0.0f;
 	// Quadrant I or IV
@@ -215,6 +232,10 @@ float angle_from_xy(float x, float y)
 	// Quadrant II or III
 	else theta = atanf(y/x)+XM_PI; // in [0, 2*pi).
 	return theta;
+}
+//
+bool float_is_equal(const float &a, const float &b) {
+	return fabs(a-b) < FLT_EPSILON;
 }
 //
 XMMATRIX inverse_transpose(CXMMATRIX m) {

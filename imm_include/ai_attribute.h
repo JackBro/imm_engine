@@ -18,25 +18,25 @@ namespace imm
 struct ai_points
 {
 	ai_points();
-	int hp_max;
-	int ap_max;
-	int hp;
-	int ap;
-	int str;
-	int mgc;
-	int def;
-	int res;
+	float hp_max;
+	float ap_max;
+	float hp;
+	float ap;
+	float str;
+	float mgc;
+	float def;
+	float res;
 };
 //
 ai_points::ai_points():
-	hp_max(20),
-	ap_max(20),
-	hp(20),
-	ap(20),
-	str(5),
-	mgc(5),
-	def(5),
-	res(5)
+	hp_max(20.0f),
+	ap_max(20.0f),
+	hp(20.0f),
+	ap(20.0f),
+	str(5.0f),
+	mgc(5.0f),
+	def(5.0f),
+	res(5.0f)
 {
 	;
 }
@@ -53,12 +53,12 @@ struct ui_attr
 	void update();
 	void update_target();
 	T_app *app;
-	int p1_hp;
-	int p1_ap;
-	int p1_hp_max;
-	int p1_ap_max;
-	int tar_hp;
-	int tar_hp_max;
+	float p1_hp;
+	float p1_ap;
+	float p1_hp_max;
+	float p1_ap_max;
+	float tar_hp;
+	float tar_hp_max;
 	size_t tar_ix;
 	size_t tar_flush;
 	float count_down;
@@ -68,12 +68,12 @@ struct ui_attr
 template <typename T_app>
 ui_attr<T_app>::ui_attr():
 	app(nullptr),
-	p1_hp(1),
-	p1_ap(1),
-	p1_hp_max(1),
-	p1_ap_max(1),
-	tar_hp(1),
-	tar_hp_max(1),
+	p1_hp(1.0f),
+	p1_ap(1.0f),
+	p1_hp_max(1.0f),
+	p1_ap_max(1.0f),
+	tar_hp(1.0f),
+	tar_hp_max(1.0f),
 	tar_ix(0),
 	tar_flush(0),
 	count_down(-1.0f),
@@ -99,26 +99,26 @@ void ui_attr<T_app>::update()
 {
 	if (!app->m_UiMgr.status.m_IsActive) return;
 	need_resize = false;
-	if (p1_hp_max != app->m_AiAttr.points[app->m_Control.player1].hp_max) {
+	if (!math::float_is_equal(p1_hp_max, app->m_AiAttr.points[app->m_Control.player1].hp_max)) {
 		p1_hp_max = app->m_AiAttr.points[app->m_Control.player1].hp_max;
 		app->m_UiMgr.status.define_set_hp_rect(p1_hp_max);
 		need_resize = true;
 	}
-	if (p1_ap_max != app->m_AiAttr.points[app->m_Control.player1].ap_max) {
+	if (!math::float_is_equal(p1_ap_max, app->m_AiAttr.points[app->m_Control.player1].ap_max)) {
 		p1_ap_max = app->m_AiAttr.points[app->m_Control.player1].ap_max;
 		app->m_UiMgr.status.define_set_ap_rect(p1_ap_max);
 		need_resize = true;
 	}
-	if (p1_hp != app->m_AiAttr.points[app->m_Control.player1].hp) {
+	if (!math::float_is_equal(p1_hp, app->m_AiAttr.points[app->m_Control.player1].hp)) {
 		p1_hp = app->m_AiAttr.points[app->m_Control.player1].hp;
-		float z = static_cast<float>(p1_hp) / static_cast<float>(p1_hp_max);
+		float z = p1_hp / p1_hp_max;
 		z = 1.0f - z;
 		app->m_UiMgr.status.define_set_hp_bar(z);
 		need_resize = true;
 	}
-	if (p1_ap != app->m_AiAttr.points[app->m_Control.player1].ap) {
+	if (!math::float_is_equal(p1_ap, app->m_AiAttr.points[app->m_Control.player1].ap)) {
 		p1_ap = app->m_AiAttr.points[app->m_Control.player1].ap;
-		float z = static_cast<float>(p1_ap) / static_cast<float>(p1_ap_max);
+		float z = p1_ap / p1_ap_max;
 		z = 1.0f - z;
 		app->m_UiMgr.status.define_set_ap_bar(z);
 		need_resize = true;
@@ -143,11 +143,11 @@ void ui_attr<T_app>::update_target()
 	size_t tmp_ix = app->m_Inst.m_Steering[app->m_Control.player1].attack.back();
 	if (app->m_Inst.m_Stat[tmp_ix].type == MODEL_SKINNED) tar_ix = tmp_ix;
 	else return;
-	if (tar_hp_max != app->m_AiAttr.points[tar_ix].hp_max ||
-		tar_hp != app->m_AiAttr.points[tar_ix].hp) {
+	if (!math::float_is_equal(tar_hp_max, app->m_AiAttr.points[tar_ix].hp_max) ||
+		!math::float_is_equal(tar_hp, app->m_AiAttr.points[tar_ix].hp)) {
 		tar_hp_max = app->m_AiAttr.points[tar_ix].hp_max;
 		tar_hp = app->m_AiAttr.points[tar_ix].hp;
-		float z = static_cast<float>(tar_hp) / static_cast<float>(tar_hp_max);
+		float z = tar_hp / tar_hp_max;
 		z = 1.0f - z;
 		app->m_UiMgr.status.define_set_tar_hp_bar(z);
 		app->m_UiMgr.status.define_set_tar_hp_rect(tar_hp_max);
@@ -247,7 +247,7 @@ void ai_attr<T_app>::calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_a
 	switch (specify) {
 	case SKILL_MELEE_STANDARD:
 		points[ix_dmg].hp -= 3;
-		if (points[ix_dmg].hp < 0) points[ix_dmg].hp = points[ix_dmg].hp_max;
+		if (points[ix_dmg].hp < 0.0f) points[ix_dmg].hp = points[ix_dmg].hp_max;
 		break;
 	}
 }
