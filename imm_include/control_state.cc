@@ -94,6 +94,7 @@ void pose_Move::enter(troll *tro)
 void pose_Move::execute(troll *tro)
 {
 	if (tro->order & ORDER_DMG) {
+		math::ai_move_pos_stop(tro->index);
 		tro->change_state(pose_Damage::instance());
 	}
 	if (tro->order & ORDER_IDLE) {

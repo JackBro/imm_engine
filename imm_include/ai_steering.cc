@@ -16,6 +16,7 @@ namespace imm
 //
 void steering::update()
 {
+	// clear old data
 	if (attack.size() > 100) attack.erase(attack.begin()+50);
 	if (damage.size() > 100) damage.erase(damage.begin()+50);
 	if (PTR->m_Control.player1 == index || !is_active) return;
@@ -55,6 +56,54 @@ void ai_Standby::execute(steering *ste)
 }
 //
 void ai_Standby::exit(steering *ste)
+{
+	ste;
+}
+////////////////
+// ai_Patrol
+////////////////
+////////////////
+ai_Patrol *ai_Patrol::instance()
+{
+	static ai_Patrol instance;
+	return &instance;
+}
+//
+void ai_Patrol::enter(steering *ste)
+{
+	ste;
+}
+//
+void ai_Patrol::execute(steering *ste)
+{
+	ste;
+}
+//
+void ai_Patrol::exit(steering *ste)
+{
+	ste;
+}
+////////////////
+// ai_CloseTo
+////////////////
+////////////////
+ai_CloseTo *ai_CloseTo::instance()
+{
+	static ai_CloseTo instance;
+	return &instance;
+}
+//
+void ai_CloseTo::enter(steering *ste)
+{
+	ste;
+}
+//
+void ai_CloseTo::execute(steering *ste)
+{
+	ste;
+}
+//
+void ai_CloseTo::exit(steering *ste)
 {
 	ste;
 }

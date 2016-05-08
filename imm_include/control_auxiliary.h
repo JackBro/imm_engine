@@ -24,6 +24,7 @@ struct control_stop
 	void set_aabb(CXMVECTOR &pos, const float &half_y);
 	bool contains(const XMFLOAT3 &center);
 	void update(T_app *app, const size_t &index, const float &dt);
+	void interrupt(T_app *app, const size_t &index);
 	bool is_stop;
 	BoundingBox bbox;
 	XMFLOAT3 hit_pos;
@@ -85,6 +86,14 @@ void control_stop<T_app>::update(T_app *app, const size_t &index, const float &d
 		XMVECTOR hit = XMLoadFloat3(&(hit_pos));
 		math::mouse_move_toward_hit(hit, index, speed);
 	}
+}
+//
+template <typename T_app>
+void control_stop<T_app>::interrupt(T_app *app, const size_t &index)
+{
+	if (is_stop) return;
+	is_stop = true;
+	app->m_Inst.m_Stat[index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
 //
 }

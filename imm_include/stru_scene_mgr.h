@@ -97,6 +97,7 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 	app->m_Magic.init(app);
 	app->m_AiInfo.init(app);
 	app->m_AiAttr.init(app);
+	app->m_AiNpc.init_load(app);
 	reload(L"00");
 }
 //

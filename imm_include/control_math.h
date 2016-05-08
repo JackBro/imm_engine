@@ -47,6 +47,7 @@ void set_inst_speed(const size_t &index, const float &speed);
 void set_inst_face_to_inst2(const size_t &index, const size_t &index2);
 void set_face_to_face(const size_t &index, const size_t &index2);
 void ai_move_pos(const size_t &index, const float &speed);
+void ai_move_pos_stop(const size_t &index);
 //
 }}
 #endif

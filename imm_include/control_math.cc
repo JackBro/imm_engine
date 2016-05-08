@@ -323,4 +323,9 @@ void ai_move_pos(const size_t &index, const float &speed)
 	PTR->m_Control.map_stop[index].set_destination(speed, hit_pos, PTR->m_Inst.m_BoundW.extents_y(index));
 }
 //
+void ai_move_pos_stop(const size_t &index)
+{
+	PTR->m_Control.map_stop[index].interrupt(PTR, index);
+}
+//
 }}

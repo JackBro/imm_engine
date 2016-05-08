@@ -12,6 +12,16 @@
 namespace imm
 {
 ////////////////
+// AI_TACTICS
+////////////////
+////////////////
+enum AI_TACTICS
+{
+	AI_TAC_NONE   = 0x0,
+	AI_TAC_STANDY = 0x1,
+
+};
+////////////////
 // ai_Standby
 ////////////////
 ////////////////
@@ -26,6 +36,36 @@ private:
 	ai_Standby() {;}
 	ai_Standby(const ai_Standby&);
 	ai_Standby &operator=(const ai_Standby&);
+};
+////////////////
+// ai_Patrol
+////////////////
+////////////////
+struct ai_Patrol: public state<steering>
+{
+	static ai_Patrol *instance();
+	void enter(steering*);
+	void execute(steering*);
+	void exit(steering*);
+private:
+	ai_Patrol() {;}
+	ai_Patrol(const ai_Patrol&);
+	ai_Patrol &operator=(const ai_Patrol&);
+};
+////////////////
+// ai_CloseTo
+////////////////
+////////////////
+struct ai_CloseTo: public state<steering>
+{
+	static ai_CloseTo *instance();
+	void enter(steering*);
+	void execute(steering*);
+	void exit(steering*);
+private:
+	ai_CloseTo() {;}
+	ai_CloseTo(const ai_CloseTo&);
+	ai_CloseTo &operator=(const ai_CloseTo&);
 };
 ////////////////
 // steering

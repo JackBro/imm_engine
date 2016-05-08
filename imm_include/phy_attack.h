@@ -1,12 +1,12 @@
 ////////////////
-// phy_attack_box.h
+// phy_attack.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015-2016 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef PHY_ATTACK_BOX_H
-#define PHY_ATTACK_BOX_H
+#ifndef PHY_ATTACK_H
+#define PHY_ATTACK_H
 #include "phy_prepare.h"
 #include "stru_inst_adapter.h"
 #include "phy_magic.h"

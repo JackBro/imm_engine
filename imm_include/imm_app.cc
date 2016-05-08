@@ -25,6 +25,7 @@ imm_app::imm_app():
 	m_Control(),
 	m_AiInfo(),
 	m_AiAttr(),
+	m_AiNpc(),
 	m_Status(),
 	m_MouseMode(CAM_MOVE_BY_BUTTON)
 {
@@ -87,6 +88,7 @@ void imm_app::update_scene(float dt)
 	m_Control.update_scene(dt);
 	m_Scene.update_atmosphere(dt);
 	m_AiAttr.update();
+	m_AiNpc.update();
 }
 //
 void imm_app::update_scene_keydown(float dt)
