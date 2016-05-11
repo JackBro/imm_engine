@@ -39,6 +39,7 @@ struct control_cam
 	T_app *app;
 	bool is_pad_follow_reset;
 	bool is_smooth;
+	bool is_resetting;
 	float follow_walk_def;
 	float follow_up_def;
 	float follow_walk;
@@ -52,6 +53,7 @@ control_cam<T_app>::control_cam():
 	app(nullptr),
 	is_pad_follow_reset(false),
 	is_smooth(true),
+	is_resetting(false),
 	follow_walk_def(-30.0f),
 	follow_up_def(3.0f),
 	follow_reset_cooldown(0.0f)

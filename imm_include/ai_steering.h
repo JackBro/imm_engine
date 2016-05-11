@@ -17,9 +17,9 @@ namespace imm
 ////////////////
 enum AI_TACTICS
 {
-	AI_TAC_NONE   = 0x0,
-	AI_TAC_STANDY = 0x1,
-
+	AI_TAC_NONE    = 0x0,
+	AI_TAC_STANDY  = 0x1,
+	AI_TAC_CLOSETO = 0x2,
 };
 ////////////////
 // ai_Standby
@@ -83,8 +83,11 @@ struct steering
 	state<steering> *current_state;
 	state<steering> *previous_state;
 	size_t index;
+	size_t target;
 	bool is_active;
 	XMFLOAT3 desired_pos;
+	float count_down;
+	int tactics;
 	std::map<size_t, bool> touch;
 	std::vector<size_t> attack;
 	std::vector<size_t> damage;
@@ -94,8 +97,11 @@ steering::steering():
 	current_state(ai_Standby::instance()),
 	previous_state(ai_Standby::instance()),
 	index(0),
+	target(0),
 	is_active(false),
 	desired_pos(0.0f, 0.0f, 0.0f),
+	count_down(-1.0f),
+	tactics(AI_TAC_NONE),
 	touch(),
 	attack(),
 	damage()

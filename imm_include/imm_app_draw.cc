@@ -221,8 +221,11 @@ void imm_app::draw_scene_d3d()
 	);
 	// Draw the others
 	m_Scene.draw_d3d_atmosphere(shadow_transform);
+	// ClearState for m_Scene.plasma.draw
+	m_D3DDC->ClearState();
+	m_D3DDC->OMSetRenderTargets(1, render_targets, m_DepthStencilView);
+	m_D3DDC->RSSetViewports(1, &m_ScreenViewport);
 	m_UiMgr.draw_d3d();
-	m_Scene.draw_d3d_atmosphere_last();
 	// Unbind shadow map and AmbientMap as a shader input because we are going to render
 	// To it next frame.  These textures can be at any slot, so clear all slots.
 	ID3D11ShaderResourceView *null_srv[16] = {0};

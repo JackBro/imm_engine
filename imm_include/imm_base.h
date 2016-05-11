@@ -35,6 +35,7 @@ public:
 	virtual void update_scene(float dt) = 0;
 	virtual void draw_scene() = 0;
 	virtual LRESULT handle_message(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual void handle_message_WM_SIZE(WPARAM wParam, LPARAM lParam);
 	// Convenience overrides for handling mouse input.
 	virtual void on_mouse_down(WPARAM btn_state, int x, int y) {DUMMY(x); DUMMY(y); DUMMY(btn_state);}
 	virtual void on_mouse_up(WPARAM btn_state, int x, int y) {DUMMY(x); DUMMY(y); DUMMY(btn_state);}
@@ -289,9 +290,8 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 	m_DXGIPresentPara.pDirtyRects     = nullptr;
 	m_DXGIPresentPara.pScrollRect     = nullptr;
 	m_DXGIPresentPara.pScrollOffset   = nullptr;
-	// Disable alt-enter key, use full screen (windowed) for Microsoft IEM UI, otherwise full screen IEM will not work
-	// In addition, the alt-enter full screen can not use alt-tab correctly
-	dxgi_factory->MakeWindowAssociation(m_hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
+	// the alt-enter full screen can not use alt-tab correctly
+	dxgi_factory->MakeWindowAssociation(m_hwnd, DXGI_MWA_NO_ALT_ENTER);
 	// D2D init
 	if (m_IsInteropD2D) {
 		ID2D1Factory1 *d2d_factory;
@@ -428,50 +428,7 @@ LRESULT base_win<DERIVED_TYPE>::handle_message(UINT uMsg, WPARAM wParam, LPARAM 
 		return 0;
 	// WM_SIZE is sent when the user resizes the window.
 	case WM_SIZE:
-		// Save the new client area dimensions.
-		m_ClientWidth  = LOWORD(lParam);
-		m_ClientHeight = HIWORD(lParam);
-		if (m_D3DDevice) {
-			if (wParam == SIZE_MINIMIZED) {
-				m_Paused = true;
-				m_Minimized = true;
-				m_Maximized = false;
-			}
-			else if (wParam == SIZE_MAXIMIZED) {
-				m_Paused = false;
-				m_Minimized = false;
-				m_Maximized = true;
-				on_resize();
-			}
-			else if (wParam == SIZE_RESTORED) {
-				// Restoring from minimized state?
-				if (m_Minimized) {
-					m_Paused = false;
-					m_Minimized = false;
-					on_resize();
-				}
-				// Restoring from maximized state?
-				else if (m_Maximized) {
-					m_Paused = false;
-					m_Maximized = false;
-					on_resize();
-				}
-				else if (m_Resizing) {
-					// If user is dragging the resize bars, we do not resize
-					// the buffers here because as the user continuously
-					// drags the resize bars, a stream of WM_SIZE messages are
-					// sent to the window, and it would be pointless (and slow)
-					// to resize for each WM_SIZE message received from dragging
-					// the resize bars.  So instead, we reset after the user is
-					// done resizing the window and releases the resize bars, which
-					// sends a WM_EXITSIZEMOVE message.
-				}
-				else {
-					// API call such as SetWindowPos or m_SwapChain->SetFullscreenState.
-					on_resize();
-				}
-			}
-		}
+		handle_message_WM_SIZE(wParam, lParam);
 		return 0;
 	// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
 	case WM_ENTERSIZEMOVE:
@@ -528,6 +485,60 @@ LRESULT base_win<DERIVED_TYPE>::handle_message(UINT uMsg, WPARAM wParam, LPARAM 
 		return 0;
 	}
 	return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
+}
+//
+template <class DERIVED_TYPE>
+void base_win<DERIVED_TYPE>::handle_message_WM_SIZE(WPARAM wParam, LPARAM lParam)
+{
+	// Save the new client area dimensions.
+	m_ClientWidth  = LOWORD(lParam);
+	m_ClientHeight = HIWORD(lParam);
+	if (!m_D3DDevice) return;
+	if (wParam == SIZE_MINIMIZED) {
+		m_Paused = true;
+		m_Minimized = true;
+		m_Maximized = false;
+		return;
+	}
+	if (wParam == SIZE_MAXIMIZED) {
+		m_Paused = false;
+		m_Minimized = false;
+		m_Maximized = true;
+		on_resize();
+		return;
+	}
+	if (wParam == SIZE_RESTORED) {
+		// Restoring from minimized state?
+		if (m_Minimized) {
+			m_Paused = false;
+			m_Minimized = false;
+			on_resize();
+			return;
+		}
+		// Restoring from maximized state?
+		if (m_Maximized) {
+			m_Paused = false;
+			m_Maximized = false;
+			on_resize();
+			return;
+		}
+		if (m_Resizing) {
+			// If user is dragging the resize bars, we do not resize
+			// the buffers here because as the user continuously
+			// drags the resize bars, a stream of WM_SIZE messages are
+			// sent to the window, and it would be pointless (and slow)
+			// to resize for each WM_SIZE message received from dragging
+			// the resize bars.  So instead, we reset after the user is
+			// done resizing the window and releases the resize bars, which
+			// sends a WM_EXITSIZEMOVE message.
+			return;
+		}
+		else {
+			// API call such as SetWindowPos or m_SwapChain->SetFullscreenState.
+			on_resize();
+			return;
+		}
+	}
 }
 //
 template <class DERIVED_TYPE>

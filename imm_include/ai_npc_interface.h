@@ -11,15 +11,32 @@
 namespace imm
 {
 ////////////////
+// AI_TYPE
+////////////////
+////////////////
+enum AI_TYPE
+{
+	AI_NONE        = 0x0,
+	AI_BEAT_PLAYER = 0x1,
+};
+////////////////
 // ai_mental
 ////////////////
 ////////////////
 struct ai_mental
 {
+	ai_mental();
 	size_t ix;
 	std::string name;
-	int ai_type;
+	int type;
 };
+ai_mental::ai_mental():
+	ix(0),
+	name(),
+	type(AI_BEAT_PLAYER)
+{
+	;
+}
 ////////////////
 // ai_npc
 ////////////////
@@ -32,6 +49,8 @@ struct ai_npc
 	void reset();
 	void rebuild();
 	void update();
+	void update_beat_player(ai_mental &mind);
+	void set_CloseTo();
 	T_app *app;
 	std::vector<ai_mental> mental_data;
 	std::vector<ai_mental> mental_scene;
@@ -52,6 +71,7 @@ void ai_npc<T_app>::init_load(T_app *app_in)
 	app = app_in;
 	mental_data.emplace_back();
 	mental_data.back().name = "black_warrior";
+	mental_data.back().type = AI_BEAT_PLAYER;
 }
 //
 template <typename T_app>
@@ -75,11 +95,19 @@ void ai_npc<T_app>::rebuild()
 template <typename T_app>
 void ai_npc<T_app>::update()
 {
-	app->m_Inst.m_NameMap;
-	app->m_Inst.m_Steering;
-	for (auto &steer: app->m_Inst.m_Steering) {
-		steer.first;
-		steer.second;
+	for (auto &mind: mental_scene) {
+		if (mind.type & AI_BEAT_PLAYER) update_beat_player(mind);
+	}
+}
+//
+template <typename T_app>
+void ai_npc<T_app>::update_beat_player(ai_mental &mind)
+{
+	auto ste = &app->m_Inst.m_Steering[mind.ix];
+	if (ste->current_state != ai_CloseTo::instance()) {
+		ste->target = PTR->m_Control.player1;
+		ste->count_down = -1.0f;
+		ste->tactics |= AI_TAC_CLOSETO;
 	}
 }
 //

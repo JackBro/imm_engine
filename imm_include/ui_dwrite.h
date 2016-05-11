@@ -291,7 +291,7 @@ void dwrite_simple::draw_ExternalRect(
 {
 	if (wst_text.size() == 0) return;
 	if (is_brackets_style) {
-		std::wstring wstr = L"["+wst_text+L"]";
+		std::wstring wstr = L"<"+wst_text+L">";
 		d2d_dc->DrawText(
 			wstr.c_str(),
 			static_cast<UINT32>(wstr.size()),

@@ -45,7 +45,7 @@ static int KEY_CAM_FREE_LEFT    = 'A';
 static int KEY_CAM_FREE_RIGHT   = 'D';
 static int KEY_CAM_FREE_UP      = 'W';
 static int KEY_CAM_FREE_DOWN    = 'S';
-static int KEY_CAM_FOLLOW_RESET = 0x0A;
+static int KEY_CAM_FOLLOW_RESET = 'Z';
 static int KEY_CMD_ACT1         = VK_DELETE;
 static int KEY_CMD_ACT2         = VK_MENU;
 ////////////////

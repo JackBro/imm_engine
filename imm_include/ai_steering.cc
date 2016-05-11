@@ -39,19 +39,9 @@ void ai_Standby::enter(steering *ste)
 //
 void ai_Standby::execute(steering *ste)
 {
-	XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[PTR->m_Control.player1].get_World();
-	ste->desired_pos.x = world._41;
-	ste->desired_pos.z = world._43;
-	// test
-	static float cnt = -1.0f;
-	static int touch = 0;
-	if (cnt < 0.0f) {
-		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_MOVE_HIT;
-		cnt = 1.0f;
-	}
-	if (ste->touch[PTR->m_Inst.m_NameMap["sinon"]]) touch = 1;
-	if (PTR->m_Control.map_stop[ste->index].is_stop) {
-		if (touch == 0) cnt -= PTR->m_Timer.delta_time();
+	if (ste->tactics & AI_TAC_CLOSETO) {
+		ste->tactics = AI_TAC_NONE;
+		ste->change_state(ai_CloseTo::instance());
 	}
 }
 //
@@ -100,7 +90,16 @@ void ai_CloseTo::enter(steering *ste)
 //
 void ai_CloseTo::execute(steering *ste)
 {
-	ste;
+	if (ste->count_down < 0.0f) {
+		XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[ste->target].get_World();
+		ste->desired_pos.x = world._41;
+		ste->desired_pos.z = world._43;
+		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_MOVE_HIT;
+		ste->count_down = 1.0f;
+	}
+	if (PTR->m_Control.map_stop[ste->index].is_stop) {
+		if (!ste->touch[ste->target]) ste->count_down -= PTR->m_Timer.delta_time();
+	}
 }
 //
 void ai_CloseTo::exit(steering *ste)
