@@ -151,6 +151,12 @@ void imm_app::on_input_keyup(WPARAM w_param, LPARAM l_param)
 {
 	m_Control.on_input_keyup(w_param, l_param);
 }
+//
+void imm_app::game_suspend(const bool &is_stop)
+{
+	base_win::game_suspend(is_stop);
+	m_Scene.audio.suspend(is_stop);
+}
 ////////////////
 // inl
 ////////////////

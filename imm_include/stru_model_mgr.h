@@ -21,7 +21,7 @@ enum MODEL_TYPE
 {
 	MODEL_BASIC,
 	MODEL_SKINNED,
-	MODEL_SIMPLE_P
+	MODEL_SIMPLE_P,
 };
 ////////////////
 // instance_stat

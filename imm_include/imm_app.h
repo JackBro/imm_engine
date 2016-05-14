@@ -43,6 +43,7 @@ public:
 	void on_input_char(WPARAM w_param, LPARAM l_param);
 	void on_input_keydown(WPARAM w_param, LPARAM l_param);
 	void on_input_keyup(WPARAM w_param, LPARAM l_param);
+	void game_suspend(const bool &is_stop);
 	void build_shadow_transform();
 	void draw_scene_d3d();
 	void draw_scene_d3d_shadow();

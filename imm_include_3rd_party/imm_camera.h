@@ -85,7 +85,7 @@ camera::camera():
 	m_Position(0.0f, 0.0f, 0.0f),
 	m_Right(1.0f, 0.0f, 0.0f),
 	m_Up(0.0f, 1.0f, 0.0f),
-	m_Look(0.0f, 0.0f, 1.0f)
+	m_Look(0.001f, 0.0f, 1.0f)
 {
 	set_Lens(0.25f*XM_PI, 1.0f, 1.0f, 1000.0f);
 }

@@ -25,6 +25,7 @@ struct audio_dxtk
 	void play_effect(const std::string &name);
 	void set_effect_inst_volume(float volume);
 	void set_wave_bank_volume(float volume);
+	void suspend(const bool &is_stop);
 	float wave_bank_volume;
 	std::string current_bgm_name;
 	std::map<std::string, std::wstring> map_bgm;
@@ -81,17 +82,6 @@ void audio_dxtk::update()
 	aud_engine->Update();
 }
 //
-void audio_dxtk::set_effect_inst_volume(float volume)
-{
-	assert(effect_inst);
-	effect_inst->SetVolume(volume);
-}
-//
-void audio_dxtk::set_wave_bank_volume(float volume)
-{
-	wave_bank_volume = volume;
-}
-//
 void audio_dxtk::play_bgm(const std::string &name, const bool &is_loop = false)
 {
 	if (name != current_bgm_name) {
@@ -119,6 +109,23 @@ void audio_dxtk::play_effect(const std::string &name)
 {
 	assert(map_effect_bank.count(name));
 	map_wave_bank[map_effect_bank[name]]->Play(map_effect_ix[name], wave_bank_volume, 0.0f, 0.0f);
+}
+//
+void audio_dxtk::set_effect_inst_volume(float volume)
+{
+	assert(effect_inst);
+	effect_inst->SetVolume(volume);
+}
+//
+void audio_dxtk::set_wave_bank_volume(float volume)
+{
+	wave_bank_volume = volume;
+}
+//
+void audio_dxtk::suspend(const bool &is_stop)
+{
+	if (is_stop) aud_engine->Suspend();
+	else aud_engine->Resume();
 }
 //
 }

@@ -44,6 +44,7 @@ public:
 	virtual void on_input_char(WPARAM w_param, LPARAM l_param) {DUMMY(w_param); DUMMY(l_param);}
 	virtual void on_input_keydown(WPARAM w_param, LPARAM l_param) {DUMMY(w_param); DUMMY(l_param);}
 	virtual void on_input_keyup(WPARAM w_param, LPARAM l_param) {DUMMY(w_param); DUMMY(l_param);}
+	virtual void game_suspend(const bool &is_stop);
 	virtual PCWSTR class_name() const {return L"Immature Engine Class";}
 	void calc_frmae_stats();
 	//
@@ -418,12 +419,10 @@ LRESULT base_win<DERIVED_TYPE>::handle_message(UINT uMsg, WPARAM wParam, LPARAM 
 	// when it becomes active.
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE) {
-			m_Paused = true;
-			m_Timer.stop();
+			game_suspend(true);
 		}
 		else {
-			m_Paused = false;
-			m_Timer.start();
+			game_suspend(false);
 		}
 		return 0;
 	// WM_SIZE is sent when the user resizes the window.
@@ -432,16 +431,14 @@ LRESULT base_win<DERIVED_TYPE>::handle_message(UINT uMsg, WPARAM wParam, LPARAM 
 		return 0;
 	// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
 	case WM_ENTERSIZEMOVE:
-		m_Paused = true;
 		m_Resizing = true;
-		m_Timer.stop();
+		game_suspend(true);
 		return 0;
 	// WM_EXITSIZEMOVE is sent when the user releases the resize bars.
 	// Here we reset everything based on the new window dimensions.
 	case WM_EXITSIZEMOVE:
-		m_Paused = false;
 		m_Resizing = false;
-		m_Timer.start();
+		game_suspend(false);
 		on_resize();
 		return 0;
 	// WM_DESTROY is sent when the window is being destroyed.
@@ -495,13 +492,13 @@ void base_win<DERIVED_TYPE>::handle_message_WM_SIZE(WPARAM wParam, LPARAM lParam
 	m_ClientHeight = HIWORD(lParam);
 	if (!m_D3DDevice) return;
 	if (wParam == SIZE_MINIMIZED) {
-		m_Paused = true;
+		game_suspend(true);
 		m_Minimized = true;
 		m_Maximized = false;
 		return;
 	}
 	if (wParam == SIZE_MAXIMIZED) {
-		m_Paused = false;
+		game_suspend(false);
 		m_Minimized = false;
 		m_Maximized = true;
 		on_resize();
@@ -510,14 +507,14 @@ void base_win<DERIVED_TYPE>::handle_message_WM_SIZE(WPARAM wParam, LPARAM lParam
 	if (wParam == SIZE_RESTORED) {
 		// Restoring from minimized state?
 		if (m_Minimized) {
-			m_Paused = false;
+			game_suspend(false);
 			m_Minimized = false;
 			on_resize();
 			return;
 		}
 		// Restoring from maximized state?
 		if (m_Maximized) {
-			m_Paused = false;
+			game_suspend(false);
 			m_Maximized = false;
 			on_resize();
 			return;
@@ -539,6 +536,15 @@ void base_win<DERIVED_TYPE>::handle_message_WM_SIZE(WPARAM wParam, LPARAM lParam
 			return;
 		}
 	}
+}
+//
+template <class DERIVED_TYPE>
+void base_win<DERIVED_TYPE>::game_suspend(const bool &is_stop)
+{
+	// derived game_suspend() must call this base version
+	m_Paused = is_stop;
+	if (is_stop) m_Timer.stop();
+	else m_Timer.start();
 }
 //
 template <class DERIVED_TYPE>

@@ -44,7 +44,11 @@ struct control_cam
 	float follow_up_def;
 	float follow_walk;
 	float follow_up;
-	float follow_reset_cooldown;
+	float follow_reset_timer;
+	float follow_reset_cd_max;
+	XMFLOAT3 reset_R;
+	XMFLOAT3 reset_U;
+	XMFLOAT3 reset_L;
 	std::map<size_t, XMFLOAT4> map_rot_front_c;
 };
 //
@@ -56,7 +60,11 @@ control_cam<T_app>::control_cam():
 	is_resetting(false),
 	follow_walk_def(-30.0f),
 	follow_up_def(3.0f),
-	follow_reset_cooldown(0.0f)
+	follow_reset_timer(0.0f),
+	follow_reset_cd_max(5.0f),
+	reset_R(0.0f, 0.0f, 0.0f),
+	reset_U(0.0f, 0.0f, 0.0f),
+	reset_L(0.0f, 0.0f, 0.0f)
 {
 	follow_walk = follow_walk_def;
 	follow_up = follow_up_def;
@@ -77,7 +85,7 @@ void control_cam<T_app>::reset()
 template <typename T_app>
 void control_cam<T_app>::pad_update(const float &dt)
 {
-	if (app->m_Control.pad.is_R_active()) {
+	if (app->m_Control.pad.is_R_active() && !is_resetting) {
 		float dx = XMConvertToRadians(50.0f*app->m_Control.pad.state.Gamepad.sThumbRX/32767*dt);
 		float dy = XMConvertToRadians(50.0f*app->m_Control.pad.state.Gamepad.sThumbRY/32767*dt);
 		app->m_Cam.pitch(dy);
@@ -138,6 +146,7 @@ void control_cam<T_app>::mouse_wheel(const short &z_delta)
 template <typename T_app>
 void control_cam<T_app>::mouse_move()
 {
+	if (is_resetting) return;
 	// Make each pixel correspond to a quarter of a degree.
 	float dx = XMConvertToRadians(0.25f*static_cast<float>(app->m_Control.mouse_move.x - app->m_LastMousePos.x));
 	float dy = XMConvertToRadians(0.25f*static_cast<float>(app->m_Control.mouse_move.y - app->m_LastMousePos.y));
@@ -168,50 +177,85 @@ void control_cam<T_app>::follow_update()
 	if (is_smooth) {
 		// default 1fps = 1/60s
 		float factor = app->m_Timer.delta_time()/0.0166667f*0.5f;
-		XMVECTOR pos_old = XMLoadFloat3(&app->m_Cam.m_Position);
+		XMVECTOR pos_old = app->m_Cam.get_PositionXM();
 		pos = XMVectorLerp(pos_old, pos, factor);
 	}
 	XMStoreFloat3(&app->m_Cam.m_Position, pos);
 	// reset
-	if (follow_reset_cooldown > -1.0f) follow_reset_cooldown -= app->m_Timer.delta_time();
-	if (GetKeyState(KEY_CAM_FOLLOW_RESET) & 0x8000 || is_pad_follow_reset) {
-		follow_update_reset(rot_quat);
+	if (follow_reset_timer > -1.0f) {
+		follow_reset_timer -= app->m_Timer.delta_time();
 	}
+	if (follow_reset_timer < -2.0f) {
+		follow_reset_timer += app->m_Timer.delta_time();
+		return;
+	}
+	if (GetKeyState(KEY_CAM_FOLLOW_RESET) & 0x8000 || is_pad_follow_reset) {
+		follow_reset_timer = follow_reset_cd_max;
+	}
+	if (follow_reset_timer > 0.0f) follow_update_reset(rot_quat);
 }
 //
 template <typename T_app>
 void control_cam<T_app>::follow_update_reset(const XMVECTOR &rot_quat)
 {
 	is_pad_follow_reset = false;
-	if (follow_reset_cooldown > 0.0f) return;
-	else follow_reset_cooldown = 0.5f;
-	int player1 = app->m_Control.player1;
 	follow_walk = follow_walk_def;
-	XMVECTOR scale, rot_front_conj, R, L, U;
-	if (!map_rot_front_c.count(app->m_Control.picked1)) {
-		XMMATRIX RF = XMLoadFloat4x4(app->m_Inst.m_Stat[player1].get_RotFront());
-		// L as dummy
-		XMMatrixDecompose(&scale, &rot_front_conj, &L, RF);
-		rot_front_conj = XMQuaternionConjugate(rot_front_conj);
-		XMStoreFloat4(&map_rot_front_c[player1], rot_front_conj);
+	XMVECTOR scale, rot_front_conj, R, L, U, epsilon, R_old, U_old, L_old;
+	if (!is_resetting) {
+		is_resetting = true;
+		int player1 = app->m_Control.player1;
+		if (!map_rot_front_c.count(app->m_Control.picked1)) {
+			XMMATRIX RF = XMLoadFloat4x4(app->m_Inst.m_Stat[player1].get_RotFront());
+			// L as dummy
+			XMMatrixDecompose(&scale, &rot_front_conj, &L, RF);
+			rot_front_conj = XMQuaternionConjugate(rot_front_conj);
+			XMStoreFloat4(&map_rot_front_c[player1], rot_front_conj);
+		}
+		else {
+			rot_front_conj = XMLoadFloat4(&map_rot_front_c[player1]);
+		}
+		L = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+		L = XMVector3Rotate(L, rot_front_conj);
+		L = XMVector3Rotate(L, rot_quat);
+		L = XMVector3Normalize(L);
+		U = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+		R = XMVector3Normalize(XMVector3Cross(U, L));
+		U = XMVector3Cross(L, R);
+		// pitch, rotate cam to default angle, about 0.34f
+		XMMATRIX M_R = XMMatrixRotationAxis(R, 0.34f);
+		U = XMVector3TransformNormal(U, M_R);
+		L = XMVector3TransformNormal(L, M_R);
+		XMStoreFloat3(&reset_L, L);
+		XMStoreFloat3(&reset_R, R);
+		XMStoreFloat3(&reset_U, U);	
 	}
 	else {
-		rot_front_conj = XMLoadFloat4(&map_rot_front_c[player1]);
+		L = XMLoadFloat3(&reset_L);
+		R = XMLoadFloat3(&reset_R);
+		U = XMLoadFloat3(&reset_U);
 	}
-	L = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
-	L = XMVector3Rotate(L, rot_front_conj);
-	L = XMVector3Rotate(L, rot_quat);
-	L = XMVector3Normalize(L);
-	U = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	R = XMVector3Normalize(XMVector3Cross(U, L));
-	U = XMVector3Cross(L, R);
-	// pitch, rotate cam to default angle, about 0.34f
-	XMMATRIX M_R = XMMatrixRotationAxis(R, 0.34f);
-	U = XMVector3TransformNormal(U, M_R);
-	L = XMVector3TransformNormal(L, M_R);
+	epsilon = XMVectorSet(0.01f, 0.01f, 0.01f, 0.0f);
+	// default 1fps = 1/60s
+	float time_ratio = follow_reset_timer/follow_reset_cd_max;
+	float factor = app->m_Timer.delta_time()/0.0166667f*(0.05f+0.25f*time_ratio);
+	R_old = app->m_Cam.get_RightXM();
+	U_old = app->m_Cam.get_UpXM();
+	L_old = app->m_Cam.get_LookXM();
+	if (XMVector3NearEqual(R_old, R, epsilon) &&
+		XMVector3NearEqual(U_old, U, epsilon) &&
+		XMVector3NearEqual(L_old, L, epsilon)) {
+		//
+		follow_reset_timer = -2.1f;
+		factor = 1.0f;
+		is_resetting = false;
+	}
+	R = XMVectorLerp(R_old, R, factor);
+	U = XMVectorLerp(U_old, U, factor);
+	L = XMVectorLerp(L_old, L, factor);
+	//
 	XMStoreFloat3(&app->m_Cam.m_Look, L);
 	XMStoreFloat3(&app->m_Cam.m_Right, R);
-	XMStoreFloat3(&app->m_Cam.m_Up, U);
+	XMStoreFloat3(&app->m_Cam.m_Up, U);	
 }
 //
 }
