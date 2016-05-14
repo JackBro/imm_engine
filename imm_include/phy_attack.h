@@ -176,7 +176,7 @@ void phy_attack_arrange<T_app>::rebuild_bbox_from_instance()
 {
 	remove_all();
 	for (size_t ix = 0; ix != app->m_Inst.m_Stat.size(); ++ix) {
-		if (app->m_Inst.m_Stat[ix].type != MODEL_SKINNED) continue;
+		if (!app->m_Inst.m_Stat[ix].is_controllable) continue;
 		std::string *model_name = app->m_Inst.m_Stat[ix].get_ModelName();
 		if (atk_model.count(*model_name)) {
 			for (auto it = atk_model[*model_name].box.begin(); it != atk_model[*model_name].box.end(); ++it) {
