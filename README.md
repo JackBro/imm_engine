@@ -23,10 +23,10 @@ Disadvantage List:
 * The disavantage list is the bad features that will not change even in the future.
 * [cl.exe](https://msdn.microsoft.com/en-us/library/9s7c9wdw.aspx) Command-Line Build.
 * No visualization scene editor.
-* Some game date is directly mixed with source code, such as UI and game logic.
 * The platform only supports Microsoft Windows. 
-* Horrible API design, evil magic code style.
-* Very high coupling class structure.
+* Just as the name implies, the engine technology is not advanced.
+* Some game date is directly mixed with source code, such as UI and game logic.
+* Evil magic code style, high coupling class structure.
 * Little document support.
 
 Compile Environment:

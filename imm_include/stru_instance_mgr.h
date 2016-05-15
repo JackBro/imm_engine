@@ -8,6 +8,7 @@
 #ifndef STRU_INSTANCE_MGR_H
 #define STRU_INSTANCE_MGR_H
 #include "ai_steering.h"
+#include "phy_ai_probe.h"
 #include "stru_inst_adapter.h"
 #include "stru_model_mgr.h"
 #include "control_state.h"
@@ -55,6 +56,7 @@ struct instance_mgr
 	phy_bound_mgr<T_app> m_BoundL;
 	phy_bound_mgr<T_app> m_BoundW;
 	inst_adapter<T_app> m_Adapter;
+	ai_probe<T_app> m_Probe;
 	BoundingFrustum m_CamFrustumL;
 	BoundingFrustum m_CamFrustumW;
 	std::vector<instance_stat> m_Stat;
@@ -73,6 +75,7 @@ instance_mgr<T_app>::instance_mgr():
 	m_BoundL(),
 	m_BoundW(),
 	m_Adapter(),
+	m_Probe(),
 	m_IsLoading(false),
 	m_IsTerrainUse(false),
 	m_PlaneLandIx(-1),
@@ -87,7 +90,8 @@ void instance_mgr<T_app>::init(T_app *app_in)
 	m_App = app_in;
 	m_BoundL.init(m_App);
 	m_BoundW.init(m_App);
-	m_Adapter.init_load(app_in);
+	m_Adapter.init_load(m_App);
+	m_Probe.init(m_App);
 }
 //
 template <typename T_app>
@@ -172,6 +176,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 	m_App->m_AiInfo.rebuild();
 	m_App->m_AiAttr.rebuild();
 	m_App->m_AiNpc.rebuild();
+	m_Probe.rebuild();
 }
 //
 template <typename T_app>
@@ -268,6 +273,7 @@ void instance_mgr<T_app>::update_all_physics(const float &dt)
 	update_frustum_culling();
 	update_collision_liquid(dt);
 	m_Adapter.update_world();
+	m_Probe.update();
 	m_App->m_Attack.update();
 	m_App->m_Magic.update();
 }
