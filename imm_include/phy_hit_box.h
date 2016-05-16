@@ -1,12 +1,12 @@
 ////////////////
-// phy_attack.h
+// phy_hit_box.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015-2016 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef PHY_ATTACK_H
-#define PHY_ATTACK_H
+#ifndef PHY_HIT_BOX_H
+#define PHY_HIT_BOX_H
 #include "phy_prepare.h"
 #include "stru_inst_adapter.h"
 #include "phy_magic.h"
@@ -14,40 +14,40 @@
 namespace imm
 {
 ////////////////
-// phy_attack_box
+// phy_hit_box
 ////////////////
 ////////////////
-struct phy_attack_box
+struct phy_hit_box
 {
-	phy_attack_box();
+	phy_hit_box();
 	size_t bone_ix;
 	XMFLOAT4X4 to_bone;
 	XMFLOAT3 extents;
 };
 //
-phy_attack_box::phy_attack_box():
+phy_hit_box::phy_hit_box():
 	bone_ix(0),
 	extents(0.5f, 0.5f, 0.5f)
 {
 	XMStoreFloat4x4(&to_bone, XMMatrixIdentity());
 }
 ////////////////
-// phy_attack_model
+// phy_hit_model
 ////////////////
 ////////////////
-struct phy_attack_model
+struct phy_hit_model
 {
-	std::map<std::string, phy_attack_box> box;
+	std::map<std::string, phy_hit_box> box;
 };
 ////////////////
-// phy_attack_arrange
+// phy_hit_arrange
 ////////////////
 ////////////////
 template <typename T_app>
-struct phy_attack_arrange
+struct phy_hit_arrange
 {
-	phy_attack_arrange();
-	~phy_attack_arrange();
+	phy_hit_arrange();
+	~phy_hit_arrange();
 	void remove_all();
 	void init_load(T_app *app_in);
 	void read_lua();
@@ -68,10 +68,10 @@ struct phy_attack_arrange
 	std::vector<bool> is_active_box;
 	std::vector<bool> is_active_att;
 	// unarmed map:
-	// # atk_model[model_name] = phy_attack_model
+	// # atk_model[model_name] = phy_hit_model
 	// # map_box_active[instance_ix][box_name] = bbox_ix = is_active_box_ix
 	// # map_box_owner[bbox_ix] = instance_ix
-	std::map<std::string, phy_attack_model> atk_model;
+	std::map<std::string, phy_hit_model> atk_model;
 	std::map<size_t, std::map<std::string, size_t>> map_box_active;
 	std::map<size_t, size_t> map_box_owner;
 	// bound correction:
@@ -85,20 +85,20 @@ struct phy_attack_arrange
 };
 //
 template <typename T_app>
-phy_attack_arrange<T_app>::phy_attack_arrange():
+phy_hit_arrange<T_app>::phy_hit_arrange():
 	app(nullptr)
 {
 	;
 }
 //
 template <typename T_app>
-phy_attack_arrange<T_app>::~phy_attack_arrange()
+phy_hit_arrange<T_app>::~phy_hit_arrange()
 {
 	;
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::remove_all()
+void phy_hit_arrange<T_app>::remove_all()
 {
 	map_box_active.clear();
 	map_box_owner.clear();
@@ -115,7 +115,7 @@ void phy_attack_arrange<T_app>::remove_all()
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::init_load(T_app *app_in)
+void phy_hit_arrange<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
 	read_lua();
@@ -123,13 +123,13 @@ void phy_attack_arrange<T_app>::init_load(T_app *app_in)
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::read_lua()
+void phy_hit_arrange<T_app>::read_lua()
 {
 	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
 	lua_reader l_reader;
 	l_reader.loadfile(concrete);
 	std::vector<std::vector<std::string>> vec2d;
-	l_reader.vec2d_str_from_table("csv_attack_box", vec2d);
+	l_reader.vec2d_str_from_table("csv_hit_box", vec2d);
 	for (size_t ix = 1; ix < vec2d.size(); ++ix) {
 		atk_model[vec2d[ix][0]].box[vec2d[ix][1]].bone_ix = stoi(vec2d[ix][2]);
 		XMMATRIX offset = XMMatrixTranslation(
@@ -150,7 +150,7 @@ void phy_attack_arrange<T_app>::read_lua()
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::read_lua_bound_offset()
+void phy_hit_arrange<T_app>::read_lua_bound_offset()
 {
 	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
 	lua_reader l_reader;
@@ -165,14 +165,14 @@ void phy_attack_arrange<T_app>::read_lua_bound_offset()
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::rebuild()
+void phy_hit_arrange<T_app>::rebuild()
 {
 	rebuild_bbox_from_instance();
 	rebuild_info_from_attachment();
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::rebuild_bbox_from_instance()
+void phy_hit_arrange<T_app>::rebuild_bbox_from_instance()
 {
 	remove_all();
 	for (size_t ix = 0; ix != app->m_Inst.m_Stat.size(); ++ix) {
@@ -196,7 +196,7 @@ void phy_attack_arrange<T_app>::rebuild_bbox_from_instance()
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::rebuild_info_from_attachment()
+void phy_hit_arrange<T_app>::rebuild_info_from_attachment()
 {
 	app->m_Inst.m_Adapter.flush();
 	std::vector<inst_attachment> (*att) = &app->m_Inst.m_Adapter.attach;
@@ -210,21 +210,21 @@ void phy_attack_arrange<T_app>::rebuild_info_from_attachment()
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::update()
+void phy_hit_arrange<T_app>::update()
 {
 	update_world();
 	update_collision();
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::update_world()
+void phy_hit_arrange<T_app>::update_world()
 {
 	assert(!app->m_Cmd.is_waiting_for_something());
 	for (auto it_map = map_box_active.begin(); it_map != map_box_active.end(); ++it_map) {
 		XMMATRIX world = XMLoadFloat4x4(app->m_Inst.m_Stat[it_map->first].get_World());
 		for (auto it_box = it_map->second.begin(); it_box != it_map->second.end(); ++it_box) {
 			size_t bone_ix =
-				app->m_Attack.atk_model[*app->m_Inst.m_Stat[it_map->first].get_ModelName()].box[it_box->first].bone_ix;
+				app->m_Hit.atk_model[*app->m_Inst.m_Stat[it_map->first].get_ModelName()].box[it_box->first].bone_ix;
 			XMMATRIX bone_trans = XMLoadFloat4x4(
 				app->m_Inst.m_Stat[it_map->first].get_FinalTransform(bone_ix)
 			);
@@ -234,7 +234,7 @@ void phy_attack_arrange<T_app>::update_world()
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::update_collision()
+void phy_hit_arrange<T_app>::update_collision()
 {
 	// unarmed
 	for (size_t ix = 0; ix != is_active_box.size(); ++ix) {
@@ -308,7 +308,7 @@ void phy_attack_arrange<T_app>::update_collision()
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::set_active_box(
+void phy_hit_arrange<T_app>::set_active_box(
 	const size_t &inst_ix,
 	const std::vector<std::string> &box_name,
 	const bool &active = true)
@@ -331,7 +331,7 @@ void phy_attack_arrange<T_app>::set_active_box(
 }
 //
 template <typename T_app>
-void phy_attack_arrange<T_app>::deactive_box(const size_t &inst_ix)
+void phy_hit_arrange<T_app>::deactive_box(const size_t &inst_ix)
 {
 	assert(map_box_active.count(inst_ix) || map_att_active.count(inst_ix));
 	// unarmed

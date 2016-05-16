@@ -171,7 +171,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 	}
 	// after instance load over
 	m_App->m_Control.rebuild_player();
-	m_App->m_Attack.rebuild();
+	m_App->m_Hit.rebuild();
 	m_App->m_Scene.phy_wire.rebuild_buffer();
 	m_App->m_AiInfo.rebuild();
 	m_App->m_AiAttr.rebuild();
@@ -200,8 +200,8 @@ void instance_mgr<T_app>::push_back_basic(
 				m_BoundL.bd0.back(),
 				v_inst[ix].model->m_Vertices,
 				get_pos_f);
-			if (m_App->m_Attack.model_bound_offset.count(name[ix])) {
-				phy_set_box_scale(m_BoundL.bd0.back(), m_App->m_Attack.model_bound_offset[name[ix]]);
+			if (m_App->m_Hit.model_bound_offset.count(name[ix])) {
+				phy_set_box_scale(m_BoundL.bd0.back(), m_App->m_Hit.model_bound_offset[name[ix]]);
 			}
 			break;
 		case PHY_BOUND_ORI_BOX:
@@ -211,8 +211,8 @@ void instance_mgr<T_app>::push_back_basic(
 				v_inst[ix].model->m_Vertices,
 				get_pos_f);
 			m_BoundL.bd1.back().Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-			if (m_App->m_Attack.model_bound_offset.count(name[ix])) {
-				phy_set_box_scale(m_BoundL.bd1.back(), m_App->m_Attack.model_bound_offset[name[ix]]);
+			if (m_App->m_Hit.model_bound_offset.count(name[ix])) {
+				phy_set_box_scale(m_BoundL.bd1.back(), m_App->m_Hit.model_bound_offset[name[ix]]);
 			}
 			break;
 		case PHY_BOUND_SPHERE:
@@ -274,7 +274,7 @@ void instance_mgr<T_app>::update_all_physics(const float &dt)
 	update_collision_liquid(dt);
 	m_Adapter.update_world();
 	m_Probe.update();
-	m_App->m_Attack.update();
+	m_App->m_Hit.update();
 	m_App->m_Magic.update();
 }
 //
@@ -308,8 +308,6 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 		if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
 		// record sensor
 		bool is_touch = m_BoundW.intersects(ix, ix2);
-		if (m_Stat[ix].is_controllable) m_Steering[ix].touch[ix2] = is_touch;
-		if (m_Stat[ix2].is_controllable) m_Steering[ix2].touch[ix] = is_touch;
 		// if instance stand on instance, continue;
 		if (m_Stat[ix].phy.stand_on == ix2 || m_Stat[ix2].phy.stand_on == ix) continue;
 		//

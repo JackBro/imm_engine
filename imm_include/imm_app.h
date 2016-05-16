@@ -12,7 +12,7 @@
 #include "ai_status_data.h"
 #include "ai_information.h"
 #include "condition_trigger.h"
-#include "phy_attack.h"
+#include "phy_hit_box.h"
 #include "control_sys.h"
 #include "imm_cmd.h"
 #include "ui_mgr.h"
@@ -58,7 +58,7 @@ public:
 	shadow_map *m_Smap;
 	scene_mgr<imm_app> m_Scene;
 	instance_mgr<imm_app> m_Inst;
-	phy_attack_arrange<imm_app> m_Attack;
+	phy_hit_arrange<imm_app> m_Hit;
 	phy_magic<imm_app> m_Magic;
 	ui_mgr<imm_app> m_UiMgr;
 	condition_trigger<imm_app> m_Condition;

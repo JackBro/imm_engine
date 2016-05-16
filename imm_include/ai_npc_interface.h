@@ -108,6 +108,7 @@ void ai_npc<T_app>::update_beat_player(ai_mental &mind)
 		ste->target = PTR->m_Control.player1;
 		ste->count_down = -1.0f;
 		ste->tactics |= AI_TAC_CLOSETO;
+		app->m_Inst.m_Probe.sphere[mind.ix].is_active = true;
 	}
 }
 //

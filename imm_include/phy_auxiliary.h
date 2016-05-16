@@ -28,7 +28,7 @@ struct phy_wireframe
 	void draw();
 	bool is_drawing;
 	std::map<size_t, ID3D11Buffer*> box_collision;
-	std::vector<ID3D11Buffer*> box_attack;
+	std::vector<ID3D11Buffer*> box_hit;
 	ID3D11Buffer *box_ib;
 	T_app *app;
 private:
@@ -56,7 +56,7 @@ template <typename T_app>
 void phy_wireframe<T_app>::remove_buffer()
 {
 	for (auto &vb: box_collision) RELEASE_COM(vb.second);
-	for (auto &vb: box_attack) RELEASE_COM(vb);
+	for (auto &vb: box_hit) RELEASE_COM(vb);
 }
 //
 template <typename T_app>
@@ -64,8 +64,8 @@ void phy_wireframe<T_app>::remove_all()
 {
 	remove_buffer();
 	box_collision.clear();
-	box_attack.clear();
-	box_attack.shrink_to_fit();
+	box_hit.clear();
+	box_hit.shrink_to_fit();
 }
 //
 template <typename T_app>
@@ -139,11 +139,11 @@ void phy_wireframe<T_app>::rebuild_buffer()
 		vinit_data.pSysMem = vertices;
 		HR(app->m_D3DDevice->CreateBuffer(&vbd, &vinit_data, &box_collision[ix]));
 	}
-	// box_attack
+	// box_hit
 	color = XMFLOAT4(Colors::Red);
-	for (size_t ix = 0; ix != app->m_Attack.bbox_l.size(); ++ix) {
+	for (size_t ix = 0; ix != app->m_Hit.bbox_l.size(); ++ix) {
 		XMFLOAT3 corners[8];
-		app->m_Attack.bbox_l[ix].GetCorners(corners);
+		app->m_Hit.bbox_l[ix].GetCorners(corners);
 		vertex::pos_color vertices[] = {
 			{corners[0], color},
 			{corners[1], color},
@@ -154,7 +154,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 			{corners[6], color},
 			{corners[7], color}
 		};
-		box_attack.push_back(nullptr);
+		box_hit.push_back(nullptr);
 		D3D11_BUFFER_DESC vbd;
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
 		vbd.ByteWidth = sizeof(vertex::pos_color)*8;
@@ -164,7 +164,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 		vbd.StructureByteStride = 0;
 		D3D11_SUBRESOURCE_DATA vinit_data;
 		vinit_data.pSysMem = vertices;
-		HR(app->m_D3DDevice->CreateBuffer(&vbd, &vinit_data, &box_attack.back()));
+		HR(app->m_D3DDevice->CreateBuffer(&vbd, &vinit_data, &box_hit.back()));
 	}
 }
 //
@@ -198,14 +198,14 @@ void phy_wireframe<T_app>::draw()
 			app->m_D3DDC->DrawIndexed(36, 0, 0);
 		}
 	}
-	// Draw attack box
-	for (auto it_map = app->m_Attack.map_box_active.begin(); it_map != app->m_Attack.map_box_active.end(); ++it_map) {
+	// Draw hit box
+	for (auto it_map = app->m_Hit.map_box_active.begin(); it_map != app->m_Hit.map_box_active.end(); ++it_map) {
 		XMFLOAT4X4 *inst_world = app->m_Inst.m_Stat[it_map->first].get_World();
 		XMMATRIX world = XMLoadFloat4x4(inst_world);
 		for (auto it_box = it_map->second.begin(); it_box != it_map->second.end(); ++it_box) {
-			app->m_D3DDC->IASetVertexBuffers(0, 1, &box_attack[it_box->second], &stride, &offset);
+			app->m_D3DDC->IASetVertexBuffers(0, 1, &box_hit[it_box->second], &stride, &offset);
 			size_t bone_ix =
-				app->m_Attack.atk_model[*app->m_Inst.m_Stat[it_map->first].get_ModelName()].box[it_box->first].bone_ix;
+				app->m_Hit.atk_model[*app->m_Inst.m_Stat[it_map->first].get_ModelName()].box[it_box->first].bone_ix;
 			XMMATRIX bone_trans = XMLoadFloat4x4(
 				app->m_Inst.m_Stat[it_map->first].get_FinalTransform(bone_ix)
 			);

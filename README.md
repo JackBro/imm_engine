@@ -25,8 +25,6 @@ Disadvantage List:
 * No visualization scene editor.
 * The platform only supports Microsoft Windows. 
 * Just as the name implies, the engine technology is not advanced.
-* Some game date is directly mixed with source code, such as UI and game logic.
-* Evil magic code style, high coupling class structure.
 * Little document support.
 
 Compile Environment:

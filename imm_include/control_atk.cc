@@ -21,7 +21,7 @@ skill_data::skill_data()
 void skill_data::current_apply(skill_para &pa)
 {
 	// deactive the previous box
-	if (pa.skill_ix > 0) PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.skill_ix-1], false);
+	if (pa.skill_ix > 0) PTR->m_Hit.set_active_box(pa.inst_ix, atk_box[pa.skill_ix-1], false);
 	pa.is_judge = false;
 	pa.count_down = frame_end[pa.skill_ix];
 	PTR->m_Inst.m_Stat[pa.inst_ix].check_set_ClipName(atk[pa.skill_ix], true);
@@ -40,7 +40,7 @@ void skill_data::chunk_over(skill_para &pa)
 	pa.is_judge = false;
 	pa.skill_ix = -1;
 	PTR->m_Control.atk.hits[pa.inst_ix].clear();
-	PTR->m_Attack.deactive_box(pa.inst_ix);
+	PTR->m_Hit.deactive_box(pa.inst_ix);
 	auto &tro = PTR->m_Inst.m_Troll[pa.inst_ix];
 	tro.order_stat |= ORDER_IS_ENGAGE;
 	tro.order |= ORDER_IDLE;
@@ -76,13 +76,13 @@ void skill_data::update(const float &dt, skill_para &pa)
 	//
 	if (!pa.is_judge) {
 		if (frame_end[pa.current_ix] - pa.count_down > judge_start[pa.current_ix]) {
-			PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.current_ix], true);
+			PTR->m_Hit.set_active_box(pa.inst_ix, atk_box[pa.current_ix], true);
 			pa.is_judge = true;
 		}
 	}
 	if (pa.is_judge) {
 		if (frame_end[pa.current_ix] - pa.count_down > judge_end[pa.current_ix]) {
-			PTR->m_Attack.set_active_box(pa.inst_ix, atk_box[pa.current_ix], false);
+			PTR->m_Hit.set_active_box(pa.inst_ix, atk_box[pa.current_ix], false);
 			pa.is_judge = false;
 		}
 	}

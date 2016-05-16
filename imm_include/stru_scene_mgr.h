@@ -92,7 +92,7 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 	plasma.init_load(app->m_D3DDevice, app->m_D3DDC);
 	audio.init_load();
 	phy_wire.init(app);
-	app->m_Attack.init_load(app);
+	app->m_Hit.init_load(app);
 	app->m_Magic.init(app);
 	app->m_AiInfo.init(app);
 	app->m_AiAttr.init(app);
