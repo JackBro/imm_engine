@@ -152,6 +152,45 @@ struct act_str
 	int *p_order_s;
 };
 ////////////////
+// action_data
+////////////////
+////////////////
+struct action_data
+{
+	action_data();
+	float velocity_Jump;
+	float speed_Walk;
+	float speed_Run;
+	float speed_Roll;
+	float frame_Damage;
+	float frame_RollStep1;
+	float frame_RollStep2;
+	float frame_JumpLand;
+	float cd_Idle;
+	float cd_Jump;
+	float cd_Damage;
+	float cd_RollStep1;
+	float cd_RollStep2;
+};
+//
+action_data::action_data():
+	velocity_Jump(35.0f),
+	speed_Walk(4.5f),
+	speed_Run(13.5f),
+	speed_Roll(30.0f),
+	frame_Damage(7.0f/FRAME_RATE),
+	frame_RollStep1(10.0f/FRAME_RATE),
+	frame_RollStep2(10.0f/FRAME_RATE),
+	frame_JumpLand(7.0f/FRAME_RATE),
+	cd_Idle(-1.0f),
+	cd_Jump(-1.0f),
+	cd_Damage(-1.0f),
+	cd_RollStep1(-1.0f),
+	cd_RollStep2(-1.0f)
+{
+	;
+}
+////////////////
 // troll
 ////////////////
 ////////////////
@@ -162,6 +201,7 @@ struct troll
 	void change_state(state<troll> *new_state);
 	void change_state_execute(state<troll> *new_state);
 	void revert_previous_state();
+	bool is_ai();
 	float speed_move();
 	state<troll> *current_state;
 	state<troll> *previous_state;
@@ -170,19 +210,7 @@ struct troll
 	int order_stat;
 	int focus;
 	bool is_on_air;
-	float velocity_Jump;
-	float speed_Walk;
-	float speed_Run;
-	float speed_Roll;
-	float frame_Damage;
-	float frame_Roll;
-	float frame_Roll2;
-	float frame_JumpLand;
-	float cd_Idle;
-	float cd_Jump;
-	float cd_Damage;
-	float cd_Move;
-	float cd_Move2;
+	action_data A;
 	act_str act;
 };
 //
@@ -194,19 +222,7 @@ troll::troll():
 	order_stat(ORDER_IS_CLEAR),
 	focus(-1),
 	is_on_air(false),
-	velocity_Jump(35.0f),
-	speed_Walk(4.5f),
-	speed_Run(13.5f),
-	speed_Roll(30.0f),
-	frame_Damage(7.0f/FRAME_RATE),
-	frame_Roll(10.0f/FRAME_RATE),
-	frame_Roll2(10.0f/FRAME_RATE),
-	frame_JumpLand(7.0f/FRAME_RATE),
-	cd_Idle(-1.0f),
-	cd_Jump(-1.0f),
-	cd_Damage(-1.0f),
-	cd_Move(-1.0f),
-	cd_Move2(-1.0f),
+	A(),
 	act(order_stat)
 {
 	;
@@ -243,8 +259,8 @@ void troll::revert_previous_state()
 //
 float troll::speed_move()
 {
-	if (order_stat & ORDER_IS_WALK)	return speed_Walk;
-	return speed_Run;
+	if (order_stat & ORDER_IS_WALK)	return A.speed_Walk;
+	return A.speed_Run;
 }
 ////////////////
 // inl

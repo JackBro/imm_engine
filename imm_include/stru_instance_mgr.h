@@ -170,7 +170,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 		m_IsTerrainUse = true;
 	}
 	// after instance load over
-	m_App->m_Control.rebuild_player();
+	m_App->m_Control.rebuild();
 	m_App->m_Hit.rebuild();
 	m_App->m_Scene.phy_wire.rebuild_buffer();
 	m_App->m_AiInfo.rebuild();

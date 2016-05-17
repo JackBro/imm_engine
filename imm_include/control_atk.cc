@@ -310,6 +310,14 @@ void control_atk<T_app>::init(T_app *app_in)
 		if (box_name[0].size() == 0) box_name.clear();
 		d_skill->atk_box.push_back(box_name);
 	}
+	//
+	l_reader.vec2d_str_from_table("csv_action", vec2d);
+}
+//
+template <typename T_app>
+void control_atk<T_app>::rebuild_action()
+{
+	;
 }
 //
 }

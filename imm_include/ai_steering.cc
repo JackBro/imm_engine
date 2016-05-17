@@ -100,9 +100,42 @@ void ai_CloseTo::execute(steering *ste)
 	if (PTR->m_Control.map_stop[ste->index].is_stop) {
 		if (!ste->touch[ste->target]) ste->count_down -= PTR->m_Timer.delta_time();
 	}
+	if (PTR->m_Inst.m_Steering[ste->index].touch[ste->target]) {
+		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_IDLE;
+		ste->report |= AI_REP_CLOSETO;
+	}
+	if (ste->tactics & AI_TAC_ATK) {
+		ste->tactics = AI_TAC_NONE;
+		ste->change_state(ai_Atk::instance());
+	}
 }
 //
 void ai_CloseTo::exit(steering *ste)
+{
+	ste;
+}
+////////////////
+// ai_Atk
+////////////////
+////////////////
+ai_Atk *ai_Atk::instance()
+{
+	static ai_Atk instance;
+	return &instance;
+}
+//
+void ai_Atk::enter(steering *ste)
+{
+	ste;
+}
+//
+void ai_Atk::execute(steering *ste)
+{
+	ste;
+	PTR->m_Inst.m_Troll[ste->index].order |= ORDER_ATK_X;
+}
+//
+void ai_Atk::exit(steering *ste)
 {
 	ste;
 }

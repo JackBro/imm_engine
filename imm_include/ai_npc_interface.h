@@ -105,10 +105,14 @@ void ai_npc<T_app>::update_beat_player(ai_mental &mind)
 {
 	auto ste = &app->m_Inst.m_Steering[mind.ix];
 	if (ste->current_state != ai_CloseTo::instance()) {
+		if (PTR->m_Inst.m_Steering[ste->index].touch[ste->target]) return;
 		ste->target = PTR->m_Control.player1;
 		ste->count_down = -1.0f;
 		ste->tactics |= AI_TAC_CLOSETO;
 		app->m_Inst.m_Probe.sphere[mind.ix].is_active = true;
+	}
+	if (ste->report & AI_REP_CLOSETO) {
+		ste->tactics |= AI_TAC_ATK;
 	}
 }
 //

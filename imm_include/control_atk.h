@@ -121,6 +121,7 @@ struct control_atk
 {
 	control_atk();
 	void init(T_app *app_in);
+	void rebuild_action();
 	void reset();
 	void init_skill_para(const size_t &index_in);
 	void cause_damage(

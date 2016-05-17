@@ -20,6 +20,16 @@ enum AI_TACTICS
 	AI_TAC_NONE    = 0x0,
 	AI_TAC_STANDY  = 0x1,
 	AI_TAC_CLOSETO = 0x2,
+	AI_TAC_ATK     = 0x4,
+};
+////////////////
+// AI_REPORT
+////////////////
+////////////////
+enum AI_REPORT
+{
+	AI_REP_NONE    = 0x0,
+	AI_REP_CLOSETO = 0x1,
 };
 ////////////////
 // ai_Standby
@@ -68,6 +78,21 @@ private:
 	ai_CloseTo &operator=(const ai_CloseTo&);
 };
 ////////////////
+// ai_Atk
+////////////////
+////////////////
+struct ai_Atk: public state<steering>
+{
+	static ai_Atk *instance();
+	void enter(steering*);
+	void execute(steering*);
+	void exit(steering*);
+private:
+	ai_Atk() {;}
+	ai_Atk(const ai_Atk&);
+	ai_Atk &operator=(const ai_Atk&);
+};
+////////////////
 // steering
 ////////////////
 ////////////////
@@ -88,6 +113,7 @@ struct steering
 	XMFLOAT3 desired_pos;
 	float count_down;
 	int tactics;
+	int report;
 	std::map<size_t, bool> touch;
 	std::vector<size_t> attack;
 	std::vector<size_t> damage;
@@ -102,6 +128,7 @@ steering::steering():
 	desired_pos(0.0f, 0.0f, 0.0f),
 	count_down(-1.0f),
 	tactics(AI_TAC_NONE),
+	report(AI_REP_NONE),
 	touch(),
 	attack(),
 	damage()

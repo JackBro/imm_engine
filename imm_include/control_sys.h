@@ -22,7 +22,7 @@ struct control_sys
 	// logic fuction
 	void init(T_app *app_in);
 	void reset();
-	void rebuild_player();
+	void rebuild();
 	void mouse_inst_move();
 	void pad_inst_move_update();
 	void key_inst_move_update();
@@ -94,10 +94,11 @@ void control_sys<T_app>::reset()
 }
 //
 template <typename T_app>
-void control_sys<T_app>::rebuild_player()
+void control_sys<T_app>::rebuild()
 {
 	player1 = static_cast<int>(app->m_Inst.get_index(app->m_Scene.get_misc["player1"]));
 	assert(player1 > -1);
+	atk.rebuild_action();
 }
 //
 template <typename T_app>
