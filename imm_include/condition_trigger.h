@@ -42,9 +42,10 @@ struct condition_trigger
 	void init(T_app *app_in);
 	void reset();
 	bool trigger(const std::string &task_name);
-	void update();
+	void update(const float &dt);
 	void update_scene01();
 	float scene_pass_time;
+	float delta_time;
 	std::map<std::string, condition_task> task;
 	T_app *app;
 };
@@ -52,6 +53,7 @@ struct condition_trigger
 template <typename T_app>
 condition_trigger<T_app>::condition_trigger():
 	scene_pass_time(0.0f),
+	delta_time(0.0f),
 	app(nullptr)
 {
 	;
@@ -88,8 +90,11 @@ void condition_trigger<T_app>::init(T_app *app_in)
 }
 //
 template <typename T_app>
-void condition_trigger<T_app>::update()
+void condition_trigger<T_app>::update(const float &dt)
 {
+	delta_time += dt;
+	if (delta_time < AI_DELTA_TIME_MIN) return;
+	else delta_time -= AI_DELTA_TIME_MIN;
 	scene_pass_time = app->m_Timer.total_time() - app->m_Scene.begin_time;
 	if (trigger("clear_cmd")) {
 		if (!app->m_Cmd.is_active) app->m_Cmd.input.clear();

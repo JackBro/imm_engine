@@ -35,6 +35,7 @@ struct instance_stat
 	MODEL_TYPE type;
 	bool is_attach;
 	bool is_controllable;
+	bool is_land;
 	//
 	XMFLOAT4X4 *get_World();
 	XMFLOAT4X4 *get_RotFront();
@@ -54,7 +55,8 @@ instance_stat::instance_stat():
 	phy(),
 	type(MODEL_BASIC),
 	is_attach(false),
-	is_controllable(false)
+	is_controllable(false),
+	is_land(false)
 {
 	;
 }

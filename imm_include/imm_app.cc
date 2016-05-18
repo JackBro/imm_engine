@@ -84,11 +84,11 @@ void imm_app::update_scene(float dt)
 	if (m_Cmd.is_waiting_for_something()) return;
 	build_shadow_transform();
 	m_Cam.update_view_matrix();
-	m_Condition.update();
+	m_Condition.update(dt);
 	m_Control.update_scene(dt);
 	m_Scene.update_atmosphere(dt);
-	m_AiAttr.update();
-	m_AiNpc.update();
+	m_AiAttr.update(dt);
+	m_AiNpc.update(dt);
 }
 //
 void imm_app::update_scene_keydown(float dt)

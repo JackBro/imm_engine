@@ -11,6 +11,7 @@
 namespace imm
 {
 ////////////////
+////////////////
 // AI_TYPE
 ////////////////
 ////////////////
@@ -48,10 +49,11 @@ struct ai_npc
 	void init_load(T_app *app_in);
 	void reset();
 	void rebuild();
-	void update();
+	void update(const float &dt);
 	void update_beat_player(ai_mental &mind);
 	void set_CloseTo();
 	T_app *app;
+	float delta_time;
 	std::vector<ai_mental> mental_data;
 	std::vector<ai_mental> mental_scene;
 };
@@ -59,6 +61,7 @@ struct ai_npc
 template <typename T_app>
 ai_npc<T_app>::ai_npc():
 	app(nullptr),
+	delta_time(0.0f),
 	mental_data(),
 	mental_scene()
 {
@@ -93,8 +96,12 @@ void ai_npc<T_app>::rebuild()
 }
 //
 template <typename T_app>
-void ai_npc<T_app>::update()
+void ai_npc<T_app>::update(const float &dt)
 {
+	delta_time += dt;
+	if (delta_time < AI_DELTA_TIME_MIN) return;
+	else delta_time -= AI_DELTA_TIME_MIN;
+	//
 	for (auto &mind: mental_scene) {
 		if (mind.type & AI_BEAT_PLAYER) update_beat_player(mind);
 	}
@@ -109,7 +116,7 @@ void ai_npc<T_app>::update_beat_player(ai_mental &mind)
 		ste->target = PTR->m_Control.player1;
 		ste->count_down = -1.0f;
 		ste->tactics |= AI_TAC_CLOSETO;
-		app->m_Inst.m_Probe.sphere[mind.ix].is_active = true;
+		app->m_Inst.m_Probe.geometry[mind.ix].is_active = true;
 	}
 	if (ste->report & AI_REP_CLOSETO) {
 		ste->tactics |= AI_TAC_ATK;

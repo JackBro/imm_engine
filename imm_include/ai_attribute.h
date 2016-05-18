@@ -171,9 +171,10 @@ struct ai_attr
 	void rebuild();
 	void rebuild_points();
 	void rebuild_troll();
-	void update();
+	void update(const float &dt);
 	void calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg);
 	T_app *app;
+	float delta_time;
 	ui_attr<T_app> ui;
 	std::map<size_t, ai_points> points;
 	std::map<std::string, size_t> points_name;
@@ -182,6 +183,7 @@ struct ai_attr
 template <typename T_app>
 ai_attr<T_app>::ai_attr():
 	app(nullptr),
+	delta_time(0.0f),
 	ui(),
 	points(),
 	points_name()
@@ -235,8 +237,11 @@ void ai_attr<T_app>::rebuild_troll()
 }
 //
 template <typename T_app>
-void ai_attr<T_app>::update()
+void ai_attr<T_app>::update(const float &dt)
 {
+	delta_time += dt;
+	if (delta_time < AI_DELTA_TIME_MIN) return;
+	else delta_time -= AI_DELTA_TIME_MIN;
 	ui.update();
 }
 //

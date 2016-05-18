@@ -163,6 +163,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 {
 	if (csv_value_is_empty(m_App->m_Scene.get_misc["terrain_info"])) {
 		m_PlaneLandIx = get_index(m_App->m_Scene.get_misc["plane_land"]);
+		m_Stat[m_PlaneLandIx].is_land = true;
 		m_IsTerrainUse = false;
 	}
 	else {
@@ -303,8 +304,7 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 {
 	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
 	for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
-		//
-		if (static_cast<int>(ix) == m_PlaneLandIx || static_cast<int>(ix2) == m_PlaneLandIx) continue;
+		if (m_Stat[ix].is_land || m_Stat[ix2].is_land) continue;
 		if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
 		// record sensor
 		bool is_touch = m_BoundW.intersects(ix, ix2);
@@ -334,7 +334,7 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 	if (m_PlaneLandIx < 0) return;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		//
-		if (static_cast<int>(ix) == m_PlaneLandIx) continue;
+		if (m_Stat[ix].is_land) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		// physcis logic
 		int ix_land;		
@@ -434,6 +434,7 @@ template <typename T_app>
 void instance_mgr<T_app>::update_collision_liquid(float dt)
 {
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
+		if (m_Stat[ix].is_land) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		switch(m_BoundW.map[ix].first) {
 		case PHY_BOUND_BOX:
