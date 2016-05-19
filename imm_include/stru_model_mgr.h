@@ -24,6 +24,17 @@ enum MODEL_TYPE
 	MODEL_SIMPLE_P,
 };
 ////////////////
+// MODEL_PROPERTY
+////////////////
+////////////////
+enum MODEL_PROPERTY
+{
+	MODEL_IS_NONE         = 0x0,
+	MODEL_IS_ATTACH       = 0x1,
+	MODEL_IS_LAND         = 0x2,
+	MODEL_IS_CONTROLLABLE = 0x4,
+};
+////////////////
 // instance_stat
 ////////////////
 ////////////////
@@ -33,9 +44,7 @@ struct instance_stat
 	const void *ptr;
 	phy_property phy;
 	MODEL_TYPE type;
-	bool is_attach;
-	bool is_controllable;
-	bool is_land;
+	int property;
 	//
 	XMFLOAT4X4 *get_World();
 	XMFLOAT4X4 *get_RotFront();
@@ -54,9 +63,7 @@ instance_stat::instance_stat():
 	ptr(nullptr),
 	phy(),
 	type(MODEL_BASIC),
-	is_attach(false),
-	is_controllable(false),
-	is_land(false)
+	property(MODEL_IS_NONE)
 {
 	;
 }
@@ -166,7 +173,7 @@ void instance_stat::check_set_ClipName(const std::string &clip_name, const bool 
 //
 bool instance_stat::is_invoke_physics()
 {
-	if (is_attach) return false;
+	if (property & MODEL_IS_ATTACH) return false;
 	return true;
 }
 ////////////////

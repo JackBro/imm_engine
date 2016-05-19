@@ -147,7 +147,7 @@ void instance_mgr<T_app>::reload()
 	for (size_t ix = 0; ix != m_Troll.size(); ++ix) {
 		m_Troll[ix].index = ix;
 		if (m_App->m_Control.atk.data_ski.count(*m_Stat[ix].get_ModelName())) {
-			m_Stat[ix].is_controllable = true;
+			m_Stat[ix].property |= MODEL_IS_CONTROLLABLE;
 			m_Steering[ix].init(ix);
 		}
 	}
@@ -163,7 +163,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 {
 	if (csv_value_is_empty(m_App->m_Scene.get_misc["terrain_info"])) {
 		m_PlaneLandIx = get_index(m_App->m_Scene.get_misc["plane_land"]);
-		m_Stat[m_PlaneLandIx].is_land = true;
+		m_Stat[m_PlaneLandIx].property |= MODEL_IS_LAND;
 		m_IsTerrainUse = false;
 	}
 	else {
@@ -173,11 +173,11 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 	// after instance load over
 	m_App->m_Control.rebuild();
 	m_App->m_Hit.rebuild();
-	m_App->m_Scene.phy_wire.rebuild_buffer();
 	m_App->m_AiInfo.rebuild();
 	m_App->m_AiAttr.rebuild();
 	m_App->m_AiNpc.rebuild();
 	m_Probe.rebuild();
+	m_App->m_Scene.phy_wire.rebuild_buffer();
 }
 //
 template <typename T_app>
@@ -304,7 +304,7 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 {
 	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
 	for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
-		if (m_Stat[ix].is_land || m_Stat[ix2].is_land) continue;
+		if (m_Stat[ix].property & MODEL_IS_LAND || m_Stat[ix2].property & MODEL_IS_LAND) continue;
 		if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
 		// record sensor
 		bool is_touch = m_BoundW.intersects(ix, ix2);
@@ -334,7 +334,7 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 	if (m_PlaneLandIx < 0) return;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		//
-		if (m_Stat[ix].is_land) continue;
+		if (m_Stat[ix].property & MODEL_IS_LAND) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		// physcis logic
 		int ix_land;		
@@ -434,7 +434,7 @@ template <typename T_app>
 void instance_mgr<T_app>::update_collision_liquid(float dt)
 {
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
-		if (m_Stat[ix].is_land) continue;
+		if (m_Stat[ix].property & MODEL_IS_LAND) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		switch(m_BoundW.map[ix].first) {
 		case PHY_BOUND_BOX:

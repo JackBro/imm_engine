@@ -29,6 +29,7 @@ struct phy_wireframe
 	bool is_drawing;
 	std::map<size_t, ID3D11Buffer*> box_collision;
 	std::vector<ID3D11Buffer*> box_hit;
+	std::map<size_t, ID3D11Buffer*> box_ai_bound;
 	ID3D11Buffer *box_ib;
 	T_app *app;
 private:
@@ -57,6 +58,7 @@ void phy_wireframe<T_app>::remove_buffer()
 {
 	for (auto &vb: box_collision) RELEASE_COM(vb.second);
 	for (auto &vb: box_hit) RELEASE_COM(vb);
+	for (auto &vb: box_ai_bound) RELEASE_COM(vb.second);
 }
 //
 template <typename T_app>
@@ -66,6 +68,7 @@ void phy_wireframe<T_app>::remove_all()
 	box_collision.clear();
 	box_hit.clear();
 	box_hit.shrink_to_fit();
+	box_ai_bound.clear();
 }
 //
 template <typename T_app>
@@ -115,7 +118,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 		XMFLOAT3 corners[8];
 		if (app->m_Inst.m_BoundL.map[ix].first != PHY_BOUND_BOX) continue;
 		app->m_Inst.m_BoundL.bd0[app->m_Inst.m_BoundL.map[ix].second].GetCorners(corners);
-		if (app->m_Inst.m_Stat[ix].is_attach) color = XMFLOAT4(Colors::Orange);
+		if (app->m_Inst.m_Stat[ix].property & MODEL_IS_ATTACH) color = XMFLOAT4(Colors::Orange);
 		else color = XMFLOAT4(Colors::Yellow);
 		vertex::pos_color vertices[] = {
 			{corners[0], color},
@@ -165,6 +168,33 @@ void phy_wireframe<T_app>::rebuild_buffer()
 		D3D11_SUBRESOURCE_DATA vinit_data;
 		vinit_data.pSysMem = vertices;
 		HR(app->m_D3DDevice->CreateBuffer(&vbd, &vinit_data, &box_hit.back()));
+	}
+	// ai_bound
+	color = XMFLOAT4(Colors::Blue);
+	for (auto &bound: app->m_Inst.m_Probe.geometry) {
+		XMFLOAT3 corners[8];
+		bound.second.ObbL.GetCorners(corners);
+		vertex::pos_color vertices[] = {
+			{corners[0], color},
+			{corners[1], color},
+			{corners[2], color},
+			{corners[3], color},
+			{corners[4], color},
+			{corners[5], color},
+			{corners[6], color},
+			{corners[7], color}
+		};
+		box_ai_bound[bound.first] = nullptr;
+		D3D11_BUFFER_DESC vbd;
+		vbd.Usage = D3D11_USAGE_IMMUTABLE;
+		vbd.ByteWidth = sizeof(vertex::pos_color)*8;
+		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vbd.CPUAccessFlags = 0;
+		vbd.MiscFlags = 0;
+		vbd.StructureByteStride = 0;
+		D3D11_SUBRESOURCE_DATA vinit_data;
+		vinit_data.pSysMem = vertices;
+		HR(app->m_D3DDevice->CreateBuffer(&vbd, &vinit_data, &box_ai_bound[bound.first]));
 	}
 }
 //
@@ -218,6 +248,24 @@ void phy_wireframe<T_app>::draw()
 				// 36 indices for the box.
 				app->m_D3DDC->DrawIndexed(36, 0, 0);
 			}
+		}
+	}
+	// Draw ai bound
+	for (auto &bound: app->m_Inst.m_Probe.geometry) {
+		if (!bound.second.is_active) continue;
+		size_t ix = bound.first;
+		assert(box_ai_bound.count(ix));
+		app->m_D3DDC->IASetVertexBuffers(0, 1, &box_ai_bound[ix], &stride, &offset);
+		XMFLOAT4X4 *inst_world = app->m_Inst.m_Stat[ix].get_World();
+		XMMATRIX world = XMLoadFloat4x4(inst_world);
+		XMMATRIX world_view_proj = XMMatrixMultiply(world, view_proj);
+		color_fx->set_WorldViewProj(world_view_proj);
+		D3DX11_TECHNIQUE_DESC tech_desc;
+		tech->GetDesc(&tech_desc);
+		for(UINT p = 0; p < tech_desc.Passes; ++p) {
+			tech->GetPassByIndex(p)->Apply(0, app->m_D3DDC);
+			// 36 indices for the box.
+			app->m_D3DDC->DrawIndexed(36, 0, 0);
 		}
 	}
 	app->m_D3DDC->RSSetState(0);

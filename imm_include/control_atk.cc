@@ -133,7 +133,7 @@ damage_data::damage_data():
 void damage_data::update(const float &dt)
 {
 	if (count_down > 0.0f) count_down -= dt;
-	if (!PTR->m_Inst.m_Stat[ix_dmg].is_controllable) {
+	if (!(PTR->m_Inst.m_Stat[ix_dmg].property & MODEL_IS_CONTROLLABLE)) {
 		is_calculated = true;
 		return;
 	}

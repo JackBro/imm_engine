@@ -298,7 +298,7 @@ void set_face_to_face(const size_t &index, const size_t &index2)
 	mouse_face_rot_y(W, RF, direction);
 	XMStoreFloat4x4(&world, W);
 	//
-	if (PTR->m_Inst.m_Stat[index2].is_controllable) {
+	if (PTR->m_Inst.m_Stat[index2].property & MODEL_IS_CONTROLLABLE) {
 		XMFLOAT4X4 &rot_front2 = *PTR->m_Inst.m_Stat[index2].get_RotFront();
 		XMMATRIX RF2 = XMLoadFloat4x4(&rot_front2);
 		XMVECTOR direction2 = XMVectorSubtract(W.r[3], W2.r[3]);

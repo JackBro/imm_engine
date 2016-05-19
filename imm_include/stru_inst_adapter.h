@@ -7,7 +7,10 @@
 ////////////////
 #ifndef STRU_INST_ADAPTER_H
 #define STRU_INST_ADAPTER_H
-#include "stru_lua_help.h"
+//#include "stru_lua_help.h"
+
+#include "stru_model_mgr.h"
+
 namespace imm
 {
 ////////////////
@@ -95,7 +98,7 @@ void inst_adapter<T_app>::flush()
 			att.is_enable = true;
 			att.ix = app->m_Inst.m_NameMap[att.name];
 			att.owner_ix = app->m_Inst.m_NameMap[att.owner_name];
-			app->m_Inst.m_Stat[att.ix].is_attach = true;
+			app->m_Inst.m_Stat[att.ix].property |= MODEL_IS_ATTACH;
 		}
 		else {
 			att.is_enable = false;
