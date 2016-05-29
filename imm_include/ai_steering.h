@@ -62,19 +62,19 @@ private:
 	ai_Patrol &operator=(const ai_Patrol&);
 };
 ////////////////
-// ai_CloseTo
+// ai_Seek
 ////////////////
 ////////////////
-struct ai_CloseTo: public state<steering>
+struct ai_Seek: public state<steering>
 {
-	static ai_CloseTo *instance();
+	static ai_Seek *instance();
 	void enter(steering*);
 	void execute(steering*);
 	void exit(steering*);
 private:
-	ai_CloseTo() {;}
-	ai_CloseTo(const ai_CloseTo&);
-	ai_CloseTo &operator=(const ai_CloseTo&);
+	ai_Seek() {;}
+	ai_Seek(const ai_Seek&);
+	ai_Seek &operator=(const ai_Seek&);
 };
 ////////////////
 // ai_Atk

@@ -41,7 +41,7 @@ void ai_Standby::execute(steering *ste)
 {
 	if (ste->tactics & AI_TAC_CLOSETO) {
 		ste->tactics = AI_TAC_NONE;
-		ste->change_state(ai_CloseTo::instance());
+		ste->change_state(ai_Seek::instance());
 	}
 }
 //
@@ -74,26 +74,24 @@ void ai_Patrol::exit(steering *ste)
 	ste;
 }
 ////////////////
-// ai_CloseTo
+// ai_Seek
 ////////////////
 ////////////////
-ai_CloseTo *ai_CloseTo::instance()
+ai_Seek *ai_Seek::instance()
 {
-	static ai_CloseTo instance;
+	static ai_Seek instance;
 	return &instance;
 }
 //
-void ai_CloseTo::enter(steering *ste)
+void ai_Seek::enter(steering *ste)
 {
 	ste;
 }
 //
-void ai_CloseTo::execute(steering *ste)
+void ai_Seek::execute(steering *ste)
 {
 	if (ste->count_down < 0.0f) {
-		XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[ste->target].get_World();
-		ste->desired_pos.x = world._41;
-		ste->desired_pos.z = world._43;
+		ste->desired_pos = PTR->m_Inst.m_BoundW.center(ste->target);
 		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_MOVE_HIT;
 		ste->count_down = 1.0f;
 	}
@@ -110,7 +108,7 @@ void ai_CloseTo::execute(steering *ste)
 	}
 }
 //
-void ai_CloseTo::exit(steering *ste)
+void ai_Seek::exit(steering *ste)
 {
 	ste;
 }

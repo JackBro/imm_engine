@@ -7,7 +7,7 @@
 ////////////////
 #ifndef PHY_AI_PROBE_H
 #define PHY_AI_PROBE_H
-#include "phy_prepare.h"
+#include "phy_obstacle_avoid.h"
 namespace imm
 {
 ////////////////
@@ -18,7 +18,7 @@ struct ai_bound
 {
 	ai_bound();
 	void init(
-		CXMMATRIX &rot_rev,
+		CXMMATRIX &rot_inv,
 		const float &radius_inst_in,
 		const float &radius_add_in,
 		const float &extents_z_add_in);
@@ -43,7 +43,7 @@ ai_bound::ai_bound():
 }
 //
 void ai_bound::init(
-	CXMMATRIX &rot_rev,
+	CXMMATRIX &rot_inv,
 	const float &radius_inst_in,
 	const float &radius_add_in,
 	const float &extents_z_add_in)
@@ -59,7 +59,7 @@ void ai_bound::init(
 	ObbL.Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	// Blender's mesh is right-hander, after export to left-handed,
 	// mesh will face toward ground
-	ObbL.Transform(ObbW, rot_rev);
+	ObbL.Transform(ObbW, rot_inv);
 	ObbL = ObbW;
 }
 //
@@ -68,6 +68,15 @@ void ai_bound::transform(CXMMATRIX &world)
 	SphL.Transform(SphW, world);
 	ObbL.Transform(ObbW, world);
 }
+////////////////
+// ai_keep
+////////////////
+////////////////
+struct ai_keep
+{
+	float scale_inv;
+	XMFLOAT4X4 rot_inv;
+};
 ////////////////
 // ai_probe
 ////////////////
@@ -80,8 +89,9 @@ struct ai_probe
 	void reset();
 	void rebuild();
 	void update();
-	void set_active(const size_t &ix, const float &radius_add);
+	void set_active(const size_t &ix);
 	std::map<size_t, ai_bound> geometry;
+	std::map<size_t, ai_keep> keep;
 	T_app *app;
 };
 //
@@ -102,6 +112,7 @@ template <typename T_app>
 void ai_probe<T_app>::reset()
 {
 	geometry.clear();
+	keep.clear();
 }
 //
 template <typename T_app>
@@ -115,10 +126,13 @@ void ai_probe<T_app>::rebuild()
 			XMVECTOR out_scale, out_trans, out_rot;
 			assert(XMMatrixDecompose(&out_scale, &out_rot, &out_trans, rot_front));
 			out_rot = XMQuaternionInverse(out_rot);
-			XMMATRIX rot_rev = XMMatrixRotationQuaternion(out_rot);
+			XMMATRIX rot_inv = XMMatrixRotationQuaternion(out_rot);
 			//
-			float radius_inst = (app->m_Inst.m_BoundL.extents_x(ix)+app->m_Inst.m_BoundL.extents_z(ix))/2.0f;
-			geometry[ix].init(rot_rev, radius_inst, 1.0f, 5.0f);
+			float radius_inst = (app->m_Inst.m_BoundL.extents_x(ix)+app->m_Inst.m_BoundL.extents_z(ix))*0.5f;
+			geometry[ix].init(rot_inv, radius_inst, 1.0f, 5.0f);
+			//
+			XMStoreFloat4x4(&keep[ix].rot_inv, rot_inv);
+			keep[ix].scale_inv = 1.0f/XMVectorGetX(out_scale);
 		}
 	}
 }
@@ -135,15 +149,34 @@ void ai_probe<T_app>::update()
 			if (!app->m_Inst.m_Stat[ix].is_invoke_physics()) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix, geo.second.SphW);
 			app->m_Inst.m_Steering[geo.first].touch[ix] = is_touch;
+			// phy_obstacle_avoid
+			//app->m_Control.map_stop[geo.first].is_temp_pos = false;
+			if (app->m_Inst.m_Stat[ix].property & MODEL_IS_CONTROLLABLE) continue;
+			if (app->m_Control.map_stop[geo.first].is_stop) continue;
+			XMVECTOR destination = XMLoadFloat3(&app->m_Inst.m_Steering[geo.first].desired_pos);
+			if (geo.second.ObbW.Contains(destination)) continue;
+			is_touch = app->m_Inst.m_BoundW.intersects(ix, geo.second.ObbW);
+			if (!is_touch) continue;
+			app->m_Control.map_stop[geo.first].is_temp_pos = true;
+			float radius = (app->m_Inst.m_BoundL.extents_x(ix)+app->m_Inst.m_BoundL.extents_z(ix))*0.5f;
+			//
+			phy_obstacle_avoid(
+				*app->m_Inst.m_Stat[geo.first].get_World(),
+				keep[geo.first].rot_inv,
+				app->m_Inst.m_BoundW.center(geo.first),
+				app->m_Inst.m_BoundW.center(ix),
+				app->m_Control.map_stop[geo.first].temp_pos,
+				keep[geo.first].scale_inv,
+				radius);
+			//
 		}
 	}
 }
 //
 template <typename T_app>
-void ai_probe<T_app>::set_active(const size_t &ix, const float &radius_add)
+void ai_probe<T_app>::set_active(const size_t &ix)
 {
 	geometry[ix].is_active = true;
-	geometry[ix].SphL.Radius_add = geometry[ix].radius_inst+radius_add;
 }
 //
 }

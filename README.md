@@ -16,7 +16,7 @@ Current State:
 ---------------
 Dragon's Ingot has not released yet.
 For the responsibility of a open source project, 
-just guarantee the able to compile the engine demos correctly and resolving bugs.
+just guarantee the able to compile the engine samples correctly and resolving bugs.
 
 Disadvantage List:
 ------------------
@@ -60,17 +60,17 @@ The .lib files you can get from each corresponding project.
 
 How to Compile:
 ---------------
-In demo folder, every subfolder include a signle demo.
+In sample\ folder, every subfolder include a signle sample.
 The compile option see bat_tool\1.bat.
 * **init_d3d**: A basic window draw empty.
 * **m3dtob3m**: Command line tool, convert text .m3d model file to binary .b3m file. 
 Those two types both can be read by engine.
 * **simple_scene**: A very simple scene draw 4 basic geometrics. 
-[(Screen Capture)](https://github.com/endrollex/imm_engine/tree/master/demo/simple_scene/simple_scene.png)
+[(Screen Capture)](https://github.com/endrollex/imm_engine/tree/master/sample/simple_scene/simple_scene.png)
 
 Runtime Folder Tree:
 --------------------
-See demo\simple_scene\, represents following tree.
+See sample\simple_scene\, represents following tree.
 
 	 |--ast_media
 	 |--ast_model

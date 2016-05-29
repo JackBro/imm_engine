@@ -21,13 +21,16 @@ struct control_stop
 {
 	control_stop();
 	void set_destination(const float &speed_in, CXMVECTOR &pos, const float &half_y);
+	void set_temp_destination(CXMVECTOR &pos);
 	void set_aabb(CXMVECTOR &pos, const float &half_y);
 	bool contains(const XMFLOAT3 &center);
 	void update(T_app *app, const size_t &index, const float &dt);
 	void interrupt(T_app *app, const size_t &index);
 	bool is_stop;
+	bool is_temp_pos;
 	BoundingBox bbox;
 	XMFLOAT3 hit_pos;
+	XMFLOAT3 temp_pos;
 	float cooldown;
 	float speed;
 };
@@ -35,7 +38,9 @@ struct control_stop
 template <typename T_app>
 control_stop<T_app>::control_stop():
 	is_stop(true),
+	is_temp_pos(false),
 	hit_pos(0.0f, 0.0f, 0.0f),
+	temp_pos(0.0f, 0.0f, 0.0f),
 	cooldown(0.0f),
 	speed(0.0f)
 {
@@ -49,6 +54,18 @@ void control_stop<T_app>::set_destination(const float &speed_in, CXMVECTOR &pos,
 	speed = speed_in;
 	set_aabb(pos, half_y);
 }
+//
+template <typename T_app>
+void control_stop<T_app>::set_temp_destination(CXMVECTOR &pos)
+{
+	is_temp_pos = true;
+	pos;
+	
+	;
+}
+
+
+
 //
 template <typename T_app>
 void control_stop<T_app>::set_aabb(CXMVECTOR &pos, const float &half_y)
@@ -83,7 +100,13 @@ void control_stop<T_app>::update(T_app *app, const size_t &index, const float &d
 		if (cooldown > 0.5f) cooldown = 0.0f;
 		else return;
 		if (!app->m_Inst.m_Stat[index].phy.is_on_land) return;
-		XMVECTOR hit = XMLoadFloat3(&(hit_pos));
+		XMVECTOR hit = XMLoadFloat3(&hit_pos);
+		if (is_temp_pos) {
+			XMVECTOR temp = XMLoadFloat3(&temp_pos);
+			hit = XMVectorAdd(hit, temp);
+			hit = XMVectorMultiply(hit, XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f));
+			hit = temp;
+		}
 		math::mouse_move_toward_hit(hit, index, speed);
 	}
 }
