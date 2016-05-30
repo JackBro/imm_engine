@@ -98,9 +98,9 @@ void ai_npc<T_app>::rebuild()
 template <typename T_app>
 void ai_npc<T_app>::update(const float &dt)
 {
-	delta_time += dt;
-	if (delta_time < AI_DELTA_TIME_MIN) return;
-	else delta_time -= AI_DELTA_TIME_MIN;
+	delta_time += dt+(math::calc_randf(-AI_DELTA_TIME_LOGIC, AI_DELTA_TIME_LOGIC))*0.1f;
+	if (delta_time < AI_DELTA_TIME_LOGIC) return;
+	else delta_time -= AI_DELTA_TIME_LOGIC;
 	//
 	for (auto &mind: mental_scene) {
 		if (mind.type & AI_BEAT_PLAYER) update_beat_player(mind);

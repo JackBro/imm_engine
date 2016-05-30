@@ -77,7 +77,9 @@ static const float BLEND_FACTOR_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
 static const float FRAME_RATE = 24.0f;
 static bool IS_STANDALONE_M3DTOB3M = false;
 static const float GAME_HP_BAR = 20.0f;
-static const float AI_DELTA_TIME_MIN = 0.0333f;
+static const float AI_DELTA_TIME_LOGIC = 0.05;
+static const float AI_DELTA_TIME_PHY_FAST = 0.05f;
+static const float AI_DELTA_TIME_PHY_SLOW = 0.2f;
 ////////////////
 // str, wstr
 ////////////////

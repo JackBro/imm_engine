@@ -274,7 +274,7 @@ void instance_mgr<T_app>::update_all_physics(const float &dt)
 	update_frustum_culling();
 	update_collision_liquid(dt);
 	m_Adapter.update_world();
-	m_Probe.update();
+	m_Probe.update(dt);
 	m_App->m_Hit.update();
 	m_App->m_Magic.update();
 }

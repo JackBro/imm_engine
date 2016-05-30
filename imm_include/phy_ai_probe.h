@@ -88,16 +88,19 @@ struct ai_probe
 	void init(T_app *app_in);
 	void reset();
 	void rebuild();
-	void update();
+	void update(const float &dt);
+	void obstacle_avoid(const float &dt, const size_t &ix_probe, const size_t &ix_object);
 	void set_active(const size_t &ix);
 	std::map<size_t, ai_bound> geometry;
 	std::map<size_t, ai_keep> keep;
+	float delta_time;
 	T_app *app;
 };
 //
 template <typename T_app>
 ai_probe<T_app>::ai_probe():
-	app(nullptr)
+	app(nullptr),
+	delta_time(0.0f)
 {
 	;
 }
@@ -139,8 +142,9 @@ void ai_probe<T_app>::rebuild()
 //
 //
 template <typename T_app>
-void ai_probe<T_app>::update()
+void ai_probe<T_app>::update(const float &dt)
 {
+	dt;
 	for (auto &geo: geometry) {
 		if (!geo.second.is_active) continue;
 		geo.second.transform(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
@@ -150,27 +154,36 @@ void ai_probe<T_app>::update()
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix, geo.second.SphW);
 			app->m_Inst.m_Steering[geo.first].touch[ix] = is_touch;
 			// phy_obstacle_avoid
-			//app->m_Control.map_stop[geo.first].is_temp_pos = false;
-			if (app->m_Inst.m_Stat[ix].property & MODEL_IS_CONTROLLABLE) continue;
-			if (app->m_Control.map_stop[geo.first].is_stop) continue;
-			XMVECTOR destination = XMLoadFloat3(&app->m_Inst.m_Steering[geo.first].desired_pos);
-			if (geo.second.ObbW.Contains(destination)) continue;
-			is_touch = app->m_Inst.m_BoundW.intersects(ix, geo.second.ObbW);
-			if (!is_touch) continue;
-			app->m_Control.map_stop[geo.first].is_temp_pos = true;
-			float radius = (app->m_Inst.m_BoundL.extents_x(ix)+app->m_Inst.m_BoundL.extents_z(ix))*0.5f;
-			//
-			phy_obstacle_avoid(
-				*app->m_Inst.m_Stat[geo.first].get_World(),
-				keep[geo.first].rot_inv,
-				app->m_Inst.m_BoundW.center(geo.first),
-				app->m_Inst.m_BoundW.center(ix),
-				app->m_Control.map_stop[geo.first].temp_pos,
-				keep[geo.first].scale_inv,
-				radius);
-			//
+			obstacle_avoid(dt, geo.first, ix);
 		}
 	}
+}
+//
+template <typename T_app>
+void ai_probe<T_app>::obstacle_avoid(const float &dt, const size_t &ix_probe, const size_t &ix_object)
+{
+	dt;
+	// phy_obstacle_avoid
+	//app->m_Control.map_stop[geo.first].is_temp_pos = false;
+	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_CONTROLLABLE) return;
+	if (app->m_Control.map_stop[ix_probe].is_stop) return;
+	XMVECTOR destination = XMLoadFloat3(&app->m_Inst.m_Steering[ix_probe].desired_pos);
+	if (geometry[ix_probe].ObbW.Contains(destination)) return;
+	bool is_touch = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].ObbW);
+	if (!is_touch) return;
+	//
+	app->m_Control.map_stop[ix_probe].is_temp_pos = true;
+	float radius = (app->m_Inst.m_BoundL.extents_x(ix_object)+app->m_Inst.m_BoundL.extents_z(ix_object))*0.5f;
+	//
+	phy_obstacle_avoid(
+		*app->m_Inst.m_Stat[ix_probe].get_World(),
+		keep[ix_probe].rot_inv,
+		app->m_Inst.m_BoundW.center(ix_probe),
+		app->m_Inst.m_BoundW.center(ix_object),
+		app->m_Control.map_stop[ix_probe].temp_pos,
+		keep[ix_probe].scale_inv,
+		radius);
+	//
 }
 //
 template <typename T_app>

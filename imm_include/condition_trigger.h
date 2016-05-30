@@ -92,9 +92,9 @@ void condition_trigger<T_app>::init(T_app *app_in)
 template <typename T_app>
 void condition_trigger<T_app>::update(const float &dt)
 {
-	delta_time += dt;
-	if (delta_time < AI_DELTA_TIME_MIN) return;
-	else delta_time -= AI_DELTA_TIME_MIN;
+	delta_time += dt+(math::calc_randf(-AI_DELTA_TIME_LOGIC, AI_DELTA_TIME_LOGIC))*0.1f;
+	if (delta_time < AI_DELTA_TIME_LOGIC) return;
+	else delta_time -= AI_DELTA_TIME_LOGIC;
 	scene_pass_time = app->m_Timer.total_time() - app->m_Scene.begin_time;
 	if (trigger("clear_cmd")) {
 		if (!app->m_Cmd.is_active) app->m_Cmd.input.clear();
