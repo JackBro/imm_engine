@@ -15,36 +15,61 @@ namespace imm
 ////////////////
 ////////////////
 void phy_obstacle_avoid(
-	XMFLOAT4X4 &world_A,
-	XMFLOAT4X4 &rot_inv_A,
+	const XMMATRIX &to_A_local,
+	const XMMATRIX &to_A_local_inv,
 	const XMFLOAT3 &center_A,
 	const XMFLOAT3 &center_B,
 	XMFLOAT3 &avoid_pos,
 	const float &scale_inv_A,
-	float radius_B)
+	float radius_B,
+	const float &destination_y,
+	float &obj_y,
+	bool &is_erase)
 {
-	XMMATRIX w_A = XMLoadFloat4x4(&world_A);
-	XMMATRIX ri_A = XMLoadFloat4x4(&rot_inv_A);
-	XMMATRIX w_A_inv = XMMatrixInverse(nullptr, w_A);
-	w_A_inv = XMMatrixMultiply(ri_A, w_A_inv);
 	XMVECTOR c_A = XMLoadFloat3(&center_A);
 	XMVECTOR c_B = XMLoadFloat3(&center_B);
-	radius_B = radius_B*scale_inv_A;
 	//
 	XMVECTOR AtoB = XMVectorSubtract(c_B, c_A);
-	c_B = XMVector3Transform(AtoB, w_A_inv);
+	c_B = XMVector3Transform(AtoB, to_A_local);
 	//
+	obj_y = XMVectorGetY(c_B);
+	if (obj_y > 0.0f || obj_y < destination_y) {
+		is_erase = true;
+		return;
+	}
 	float cbx = XMVectorGetX(c_B);
-	cbx;
+	radius_B = radius_B*scale_inv_A;
 	radius_B *= 2.0f;
 	if (cbx > 0.0f) cbx = cbx-radius_B;
 	else cbx = cbx+radius_B;
 	c_B = XMVectorSetX(c_B, cbx);
 	//
-	XMMATRIX w_A_inv_inv = XMMatrixInverse(nullptr, w_A_inv);
-	c_B = XMVector3Transform(c_B, w_A_inv_inv);
+	c_B = XMVector3Transform(c_B, to_A_local_inv);
 	c_B = XMVectorAdd(c_B, c_A);
 	XMStoreFloat3(&avoid_pos, c_B);
+}
+////////////////
+// phy_obstacle_destination_y
+////////////////
+////////////////
+void phy_destination_y(
+	const XMFLOAT4X4 &world_A,
+	const XMFLOAT4X4 &rot_inv_A,
+	XMMATRIX &to_A_local,
+	XMMATRIX &to_A_local_inv,
+	const XMFLOAT3 &center_A,
+	const XMVECTOR &center_B,
+	float &destination_y)
+{
+	XMMATRIX w_A = XMLoadFloat4x4(&world_A);
+	XMMATRIX ri_A = XMLoadFloat4x4(&rot_inv_A);
+	to_A_local = XMMatrixMultiply(ri_A, XMMatrixInverse(nullptr, w_A));
+	to_A_local_inv = XMMatrixInverse(nullptr, to_A_local);
+	//
+	XMVECTOR c_A = XMLoadFloat3(&center_A);
+	XMVECTOR AtoB = XMVectorSubtract(center_B, c_A);
+	AtoB = XMVector3Transform(AtoB, to_A_local);
+	destination_y = XMVectorGetY(AtoB);
 }
 //
 }
