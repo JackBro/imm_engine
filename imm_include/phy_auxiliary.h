@@ -173,7 +173,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 	color = XMFLOAT4(Colors::Blue);
 	for (auto &bound: app->m_Inst.m_Probe.geometry) {
 		XMFLOAT3 corners[8];
-		bound.second.ObbL.GetCorners(corners);
+		bound.second.OblongL.GetCorners(corners);
 		vertex::pos_color vertices[] = {
 			{corners[0], color},
 			{corners[1], color},

@@ -52,6 +52,7 @@ struct ai_npc
 	void update(const float &dt);
 	void update_beat_player(ai_mental &mind);
 	void set_Seek();
+	int get_current_tactics(const size_t &ix);
 	T_app *app;
 	float delta_time;
 	std::vector<ai_mental> mental_data;
@@ -111,16 +112,27 @@ template <typename T_app>
 void ai_npc<T_app>::update_beat_player(ai_mental &mind)
 {
 	auto ste = &app->m_Inst.m_Steering[mind.ix];
-	if (ste->current_state != ai_Seek::instance()) {
-		if (PTR->m_Inst.m_Steering[ste->index].touch[ste->target]) return;
+	if (get_current_tactics(mind.ix) == AI_TAC_STANDY) {
+		if (PTR->m_Inst.m_Steering[ste->index].close[ste->target]) return;
 		ste->target = PTR->m_Control.player1;
 		ste->count_down = -1.0f;
-		ste->tactics |= AI_TAC_CLOSETO;
+		ste->tactics |= AI_TAC_SEEK;
 		app->m_Inst.m_Probe.set_active(mind.ix);
 	}
 	if (ste->report & AI_REP_CLOSETO) {
 		ste->tactics |= AI_TAC_ATK;
 	}
+}
+//
+template <typename T_app>
+int ai_npc<T_app>::get_current_tactics(const size_t &ix)
+{
+	auto ste = &app->m_Inst.m_Steering[ix];
+	if (ste->current_state == ai_Standby::instance()) return AI_TAC_STANDY;
+	if (ste->current_state == ai_Patrol::instance()) return AI_TAC_PATROL;
+	if (ste->current_state == ai_Seek::instance()) return AI_TAC_SEEK;
+	if (ste->current_state == ai_Atk::instance()) return AI_TAC_ATK;
+	return AI_TAC_NONE;
 }
 //
 }

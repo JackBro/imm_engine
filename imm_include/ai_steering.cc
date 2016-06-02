@@ -39,7 +39,7 @@ void ai_Standby::enter(steering *ste)
 //
 void ai_Standby::execute(steering *ste)
 {
-	if (ste->tactics & AI_TAC_CLOSETO) {
+	if (ste->tactics & AI_TAC_SEEK) {
 		ste->tactics = AI_TAC_NONE;
 		ste->change_state(ai_Seek::instance());
 	}
@@ -96,9 +96,9 @@ void ai_Seek::execute(steering *ste)
 		ste->count_down = 1.0f;
 	}
 	if (PTR->m_Control.map_stop[ste->index].is_stop) {
-		if (!ste->touch[ste->target]) ste->count_down -= PTR->m_Timer.delta_time();
+		if (!ste->close[ste->target]) ste->count_down -= PTR->m_Timer.delta_time();
 	}
-	if (PTR->m_Inst.m_Steering[ste->index].touch[ste->target]) {
+	if (PTR->m_Inst.m_Steering[ste->index].close[ste->target]) {
 		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_IDLE;
 		ste->report |= AI_REP_CLOSETO;
 	}

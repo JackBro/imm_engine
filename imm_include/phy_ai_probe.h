@@ -20,31 +20,38 @@ struct ai_bound
 	void init(
 		CXMMATRIX &rot_inv,
 		const float &radius_inst_in,
-		const float &radius_add_in,
-		const float &extents_z_add_in);
-	void transform_sph(CXMMATRIX &world);
-	void transform_obb(CXMMATRIX &world);
-	BoundingSphere SphL;
-	BoundingSphere SphW;
-	BoundingOrientedBox ObbL;
-	BoundingOrientedBox ObbW;
+		const float &radius_close_in,
+		const float &radius_alert_in,
+		const float &extents_z_oblong_in);
+	void transform_close(CXMMATRIX &world);
+	void transform_oblong(CXMMATRIX &world);
+	void transform_alert(CXMMATRIX &world);
+	BoundingSphere CloseL;
+	BoundingSphere CloseW;
+	BoundingSphere AlertL;
+	BoundingSphere AlertW;
+	BoundingOrientedBox OblongL;
+	BoundingOrientedBox OblongW;
 	bool is_active;
 	float radius_inst;
-	float radius_add;
-	float extents_z_add;
-	float dt_oph;
-	float dt_obb;
-	float obj_y_min;
+	float radius_close;
+	float extents_z_oblong;
+	float radius_alert;
+	float dt_close;
+	float dt_alert;
+	float dt_oblong;
+	float obj_y_near;
 };
 //
 ai_bound::ai_bound():
 	is_active(false),
 	radius_inst(0.0f),
-	radius_add(1.0f),
-	extents_z_add(2.0f),
-	dt_oph(0.0f),
-	dt_obb(0.0f),
-	obj_y_min(-50.0f)
+	radius_close(1.0f),
+	radius_alert(30.0f),
+	extents_z_oblong(2.0f),
+	dt_close(0.0f),
+	dt_oblong(0.0f),
+	obj_y_near(-50.0f)
 {
 	;
 }
@@ -52,34 +59,45 @@ ai_bound::ai_bound():
 void ai_bound::init(
 	CXMMATRIX &rot_inv,
 	const float &radius_inst_in,
-	const float &radius_add_in,
-	const float &extents_z_add_in)
+	const float &radius_close_in,
+	const float &radius_alert_in,
+	const float &extents_z_oblong_in)
 {
 	radius_inst = radius_inst_in;
-	radius_add = radius_add_in;
-	SphL.Radius = radius_inst+radius_add;
-	SphL.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	SphW = SphL;
+	radius_close = radius_close_in;
+	CloseL.Radius = radius_inst+radius_close;
+	CloseL.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	CloseW = CloseL;
 	//
-	ObbL.Center = XMFLOAT3(0.0f, 0.0f, -extents_z_add_in-radius_inst);
-	ObbL.Extents = XMFLOAT3(radius_inst, radius_inst, radius_inst+extents_z_add_in);
-	ObbL.Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	radius_alert = radius_alert_in;
+	AlertL.Radius = radius_inst+radius_alert_in;
+	AlertL.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	AlertW = AlertL;
+	//
+	OblongL.Center = XMFLOAT3(0.0f, 0.0f, -extents_z_oblong_in-radius_inst);
+	OblongL.Extents = XMFLOAT3(radius_inst, radius_inst, radius_inst+extents_z_oblong_in);
+	OblongL.Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	// Blender's mesh is right-hander, after export to left-handed,
 	// mesh will face toward ground
-	ObbL.Transform(ObbW, rot_inv);
-	ObbL = ObbW;
-	dt_oph = math::calc_randf(-AI_DELTA_TIME_PHY_FAST, AI_DELTA_TIME_PHY_FAST);
-	dt_obb = math::calc_randf(-AI_DELTA_TIME_PHY_SLOW, AI_DELTA_TIME_PHY_SLOW);
+	OblongL.Transform(OblongW, rot_inv);
+	OblongL = OblongW;
+	dt_close = math::calc_randf(-AI_DELTA_TIME_PHY_FAST, AI_DELTA_TIME_PHY_FAST);
+	dt_oblong = math::calc_randf(-AI_DELTA_TIME_PHY_SLOW, AI_DELTA_TIME_PHY_SLOW);
 }
 //
-void ai_bound::transform_sph(CXMMATRIX &world)
+void ai_bound::transform_close(CXMMATRIX &world)
 {
-	SphL.Transform(SphW, world);
+	CloseL.Transform(CloseW, world);
 }
 //
-void ai_bound::transform_obb(CXMMATRIX &world)
+void ai_bound::transform_alert(CXMMATRIX &world)
 {
-	ObbL.Transform(ObbW, world);
+	AlertL.Transform(AlertW, world);
+}
+//
+void ai_bound::transform_oblong(CXMMATRIX &world)
+{
+	OblongL.Transform(OblongW, world);
 }
 ////////////////
 // ai_keep
@@ -103,7 +121,8 @@ struct ai_probe
 	void reset();
 	void rebuild();
 	void update(const float &dt);
-	void touch_test(const size_t &ix_probe, const size_t &ix_object);
+	void close_test(const size_t &ix_probe, const size_t &ix_object);
+	void alert_test(const size_t &ix_probe, const size_t &ix_object);
 	void obstacle_avoid(
 		const size_t &ix_probe,
 		const size_t &ix_object,
@@ -113,14 +132,14 @@ struct ai_probe
 	void set_active(const size_t &ix);
 	std::map<size_t, ai_bound> geometry;
 	std::map<size_t, ai_keep> keep;
-	float max_local_y_far;
+	float max_local_y;
 	T_app *app;
 };
 //
 template <typename T_app>
 ai_probe<T_app>::ai_probe():
 	app(nullptr),
-	max_local_y_far(-50.0f)
+	max_local_y(-50.0f)
 {
 	;
 }
@@ -152,11 +171,11 @@ void ai_probe<T_app>::rebuild()
 			XMMATRIX rot_inv = XMMatrixRotationQuaternion(out_rot);
 			//
 			float radius_inst = (app->m_Inst.m_BoundL.extents_x(ix)+app->m_Inst.m_BoundL.extents_z(ix))*0.5f;
-			geometry[ix].init(rot_inv, radius_inst, 1.0f, 5.0f);
+			geometry[ix].init(rot_inv, radius_inst, 1.0f, 30.0f, 5.0f);
 			//
 			XMStoreFloat4x4(&keep[ix].rot_inv, rot_inv);
 			keep[ix].scale_inv = 1.0f/XMVectorGetX(out_scale);
-			keep[ix].obj_y = max_local_y_far;
+			keep[ix].obj_y = max_local_y;
 		}
 	}
 }
@@ -168,24 +187,33 @@ void ai_probe<T_app>::update(const float &dt)
 	for (auto &geo: geometry) {
 		if (!geo.second.is_active) continue;
 		// separate update
-		geo.second.dt_oph += dt;
-		geo.second.dt_obb += dt;
-		if (geo.second.dt_oph > AI_DELTA_TIME_PHY_FAST) {
-			geo.second.dt_oph -= AI_DELTA_TIME_PHY_FAST;
-			geo.second.transform_sph(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
+		if (app->m_AiNpc.get_current_tactics(geo.first) & AI_TAC_SEEK) geo.second.dt_close += dt;
+		if (app->m_AiNpc.get_current_tactics(geo.first) & AI_TAC_PATROL) geo.second.dt_alert += dt;
+		if (!app->m_Control.map_stop[geo.first].is_stop) geo.second.dt_oblong += dt;
+		//
+		if (geo.second.dt_close > AI_DELTA_TIME_PHY_FAST) {
+			geo.second.dt_close -= AI_DELTA_TIME_PHY_FAST;
+			geo.second.transform_close(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
 			for (size_t ix = 0; ix != app->m_Inst.m_Stat.size(); ++ix) {
-				touch_test(geo.first, ix);
+				close_test(geo.first, ix);
 			}
 		}
-		if (geo.second.dt_obb > AI_DELTA_TIME_PHY_SLOW) {
-			geo.second.dt_obb -= AI_DELTA_TIME_PHY_SLOW;
-			geo.second.transform_obb(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
+		if (geo.second.dt_alert > AI_DELTA_TIME_PHY_FAST) {
+			geo.second.dt_alert -= AI_DELTA_TIME_PHY_FAST;
+			geo.second.transform_alert(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
+			for (size_t ix = 0; ix != app->m_Inst.m_Stat.size(); ++ix) {
+				alert_test(geo.first, ix);
+			}
+		}
+		if (geo.second.dt_oblong > AI_DELTA_TIME_PHY_SLOW) {
+			geo.second.dt_oblong -= AI_DELTA_TIME_PHY_SLOW;
+			geo.second.transform_oblong(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
 			app->m_Control.map_stop[geo.first].clear_avoid_pos();
 			//
 			XMMATRIX to_A_local;
 			XMMATRIX to_A_local_inv;
-			float destination_y = max_local_y_far;
-			geometry[geo.first].obj_y_min = max_local_y_far;
+			float destination_y = max_local_y;
+			geometry[geo.first].obj_y_near = max_local_y;
 			XMVECTOR destination = XMLoadFloat3(&app->m_Inst.m_Steering[geo.first].desired_pos);
 			phy_destination_y(
 				*app->m_Inst.m_Stat[geo.first].get_World(),
@@ -204,12 +232,21 @@ void ai_probe<T_app>::update(const float &dt)
 }
 //
 template <typename T_app>
-void ai_probe<T_app>::touch_test(const size_t &ix_probe, const size_t &ix_object)
+void ai_probe<T_app>::close_test(const size_t &ix_probe, const size_t &ix_object)
 {
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
-	bool is_touch = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].SphW);
-	app->m_Inst.m_Steering[ix_probe].touch[ix_object] = is_touch;
+	bool is_close = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].CloseW);
+	app->m_Inst.m_Steering[ix_probe].close[ix_object] = is_close;
+}
+//
+template <typename T_app>
+void ai_probe<T_app>::alert_test(const size_t &ix_probe, const size_t &ix_object)
+{
+	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
+	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
+	bool is_alert = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].AlertW);
+	is_alert;
 }
 //
 template <typename T_app>
@@ -224,11 +261,10 @@ void ai_probe<T_app>::obstacle_avoid(
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;	
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_CONTROLLABLE) return;
-	if (app->m_Control.map_stop[ix_probe].is_stop) return;
 	float radius_obj = (app->m_Inst.m_BoundL.extents_x(ix_object)+app->m_Inst.m_BoundL.extents_z(ix_object))*0.5f;
 	if (radius_obj < geometry[ix_probe].radius_inst*0.5f) return;
-	bool is_touch = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].ObbW);
-	if (!is_touch) return;
+	bool is_intersect = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].OblongW);
+	if (!is_intersect) return;
 	bool is_erase = false;
 	float obj_y;
 	phy_obstacle_avoid(
@@ -248,8 +284,8 @@ void ai_probe<T_app>::obstacle_avoid(
 		app->m_Control.map_stop[ix_probe].avoid_pos.erase(ix_object);
 		return;
 	}
-	if (obj_y > geometry[ix_probe].obj_y_min) {
-		geometry[ix_probe].obj_y_min = obj_y;
+	if (obj_y > geometry[ix_probe].obj_y_near) {
+		geometry[ix_probe].obj_y_near = obj_y;
 	}
 	else {
 		app->m_Control.map_stop[ix_probe].avoid_pos.erase(ix_object);

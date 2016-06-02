@@ -16,10 +16,11 @@ namespace imm
 ////////////////
 enum AI_TACTICS
 {
-	AI_TAC_NONE    = 0x0,
-	AI_TAC_STANDY  = 0x1,
-	AI_TAC_CLOSETO = 0x2,
-	AI_TAC_ATK     = 0x4,
+	AI_TAC_NONE   = 0x0,
+	AI_TAC_STANDY = 0x1,
+	AI_TAC_PATROL = 0x2,
+	AI_TAC_SEEK   = 0x4,
+	AI_TAC_ATK    = 0x8,
 };
 ////////////////
 // AI_REPORT
@@ -113,7 +114,7 @@ struct steering
 	float count_down;
 	int tactics;
 	int report;
-	std::map<size_t, bool> touch;
+	std::map<size_t, bool> close;
 	std::vector<size_t> attack;
 	std::vector<size_t> damage;
 };
@@ -128,7 +129,7 @@ steering::steering():
 	count_down(-1.0f),
 	tactics(AI_TAC_NONE),
 	report(AI_REP_NONE),
-	touch(),
+	close(),
 	attack(),
 	damage()
 {
