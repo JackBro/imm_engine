@@ -3,6 +3,8 @@
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015-2016 Huang Yiting (http://endrollex.com)
+// method:
+// http://gamedevelopment.tutsplus.com/tutorials/understanding-steering-behaviors-collision-avoidance--gamedev-7777
 ////////////////
 ////////////////
 #ifndef PHY_OBSTACLE_AVOID_H
@@ -11,65 +13,79 @@
 namespace imm
 {
 ////////////////
-// phy_obstacle_avoid
+// phy_collision_avoidance
 ////////////////
 ////////////////
-void phy_obstacle_avoid(
+void phy_collision_avoidance(
+	const phy_property &prop_A,
+	CXMVECTOR &center_A,
+	CXMVECTOR &center_B,
+	const float max_see_ahead,
+	XMFLOAT3 &avoidance_out
+)
+{
+	XMVECTOR ahead = XMLoadFloat3(&prop_A.vel_indirect);
+	ahead = XMVector3Normalize(ahead);
+	XMVECTOR ahead2 = XMVectorScale(ahead, max_see_ahead*0.5f);
+	ahead = XMVectorScale(ahead, max_see_ahead);
+	ahead = XMVectorAdd(ahead, center_A);
+	ahead2 = XMVectorAdd(ahead2, center_A);
+	//
+	XMVECTOR avoidance = XMVectorSubtract(ahead, center_B);
+	avoidance = XMVector3Normalize(avoidance);
+	avoidance = XMVectorScale(avoidance, max_see_ahead);
+	XMStoreFloat3(&avoidance_out, avoidance);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+}
+////////////////
+// phy_collision_avoidance2
+////////////////
+////////////////
+void phy_collision_avoidance2(
 	const XMMATRIX &to_A_local,
 	const XMMATRIX &to_A_local_inv,
 	const XMFLOAT3 &center_A,
 	const XMFLOAT3 &center_B,
-	XMFLOAT3 &avoid_pos,
 	const float &scale_inv_A,
-	float radius_B,
-	const float &destination_y,
-	float &obj_y,
-	bool &is_erase)
+	const float &radius_A,
+	const float &radius_B)
 {
+	to_A_local;
+	to_A_local_inv;
+	center_A;
+	center_B;
+	scale_inv_A;
+	radius_A;
+	radius_B;
 	XMVECTOR c_A = XMLoadFloat3(&center_A);
 	XMVECTOR c_B = XMLoadFloat3(&center_B);
-	//
 	XMVECTOR AtoB = XMVectorSubtract(c_B, c_A);
 	c_B = XMVector3Transform(AtoB, to_A_local);
-	//
-	obj_y = XMVectorGetY(c_B);
-	if (obj_y > 0.0f || obj_y < destination_y) {
-		is_erase = true;
-		return;
-	}
-	float cbx = XMVectorGetX(c_B);
-	radius_B = radius_B*scale_inv_A;
-	radius_B *= 2.0f;
-	if (cbx > 0.0f) cbx = cbx-radius_B;
-	else cbx = cbx+radius_B;
-	c_B = XMVectorSetX(c_B, cbx);
-	//
-	c_B = XMVector3Transform(c_B, to_A_local_inv);
-	c_B = XMVectorAdd(c_B, c_A);
-	XMStoreFloat3(&avoid_pos, c_B);
+
 }
 ////////////////
-// phy_obstacle_destination_y
+// phy_to_inst_local
 ////////////////
 ////////////////
-void phy_destination_y(
+void phy_to_inst_local(
 	const XMFLOAT4X4 &world_A,
 	const XMFLOAT4X4 &rot_inv_A,
 	XMMATRIX &to_A_local,
-	XMMATRIX &to_A_local_inv,
-	const XMFLOAT3 &center_A,
-	const XMVECTOR &center_B,
-	float &destination_y)
+	XMMATRIX &to_A_local_inv)
 {
 	XMMATRIX w_A = XMLoadFloat4x4(&world_A);
 	XMMATRIX ri_A = XMLoadFloat4x4(&rot_inv_A);
 	to_A_local = XMMatrixMultiply(ri_A, XMMatrixInverse(nullptr, w_A));
 	to_A_local_inv = XMMatrixInverse(nullptr, to_A_local);
-	//
-	XMVECTOR c_A = XMLoadFloat3(&center_A);
-	XMVECTOR AtoB = XMVectorSubtract(center_B, c_A);
-	AtoB = XMVector3Transform(AtoB, to_A_local);
-	destination_y = XMVectorGetY(AtoB);
 }
 //
 }

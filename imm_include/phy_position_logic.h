@@ -75,10 +75,12 @@ void phy_position_update(
 }
 ////////////////
 // phy_impulse_casual
-// collision impulse method modify from
+// method reference 1:
+// (http://gamedevelopment.tutsplus.com/tutorials/
+// how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331)
+// method reference 2:
 // \Microsoft DirectX SDK (June 2010)\Samples\C++\Direct3D\ConfigSystem\main.cpp
 // it is originally used with two spheres, but there is used with two AABB or others, inaccuracy solution
-// defect1: if objects chain impulse, object on Land will not apart enough with velocity compare to on air
 ////////////////
 ////////////////
 void phy_impulse_casual(

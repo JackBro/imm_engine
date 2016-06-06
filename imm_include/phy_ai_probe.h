@@ -40,7 +40,7 @@ struct ai_bound
 	float dt_close;
 	float dt_alert;
 	float dt_oblong;
-	float obj_y_near;
+	float max_see_ahead;
 };
 //
 ai_bound::ai_bound():
@@ -51,7 +51,7 @@ ai_bound::ai_bound():
 	extents_z_oblong(2.0f),
 	dt_close(0.0f),
 	dt_oblong(0.0f),
-	obj_y_near(-50.0f)
+	max_see_ahead(5.0f)
 {
 	;
 }
@@ -65,47 +65,35 @@ void ai_bound::init(
 {
 	radius_inst = radius_inst_in;
 	radius_close = radius_close_in;
+	radius_alert = radius_alert_in;
+	max_see_ahead = extents_z_oblong_in;
 	CloseL.Radius = radius_inst+radius_close;
 	CloseL.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	CloseW = CloseL;
-	//
-	radius_alert = radius_alert_in;
 	AlertL.Radius = radius_inst+radius_alert_in;
 	AlertL.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	AlertW = AlertL;
-	//
 	OblongL.Center = XMFLOAT3(0.0f, 0.0f, -extents_z_oblong_in-radius_inst);
-	OblongL.Extents = XMFLOAT3(radius_inst, radius_inst, radius_inst+extents_z_oblong_in);
+	OblongL.Extents = XMFLOAT3(radius_inst*0.3f, radius_inst, radius_inst+extents_z_oblong_in);
 	OblongL.Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	// Blender's mesh is right-hander, after export to left-handed,
 	// mesh will face toward ground
 	OblongL.Transform(OblongW, rot_inv);
 	OblongL = OblongW;
 	dt_close = math::calc_randf(-AI_DELTA_TIME_PHY_FAST, AI_DELTA_TIME_PHY_FAST);
+	dt_alert = math::calc_randf(-AI_DELTA_TIME_PHY_FAST, AI_DELTA_TIME_PHY_FAST);
 	dt_oblong = math::calc_randf(-AI_DELTA_TIME_PHY_SLOW, AI_DELTA_TIME_PHY_SLOW);
 }
 //
-void ai_bound::transform_close(CXMMATRIX &world)
-{
-	CloseL.Transform(CloseW, world);
-}
-//
-void ai_bound::transform_alert(CXMMATRIX &world)
-{
-	AlertL.Transform(AlertW, world);
-}
-//
-void ai_bound::transform_oblong(CXMMATRIX &world)
-{
-	OblongL.Transform(OblongW, world);
-}
+void ai_bound::transform_close(CXMMATRIX &world) {CloseL.Transform(CloseW, world);}
+void ai_bound::transform_alert(CXMMATRIX &world) {AlertL.Transform(AlertW, world);}
+void ai_bound::transform_oblong(CXMMATRIX &world) {OblongL.Transform(OblongW, world);}
 ////////////////
 // ai_keep
 ////////////////
 ////////////////
 struct ai_keep
 {
-	float obj_y;
 	float scale_inv;
 	XMFLOAT4X4 rot_inv;
 };
@@ -123,23 +111,21 @@ struct ai_probe
 	void update(const float &dt);
 	void close_test(const size_t &ix_probe, const size_t &ix_object);
 	void alert_test(const size_t &ix_probe, const size_t &ix_object);
-	void obstacle_avoid(
+	void obstacle_avoid_candidate(
 		const size_t &ix_probe,
 		const size_t &ix_object,
-		const XMMATRIX &to_A_local,
-		const XMMATRIX &to_A_local_inv,
-		const float &destination_y);
+		int &candidate_ix,
+		const XMVECTOR &center_inst,
+		float &distance_near);
 	void set_active(const size_t &ix);
 	std::map<size_t, ai_bound> geometry;
 	std::map<size_t, ai_keep> keep;
-	float max_local_y;
 	T_app *app;
 };
 //
 template <typename T_app>
 ai_probe<T_app>::ai_probe():
-	app(nullptr),
-	max_local_y(-50.0f)
+	app(nullptr)
 {
 	;
 }
@@ -175,7 +161,6 @@ void ai_probe<T_app>::rebuild()
 			//
 			XMStoreFloat4x4(&keep[ix].rot_inv, rot_inv);
 			keep[ix].scale_inv = 1.0f/XMVectorGetX(out_scale);
-			keep[ix].obj_y = max_local_y;
 		}
 	}
 }
@@ -201,6 +186,7 @@ void ai_probe<T_app>::update(const float &dt)
 		if (geo.second.dt_alert > AI_DELTA_TIME_PHY_FAST) {
 			geo.second.dt_alert -= AI_DELTA_TIME_PHY_FAST;
 			geo.second.transform_alert(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
+			app->m_Inst.m_Steering[geo.first].alert.clear();
 			for (size_t ix = 0; ix != app->m_Inst.m_Stat.size(); ++ix) {
 				alert_test(geo.first, ix);
 			}
@@ -208,25 +194,34 @@ void ai_probe<T_app>::update(const float &dt)
 		if (geo.second.dt_oblong > AI_DELTA_TIME_PHY_SLOW) {
 			geo.second.dt_oblong -= AI_DELTA_TIME_PHY_SLOW;
 			geo.second.transform_oblong(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
-			app->m_Control.map_stop[geo.first].clear_avoid_pos();
-			//
-			XMMATRIX to_A_local;
-			XMMATRIX to_A_local_inv;
-			float destination_y = max_local_y;
-			geometry[geo.first].obj_y_near = max_local_y;
-			XMVECTOR destination = XMLoadFloat3(&app->m_Inst.m_Steering[geo.first].desired_pos);
-			phy_destination_y(
-				*app->m_Inst.m_Stat[geo.first].get_World(),
-				keep[geo.first].rot_inv,
-				to_A_local,
-				to_A_local_inv,
-				app->m_Inst.m_BoundW.center(geo.first),
-				destination,
-				destination_y
-			);
+			XMVECTOR center_inst = XMLoadFloat3(&app->m_Inst.m_BoundW.center(geo.first));
+			float distance_near = FLT_MAX;
+			int candidate_ix = -1;
+			app->m_Control.map_stop[geo.first].is_avoidance = false;
 			for (size_t ix = 0; ix != app->m_Inst.m_Stat.size(); ++ix) {
-				obstacle_avoid(geo.first, ix, to_A_local, to_A_local_inv, destination_y);
+				obstacle_avoid_candidate(geo.first, ix, candidate_ix, center_inst, distance_near);
 			}
+			if (candidate_ix == -1) return;
+			
+			XMFLOAT3 avoidance_force;
+			phy_collision_avoidance(
+				app->m_Inst.m_Stat[geo.first].phy,
+				center_inst,
+				XMLoadFloat3(&app->m_Inst.m_BoundW.center(candidate_ix)),
+				geo.second.max_see_ahead,
+				avoidance_force
+			);
+			app->m_Control.map_stop[geo.first].is_avoidance = true;
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 		}
 	}
 }
@@ -246,16 +241,16 @@ void ai_probe<T_app>::alert_test(const size_t &ix_probe, const size_t &ix_object
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
 	bool is_alert = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].AlertW);
-	is_alert;
+	if (is_alert) app->m_Inst.m_Steering[ix_probe].alert[ix_object] = is_alert;
 }
 //
 template <typename T_app>
-void ai_probe<T_app>::obstacle_avoid(
-	const size_t &ix_probe,
-	const size_t &ix_object,
-	const XMMATRIX &to_A_local,
-	const XMMATRIX &to_A_local_inv,
-	const float &destination_y)
+void ai_probe<T_app>::obstacle_avoid_candidate(
+		const size_t &ix_probe,
+		const size_t &ix_object,
+		int &candidate_ix,
+		const XMVECTOR &center_inst,
+		float &distance_near)
 {
 	// phy_obstacle_avoid
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
@@ -265,31 +260,14 @@ void ai_probe<T_app>::obstacle_avoid(
 	if (radius_obj < geometry[ix_probe].radius_inst*0.5f) return;
 	bool is_intersect = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].OblongW);
 	if (!is_intersect) return;
-	bool is_erase = false;
-	float obj_y;
-	phy_obstacle_avoid(
-		to_A_local,
-		to_A_local_inv,
-		app->m_Inst.m_BoundW.center(ix_probe),
-		app->m_Inst.m_BoundW.center(ix_object),
-		app->m_Control.map_stop[ix_probe].avoid_pos[ix_object],
-		keep[ix_probe].scale_inv,
-		radius_obj,
-		destination_y,
-		obj_y,
-		is_erase
-	);
 	//
-	if (is_erase) {
-		app->m_Control.map_stop[ix_probe].avoid_pos.erase(ix_object);
-		return;
-	}
-	if (obj_y > geometry[ix_probe].obj_y_near) {
-		geometry[ix_probe].obj_y_near = obj_y;
-	}
-	else {
-		app->m_Control.map_stop[ix_probe].avoid_pos.erase(ix_object);
-		return;
+	XMVECTOR center_obj = XMLoadFloat3(&app->m_Inst.m_BoundW.center(ix_object));
+	XMVECTOR difference = XMVectorSubtract(center_obj, center_inst);
+	difference = XMVector3LengthEst(difference);
+	float distance = XMVectorGetX(difference);
+	if (distance_near > distance) {
+		distance_near = distance;
+		candidate_ix = static_cast<int>(ix_object);
 	}
 }
 //

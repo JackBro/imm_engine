@@ -115,6 +115,7 @@ struct steering
 	int tactics;
 	int report;
 	std::map<size_t, bool> close;
+	std::map<size_t, bool> alert;
 	std::vector<size_t> attack;
 	std::vector<size_t> damage;
 };
@@ -130,6 +131,7 @@ steering::steering():
 	tactics(AI_TAC_NONE),
 	report(AI_REP_NONE),
 	close(),
+	alert(),
 	attack(),
 	damage()
 {

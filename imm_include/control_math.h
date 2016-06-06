@@ -29,6 +29,10 @@ void mouse_move_toward_hit(
 	CXMVECTOR &hit_pos,
 	const size_t &index,
 	const float &speed);
+void mouse_move_toward_hit_ai_avoid(
+	CXMVECTOR &hit_pos,
+	const size_t &index,
+	const float &speed);
 void mouse_face_rot_y(
 	XMMATRIX &W,
 	XMMATRIX &RF,
