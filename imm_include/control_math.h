@@ -30,7 +30,7 @@ void mouse_move_toward_hit(
 	const size_t &index,
 	const float &speed);
 void mouse_move_toward_hit_ai_avoid(
-	CXMVECTOR &hit_pos,
+	const bool &is_avoid_force,
 	const size_t &index,
 	const float &speed);
 void mouse_face_rot_y(

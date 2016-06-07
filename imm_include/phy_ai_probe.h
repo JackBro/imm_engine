@@ -212,16 +212,8 @@ void ai_probe<T_app>::update(const float &dt)
 				avoidance_force
 			);
 			app->m_Control.map_stop[geo.first].is_avoidance = true;
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
+			app->m_Control.map_stop[geo.first].avoid_time = 2.0f;
+			app->m_Control.map_stop[geo.first].avoidance = avoidance_force;
 		}
 	}
 }
@@ -254,7 +246,7 @@ void ai_probe<T_app>::obstacle_avoid_candidate(
 {
 	// phy_obstacle_avoid
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
-	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;	
+	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_CONTROLLABLE) return;
 	float radius_obj = (app->m_Inst.m_BoundL.extents_x(ix_object)+app->m_Inst.m_BoundL.extents_z(ix_object))*0.5f;
 	if (radius_obj < geometry[ix_probe].radius_inst*0.5f) return;

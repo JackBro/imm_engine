@@ -29,8 +29,10 @@ struct control_stop
 	bool is_avoidance;
 	BoundingBox bbox;
 	XMFLOAT3 hit_pos;
+	XMFLOAT3 avoidance;
 	float cooldown;
 	float speed;
+	float avoid_time;
 };
 //
 template <typename T_app>
@@ -38,8 +40,10 @@ control_stop<T_app>::control_stop():
 	is_stop(true),
 	is_avoidance(false),
 	hit_pos(0.0f, 0.0f, 0.0f),
+	avoidance(0.0f, 0.0f, 0.0f),
 	cooldown(0.0f),
-	speed(0.0f)
+	speed(0.0f),
+	avoid_time(0.0f)
 {
 	;
 }
@@ -71,6 +75,7 @@ bool control_stop<T_app>::contains(const XMFLOAT3 &center)
 template <typename T_app>
 void control_stop<T_app>::update(T_app *app, const size_t &index, const float &dt)
 {
+	avoid_time -= dt;
 	if (is_stop) return;
 	// assume bound's center approximate instance's world
 	bool is_inter = contains(app->m_Inst.m_BoundW.center(index));
@@ -86,8 +91,17 @@ void control_stop<T_app>::update(T_app *app, const size_t &index, const float &d
 		else return;
 		if (!app->m_Inst.m_Stat[index].phy.is_on_land) return;
 		XMVECTOR hit = XMLoadFloat3(&hit_pos);
-		if (is_avoidance) math::mouse_move_toward_hit_ai_avoid(hit, index, speed);
-		else math::mouse_move_toward_hit(hit, index, speed);
+		if (is_avoidance) {
+			math::mouse_move_toward_hit_ai_avoid(true, index, speed);
+		}
+		else {
+			if (avoid_time > 0.0f) {
+				math::mouse_move_toward_hit_ai_avoid(false, index, speed);
+			}
+			else {
+				math::mouse_move_toward_hit(hit, index, speed);
+			}
+		}
 	}
 }
 //

@@ -43,7 +43,7 @@ void mouse_move_toward_hit(
 }
 //
 void mouse_move_toward_hit_ai_avoid(
-	CXMVECTOR &hit_pos,
+	const bool &is_avoid_force,
 	const size_t &index,
 	const float &speed)
 {
@@ -53,13 +53,16 @@ void mouse_move_toward_hit_ai_avoid(
 	XMVECTOR vel_indirect = XMLoadFloat3(phy_vel_indirect);
 	XMMATRIX W = XMLoadFloat4x4(&world);
 	XMMATRIX RF = XMLoadFloat4x4(&rot_front);
-	vel_indirect = XMVectorSubtract(hit_pos, W.r[3]);
 	vel_indirect = XMVectorSetY(vel_indirect, 0.0f);
 	vel_indirect = XMVector3Normalize(vel_indirect);
-	// use vel_indirect as front direction
-	mouse_face_rot_y(W, RF, vel_indirect);
-	// when update stop, use object own speed
 	vel_indirect = XMVectorScale(vel_indirect, speed);
+	if (is_avoid_force) {
+		XMVECTOR avoidance = XMLoadFloat3(&PTR->m_Control.map_stop[index].avoidance);
+		vel_indirect = XMVectorAdd(vel_indirect, avoidance);
+	}
+	XMVECTOR vel_indirect_normal = XMVector3Normalize(vel_indirect);
+	// use vel_indirect as front direction
+	mouse_face_rot_y(W, RF, vel_indirect_normal);
 	XMStoreFloat3(phy_vel_indirect, vel_indirect);
 	XMStoreFloat4x4(&world, W);
 }
