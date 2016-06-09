@@ -75,6 +75,7 @@ static const float UI_RESOLUTION_HEIGHT = 768.0f;
 static const float BLEND_FACTOR_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
 // frame rate, Blender's default setting is 24.0f
 static const float FRAME_RATE = 24.0f;
+static const float FPS_60 = 60.0f;
 static bool IS_STANDALONE_M3DTOB3M = false;
 static const float GAME_HP_BAR = 20.0f;
 static const float AI_DELTA_TIME_LOGIC = 0.05;

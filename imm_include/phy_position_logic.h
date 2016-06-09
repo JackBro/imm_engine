@@ -48,9 +48,9 @@ void phy_position_update(
 		float bounce = prop.bounce*prop_Land.bounce;
 		float friction_rev = prop.friction_rev*prop_Land.friction_rev;
 		prop.acceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		if (prop.velocity.y < 0.0f) prop.velocity.y = -prop.velocity.y*bounce;
-		prop.velocity.x *= friction_rev*0.1f;
-		prop.velocity.z *= friction_rev*0.1f;
+		if (prop.velocity.y < 0.0f) prop.velocity.y = -prop.velocity.y*bounce*FPS_60*dt;
+		prop.velocity.x *= friction_rev*0.1f*FPS_60*dt;
+		prop.velocity.z *= friction_rev*0.1f*FPS_60*dt;
 		// use center compare stand
 		float offset_y = world._42-center.y;
 		float center_y = center.y;
@@ -124,6 +124,7 @@ void phy_impulse_casual(
 	// ignore mass
 	XMVECTOR injected_impulse = XMVectorScale(
 		AtoB, XMVectorGetX(XMVector3Dot(XMVectorScale(vel_AB_all, -1.0f*bounce), AtoB)));
+	injected_impulse = XMVectorScale(injected_impulse, FPS_60*dt);
 	vel_A = XMVectorAdd(vel_A, injected_impulse);
 	vel_B = XMVectorSubtract(vel_B, injected_impulse);
 	// Fix the positions so that the two objects are apart, not accurate

@@ -48,7 +48,7 @@ ai_bound::ai_bound():
 	radius_inst(0.0f),
 	radius_close(1.0f),
 	radius_alert(30.0f),
-	extents_z_oblong(2.0f),
+	extents_z_oblong(5.0f),
 	dt_close(0.0f),
 	dt_oblong(0.0f),
 	max_see_ahead(5.0f)
@@ -66,6 +66,7 @@ void ai_bound::init(
 	radius_inst = radius_inst_in;
 	radius_close = radius_close_in;
 	radius_alert = radius_alert_in;
+	extents_z_oblong = extents_z_oblong_in;
 	max_see_ahead = extents_z_oblong_in;
 	CloseL.Radius = radius_inst+radius_close;
 	CloseL.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -89,15 +90,6 @@ void ai_bound::transform_close(CXMMATRIX &world) {CloseL.Transform(CloseW, world
 void ai_bound::transform_alert(CXMMATRIX &world) {AlertL.Transform(AlertW, world);}
 void ai_bound::transform_oblong(CXMMATRIX &world) {OblongL.Transform(OblongW, world);}
 ////////////////
-// ai_keep
-////////////////
-////////////////
-struct ai_keep
-{
-	float scale_inv;
-	XMFLOAT4X4 rot_inv;
-};
-////////////////
 // ai_probe
 ////////////////
 ////////////////
@@ -116,10 +108,10 @@ struct ai_probe
 		const size_t &ix_object,
 		int &candidate_ix,
 		const XMVECTOR &center_inst,
-		float &distance_near);
+		float &distance_near,
+		float &radius_obj);
 	void set_active(const size_t &ix);
 	std::map<size_t, ai_bound> geometry;
-	std::map<size_t, ai_keep> keep;
 	T_app *app;
 };
 //
@@ -140,7 +132,6 @@ template <typename T_app>
 void ai_probe<T_app>::reset()
 {
 	geometry.clear();
-	keep.clear();
 }
 //
 template <typename T_app>
@@ -158,9 +149,6 @@ void ai_probe<T_app>::rebuild()
 			//
 			float radius_inst = (app->m_Inst.m_BoundL.extents_x(ix)+app->m_Inst.m_BoundL.extents_z(ix))*0.5f;
 			geometry[ix].init(rot_inv, radius_inst, 1.0f, 30.0f, 5.0f);
-			//
-			XMStoreFloat4x4(&keep[ix].rot_inv, rot_inv);
-			keep[ix].scale_inv = 1.0f/XMVectorGetX(out_scale);
 		}
 	}
 }
@@ -196,13 +184,13 @@ void ai_probe<T_app>::update(const float &dt)
 			geo.second.transform_oblong(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
 			XMVECTOR center_inst = XMLoadFloat3(&app->m_Inst.m_BoundW.center(geo.first));
 			float distance_near = FLT_MAX;
+			float radius_obj = 0.0f;
 			int candidate_ix = -1;
 			app->m_Control.map_stop[geo.first].is_avoidance = false;
 			for (size_t ix = 0; ix != app->m_Inst.m_Stat.size(); ++ix) {
-				obstacle_avoid_candidate(geo.first, ix, candidate_ix, center_inst, distance_near);
+				obstacle_avoid_candidate(geo.first, ix, candidate_ix, center_inst, distance_near, radius_obj);
 			}
 			if (candidate_ix == -1) return;
-			
 			XMFLOAT3 avoidance_force;
 			phy_collision_avoidance(
 				app->m_Inst.m_Stat[geo.first].phy,
@@ -211,9 +199,16 @@ void ai_probe<T_app>::update(const float &dt)
 				geo.second.max_see_ahead,
 				avoidance_force
 			);
-			app->m_Control.map_stop[geo.first].is_avoidance = true;
-			app->m_Control.map_stop[geo.first].avoid_time = 2.0f;
+			// estimate path length
+			float path_len_est = geometry[geo.first].OblongW.Extents.z*2.0f;
+			path_len_est += radius_obj*2.0f+math::calc_randf(-1.0f, 1.0f);
+			if (distance_near < radius_obj*2.0f) {
+				path_len_est -= distance_near;
+			}
+			app->m_Control.map_stop[geo.first].avoid_time =
+				path_len_est/app->m_Inst.m_Troll[geo.first].speed_move();
 			app->m_Control.map_stop[geo.first].avoidance = avoidance_force;
+			app->m_Control.map_stop[geo.first].is_avoidance = true;
 		}
 	}
 }
@@ -242,14 +237,15 @@ void ai_probe<T_app>::obstacle_avoid_candidate(
 		const size_t &ix_object,
 		int &candidate_ix,
 		const XMVECTOR &center_inst,
-		float &distance_near)
+		float &distance_near,
+		float &radius_obj)
 {
 	// phy_obstacle_avoid
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_CONTROLLABLE) return;
-	float radius_obj = (app->m_Inst.m_BoundL.extents_x(ix_object)+app->m_Inst.m_BoundL.extents_z(ix_object))*0.5f;
-	if (radius_obj < geometry[ix_probe].radius_inst*0.5f) return;
+	float radius_test = (app->m_Inst.m_BoundW.extents_x(ix_object)+app->m_Inst.m_BoundW.extents_z(ix_object))*0.5f;
+	if (radius_test < geometry[ix_probe].radius_inst*0.5f) return;
 	bool is_intersect = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].OblongW);
 	if (!is_intersect) return;
 	//
@@ -260,6 +256,7 @@ void ai_probe<T_app>::obstacle_avoid_candidate(
 	if (distance_near > distance) {
 		distance_near = distance;
 		candidate_ix = static_cast<int>(ix_object);
+		radius_obj = radius_test;
 	}
 }
 //

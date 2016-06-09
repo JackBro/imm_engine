@@ -26,10 +26,8 @@ void phy_collision_avoidance(
 {
 	XMVECTOR ahead = XMLoadFloat3(&prop_A.vel_indirect);
 	ahead = XMVector3Normalize(ahead);
-	XMVECTOR ahead2 = XMVectorScale(ahead, max_see_ahead*0.5f);
 	ahead = XMVectorScale(ahead, max_see_ahead);
 	ahead = XMVectorAdd(ahead, center_A);
-	ahead2 = XMVectorAdd(ahead2, center_A);
 	//
 	XMVECTOR avoidance = XMVectorSubtract(ahead, center_B);
 	avoidance = XMVector3Normalize(avoidance);
