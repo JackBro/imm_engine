@@ -130,6 +130,7 @@ void ai_Atk::enter(steering *ste)
 void ai_Atk::execute(steering *ste)
 {
 	ste;
+	math::set_inst_face_to_inst2(ste->index, ste->target);
 	PTR->m_Inst.m_Troll[ste->index].order |= ORDER_ATK_X;
 }
 //

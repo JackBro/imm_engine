@@ -116,6 +116,24 @@ void phy_set_box_scale(T_bound &bbox, const std::vector<float> &offset)
 	bbox.Extents.z = bbox.Extents.z*offset[2];
 }
 ////////////////
+// PHY_INTERACTIVE_TYPE
+////////////////
+////////////////
+enum PHY_INTERACTIVE_TYPE
+{
+	PHY_INTERA_DEFAULT  = 0x0,
+	PHY_INTERA_FIXED    = 0x1,
+	PHY_INTERA_NO_BOUND = 0x2,
+};
+//
+PHY_INTERACTIVE_TYPE phy_interactive_type_str(const std::string &str)
+{
+	if (str == "DEFAULT") return PHY_INTERA_DEFAULT;
+	if (str == "FIXED") return PHY_INTERA_FIXED;
+	if (str == "NO_BOUND") return PHY_INTERA_NO_BOUND;
+	ERROR_MESA("PHY_INTERACTIVE_TYPE error");
+}
+////////////////
 // PHY_BOUND_TYPE
 ////////////////
 ////////////////
@@ -129,12 +147,11 @@ enum PHY_BOUND_TYPE
 //
 PHY_BOUND_TYPE phy_bound_type_str(const std::string &str)
 {
-	if (str == "PHY_BOUND_BOX") return PHY_BOUND_BOX;
-	if (str == "PHY_BOUND_ORI_BOX") return PHY_BOUND_ORI_BOX;
-	if (str == "PHY_BOUND_SPHERE") return PHY_BOUND_SPHERE;
-	if (str == "PHY_BOUND_NULL") return PHY_BOUND_NULL;
-	assert(false);
-	return PHY_BOUND_BOX;
+	if (str == "BOX") return PHY_BOUND_BOX;
+	if (str == "ORI_BOX") return PHY_BOUND_ORI_BOX;
+	if (str == "SPHERE") return PHY_BOUND_SPHERE;
+	if (str == "NULL") return PHY_BOUND_NULL;
+	ERROR_MESA("PHY_BOUND_TYPE error");
 }
 ////////////////
 // phy_bound_mgr

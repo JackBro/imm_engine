@@ -42,10 +42,12 @@ public:
 	std::vector<mesh_geometry::subset> m_Subsets;
 	mesh_geometry m_ModelMesh;
 	int m_BoundType;
+	int m_InteractiveType;
 };
 //
 basic_model::basic_model():
-	m_BoundType(0)
+	m_BoundType(0),
+	m_InteractiveType(0)
 {
 	;
 }
@@ -260,6 +262,7 @@ class simple_model: public basic_model
 	std::vector<vertex_type> m_Vertices;
 	std::map<std::string, UINT> m_NameSubid;
 	std::map<std::string, int> m_NameBoundType;
+	std::map<std::string, int> m_NameInteractiveType;
 	void set_MeshBuffer(ID3D11Device *device);
 	void set_SingleSubset();
 	void set_MapSRV(

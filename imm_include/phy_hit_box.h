@@ -265,7 +265,9 @@ void phy_hit_arrange<T_app>::update_collision()
 				bbox_w[ix].Center,
 				app->m_Inst.m_BoundW.center(ix_inst),
 				is_touch,
-				true);
+				true,
+				false,
+				app->m_Inst.m_Stat[ix_inst].get_InteractiveType() & PHY_INTERA_FIXED);
 			//
 		}
 	}
@@ -301,7 +303,9 @@ void phy_hit_arrange<T_app>::update_collision()
 				app->m_Inst.m_BoundW.center(ix),
 				app->m_Inst.m_BoundW.center(ix_inst),
 				is_touch,
-				true);
+				true,
+				false,
+				app->m_Inst.m_Stat[ix_inst].get_InteractiveType() & PHY_INTERA_FIXED);
 			//
 		}
 	}

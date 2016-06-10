@@ -323,7 +323,10 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 			m_Stat[ix2].phy,
 			m_BoundW.center(ix),
 			m_BoundW.center(ix2),
-			is_touch);
+			is_touch,
+			false,
+			m_Stat[ix].get_InteractiveType() & PHY_INTERA_FIXED,
+			m_Stat[ix2].get_InteractiveType() & PHY_INTERA_FIXED);
 		//
 	}}
 }
@@ -436,6 +439,7 @@ void instance_mgr<T_app>::update_collision_liquid(float dt)
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		if (m_Stat[ix].property & MODEL_IS_LAND) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
+		if (m_Stat[ix].get_InteractiveType() & PHY_INTERA_FIXED) continue;
 		switch(m_BoundW.map[ix].first) {
 		case PHY_BOUND_BOX:
 			m_App->m_Scene.liquid.intersects(m_BoundW.bd0[m_BoundW.map[ix].second], dt, ix);

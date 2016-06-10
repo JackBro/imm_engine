@@ -51,6 +51,7 @@ struct instance_stat
 	XMFLOAT4X4 *get_FinalTransform(size_t ix);
 	std::string *get_ModelName();
 	PHY_BOUND_TYPE get_BoundType();
+	PHY_INTERACTIVE_TYPE get_InteractiveType();
 	void set_World(const XMFLOAT4X4 &world);
 	void set_World(const XMMATRIX &world);
 	void set_IsAppear(const bool &is_appear);
@@ -127,6 +128,25 @@ PHY_BOUND_TYPE instance_stat::get_BoundType()
 	}
 	assert(bound_t <= 2 && bound_t >= 0);
 	return static_cast<PHY_BOUND_TYPE>(bound_t);
+}
+//
+PHY_INTERACTIVE_TYPE instance_stat::get_InteractiveType()
+{
+	int inter_t = -1;
+	switch(type) {
+	case MODEL_BASIC:
+		inter_t = ((basic_model_instance*)ptr)->model->m_InteractiveType;
+		break;
+	case MODEL_SKINNED:
+		inter_t = ((skinned_model_instance*)ptr)->model->m_InteractiveType;
+		break;
+	case MODEL_SIMPLE_P:
+		inter_t = ((simple_model_instance<vertex::pntt>*)ptr)->model->m_NameInteractiveType.at(
+			((simple_model_instance<vertex::pntt>*)ptr)->model_name);
+		break;
+	}
+	assert(inter_t > -1);
+	return static_cast<PHY_INTERACTIVE_TYPE>(inter_t);
 }
 //
 void instance_stat::set_World(const XMFLOAT4X4 &world)
@@ -288,6 +308,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 		m_PNTT["default"].set_MapSRV(m_TexMgr, tex_diffuse, tex_normal, model_is_tex[model_name]);
 		model_tex_trans[model_name] = vec2d_model[ix][8];
 		m_PNTT["default"].m_NameBoundType[model_name] = phy_bound_type_str(vec2d_model[ix][9]);
+		m_PNTT["default"].m_NameInteractiveType[model_name] = phy_interactive_type_str(vec2d_model[ix][10]);
 	}
 	model_load_geo_mesh(device, m_PNTT["default"], geo_mesh);
 	// build instance

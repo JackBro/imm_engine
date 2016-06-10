@@ -96,7 +96,9 @@ void phy_impulse_casual(
 	const XMFLOAT3 &center_A,
 	const XMFLOAT3 &center_B,
 	const bool &is_touch,
-	const bool &is_A_atk = false)
+	const bool &is_A_atk,
+	const bool &is_A_fixed,
+	const bool &is_B_fixed)
 {
 	if (!is_touch) return;
 	XMMATRIX w_A = XMLoadFloat4x4(&world_A);
@@ -135,12 +137,16 @@ void phy_impulse_casual(
 	w_A.r[3] = XMVectorSetW(w_A.r[3], 1.0f);
 	w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
 	// store result
-	XMStoreFloat3(&prop_B.velocity, vel_B);
-	XMStoreFloat4x4(&world_B, w_B);
+	if (!is_B_fixed) {
+		XMStoreFloat3(&prop_B.velocity, vel_B);
+		XMStoreFloat4x4(&world_B, w_B);
+	}
 	// if A is attacking, do not move
 	if (is_A_atk) return;
-	XMStoreFloat3(&prop_A.velocity, vel_A);
-	XMStoreFloat4x4(&world_A, w_A);
+	if (!is_A_fixed) {
+		XMStoreFloat3(&prop_A.velocity, vel_A);
+		XMStoreFloat4x4(&world_A, w_A);
+	}
 	// check if instance stand on instance
 	// c_A, c_B is updated, but center_A, center_B is not
 	// currently using center_A, center_B

@@ -181,7 +181,12 @@ void ai_probe<T_app>::update(const float &dt)
 		}
 		if (geo.second.dt_oblong > AI_DELTA_TIME_PHY_SLOW) {
 			geo.second.dt_oblong -= AI_DELTA_TIME_PHY_SLOW;
+			//
 			geo.second.transform_oblong(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
+			XMVECTOR destination = XMLoadFloat3(&app->m_Inst.m_Steering[geo.first].desired_pos);
+			destination = XMVectorSetY(destination, geo.second.OblongW.Center.y);
+			if (geo.second.OblongW.Contains(destination) != DISJOINT) return;
+			//
 			XMVECTOR center_inst = XMLoadFloat3(&app->m_Inst.m_BoundW.center(geo.first));
 			float distance_near = FLT_MAX;
 			float radius_obj = 0.0f;
