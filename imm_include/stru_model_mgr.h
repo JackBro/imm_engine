@@ -50,6 +50,7 @@ struct instance_stat
 	XMFLOAT4X4 *get_RotFront();
 	XMFLOAT4X4 *get_FinalTransform(size_t ix);
 	std::string *get_ModelName();
+	std::string *get_ClipName();
 	PHY_BOUND_TYPE get_BoundType();
 	PHY_INTERACTIVE_TYPE get_InteractiveType();
 	void set_World(const XMFLOAT4X4 &world);
@@ -77,7 +78,6 @@ XMFLOAT4X4 *instance_stat::get_World()
 	case MODEL_SIMPLE_P: return &(((simple_model_instance<vertex::pntt>*)ptr)->world);
 	}
 	assert(false);
-	// bad
 	return &(((basic_model_instance*)ptr)->world);
 }
 //
@@ -89,7 +89,6 @@ XMFLOAT4X4 *instance_stat::get_RotFront()
 	case MODEL_SIMPLE_P: return &(((simple_model_instance<vertex::pntt>*)ptr)->rot_front);
 	}
 	assert(false);
-	// bad
 	return &(((basic_model_instance*)ptr)->rot_front);
 }
 //
@@ -107,8 +106,15 @@ std::string *instance_stat::get_ModelName()
 	case MODEL_SIMPLE_P: return &(((simple_model_instance<vertex::pntt>*)ptr)->model_name);
 	}
 	assert(false);
-	// bad
 	return &(((basic_model_instance*)ptr)->model_name);
+}
+//
+std::string *instance_stat::get_ClipName()
+{
+	switch(type) {
+	case MODEL_SKINNED: return &(((skinned_model_instance*)ptr)->clip_name);
+	}
+	return &IMM_PATH["text"];
 }
 //
 PHY_BOUND_TYPE instance_stat::get_BoundType()

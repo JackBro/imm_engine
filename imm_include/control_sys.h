@@ -162,6 +162,10 @@ void control_sys<T_app>::inst_guard(const bool &is_guard)
 		app->m_Inst.m_Troll[player1].order |= ORDER_GUARD;
 	}
 	else {
+		
+		if (~app->m_Inst.m_Troll[player1].order_stat & ORDER_IS_GUARD) return;
+		
+		
 		app->m_Inst.m_Troll[player1].order_stat &= ~ORDER_IS_GUARD;
 		app->m_Inst.m_Troll[player1].order |= ORDER_GUARD_NO;
 	}
@@ -280,6 +284,7 @@ void control_sys<T_app>::on_pad_down_update(const float &dt)
 	if (get_vkey == PAD_P1_JUMP) inst_jump();
 	if (get_vkey == PAD_P1_ATK_X) inst_atk_x();
 	if (get_vkey == PAD_P1_ATK_Y) inst_atk_y();
+	if (pad.is_LB_press()) inst_roll();
 }
 //
 template <typename T_app>

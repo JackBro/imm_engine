@@ -85,6 +85,22 @@ private:
 	pose_Move &operator=(const pose_Move&);
 };
 ////////////////
+// pose_Roll
+////////////////
+////////////////
+struct troll;
+struct pose_Roll: public state<troll>
+{
+	static pose_Roll *instance();
+	void enter(troll*);
+	void execute(troll*);
+	void exit(troll*);
+private:
+	pose_Roll() {;}
+	pose_Roll(const pose_Roll&);
+	pose_Roll &operator=(const pose_Roll&);
+};
+////////////////
 // pose_Jump
 ////////////////
 ////////////////
