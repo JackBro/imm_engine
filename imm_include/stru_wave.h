@@ -232,11 +232,11 @@ void state_liquid::draw(ID3D11DeviceContext *context, const camera &cam1)
 	effects::m_WaveRenderFX->set_DisplacementTexelSize(XMFLOAT2(1.0f/wave.column_count(), 1.0f/wave.row_count()));
 	wave_tech->GetDesc(&tech_desc);
 	for(UINT p = 0; p < tech_desc.Passes; ++p) {
-		context->OMSetBlendState(render::m_TransparentBS, BLEND_FACTOR_ZERO, 0xffffffff);
+		context->OMSetBlendState(render::m_TransparentBS, FLOAT_4_ZERO, 0xffffffff);
 		wave_tech->GetPassByIndex(p)->Apply(0, context);
 		context->DrawIndexed(wave_index_count, 0, 0);
 		// Restore default blend state
-		context->OMSetBlendState(0, BLEND_FACTOR_ZERO, 0xffffffff);
+		context->OMSetBlendState(0, FLOAT_4_ZERO, 0xffffffff);
 	}
 	// Unbind displacement map from vertex shader, as we will be binding it as a compute
 	// shader resource in the next update.

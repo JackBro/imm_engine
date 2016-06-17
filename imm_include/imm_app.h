@@ -8,7 +8,7 @@
 #ifndef IMM_APP_H
 #define IMM_APP_H
 #include <ctime>
-#include "ai_npc_interface.h"
+#include "ai_interface.h"
 #include "ai_status_data.h"
 #include "ai_information.h"
 #include "condition_trigger.h"
@@ -66,7 +66,7 @@ public:
 	control_sys<imm_app> m_Control;
 	ai_info<imm_app> m_AiInfo;
 	ai_attr<imm_app> m_AiAttr;
-	ai_npc<imm_app> m_AiNpc;
+	ai_interface<imm_app> m_AiInterf;
 	status_data m_Status;
 	MOUSE_MODEL m_MouseMode;
 	XMFLOAT4X4 m_LightView;

@@ -175,7 +175,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 	m_App->m_Hit.rebuild();
 	m_App->m_AiInfo.rebuild();
 	m_App->m_AiAttr.rebuild();
-	m_App->m_AiNpc.rebuild();
+	m_App->m_AiInterf.rebuild();
 	m_Probe.rebuild();
 	m_App->m_Scene.phy_wire.rebuild_buffer();
 }

@@ -203,13 +203,14 @@ void pose_Roll::execute(troll *tro)
 			math::key_move_wasd(tro->index, 0.0f);
 			tro->A.cd_RollStep1 = tro->A.cd_RollStep2;
 			tro->A.cd_RollStep2 = -1.0f;
+			tro->battle_stat ^= BATTLE_STAT_DODGE;
 			tro->order_stat |= ORDER_IS_ENGAGE;
 			return;
 		}
 		// roll
 		if (tro->order & ORDER_ROLL) {
 			tro->order ^= ORDER_ROLL;
-			if (tro->order & ORDER_MOVE_WASD) {			
+			if (tro->order & ORDER_MOVE_WASD) {
 				if (!math::key_move_wasd(tro->index, tro->A.speed_Roll)) {
 					tro->change_state(pose_Idle::instance());
 					return;
@@ -218,12 +219,16 @@ void pose_Roll::execute(troll *tro)
 			if (tro->order & ORDER_MOVE_TOWARD) {
 				if (PTR->m_Control.pad.is_L_active()) {
 					math::pad_move_toward(tro->index, tro->A.speed_Roll);
-					PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Roll(), true);
+				}
+				else {
+					tro->change_state(pose_Idle::instance());
+					return;
 				}
 			}
 			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Roll(), true);
 			tro->A.cd_RollStep1 = tro->A.frame_RollStep1;
 			tro->A.cd_RollStep2 = tro->A.frame_RollStep2;
+			tro->battle_stat |= BATTLE_STAT_DODGE;
 			return;
 		}
 		if (tro->order_stat & ORDER_IS_ENGAGE) {

@@ -23,13 +23,13 @@ namespace imm
 // https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
 ////////////////
 ////////////////
-static int KEY_P1_JUMP          = VK_SPACE;
+static int KEY_P1_JUMP          = 'C';
 static int KEY_P1_WALK_RUN      = 'Q';
 static int KEY_P1_W             = 'W';
 static int KEY_P1_A             = 'A';
 static int KEY_P1_S             = 'S';
 static int KEY_P1_D             = 'D';
-static int KEY_P1_ROLL          = 'C';
+static int KEY_P1_ROLL          = VK_SPACE;
 static int KEY_P1_GUARD         = 'E';
 static int KEY_UI_ESC           = VK_ESCAPE;
 static int KEY_UI_FPS1          = 'R';

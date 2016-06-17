@@ -160,8 +160,8 @@ void ai_probe<T_app>::update(const float &dt)
 	for (auto &geo: geometry) {
 		if (!geo.second.is_active) continue;
 		// separate update
-		if (app->m_AiNpc.get_current_tactics(geo.first) & AI_TAC_SEEK) geo.second.dt_close += dt;
-		if (app->m_AiNpc.get_current_tactics(geo.first) & AI_TAC_PATROL) geo.second.dt_alert += dt;
+		if (app->m_AiInterf.get_current_tactics(geo.first) & AI_TAC_SEEK) geo.second.dt_close += dt;
+		if (app->m_AiInterf.get_current_tactics(geo.first) & AI_TAC_PATROL) geo.second.dt_alert += dt;
 		if (!app->m_Control.map_stop[geo.first].is_stop) geo.second.dt_oblong += dt;
 		//
 		if (geo.second.dt_close > AI_DELTA_TIME_PHY_FAST) {

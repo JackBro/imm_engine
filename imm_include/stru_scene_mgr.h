@@ -96,7 +96,7 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 	app->m_Magic.init(app);
 	app->m_AiInfo.init(app);
 	app->m_AiAttr.init(app);
-	app->m_AiNpc.init_load(app);
+	app->m_AiInterf.init_load(app);
 	reload(L"00");
 }
 //
@@ -128,7 +128,7 @@ void scene_mgr<T_app>::draw_d3d_atmosphere(XMMATRIX &shadow_transform)
 	// Restore default states.
 	app->m_D3DDC->RSSetState(0);
 	app->m_D3DDC->OMSetDepthStencilState(0, 0);
-	app->m_D3DDC->OMSetBlendState(0, BLEND_FACTOR_ZERO, 0xffffffff);
+	app->m_D3DDC->OMSetBlendState(0, FLOAT_4_ZERO, 0xffffffff);
 }
 //
 template <typename T_app>

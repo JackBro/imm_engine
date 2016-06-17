@@ -1,12 +1,12 @@
 ////////////////
-// ai_npc_interface.h
+// ai_interface.h
 // This file is a portion of the immature engine.
 // It is distributed under the BSD license.
 // Copyright 2015-2016 Huang Yiting (http://endrollex.com)
 ////////////////
 ////////////////
-#ifndef AI_NPC_INTERFACE_H
-#define AI_NPC_INTERFACE_H
+#ifndef AI_INTERFACE_H
+#define AI_INTERFACE_H
 #include "ai_steering.h"
 namespace imm
 {
@@ -39,13 +39,13 @@ ai_mental::ai_mental():
 	;
 }
 ////////////////
-// ai_npc
+// ai_interface
 ////////////////
 ////////////////
 template <typename T_app>
-struct ai_npc
+struct ai_interface
 {
-	ai_npc();
+	ai_interface();
 	void init_load(T_app *app_in);
 	void reset();
 	void rebuild();
@@ -60,7 +60,7 @@ struct ai_npc
 };
 //
 template <typename T_app>
-ai_npc<T_app>::ai_npc():
+ai_interface<T_app>::ai_interface():
 	app(nullptr),
 	delta_time(0.0f),
 	mental_data(),
@@ -70,7 +70,7 @@ ai_npc<T_app>::ai_npc():
 }
 //
 template <typename T_app>
-void ai_npc<T_app>::init_load(T_app *app_in)
+void ai_interface<T_app>::init_load(T_app *app_in)
 {
 	app = app_in;
 	mental_data.emplace_back();
@@ -79,14 +79,14 @@ void ai_npc<T_app>::init_load(T_app *app_in)
 }
 //
 template <typename T_app>
-void ai_npc<T_app>::reset()
+void ai_interface<T_app>::reset()
 {
 	mental_scene.clear();
 	mental_scene.shrink_to_fit();
 }
 //
 template <typename T_app>
-void ai_npc<T_app>::rebuild()
+void ai_interface<T_app>::rebuild()
 {
 	reset();
 	for (auto &data: mental_data) {
@@ -97,7 +97,7 @@ void ai_npc<T_app>::rebuild()
 }
 //
 template <typename T_app>
-void ai_npc<T_app>::update(const float &dt)
+void ai_interface<T_app>::update(const float &dt)
 {
 	delta_time += dt+(math::calc_randf(-AI_DELTA_TIME_LOGIC, AI_DELTA_TIME_LOGIC))*0.1f;
 	if (delta_time < AI_DELTA_TIME_LOGIC) return;
@@ -109,7 +109,7 @@ void ai_npc<T_app>::update(const float &dt)
 }
 //
 template <typename T_app>
-void ai_npc<T_app>::update_beat_player(ai_mental &mind)
+void ai_interface<T_app>::update_beat_player(ai_mental &mind)
 {
 	auto ste = &app->m_Inst.m_Steering[mind.ix];
 	if (get_current_tactics(mind.ix) == AI_TAC_STANDY) {
@@ -125,7 +125,7 @@ void ai_npc<T_app>::update_beat_player(ai_mental &mind)
 }
 //
 template <typename T_app>
-int ai_npc<T_app>::get_current_tactics(const size_t &ix)
+int ai_interface<T_app>::get_current_tactics(const size_t &ix)
 {
 	auto ste = &app->m_Inst.m_Steering[ix];
 	if (ste->current_state == ai_Standby::instance()) return AI_TAC_STANDY;

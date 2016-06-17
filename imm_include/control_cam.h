@@ -176,7 +176,7 @@ void control_cam<T_app>::follow_update()
 	pos = XMVectorMultiplyAdd(scale, U, pos);
 	if (is_smooth) {
 		// default 1fps = 1/60s
-		float factor = app->m_Timer.delta_time()/0.0166667f*0.5f;
+		float factor = app->m_Timer.delta_time()*FPS60*0.5f;
 		XMVECTOR pos_old = app->m_Cam.get_PositionXM();
 		pos = XMVectorLerp(pos_old, pos, factor);
 	}
@@ -237,7 +237,7 @@ void control_cam<T_app>::follow_update_reset(const XMVECTOR &rot_quat)
 	epsilon = XMVectorSet(0.01f, 0.01f, 0.01f, 0.0f);
 	// default 1fps = 1/60s
 	float time_ratio = follow_reset_timer/follow_reset_cd_max;
-	float factor = app->m_Timer.delta_time()/0.0166667f*(0.05f+0.25f*time_ratio);
+	float factor = app->m_Timer.delta_time()*FPS60*(0.05f+0.25f*time_ratio);
 	R_old = app->m_Cam.get_RightXM();
 	U_old = app->m_Cam.get_UpXM();
 	L_old = app->m_Cam.get_LookXM();

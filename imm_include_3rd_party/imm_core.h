@@ -71,11 +71,12 @@ void IMM_PATH_init()
 // for calclate UI size with factor
 static const float UI_RESOLUTION_WIDTH = 1366.0f;
 static const float UI_RESOLUTION_HEIGHT = 768.0f;
-// OMSetBlendState, BLEND_FACTOR_ZERO
-static const float BLEND_FACTOR_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
+static const float FLOAT_4_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
 // frame rate, Blender's default setting is 24.0f
 static const float FRAME_RATE = 24.0f;
-static const float FPS_60 = 60.0f;
+static const float FRAME_RATE_1DIV = 1.0f/FRAME_RATE;
+static const float FPS60 = 60.0f;
+static const float FPS60_1DIV = 1.0f/FPS60;
 static bool IS_STANDALONE_M3DTOB3M = false;
 static const float GAME_HP_BAR = 20.0f;
 static const float AI_DELTA_TIME_LOGIC = 0.05;

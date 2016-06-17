@@ -151,12 +151,16 @@ public:
 		std::vector<int> &bone_hierarchy,
 		std::vector<XMFLOAT4X4> &bone_offsets,
 		std::map<std::string, animation_clip> &animations);
-	 // In a real project, you'd want to cache the result if there was a chance
-	 // that you were calling this several times with the same clip_name at
-	 // the same time_pos.
+	// In a real project, you'd want to cache the result if there was a chance
+	// that you were calling this several times with the same clip_name at
+	// the same time_pos.
 	void get_final_transforms(
 		const std::string &clip_name, float time_pos, std::vector<XMFLOAT4X4> &final_transforms) const;
 	bool check_clip_name(const std::string &clip_name);
+	void create_clip_to_clip_anim(
+		const std::string &clip_first,
+		const std::string &clip_second,
+		const size_t &last_frame);
 	// Gives parent_index of ith bone.
 	std::vector<int> m_BoneHierarchy;
 	std::vector<XMFLOAT4X4> m_BoneOffsets;
@@ -222,11 +226,34 @@ void skinned_data::get_final_transforms(
 		XMStoreFloat4x4(&final_transforms[i], XMMatrixMultiply(offset, to_root));
 	}
 }
+//
 bool skinned_data::check_clip_name(const std::string &clip_name)
 {
 	auto clip = m_Animations.find(clip_name);
 	if (clip == m_Animations.end()) return false;
 	return true;
 }
+//
+void skinned_data::create_clip_to_clip_anim(
+	const std::string &clip_first,
+	const std::string &clip_second,
+	const size_t &last_frame)
+{
+	std::string switch_name = "SWITCH_"+clip_first+"_"+clip_second+"_"+std::to_string(last_frame);
+	float last_time = FRAME_RATE_1DIV*static_cast<float>(last_frame);
+	size_t len_bone = m_Animations[clip_first].bone_animations.size();
+	m_Animations[switch_name].bone_animations.resize(len_bone);
+	for (size_t ix = 0; ix != len_bone; ++ix) {
+		m_Animations[switch_name].bone_animations[ix].keyframes.push_back(
+			m_Animations[clip_first].bone_animations[ix].keyframes.back()
+		);
+		m_Animations[switch_name].bone_animations[ix].keyframes.push_back(
+			m_Animations[clip_second].bone_animations[ix].keyframes.front()
+		);
+		m_Animations[switch_name].bone_animations[ix].keyframes[0].time_pos = 0.0f;
+		m_Animations[switch_name].bone_animations[ix].keyframes[1].time_pos = last_time;
+	}
+}
+//
 }
 #endif

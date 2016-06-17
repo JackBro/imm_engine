@@ -58,6 +58,10 @@ struct instance_stat
 	void set_IsAppear(const bool &is_appear);
 	void set_ClipName(const std::string &clip_name, const bool &is_reset_time);
 	void check_set_ClipName(const std::string &clip_name, const bool &is_reset_time);
+	void set_switch_ClipName(
+		const std::string &clip_first,
+		const std::string &clip_second,
+		const size_t &last_frame);
 	bool is_invoke_physics();
 };
 //
@@ -195,6 +199,15 @@ void instance_stat::check_set_ClipName(const std::string &clip_name, const bool 
 {
 	if (type != MODEL_SKINNED) return;
 	((skinned_model_instance*)ptr)->check_set_ClipName(clip_name, is_reset_time);
+}
+//
+void instance_stat::set_switch_ClipName(
+	const std::string &clip_first,
+	const std::string &clip_second,
+	const size_t &last_frame)
+{
+	if (type != MODEL_SKINNED) return;
+	((skinned_model_instance*)ptr)->set_switch_ClipName(clip_first, clip_second, last_frame);
 }
 //
 bool instance_stat::is_invoke_physics()

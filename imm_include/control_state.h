@@ -41,6 +41,15 @@ enum ORDER_STAT_TYPE
 	ORDER_IS_GUARD  = 0x8,
 };
 ////////////////
+// BATTLE_STAT
+////////////////
+////////////////
+enum BATTLE_STAT
+{
+	BATTLE_STAT_NONE  = 0x0,
+	BATTLE_STAT_DODGE = 0x1,
+};
+////////////////
 // state
 ////////////////
 ////////////////
@@ -194,10 +203,10 @@ action_data::action_data():
 	speed_Walk(4.5f),
 	speed_Run(13.5f),
 	speed_Roll(30.0f),
-	frame_Damage(7.0f/FRAME_RATE),
-	frame_RollStep1(10.0f/FRAME_RATE),
-	frame_RollStep2(10.0f/FRAME_RATE),
-	frame_JumpLand(7.0f/FRAME_RATE),
+	frame_Damage(7.0f*FRAME_RATE_1DIV),
+	frame_RollStep1(10.0f*FRAME_RATE_1DIV),
+	frame_RollStep2(10.0f*FRAME_RATE_1DIV),
+	frame_JumpLand(7.0f*FRAME_RATE_1DIV),
 	cd_Idle(-1.0f),
 	cd_Jump(-1.0f),
 	cd_Damage(-1.0f),
@@ -224,6 +233,7 @@ struct troll
 	size_t index;
 	int order;
 	int order_stat;
+	int battle_stat;
 	int focus;
 	bool is_on_air;
 	action_data A;
@@ -236,6 +246,7 @@ troll::troll():
 	index(0),
 	order(ORDER_NONE),
 	order_stat(ORDER_IS_CLEAR),
+	battle_stat(BATTLE_STAT_NONE),
 	focus(-1),
 	is_on_air(false),
 	A(),

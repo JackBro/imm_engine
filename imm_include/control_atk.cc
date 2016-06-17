@@ -299,10 +299,10 @@ void control_atk<T_app>::init(T_app *app_in)
 			d_skill->chunk[vec2d[ix][1][0]] = static_cast<int>(data_ski[vec2d[ix][0]].atk.size());
 		}
 		d_skill->atk.push_back(vec2d[ix][2]);
-		d_skill->frame_end.push_back(std::stof(vec2d[ix][3]) / FRAME_RATE);
-		d_skill->frame_turn.push_back(std::stof(vec2d[ix][4]) / FRAME_RATE);
-		d_skill->judge_start.push_back(std::stof(vec2d[ix][5]) / FRAME_RATE);
-		d_skill->judge_end.push_back(std::stof(vec2d[ix][6]) / FRAME_RATE);
+		d_skill->frame_end.push_back(std::stof(vec2d[ix][3]) * FRAME_RATE_1DIV);
+		d_skill->frame_turn.push_back(std::stof(vec2d[ix][4]) * FRAME_RATE_1DIV);
+		d_skill->judge_start.push_back(std::stof(vec2d[ix][5]) * FRAME_RATE_1DIV);
+		d_skill->judge_end.push_back(std::stof(vec2d[ix][6]) * FRAME_RATE_1DIV);
 		d_skill->inst_speed.push_back(std::stof(vec2d[ix][7]));
 		d_skill->next_ix.push_back(std::stoi(vec2d[ix][8]));
 		d_skill->specify.push_back(skill_specify_str(vec2d[ix][9]));

@@ -243,6 +243,7 @@ void phy_hit_arrange<T_app>::update_collision()
 			if (ix_inst == map_box_owner[ix]) continue;
 			if (!app->m_Inst.m_Stat[ix_inst].is_invoke_physics()) continue;
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneLandIx) continue;
+			if (app->m_Inst.m_Troll[ix_inst].battle_stat & BATTLE_STAT_DODGE) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, bbox_w[ix]);
 			if (is_touch) {
 				app->m_Control.atk.cause_damage(
@@ -281,6 +282,7 @@ void phy_hit_arrange<T_app>::update_collision()
 			if (ix_inst == owner_ix) continue;
 			if (!app->m_Inst.m_Stat[ix_inst].is_invoke_physics()) continue;
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneLandIx) continue;
+			if (app->m_Inst.m_Troll[ix_inst].battle_stat & BATTLE_STAT_DODGE) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, weapon_ix);
 			if (is_touch) {
 				app->m_Control.atk.cause_damage(

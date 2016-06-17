@@ -156,21 +156,31 @@ struct skinned_model_instance
 	XMFLOAT4X4 rot_front;
 	std::string model_name;
 	std::string clip_name;
+	std::string switch_name;
 	std::vector<XMFLOAT4X4> final_transforms;
 	float time_pos;
+	float time_switch;
 	bool is_appear;
+	bool is_switching;
 	void update(float dt);
 	void set_ClipName(const std::string &clip_name, const bool &is_reset_time);
 	void check_set_ClipName(const std::string &clip_name, const bool &is_reset_time);
+	void set_switch_ClipName(
+		const std::string &clip_first,
+		const std::string &clip_second,
+		const size_t &last_frame);
 };
 //
 skinned_model_instance::skinned_model_instance():
 	model(nullptr),
 	model_name(),
 	clip_name(),
+	switch_name(),
 	final_transforms(),
 	time_pos(0.0f),
-	is_appear(true)
+	time_switch(-1.0f),
+	is_appear(true),
+	is_switching(false)
 {
 	XMStoreFloat4x4(&world, XMMatrixIdentity());
 	XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
@@ -224,6 +234,15 @@ void skinned_model_instance::update(float dt)
 {
 	if (!is_appear) return;
 	time_pos += dt;
+	if (time_switch > 0.0f) {
+		time_switch -= dt;
+		model->m_SkinnedData.get_final_transforms(switch_name, time_pos, final_transforms);
+		return;
+	}
+	if (time_switch < 0.0f && is_switching) {
+		is_switching = false;
+		time_pos = 0.0f;
+	}
 	model->m_SkinnedData.get_final_transforms(clip_name, time_pos, final_transforms);
 	// Loop animation
 	if (time_pos > model->m_SkinnedData.get_clip_end_time(clip_name)) time_pos = 0.0f;
@@ -248,6 +267,20 @@ void skinned_model_instance::check_set_ClipName(const std::string &c_name, const
 		if (is_reset_time) time_pos = 0.0f;
 		clip_name = c_name;
 	}
+}
+//
+void skinned_model_instance::set_switch_ClipName(
+	const std::string &clip_first,
+	const std::string &clip_second,
+	const size_t &last_frame)
+{
+	switch_name = "SWITCH_"+clip_first+"_"+clip_second+"_"+std::to_string(last_frame);
+	if (!model->m_SkinnedData.check_clip_name(switch_name)) {
+		model->m_SkinnedData.create_clip_to_clip_anim(clip_first, clip_second, last_frame);
+	}
+	time_switch = FRAME_RATE_1DIV*static_cast<float>(last_frame);
+	is_switching = true;
+	time_pos = 0.0f;
 }
 ////////////////
 // simple_model
