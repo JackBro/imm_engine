@@ -62,7 +62,9 @@ struct instance_stat
 		const std::string &clip_first,
 		const std::string &clip_second,
 		const size_t &last_frame);
+	void set_switch_current_ClipName(const std::string &clip_second, const size_t &last_frame);
 	bool is_invoke_physics();
+	bool is_in_switch_clip();
 };
 //
 instance_stat::instance_stat():
@@ -210,10 +212,23 @@ void instance_stat::set_switch_ClipName(
 	((skinned_model_instance*)ptr)->set_switch_ClipName(clip_first, clip_second, last_frame);
 }
 //
+void instance_stat::set_switch_current_ClipName(const std::string &clip_second,	const size_t &last_frame)
+{
+	if (type != MODEL_SKINNED) return;
+	((skinned_model_instance*)ptr)->set_switch_ClipName(*get_ClipName(), clip_second, last_frame);
+}
+//
 bool instance_stat::is_invoke_physics()
 {
 	if (property & MODEL_IS_ATTACH) return false;
 	return true;
+}
+//
+bool instance_stat::is_in_switch_clip()
+{
+	if (type != MODEL_SKINNED) return false;
+	if (((skinned_model_instance*)ptr)->time_switch > 0.0f) return true;
+	return false;
 }
 ////////////////
 // model_mgr

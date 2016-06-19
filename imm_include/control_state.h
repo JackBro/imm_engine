@@ -29,7 +29,8 @@ enum ORDER_ACT_TYPE
 	ORDER_DMG         = 0x80,
 	ORDER_ROLL        = 0x100,
 	ORDER_GUARD       = 0x200,
-	ORDER_GUARD_NO    = 0X400,
+	ORDER_GUARD_NO    = 0x400,
+	ORDER_ENGAGE      = 0x800
 };
 //
 enum ORDER_STAT_TYPE
@@ -196,6 +197,7 @@ struct action_data
 	float cd_Damage;
 	float cd_RollStep1;
 	float cd_RollStep2;
+	float cd_GuardMin;
 };
 //
 action_data::action_data():
@@ -211,7 +213,8 @@ action_data::action_data():
 	cd_Jump(-1.0f),
 	cd_Damage(-1.0f),
 	cd_RollStep1(-1.0f),
-	cd_RollStep2(-1.0f)
+	cd_RollStep2(-1.0f),
+	cd_GuardMin(-1.0f)
 {
 	;
 }

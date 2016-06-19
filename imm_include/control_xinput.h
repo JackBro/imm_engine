@@ -49,8 +49,17 @@ bool control_xinput::is_enable()
 {
 	if (is_force_disable) return false;
 	DWORD dw_result;
-	dw_result = XInputGetState(user_index, &state);
-	if (dw_result == ERROR_SUCCESS) return true;
+	for (int ix = 0; ix != 4; ++ix) {
+		dw_result = XInputGetState(ix, &state);
+		if (dw_result == ERROR_SUCCESS) {
+			user_index = ix;
+			return true;
+		}
+	}
+	if (dw_result != ERROR_SUCCESS) {
+		user_index = 0;
+		return false;
+	}
 	return false;
 }
 //

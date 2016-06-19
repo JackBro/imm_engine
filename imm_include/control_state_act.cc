@@ -18,6 +18,7 @@ act_str::act_str(int &order_stat)
 std::string act_str::Idle()
 {
 	if (*p_order_s & ORDER_IS_GUARD) return "IdleGuard";
+	if (*p_order_s & ORDER_IS_ENGAGE) return "Engage";
 	return "Idle";
 }
 //
@@ -41,7 +42,6 @@ std::string act_str::JumpLand()
 //
 std::string act_str::Engage()
 {
-	if (*p_order_s & ORDER_IS_GUARD) return "EngageGuard";
 	return "Engage";
 }
 //

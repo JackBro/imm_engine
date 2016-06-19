@@ -30,34 +30,28 @@ pose_Idle *pose_Idle::instance()
 //
 void pose_Idle::enter(troll *tro)
 {
-	if (tro->order_stat & ORDER_IS_ENGAGE) {
-		tro->order_stat ^= ORDER_IS_ENGAGE;
-		tro->A.cd_Idle = 5.0f+tro->index%3;
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Engage());
-	}
-	else {
-		tro->A.cd_Idle = -1.0f;
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Idle());
+	if (tro->order & ORDER_ENGAGE) {
+		tro->order ^= ORDER_ENGAGE;
+		tro->A.cd_Idle = 3.0f+math::calc_randf(-1.0f, 1.0f);
+		tro->order_stat |= ORDER_IS_ENGAGE;
 	}
 	if (tro->order & ORDER_IDLE) {
-		tro->order = ORDER_NONE;
+		tro->order ^= ORDER_IDLE;
+	}
+	if (!PTR->m_Inst.m_Stat[tro->index].is_in_switch_clip()) {
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Idle());
 	}
 }
 //
 void pose_Idle::execute(troll *tro)
 {
-	if (tro->order & ORDER_MOVE_HIT) {
-		tro->change_state_execute(pose_Move::instance());
-		return;
-	}
-	if (tro->order & ORDER_MOVE_TOWARD) {
-		tro->change_state_execute(pose_Move::instance());
-		return;
-	}
-	if (tro->order & ORDER_MOVE_WASD) {
-		tro->change_state_execute(pose_Move::instance());
-		return;
-	}
+	if (tro->order_stat & ORDER_IS_ENGAGE) {
+		tro->A.cd_Idle -= PTR->m_Timer.delta_time();
+		if (tro->A.cd_Idle < 0.0f) {
+			tro->order_stat ^= ORDER_IS_ENGAGE;
+			PTR->m_Inst.m_Stat[tro->index].set_switch_current_ClipName(tro->act.Idle(), 5);
+		}
+	}	
 	if (tro->order & ORDER_JUMP) {
 		tro->change_state_execute(pose_Jump::instance());
 		return;
@@ -72,20 +66,35 @@ void pose_Idle::execute(troll *tro)
 	}
 	if (tro->order & ORDER_GUARD) {
 		tro->order = ORDER_NONE;
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Idle());
+		tro->A.cd_GuardMin -= PTR->m_Timer.delta_time();
+		if (tro->A.cd_GuardMin > 0.0f) return;
+		if (tro->order_stat & ORDER_IS_GUARD) return;
+		tro->order_stat |= ORDER_IS_GUARD;
+		tro->A.cd_GuardMin = FPS60_1DIV;
+		PTR->m_Inst.m_Stat[tro->index].set_switch_current_ClipName(tro->act.Idle(), 7);
 		return;
 	}
 	if (tro->order & ORDER_GUARD_NO) {
 		tro->order = ORDER_NONE;
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Idle());
+		if (!(tro->order_stat & ORDER_IS_GUARD)) return;
+		tro->order_stat ^= ORDER_IS_GUARD;
+		tro->order_stat |= ORDER_IS_ENGAGE;
+		tro->A.cd_Idle = 3.0f;
+		PTR->m_Inst.m_Stat[tro->index].set_switch_current_ClipName(tro->act.Idle(), 7);
+		tro->A.cd_GuardMin = -1.0f;
 		return;
 	}
-	// Engage to Idle
-	if (tro->current_state != pose_Idle::instance()) return;
-	if ((tro->A.cd_Idle > 0.0f)) tro->A.cd_Idle -= PTR->m_Timer.delta_time();
-	if (tro->A.cd_Idle < 0.0f && tro->A.cd_Idle > -0.9f) {
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Idle());
-		tro->A.cd_Idle = -1.0f;
+	if (tro->order & ORDER_MOVE_HIT) {
+		tro->change_state_execute(pose_Move::instance());
+		return;
+	}
+	if (tro->order & ORDER_MOVE_TOWARD) {
+		tro->change_state_execute(pose_Move::instance());
+		return;
+	}
+	if (tro->order & ORDER_MOVE_WASD) {
+		tro->change_state_execute(pose_Move::instance());
+		return;
 	}
 }
 //
@@ -105,7 +114,7 @@ pose_Move *pose_Move::instance()
 //
 void pose_Move::enter(troll *tro)
 {
-	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Run());
+	tro;
 }
 //
 void pose_Move::execute(troll *tro)
@@ -126,6 +135,7 @@ void pose_Move::execute(troll *tro)
 		tro->order = ORDER_NONE;
 		if (tro->is_ai()) math::ai_move_pos(tro->index, tro->speed_move());
 		else math::mouse_inst_move(tro->index, tro->speed_move());
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Run());
 		return;
 	}
 	if (tro->order & ORDER_MOVE_TOWARD) {
@@ -204,7 +214,7 @@ void pose_Roll::execute(troll *tro)
 			tro->A.cd_RollStep1 = tro->A.cd_RollStep2;
 			tro->A.cd_RollStep2 = -1.0f;
 			tro->battle_stat ^= BATTLE_STAT_DODGE;
-			tro->order_stat |= ORDER_IS_ENGAGE;
+			tro->order |= ORDER_ENGAGE;
 			return;
 		}
 		// roll
@@ -231,7 +241,7 @@ void pose_Roll::execute(troll *tro)
 			tro->battle_stat |= BATTLE_STAT_DODGE;
 			return;
 		}
-		if (tro->order_stat & ORDER_IS_ENGAGE) {
+		if (tro->order & ORDER_ENGAGE) {
 			tro->change_state(pose_Idle::instance());
 			return;
 		}
@@ -358,7 +368,7 @@ void pose_Damage::execute(troll *tro)
 {
 	tro->A.cd_Damage -= PTR->m_Timer.delta_time();
 	if (tro->A.cd_Damage < 0.0f) {
-		tro->order_stat |= ORDER_IS_ENGAGE;
+		tro->order |= ORDER_ENGAGE;
 		tro->change_state(pose_Idle::instance());
 		return;
 	}

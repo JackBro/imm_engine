@@ -258,6 +258,7 @@ void skinned_model_instance::set_ClipName(const std::string &c_name, const bool 
 	else {
 		if (is_reset_time) time_pos = 0.0f;
 		clip_name = c_name;
+		time_switch = -1.0f;
 	}
 }
 //
@@ -266,6 +267,7 @@ void skinned_model_instance::check_set_ClipName(const std::string &c_name, const
 	if (model->m_SkinnedData.check_clip_name(c_name)) {
 		if (is_reset_time) time_pos = 0.0f;
 		clip_name = c_name;
+		time_switch = -1.0f;
 	}
 }
 //

@@ -42,7 +42,7 @@ void skill_data::chunk_over(skill_para &pa)
 	PTR->m_Control.atk.hits[pa.inst_ix].clear();
 	PTR->m_Hit.deactive_box(pa.inst_ix);
 	auto &tro = PTR->m_Inst.m_Troll[pa.inst_ix];
-	tro.order_stat |= ORDER_IS_ENGAGE;
+	tro.order |= ORDER_ENGAGE;
 	tro.order |= ORDER_IDLE;
 }
 //
