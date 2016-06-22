@@ -100,7 +100,7 @@ struct steering
 {
 	steering();
 	void init(const size_t &index_in);
-	void update();
+	void update(const float &dt);
 	void change_state(state<steering> *new_state);
 	void revert_previous_state();
 	float speed_move();
@@ -112,6 +112,7 @@ struct steering
 	bool is_active;
 	XMFLOAT3 desired_pos;
 	float count_down;
+	float update_dt;
 	int tactics;
 	int report;
 	std::map<size_t, bool> close;
@@ -128,6 +129,7 @@ steering::steering():
 	is_active(false),
 	desired_pos(0.0f, 0.0f, 0.0f),
 	count_down(-1.0f),
+	update_dt(0.0f),
 	tactics(AI_TAC_NONE),
 	report(AI_REP_NONE),
 	close(),
@@ -142,6 +144,7 @@ void steering::init(const size_t &index_in)
 {
 	index = index_in;
 	is_active = true;
+	update_dt = math::calc_randf(-1.0f, 1.0f);
 }
 //
 void steering::change_state(state<steering> *new_state)

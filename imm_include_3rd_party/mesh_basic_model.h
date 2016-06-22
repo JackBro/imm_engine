@@ -169,6 +169,7 @@ struct skinned_model_instance
 		const std::string &clip_first,
 		const std::string &clip_second,
 		const size_t &last_frame);
+	void set_sequence_ClipName(const std::string &clip_second);
 };
 //
 skinned_model_instance::skinned_model_instance():
@@ -259,6 +260,7 @@ void skinned_model_instance::set_ClipName(const std::string &c_name, const bool 
 		if (is_reset_time) time_pos = 0.0f;
 		clip_name = c_name;
 		time_switch = -1.0f;
+		is_switching = false;
 	}
 }
 //
@@ -268,6 +270,7 @@ void skinned_model_instance::check_set_ClipName(const std::string &c_name, const
 		if (is_reset_time) time_pos = 0.0f;
 		clip_name = c_name;
 		time_switch = -1.0f;
+		is_switching = false;
 	}
 }
 //
@@ -280,9 +283,18 @@ void skinned_model_instance::set_switch_ClipName(
 	if (!model->m_SkinnedData.check_clip_name(switch_name)) {
 		model->m_SkinnedData.create_clip_to_clip_anim(clip_first, clip_second, last_frame);
 	}
+	clip_name = clip_second;
 	time_switch = FRAME_RATE_1DIV*static_cast<float>(last_frame);
 	is_switching = true;
 	time_pos = 0.0f;
+}
+//
+void skinned_model_instance::set_sequence_ClipName(const std::string &clip_second)
+{
+	switch_name = clip_name;
+	clip_name = clip_second;
+	time_switch = model->m_SkinnedData.get_clip_end_time(clip_name) - time_pos;
+	is_switching = true;
 }
 ////////////////
 // simple_model
@@ -376,5 +388,6 @@ void simple_model<vertex_type>::set_MapSRV(
 	m_DiffuseMapSRV.push_back(diffuse_map_srv);
 	m_NormalMapSRV.push_back(normal_map_srv);
 }
+//
 }
 #endif

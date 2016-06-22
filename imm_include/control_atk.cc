@@ -39,6 +39,7 @@ void skill_data::chunk_over(skill_para &pa)
 	pa.is_busy = false;
 	pa.is_judge = false;
 	pa.skill_ix = -1;
+	pa.count_down = -1.0f;
 	PTR->m_Control.atk.hits[pa.inst_ix].clear();
 	PTR->m_Hit.deactive_box(pa.inst_ix);
 	auto &tro = PTR->m_Inst.m_Troll[pa.inst_ix];
@@ -46,9 +47,24 @@ void skill_data::chunk_over(skill_para &pa)
 	tro.order |= ORDER_IDLE;
 }
 //
+bool skill_data::is_required_ap(skill_para &pa)
+{
+	bool result = (PTR->m_AiAttr.is_required_ap(specify[pa.skill_ix], pa.inst_ix));
+	if (result) {
+		return true;
+	}
+	else {
+		chunk_over(pa);
+		return false;
+	}
+}
+//
 void skill_data::strike(skill_para &pa)
 {
-	if (pa.skill_ix < 0 && pa.count_down > 0.0f) return;
+	if (pa.skill_ix < 0 && pa.count_down > 0.0f) {
+		// in attacking
+		return;
+	}
 	if (pa.skill_ix == -1) {
 		pa.is_turn_next = false;
 		if (!chunk.count(pa.symbol)) {
@@ -56,11 +72,14 @@ void skill_data::strike(skill_para &pa)
 			return;
 		}
 		pa.skill_ix = chunk[pa.symbol];
+		if (!is_required_ap(pa)) return;
 		current_apply(pa);
 		return;
 	}
 	// if skill only one hit
-	if (next_ix[pa.skill_ix] == -1) return;
+	if (next_ix[pa.skill_ix] == -1) {
+		return;
+	}
 	// if trun next hit
 	if (!pa.is_turn_next && pa.count_down > 0.01f) {
 		++pa.skill_ix;
@@ -99,6 +118,7 @@ void skill_data::update(const float &dt, skill_para &pa)
 			return;
 		}
 		if (pa.count_down < frame_turn[pa.skill_ix-1]) {
+			if (!is_required_ap(pa)) return;
 			current_apply(pa);
 			pa.is_turn_next = false;
 			if (next_ix[pa.skill_ix] == -1) pa.skill_ix = -1;

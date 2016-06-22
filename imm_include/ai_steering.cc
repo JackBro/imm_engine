@@ -14,13 +14,17 @@ namespace imm
 ////////////////
 ////////////////
 //
-void steering::update()
+void steering::update(const float &dt)
 {
 	// clear old data
 	if (attack.size() > 100) attack.erase(attack.begin()+50);
 	if (damage.size() > 100) damage.erase(damage.begin()+50);
 	if (PTR->m_Control.player1 == index || !is_active) return;
-	current_state->execute(this);
+	update_dt += dt;
+	if (update_dt > AI_DELTA_TIME_PHY_SLOW) {
+		update_dt -= AI_DELTA_TIME_PHY_SLOW;
+		current_state->execute(this);
+	}
 }
 ////////////////
 // ai_Standby
@@ -96,7 +100,7 @@ void ai_Seek::execute(steering *ste)
 		ste->count_down = 1.0f;
 	}
 	if (PTR->m_Control.map_stop[ste->index].is_stop) {
-		if (!ste->close[ste->target]) ste->count_down -= PTR->m_Timer.delta_time();
+		if (!ste->close[ste->target]) ste->count_down -= AI_DELTA_TIME_PHY_SLOW;
 	}
 	if (PTR->m_Inst.m_Steering[ste->index].close[ste->target]) {
 		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_IDLE;
@@ -130,7 +134,9 @@ void ai_Atk::enter(steering *ste)
 void ai_Atk::execute(steering *ste)
 {
 	ste;
-	math::set_inst_face_to_inst2(ste->index, ste->target);
+	if (PTR->m_Inst.m_Troll[ste->index].current_state != pose_Atk::instance()) {
+		math::set_inst_face_to_inst2(ste->index, ste->target);
+	}
 	PTR->m_Inst.m_Troll[ste->index].order |= ORDER_ATK_X;
 }
 //

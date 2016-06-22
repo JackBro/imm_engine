@@ -172,7 +172,9 @@ struct ai_attr
 	void rebuild_points();
 	void rebuild_troll();
 	void update(const float &dt);
+	void update_regenerate(const float &dt);
 	void calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg);
+	bool is_required_ap(const SKILL_SPECIFY &specify, const size_t &ix);
 	T_app *app;
 	float delta_time;
 	ui_attr<T_app> ui;
@@ -243,6 +245,17 @@ void ai_attr<T_app>::update(const float &dt)
 	if (delta_time < AI_DELTA_TIME_LOGIC) return;
 	else delta_time -= AI_DELTA_TIME_LOGIC;
 	ui.update();
+	update_regenerate(dt);
+}
+//
+template <typename T_app>
+void ai_attr<T_app>::update_regenerate(const float &dt)
+{
+	for (auto &poi: points) {
+		if (poi.second.ap > poi.second.ap_max-0.1f) continue;
+		assert(poi.second.ap > 0.0f);
+		poi.second.ap += poi.second.ap_max*1.0f*dt;
+	}
 }
 //
 template <typename T_app>
@@ -251,10 +264,30 @@ void ai_attr<T_app>::calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_a
 	ix_atk;
 	switch (specify) {
 	case SKILL_MELEE_STANDARD:
-		points[ix_dmg].hp -= 3;
+		points[ix_dmg].hp -= 3.0f;
 		if (points[ix_dmg].hp < 0.0f) points[ix_dmg].hp = points[ix_dmg].hp_max;
 		break;
 	}
 }
+//
+template <typename T_app>
+bool ai_attr<T_app>::is_required_ap(const SKILL_SPECIFY &specify, const size_t &ix_atk)
+{
+	switch (specify) {
+	case SKILL_STAMINA_ROLL:
+		if (points[ix_atk].ap < 1.0f) return false;
+		points[ix_atk].ap -= 6.0f;
+		if (points[ix_atk].ap < 0.0f) points[ix_atk].ap = 0.1f;
+		return true;
+		break;
+	default:
+		if (points[ix_atk].ap < 1.0f) return false;
+		points[ix_atk].ap -= 2.0f;
+		if (points[ix_atk].ap < 0.0f) points[ix_atk].ap = 0.1f;
+		return true;
+		break;
+	}
+}
+//
 }
 #endif

@@ -77,6 +77,7 @@ private:
 	void current_apply(skill_para &pa);
 	void chunk_over(skill_para &pa);
 public:
+	bool is_required_ap(skill_para &pa);
 	void strike(skill_para &pa);
 	void update(const float &dt, skill_para &pa);
 	SKILL_TYPE get_skill_type(const skill_para &pa);

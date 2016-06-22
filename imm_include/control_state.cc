@@ -71,7 +71,7 @@ void pose_Idle::execute(troll *tro)
 		if (tro->order_stat & ORDER_IS_GUARD) return;
 		tro->order_stat |= ORDER_IS_GUARD;
 		tro->A.cd_GuardMin = FPS60_1DIV;
-		PTR->m_Inst.m_Stat[tro->index].set_switch_current_ClipName(tro->act.Idle(), 7);
+		PTR->m_Inst.m_Stat[tro->index].set_switch_current_ClipName(tro->act.Idle(), 5);
 		return;
 	}
 	if (tro->order & ORDER_GUARD_NO) {
@@ -80,7 +80,7 @@ void pose_Idle::execute(troll *tro)
 		tro->order_stat ^= ORDER_IS_GUARD;
 		tro->order_stat |= ORDER_IS_ENGAGE;
 		tro->A.cd_Idle = 3.0f;
-		PTR->m_Inst.m_Stat[tro->index].set_switch_current_ClipName(tro->act.Idle(), 7);
+		PTR->m_Inst.m_Stat[tro->index].set_switch_current_ClipName(tro->act.Idle(), 5);
 		tro->A.cd_GuardMin = -1.0f;
 		return;
 	}
@@ -220,6 +220,10 @@ void pose_Roll::execute(troll *tro)
 		// roll
 		if (tro->order & ORDER_ROLL) {
 			tro->order ^= ORDER_ROLL;
+			if (!PTR->m_AiAttr.is_required_ap(SKILL_STAMINA_ROLL, tro->index)) {
+				tro->revert_previous_state();
+				return;
+			}
 			if (tro->order & ORDER_MOVE_WASD) {
 				if (!math::key_move_wasd(tro->index, tro->A.speed_Roll)) {
 					tro->change_state(pose_Idle::instance());
@@ -334,6 +338,7 @@ void pose_Atk::execute(troll *tro)
 		return;
 	}
 	if (tro->order & ORDER_IDLE) {
+		PTR->m_Inst.m_Stat[tro->index].set_sequence_ClipName(tro->act.Engage());
 		tro->change_state(pose_Idle::instance());
 		return;
 	}
@@ -360,8 +365,13 @@ pose_Damage *pose_Damage::instance()
 void pose_Damage::enter(troll *tro)
 {
 	tro->order = ORDER_NONE;
-	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Damage(), true);
-	tro->A.cd_Damage = tro->A.frame_Damage;
+	if (tro->order_stat & ORDER_IS_GUARD) {
+		tro->A.cd_Damage = tro->A.frame_Damage;		
+	}	
+	else {
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Damage(), true);
+		tro->A.cd_Damage = tro->A.frame_Damage;
+	}
 }
 //
 void pose_Damage::execute(troll *tro)

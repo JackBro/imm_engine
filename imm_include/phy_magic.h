@@ -21,6 +21,7 @@ enum SKILL_SPECIFY
 	SKILL_MELEE_STANDARD  = 0,
 	SKILL_MAGIC_PREPARE01 = 1,
 	SKILL_MAGIC_LIGHTNING = 2,
+	SKILL_STAMINA_ROLL    = 3,
 };
 //
 SKILL_SPECIFY skill_specify_str(const std::string &str)

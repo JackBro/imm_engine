@@ -464,7 +464,7 @@ void instance_mgr<T_app>::update_skinned(const float &dt)
 	for (auto &skinned: m_Model.m_InstSkinnedAlpha) skinned.update(dt);
 	// Troll
 	for (auto &troll: m_Troll) troll.update();
-	for (auto &ste: m_Steering) ste.second.update();
+	for (auto &ste: m_Steering) ste.second.update(dt);
 }
 //
 template <typename T_app>

@@ -63,6 +63,7 @@ struct instance_stat
 		const std::string &clip_second,
 		const size_t &last_frame);
 	void set_switch_current_ClipName(const std::string &clip_second, const size_t &last_frame);
+	void set_sequence_ClipName(const std::string &clip_second);
 	bool is_invoke_physics();
 	bool is_in_switch_clip();
 };
@@ -216,6 +217,12 @@ void instance_stat::set_switch_current_ClipName(const std::string &clip_second,	
 {
 	if (type != MODEL_SKINNED) return;
 	((skinned_model_instance*)ptr)->set_switch_ClipName(*get_ClipName(), clip_second, last_frame);
+}
+//
+void instance_stat::set_sequence_ClipName(const std::string &clip_second)
+{
+	if (type != MODEL_SKINNED) return;
+	((skinned_model_instance*)ptr)->set_sequence_ClipName(clip_second);
 }
 //
 bool instance_stat::is_invoke_physics()

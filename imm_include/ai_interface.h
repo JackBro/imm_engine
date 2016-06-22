@@ -17,8 +17,8 @@ namespace imm
 ////////////////
 enum AI_TYPE
 {
-	AI_NONE        = 0x0,
-	AI_BEAT_PLAYER = 0x1,
+	AI_NONE         = 0x0,
+	AI_BEAT_PLAYER1 = 0x1,
 };
 ////////////////
 // ai_mental
@@ -34,7 +34,7 @@ struct ai_mental
 ai_mental::ai_mental():
 	ix(0),
 	name(),
-	type(AI_BEAT_PLAYER)
+	type(AI_BEAT_PLAYER1)
 {
 	;
 }
@@ -75,7 +75,7 @@ void ai_interface<T_app>::init_load(T_app *app_in)
 	app = app_in;
 	mental_data.emplace_back();
 	mental_data.back().name = "black_warrior";
-	mental_data.back().type = AI_BEAT_PLAYER;
+	mental_data.back().type = AI_BEAT_PLAYER1;
 }
 //
 template <typename T_app>
@@ -104,7 +104,7 @@ void ai_interface<T_app>::update(const float &dt)
 	else delta_time -= AI_DELTA_TIME_LOGIC;
 	//
 	for (auto &mind: mental_scene) {
-		if (mind.type & AI_BEAT_PLAYER) update_beat_player(mind);
+		if (mind.type & AI_BEAT_PLAYER1) update_beat_player(mind);
 	}
 }
 //
