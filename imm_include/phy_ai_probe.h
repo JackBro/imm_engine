@@ -40,6 +40,7 @@ struct ai_bound
 	float dt_close;
 	float dt_alert;
 	float dt_oblong;
+	float dt_oblong_trans;
 	float max_see_ahead;
 };
 //
@@ -51,6 +52,7 @@ ai_bound::ai_bound():
 	extents_z_oblong(5.0f),
 	dt_close(0.0f),
 	dt_oblong(0.0f),
+	dt_oblong_trans(0.0f),
 	max_see_ahead(5.0f)
 {
 	;
@@ -84,6 +86,7 @@ void ai_bound::init(
 	dt_close = math::calc_randf(-AI_DELTA_TIME_PHY_FAST, AI_DELTA_TIME_PHY_FAST);
 	dt_alert = math::calc_randf(-AI_DELTA_TIME_PHY_FAST, AI_DELTA_TIME_PHY_FAST);
 	dt_oblong = math::calc_randf(-AI_DELTA_TIME_PHY_SLOW, AI_DELTA_TIME_PHY_SLOW);
+	dt_oblong_trans = math::calc_randf(-AI_DELTA_TIME_PHY_FAST, AI_DELTA_TIME_PHY_FAST);
 }
 //
 void ai_bound::transform_close(CXMMATRIX &world) {CloseL.Transform(CloseW, world);}
@@ -111,6 +114,7 @@ struct ai_probe
 		float &distance_near,
 		float &radius_obj);
 	void set_active(const size_t &ix);
+	bool intersects_oblong(const size_t &ix_inst, const size_t &ix_tar);
 	std::map<size_t, ai_bound> geometry;
 	T_app *app;
 };
@@ -158,11 +162,21 @@ template <typename T_app>
 void ai_probe<T_app>::update(const float &dt)
 {
 	for (auto &geo: geometry) {
+		if (ALWAYS_TRUE) {
+			geo.second.dt_oblong_trans += dt;
+		}
 		if (!geo.second.is_active) continue;
 		// separate update
-		if (app->m_AiInterf.get_current_tactics(geo.first) & AI_TAC_SEEK) geo.second.dt_close += dt;
-		if (app->m_AiInterf.get_current_tactics(geo.first) & AI_TAC_PATROL) geo.second.dt_alert += dt;
-		if (!app->m_Control.map_stop[geo.first].is_stop) geo.second.dt_oblong += dt;
+		if (app->m_AiInterf.get_current_tactics(geo.first) & AI_TAC_SEEK ||
+			app->m_AiInterf.get_current_tactics(geo.first) & AI_TAC_ATK) {
+			geo.second.dt_close += dt;
+		}
+		if (app->m_AiInterf.get_current_tactics(geo.first) & AI_TAC_PATROL) {
+			geo.second.dt_alert += dt;
+		}
+		if (!app->m_Control.map_stop[geo.first].is_stop) {
+			geo.second.dt_oblong += dt;
+		}
 		//
 		if (geo.second.dt_close > AI_DELTA_TIME_PHY_FAST) {
 			geo.second.dt_close -= AI_DELTA_TIME_PHY_FAST;
@@ -182,6 +196,7 @@ void ai_probe<T_app>::update(const float &dt)
 		if (geo.second.dt_oblong > AI_DELTA_TIME_PHY_SLOW) {
 			geo.second.dt_oblong -= AI_DELTA_TIME_PHY_SLOW;
 			//
+			geo.second.dt_oblong_trans = 0.0f;
 			geo.second.transform_oblong(XMLoadFloat4x4(app->m_Inst.m_Stat[geo.first].get_World()));
 			XMVECTOR destination = XMLoadFloat3(&app->m_Inst.m_Steering[geo.first].desired_pos);
 			destination = XMVectorSetY(destination, geo.second.OblongW.Center.y);
@@ -269,6 +284,16 @@ template <typename T_app>
 void ai_probe<T_app>::set_active(const size_t &ix)
 {
 	geometry[ix].is_active = true;
+}
+//
+template <typename T_app>
+bool ai_probe<T_app>::intersects_oblong(const size_t &ix_inst, const size_t &ix_tar)
+{
+	if (geometry[ix_inst].dt_oblong_trans > AI_DELTA_TIME_PHY_SLOW) {
+		geometry[ix_inst].transform_oblong(XMLoadFloat4x4(app->m_Inst.m_Stat[ix_inst].get_World()));
+		geometry[ix_inst].dt_oblong_trans = 0.0f;
+	}
+	return app->m_Inst.m_BoundW.intersects(ix_tar, geometry[ix_inst].OblongW);
 }
 //
 }

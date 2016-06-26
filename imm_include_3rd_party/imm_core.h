@@ -68,6 +68,7 @@ void IMM_PATH_init()
 	IMM_PATH["input"]   = "script\\m3d_input_output\\";
 	IMM_PATH["text"]    = "script\\text_en\\";
 }
+static const bool ALWAYS_TRUE = true;
 // for calclate UI size with factor
 static const float UI_RESOLUTION_WIDTH = 1366.0f;
 static const float UI_RESOLUTION_HEIGHT = 768.0f;

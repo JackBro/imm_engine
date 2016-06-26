@@ -21,6 +21,7 @@ void steering::update(const float &dt)
 	if (damage.size() > 100) damage.erase(damage.begin()+50);
 	if (PTR->m_Control.player1 == index || !is_active) return;
 	update_dt += dt;
+	action_dt += dt;
 	if (update_dt > AI_DELTA_TIME_PHY_SLOW) {
 		update_dt -= AI_DELTA_TIME_PHY_SLOW;
 		current_state->execute(this);
@@ -46,6 +47,10 @@ void ai_Standby::execute(steering *ste)
 	if (ste->tactics & AI_TAC_SEEK) {
 		ste->tactics = AI_TAC_NONE;
 		ste->change_state(ai_Seek::instance());
+	}
+	if (ste->tactics & AI_TAC_ATK) {
+		ste->tactics = AI_TAC_NONE;
+		ste->change_state(ai_Atk::instance());
 	}
 }
 //
@@ -104,11 +109,8 @@ void ai_Seek::execute(steering *ste)
 	}
 	if (PTR->m_Inst.m_Steering[ste->index].close[ste->target]) {
 		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_IDLE;
-		ste->report |= AI_REP_CLOSETO;
-	}
-	if (ste->tactics & AI_TAC_ATK) {
-		ste->tactics = AI_TAC_NONE;
-		ste->change_state(ai_Atk::instance());
+		ste->report |= AI_REP_TAR_CLOSE;
+		ste->change_state(ai_Standby::instance());
 	}
 }
 //
@@ -133,11 +135,29 @@ void ai_Atk::enter(steering *ste)
 //
 void ai_Atk::execute(steering *ste)
 {
-	ste;
-	if (PTR->m_Inst.m_Troll[ste->index].current_state != pose_Atk::instance()) {
-		math::set_inst_face_to_inst2(ste->index, ste->target);
+	if (PTR->m_Inst.m_Troll[ste->index].current_state == pose_Damage::instance()) {
+		return;
 	}
-	PTR->m_Inst.m_Troll[ste->index].order |= ORDER_ATK_X;
+	if (PTR->m_Control.atk.para_ski.count(ste->index)) {
+		if (PTR->m_Control.atk.para_ski[ste->index].is_execute) {
+			return;
+		}
+	}
+	if (PTR->m_Inst.m_Troll[ste->index].current_state != pose_Atk::instance()) {
+		if (ste->action_dt > AI_DELTA_TIME_PHY_SLOW*3.0f) {
+			ste->action_dt = 0.0f;
+			math::set_inst_face_to_inst2(ste->index, ste->target);
+		}
+	}
+	if (!PTR->m_Inst.m_Steering[ste->index].close[ste->target]) {
+		ste->report |= AI_REP_TAR_AWAY;
+		ste->change_state(ai_Standby::instance());
+		return;
+	}
+	else {
+		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_ATK_X;
+		return;
+	}
 }
 //
 void ai_Atk::exit(steering *ste)

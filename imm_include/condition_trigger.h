@@ -53,7 +53,7 @@ struct condition_trigger
 template <typename T_app>
 condition_trigger<T_app>::condition_trigger():
 	scene_pass_time(0.0f),
-	delta_time(0.0f),
+	delta_time(math::calc_randf(-AI_DELTA_TIME_LOGIC, AI_DELTA_TIME_LOGIC)),
 	app(nullptr)
 {
 	;
@@ -92,7 +92,7 @@ void condition_trigger<T_app>::init(T_app *app_in)
 template <typename T_app>
 void condition_trigger<T_app>::update(const float &dt)
 {
-	delta_time += dt+(math::calc_randf(-AI_DELTA_TIME_LOGIC, AI_DELTA_TIME_LOGIC))*0.1f;
+	delta_time += dt;
 	if (delta_time < AI_DELTA_TIME_LOGIC) return;
 	else delta_time -= AI_DELTA_TIME_LOGIC;
 	scene_pass_time = app->m_Timer.total_time() - app->m_Scene.begin_time;

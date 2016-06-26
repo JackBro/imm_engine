@@ -28,8 +28,9 @@ enum AI_TACTICS
 ////////////////
 enum AI_REPORT
 {
-	AI_REP_NONE    = 0x0,
-	AI_REP_CLOSETO = 0x1,
+	AI_REP_NONE      = 0x0,
+	AI_REP_TAR_CLOSE = 0x1,
+	AI_REP_TAR_AWAY  = 0X2,
 };
 ////////////////
 // ai_Standby
@@ -113,6 +114,7 @@ struct steering
 	XMFLOAT3 desired_pos;
 	float count_down;
 	float update_dt;
+	float action_dt;
 	int tactics;
 	int report;
 	std::map<size_t, bool> close;
@@ -129,7 +131,8 @@ steering::steering():
 	is_active(false),
 	desired_pos(0.0f, 0.0f, 0.0f),
 	count_down(-1.0f),
-	update_dt(0.0f),
+	update_dt(math::calc_randf(-AI_DELTA_TIME_PHY_SLOW, AI_DELTA_TIME_PHY_SLOW)),
+	action_dt(0.0f),
 	tactics(AI_TAC_NONE),
 	report(AI_REP_NONE),
 	close(),
@@ -143,7 +146,7 @@ steering::steering():
 void steering::init(const size_t &index_in)
 {
 	index = index_in;
-	is_active = true;
+	is_active = false;
 	update_dt = math::calc_randf(-1.0f, 1.0f);
 }
 //

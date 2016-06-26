@@ -172,7 +172,7 @@ struct ai_attr
 	void rebuild_points();
 	void rebuild_troll();
 	void update(const float &dt);
-	void update_regenerate(const float &dt);
+	void update_regenerate();
 	void calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg);
 	bool is_required_ap(const SKILL_SPECIFY &specify, const size_t &ix);
 	T_app *app;
@@ -185,7 +185,7 @@ struct ai_attr
 template <typename T_app>
 ai_attr<T_app>::ai_attr():
 	app(nullptr),
-	delta_time(0.0f),
+	delta_time(math::calc_randf(-AI_DELTA_TIME_LOGIC, AI_DELTA_TIME_LOGIC)),
 	ui(),
 	points(),
 	points_name()
@@ -241,20 +241,20 @@ void ai_attr<T_app>::rebuild_troll()
 template <typename T_app>
 void ai_attr<T_app>::update(const float &dt)
 {
-	delta_time += dt+(math::calc_randf(-AI_DELTA_TIME_LOGIC, AI_DELTA_TIME_LOGIC))*0.1f;
+	delta_time += dt;
 	if (delta_time < AI_DELTA_TIME_LOGIC) return;
 	else delta_time -= AI_DELTA_TIME_LOGIC;
 	ui.update();
-	update_regenerate(dt);
+	update_regenerate();
 }
 //
 template <typename T_app>
-void ai_attr<T_app>::update_regenerate(const float &dt)
+void ai_attr<T_app>::update_regenerate()
 {
 	for (auto &poi: points) {
 		if (poi.second.ap > poi.second.ap_max-0.1f) continue;
 		assert(poi.second.ap > 0.0f);
-		poi.second.ap += poi.second.ap_max*1.0f*dt;
+		poi.second.ap += poi.second.ap_max*0.2f*AI_DELTA_TIME_LOGIC;
 	}
 }
 //

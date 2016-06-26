@@ -367,7 +367,7 @@ void pose_Damage::enter(troll *tro)
 	tro->order = ORDER_NONE;
 	if (tro->order_stat & ORDER_IS_GUARD) {
 		tro->A.cd_Damage = tro->A.frame_Damage;		
-	}	
+	}
 	else {
 		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Damage(), true);
 		tro->A.cd_Damage = tro->A.frame_Damage;

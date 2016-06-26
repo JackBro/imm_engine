@@ -50,6 +50,8 @@ struct skill_para
 	bool is_busy;
 	bool is_turn_next;
 	bool is_judge;
+	bool is_execute;
+	bool is_adjust_dir;
 	float count_down;
 	char symbol;
 };
@@ -61,6 +63,8 @@ skill_para::skill_para():
 	is_busy(false),
 	is_turn_next(false),
 	is_judge(false),
+	is_execute(false),
+	is_adjust_dir(false),
 	count_down(-1.0f),
 	symbol('A')
 {

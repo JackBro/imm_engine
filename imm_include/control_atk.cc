@@ -40,6 +40,8 @@ void skill_data::chunk_over(skill_para &pa)
 	pa.is_judge = false;
 	pa.skill_ix = -1;
 	pa.count_down = -1.0f;
+	pa.is_execute = false;
+	pa.is_adjust_dir = false;
 	PTR->m_Control.atk.hits[pa.inst_ix].clear();
 	PTR->m_Hit.deactive_box(pa.inst_ix);
 	auto &tro = PTR->m_Inst.m_Troll[pa.inst_ix];
@@ -91,6 +93,9 @@ void skill_data::strike(skill_para &pa)
 void skill_data::update(const float &dt, skill_para &pa)
 {
 	if (!pa.is_busy) return;
+	if (PTR->m_Inst.m_Troll[pa.inst_ix].current_state == pose_Damage::instance()) {
+		chunk_over(pa);
+	}
 	if (pa.count_down > 0.0f) pa.count_down -= dt;
 	//
 	if (!pa.is_judge) {
@@ -170,8 +175,13 @@ void damage_data::update_melee(const float &dt)
 	if (!is_calculated) {
 		PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
 		math::set_inst_speed(ix_dmg, 0.0f);
-		PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
-		math::set_face_to_face(ix_atk, ix_dmg);
+		if (!PTR->m_Control.atk.para_ski[ix_atk].is_adjust_dir) {
+			if (PTR->m_Inst.m_Probe.intersects_oblong(ix_atk, ix_dmg)) {
+				PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
+				math::set_face_to_face(ix_atk, ix_dmg);
+				PTR->m_Control.atk.para_ski[ix_atk].is_adjust_dir = true;
+			}
+		}
 		//
 		is_delay = true;
 		delay = 0.03f;
@@ -184,9 +194,8 @@ void damage_data::update_melee(const float &dt)
 			//hit postion roughly
 			XMFLOAT3 box = *box_center;
 			XMFLOAT3 center = PTR->m_Inst.m_BoundW.center(ix_dmg);
-			box.x += (center.x-box.x)*0.7f;
-			box.z += (center.z-box.z)*0.7f;
-			PTR->m_Scene.plasma.push_back(PLASMA_STRIKE, 0.5f, box);
+			center.y += (box.y-center.y)*0.8f;
+			PTR->m_Scene.plasma.push_back(PLASMA_STRIKE, 0.5f, center);
 			PTR->m_Scene.audio.play_effect(sfx::Punch);
 			PTR->m_AiAttr.calc_skill(specify, ix_atk, ix_dmg);
 			is_delay = false;
@@ -206,8 +215,13 @@ void damage_data::update_magic(const float &dt)
 		if (delay < 0.0f) {
 			PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
 			math::set_inst_speed(ix_dmg, 0.0f);
-			PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
-			math::set_face_to_face(ix_atk, ix_dmg);
+			if (!PTR->m_Control.atk.para_ski[ix_atk].is_adjust_dir) {
+				if (PTR->m_Inst.m_Probe.intersects_oblong(ix_atk, ix_dmg)) {
+					PTR->m_Inst.m_Troll[ix_atk].focus = static_cast<int>(ix_dmg);
+					math::set_face_to_face(ix_atk, ix_dmg);
+					PTR->m_Control.atk.para_ski[ix_atk].is_adjust_dir = true;
+				}
+			}
 			PTR->m_Scene.audio.play_effect(sfx::Punch);
 			PTR->m_AiAttr.calc_skill(specify, ix_atk, ix_dmg);
 			is_delay = false;
@@ -291,6 +305,8 @@ void control_atk<T_app>::execute(const size_t &index_in, const char &symbol)
 	if (!para_ski.count(index_in)) init_skill_para(index_in);
 	if (para_ski[index_in].skill_ix == -1) para_ski[index_in].symbol = symbol;
 	data_ski[para_ski[index_in].model_name].strike(para_ski[index_in]);
+	para_ski[index_in].is_execute = true;
+	para_ski[index_in].is_adjust_dir = false;
 }
 //
 template <typename T_app>

@@ -30,11 +30,13 @@ struct ai_mental
 	size_t ix;
 	std::string name;
 	int type;
+	bool is_start;
 };
 ai_mental::ai_mental():
 	ix(0),
 	name(),
-	type(AI_BEAT_PLAYER1)
+	type(AI_BEAT_PLAYER1),
+	is_start(false)
 {
 	;
 }
@@ -62,7 +64,7 @@ struct ai_interface
 template <typename T_app>
 ai_interface<T_app>::ai_interface():
 	app(nullptr),
-	delta_time(0.0f),
+	delta_time(math::calc_randf(-AI_DELTA_TIME_LOGIC, AI_DELTA_TIME_LOGIC)),
 	mental_data(),
 	mental_scene()
 {
@@ -93,13 +95,14 @@ void ai_interface<T_app>::rebuild()
 		if (!app->m_Inst.m_NameMap.count(data.name)) continue;
 		mental_scene.push_back(data);
 		mental_scene.back().ix = app->m_Inst.m_NameMap[data.name];
+		PTR->m_Inst.m_Steering[mental_scene.back().ix].is_active = true;
 	}
 }
 //
 template <typename T_app>
 void ai_interface<T_app>::update(const float &dt)
 {
-	delta_time += dt+(math::calc_randf(-AI_DELTA_TIME_LOGIC, AI_DELTA_TIME_LOGIC))*0.1f;
+	delta_time += dt;
 	if (delta_time < AI_DELTA_TIME_LOGIC) return;
 	else delta_time -= AI_DELTA_TIME_LOGIC;
 	//
@@ -112,15 +115,20 @@ template <typename T_app>
 void ai_interface<T_app>::update_beat_player(ai_mental &mind)
 {
 	auto ste = &app->m_Inst.m_Steering[mind.ix];
-	if (get_current_tactics(mind.ix) == AI_TAC_STANDY) {
-		if (PTR->m_Inst.m_Steering[ste->index].close[ste->target]) return;
+	if (!mind.is_start) {
 		ste->target = PTR->m_Control.player1;
 		ste->count_down = -1.0f;
 		ste->tactics |= AI_TAC_SEEK;
 		app->m_Inst.m_Probe.set_active(mind.ix);
+		mind.is_start = true;
 	}
-	if (ste->report & AI_REP_CLOSETO) {
+	if (ste->report & AI_REP_TAR_CLOSE) {
+		ste->report = AI_REP_NONE;
 		ste->tactics |= AI_TAC_ATK;
+	}
+	if (ste->report & AI_REP_TAR_AWAY) {
+		ste->report = AI_REP_NONE;
+		ste->tactics |= AI_TAC_SEEK;
 	}
 }
 //

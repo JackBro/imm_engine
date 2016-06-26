@@ -62,7 +62,8 @@ struct instance_mgr
 	std::vector<instance_stat> m_Stat;
 	std::vector<troll> m_Troll;
 	std::map<size_t, steering> m_Steering;
-	std::map<std::string, std::size_t> m_NameMap;
+	std::map<std::string, size_t> m_NameMap;
+	std::map<size_t, std::string> m_IndexMap;
 	bool m_IsLoading;
 	bool m_IsTerrainUse;
 	int m_PlaneLandIx;
@@ -150,6 +151,9 @@ void instance_mgr<T_app>::reload()
 			m_Stat[ix].property |= MODEL_IS_CONTROLLABLE;
 			m_Steering[ix].init(ix);
 		}
+	}
+	for (auto &name: m_NameMap) {
+		m_IndexMap[name.second] = name.first;
 	}
 	reload_scene_instance_relate();
 	on_resize();
@@ -500,6 +504,7 @@ void instance_mgr<T_app>::remove_all()
 	m_Troll.shrink_to_fit();
 	m_Steering.clear();
 	m_NameMap.clear();
+	m_IndexMap.clear();
 }
 //
 }

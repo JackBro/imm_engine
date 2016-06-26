@@ -293,8 +293,14 @@ void skinned_model_instance::set_sequence_ClipName(const std::string &clip_secon
 {
 	switch_name = clip_name;
 	clip_name = clip_second;
-	time_switch = model->m_SkinnedData.get_clip_end_time(clip_name) - time_pos;
-	is_switching = true;
+	if (time_pos < 0.1f) {
+		time_switch = -1.0f;
+		is_switching = false;
+	}
+	else {
+		time_switch = model->m_SkinnedData.get_clip_end_time(clip_name) - time_pos;
+		is_switching = true;
+	}
 }
 ////////////////
 // simple_model
