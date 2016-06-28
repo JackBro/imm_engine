@@ -61,7 +61,8 @@ struct ui_attr
 	float tar_hp_max;
 	size_t tar_ix;
 	size_t tar_flush;
-	float count_down;
+	float dt_target_show;
+	float dt_flush;
 	bool need_resize;
 };
 //
@@ -76,7 +77,8 @@ ui_attr<T_app>::ui_attr():
 	tar_hp_max(1.0f),
 	tar_ix(0),
 	tar_flush(0),
-	count_down(-1.0f),
+	dt_target_show(-1.0f),
+	dt_flush(-1.0f),
 	need_resize(false)
 {
 	;
@@ -91,7 +93,7 @@ void ui_attr<T_app>::init(T_app *app_in)
 template <typename T_app>
 void ui_attr<T_app>::reset()
 {
-	count_down = -1.0f;
+	dt_target_show = -1.0f;
 }
 //
 template <typename T_app>
@@ -130,14 +132,23 @@ void ui_attr<T_app>::update()
 template <typename T_app>
 void ui_attr<T_app>::update_target()
 {
-	if (count_down > 0.0f) {
-		count_down -= app->m_Timer.delta_time();
+	if (dt_target_show > 0.0f) {
+		dt_target_show -= AI_DELTA_TIME_LOGIC;
 	}
 	else {
-		app->m_UiMgr.status.m_IsTarShow = false;
-		app->m_UiMgr.status.group_active("tar", false);
+		if (dt_target_show > -10.0f) {
+			app->m_UiMgr.status.m_IsTarShow = false;
+			app->m_UiMgr.status.group_active("tar", false);
+			dt_target_show = -20.0f;
+		}
 	}
-	if (tar_flush == app->m_Inst.m_Steering[app->m_Control.player1].attack.size()) return;
+	if (tar_flush == app->m_Inst.m_Steering[app->m_Control.player1].attack.size()) {
+		dt_flush -= AI_DELTA_TIME_LOGIC;
+		if (dt_flush < 0.0f) return;
+	}
+	else {
+		dt_flush = 0.3f;
+	}
 	tar_flush = app->m_Inst.m_Steering[app->m_Control.player1].attack.size();
 	if (tar_flush == 0) return;
 	size_t tmp_ix = app->m_Inst.m_Steering[app->m_Control.player1].attack.back();
@@ -153,7 +164,7 @@ void ui_attr<T_app>::update_target()
 		app->m_UiMgr.status.define_set_tar_hp_rect(tar_hp_max);
 		need_resize = true;
 	}
-	count_down = 3.0f;
+	dt_target_show = 3.0f;
 	app->m_UiMgr.status.group_active("tar", true);
 	app->m_UiMgr.status.define_set_tar_name(
 		*app->m_Status.get_name(*app->m_Inst.m_Stat[tar_ix].get_ModelName()));

@@ -52,6 +52,10 @@ void ai_Standby::execute(steering *ste)
 		ste->tactics = AI_TAC_NONE;
 		ste->change_state(ai_Atk::instance());
 	}
+	if (ste->tactics & AI_TAC_PATROL) {
+		ste->tactics = AI_TAC_NONE;
+		ste->change_state(ai_Patrol::instance());
+	}	
 }
 //
 void ai_Standby::exit(steering *ste)
@@ -75,12 +79,28 @@ void ai_Patrol::enter(steering *ste)
 //
 void ai_Patrol::execute(steering *ste)
 {
-	ste;
+	if (PTR->m_Inst.m_Steering[ste->index].alert[ste->target]) {
+		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_IDLE;
+		ste->report |= AI_REP_ALERT;
+		ste->change_state(ai_Standby::instance());
+	}
+	if (ste->action_dt > ste->random_t) {
+		XMFLOAT3 random_pos = PTR->m_Inst.m_BoundW.center(ste->index);
+		random_pos.x += math::calc_randf(5.0f, 15.0f)*(rand()%2 ? 1.0f : -1.0f);
+		random_pos.z += math::calc_randf(5.0f, 15.0f)*(rand()%2 ? 1.0f : -1.0f);
+		ste->desired_pos = random_pos;
+		PTR->m_Inst.m_Troll[ste->index].order_stat |= ORDER_IS_WALK;
+		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_MOVE_HIT;
+		ste->action_dt = 0.0f;
+		ste->random_t = math::calc_randf(10.0f, 20.0f);
+	}
 }
 //
 void ai_Patrol::exit(steering *ste)
 {
-	ste;
+	if (PTR->m_Inst.m_Troll[ste->index].order_stat & ORDER_IS_WALK) {
+		PTR->m_Inst.m_Troll[ste->index].order_stat ^= ORDER_IS_WALK;
+	}
 }
 ////////////////
 // ai_Seek
@@ -111,6 +131,7 @@ void ai_Seek::execute(steering *ste)
 		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_IDLE;
 		ste->report |= AI_REP_TAR_CLOSE;
 		ste->change_state(ai_Standby::instance());
+		return;
 	}
 }
 //

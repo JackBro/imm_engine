@@ -316,7 +316,7 @@ lua_config<T_app>::lua_config(T_app *app_in)
 {
 	m_App = app_in;
 	std::map<std::string, std::string> g_map;
-	g_map["is_fullscreen"] = "";
+	g_map["is_windowed_fullscreen"] = "";
 	g_map["is_4xmsaa"] = "";
 	g_map["is_sync_interval"] = "";
 	lua_reader l_reader;

@@ -2,7 +2,7 @@
 -- immature engine config
 
 -- initialization
-is_fullscreen = "false"
+is_windowed_fullscreen = "false"
 is_4xmsaa = "true"
 is_slient = "false"
 is_sync_interval = "false"

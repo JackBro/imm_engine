@@ -118,7 +118,7 @@ void ai_interface<T_app>::update_beat_player(ai_mental &mind)
 	if (!mind.is_start) {
 		ste->target = PTR->m_Control.player1;
 		ste->count_down = -1.0f;
-		ste->tactics |= AI_TAC_SEEK;
+		ste->tactics |= AI_TAC_PATROL;
 		app->m_Inst.m_Probe.set_active(mind.ix);
 		mind.is_start = true;
 	}
@@ -127,6 +127,10 @@ void ai_interface<T_app>::update_beat_player(ai_mental &mind)
 		ste->tactics |= AI_TAC_ATK;
 	}
 	if (ste->report & AI_REP_TAR_AWAY) {
+		ste->report = AI_REP_NONE;
+		ste->tactics |= AI_TAC_SEEK;
+	}
+	if (ste->report & AI_REP_ALERT) {
 		ste->report = AI_REP_NONE;
 		ste->tactics |= AI_TAC_SEEK;
 	}

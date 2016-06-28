@@ -30,7 +30,8 @@ enum AI_REPORT
 {
 	AI_REP_NONE      = 0x0,
 	AI_REP_TAR_CLOSE = 0x1,
-	AI_REP_TAR_AWAY  = 0X2,
+	AI_REP_TAR_AWAY  = 0x2,
+	AI_REP_ALERT     = 0x4,
 };
 ////////////////
 // ai_Standby
@@ -115,6 +116,7 @@ struct steering
 	float count_down;
 	float update_dt;
 	float action_dt;
+	float random_t;
 	int tactics;
 	int report;
 	std::map<size_t, bool> close;
@@ -133,6 +135,7 @@ steering::steering():
 	count_down(-1.0f),
 	update_dt(math::calc_randf(-AI_DELTA_TIME_PHY_SLOW, AI_DELTA_TIME_PHY_SLOW)),
 	action_dt(0.0f),
+	random_t(5.0f),
 	tactics(AI_TAC_NONE),
 	report(AI_REP_NONE),
 	close(),

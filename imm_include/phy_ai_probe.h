@@ -28,8 +28,11 @@ struct ai_bound
 	void transform_alert(CXMMATRIX &world);
 	BoundingSphere CloseL;
 	BoundingSphere CloseW;
-	BoundingSphere AlertL;
-	BoundingSphere AlertW;
+	
+	
+	BoundingOrientedBox AlertL;
+	BoundingOrientedBox AlertW;
+	
 	BoundingOrientedBox OblongL;
 	BoundingOrientedBox OblongW;
 	bool is_active;
@@ -73,11 +76,13 @@ void ai_bound::init(
 	CloseL.Radius = radius_inst+radius_close;
 	CloseL.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	CloseW = CloseL;
-	AlertL.Radius = radius_inst+radius_alert_in;
-	AlertL.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	AlertW = AlertL;
-	OblongL.Center = XMFLOAT3(0.0f, 0.0f, -extents_z_oblong_in-radius_inst);
-	OblongL.Extents = XMFLOAT3(radius_inst*0.3f, radius_inst, radius_inst+extents_z_oblong_in);
+	AlertL.Center = XMFLOAT3(0.0f, 0.0f, -radius_alert+radius_inst);
+	AlertL.Extents = XMFLOAT3(radius_alert, radius_inst, radius_inst+radius_alert);
+	AlertL.Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	AlertL.Transform(AlertW, rot_inv);
+	AlertL = AlertW;
+	OblongL.Center = XMFLOAT3(0.0f, 0.0f, -extents_z_oblong-radius_inst);
+	OblongL.Extents = XMFLOAT3(radius_inst*0.3f, radius_inst, radius_inst+extents_z_oblong);
 	OblongL.Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	// Blender's mesh is right-hander, after export to left-handed,
 	// mesh will face toward ground
@@ -152,7 +157,7 @@ void ai_probe<T_app>::rebuild()
 			XMMATRIX rot_inv = XMMatrixRotationQuaternion(out_rot);
 			//
 			float radius_inst = (app->m_Inst.m_BoundL.extents_x(ix)+app->m_Inst.m_BoundL.extents_z(ix))*0.5f;
-			geometry[ix].init(rot_inv, radius_inst, 1.0f, 30.0f, 5.0f);
+			geometry[ix].init(rot_inv, radius_inst, 1.0f, 10.0f, 5.0f);
 		}
 	}
 }
@@ -247,6 +252,7 @@ void ai_probe<T_app>::alert_test(const size_t &ix_probe, const size_t &ix_object
 {
 	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
+	if (~app->m_Inst.m_Stat[ix_object].property & MODEL_IS_CONTROLLABLE) return;
 	bool is_alert = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].AlertW);
 	if (is_alert) app->m_Inst.m_Steering[ix_probe].alert[ix_object] = is_alert;
 }

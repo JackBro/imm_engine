@@ -291,8 +291,6 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 	m_DXGIPresentPara.pDirtyRects     = nullptr;
 	m_DXGIPresentPara.pScrollRect     = nullptr;
 	m_DXGIPresentPara.pScrollOffset   = nullptr;
-	// the alt-enter full screen can not use alt-tab correctly
-	dxgi_factory->MakeWindowAssociation(m_hwnd, DXGI_MWA_NO_ALT_ENTER);
 	// D2D init
 	if (m_IsInteropD2D) {
 		ID2D1Factory1 *d2d_factory;
