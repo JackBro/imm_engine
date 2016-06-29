@@ -77,7 +77,7 @@ static const float FLOAT_4_ZERO[] = {0.0f, 0.0f, 0.0f, 0.0f};
 static const float FRAME_RATE = 24.0f;
 static const float FRAME_RATE_1DIV = 1.0f/FRAME_RATE;
 static const float FPS60 = 60.0f;
-static const float FPS60_1DIV = 1.0f/FPS60;
+static const float FPS60_1DIV = 1.0f/60.0f;
 static bool IS_STANDALONE_M3DTOB3M = false;
 static const float GAME_HP_BAR = 20.0f;
 static const float AI_DELTA_TIME_LOGIC = 0.05;
@@ -108,6 +108,7 @@ public:
 	timer();
 	float total_time() const;
 	float delta_time() const {return (float)m_DeltaTime;}
+	double delta_time_test() const;
 	void reset();
 	void start();
 	void stop();
@@ -120,6 +121,8 @@ public:
 	__int64 m_StopTime;
 	__int64 m_PrevTime;
 	__int64 m_CurrTime;
+	__int64 m_CurrTest;
+	
 	bool m_Stopped;
 };
 // inial all!
@@ -131,6 +134,7 @@ timer::timer():
 	m_StopTime(0),
 	m_PrevTime(0),
 	m_CurrTime(0),
+	m_CurrTest(0),
 	m_Stopped(false)
 {
 	__int64 counts_per_sec;
@@ -143,6 +147,12 @@ float timer::total_time() const
 {
 	if (m_Stopped) return (float)(((m_StopTime-m_PausedTime)-m_BaseTime)*m_SecPerCount);
 	else return (float)(((m_CurrTime-m_PausedTime)-m_BaseTime)*m_SecPerCount);
+}
+//
+double timer::delta_time_test() const
+{
+	QueryPerformanceCounter((LARGE_INTEGER*)&m_CurrTest);
+	return (m_CurrTest-m_PrevTime)*m_SecPerCount;
 }
 //
 void timer::reset()

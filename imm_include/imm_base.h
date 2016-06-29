@@ -56,10 +56,12 @@ public:
 	bool m_Resizing;
 	bool m_Enable4xMsaa;
 	bool m_IsInteropD2D;
+	bool m_IsLockFrameRate;
 	UINT m_4xMsaaQuality;
 	int m_ClientWidth;
 	int m_ClientHeight;
 	float m_AspectRatio;
+	double m_FrameDeltaLock;
 	FLOAT m_DpiX;
 	FLOAT m_DpiY;
 	std::wstring m_WindowName;
@@ -96,10 +98,12 @@ base_win<DERIVED_TYPE>::base_win():
 	m_Resizing(false),
 	m_Enable4xMsaa(false),
 	m_IsInteropD2D(true),
+	m_IsLockFrameRate(false),
 	m_4xMsaaQuality(0),
 	m_ClientWidth(800),
 	m_ClientHeight(600),
 	m_AspectRatio(0.0f),
+	m_FrameDeltaLock(1.0/60.0),
 	m_DpiX(96.0f),
 	m_DpiY(96.0f),
 	m_WindowName(L"D3D11 Demo"),
@@ -329,6 +333,10 @@ int base_win<DERIVED_TYPE>::run()
 				calc_frmae_stats();
 				update_scene(m_Timer.delta_time());
 				draw_scene();
+				if (m_IsLockFrameRate) {
+					DWORD time_wait = static_cast<DWORD>((m_FrameDeltaLock-m_Timer.delta_time_test())*1000.0);
+					if (time_wait > 0 && time_wait < 100) Sleep(time_wait);
+				}
 			}
 			else Sleep(100);
 		}

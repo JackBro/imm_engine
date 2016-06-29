@@ -319,12 +319,18 @@ lua_config<T_app>::lua_config(T_app *app_in)
 	g_map["is_windowed_fullscreen"] = "";
 	g_map["is_4xmsaa"] = "";
 	g_map["is_sync_interval"] = "";
+	g_map["is_lock_frame_rate"] = "";
+	g_map["lock_frame_rate"] = "";
 	lua_reader l_reader;
 	l_reader.loadfile(IMM_PATH["script"]+"imm_config.lua");
 	l_reader.map_from_string(g_map);
 	l_reader.assign_bool(m_App->m_FullScreen, g_map["is_fullscreen"]);
 	l_reader.assign_bool(m_App->m_Enable4xMsaa, g_map["is_4xmsaa"]);
 	l_reader.assign_bool(m_App->m_IsSyncInterval, g_map["is_sync_interval"]);
+	l_reader.assign_bool(m_App->m_IsLockFrameRate, g_map["is_lock_frame_rate"]);
+	double frame_rate = std::stod(g_map["lock_frame_rate"]);
+	if (frame_rate > 9.9) m_App->m_FrameDeltaLock = 1.0/frame_rate;
+	if (m_App->m_IsSyncInterval) m_App->m_IsLockFrameRate = false;
 }
 template <typename T_app>
 void lua_config<T_app>::init_additional()
