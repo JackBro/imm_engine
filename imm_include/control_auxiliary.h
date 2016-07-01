@@ -30,9 +30,10 @@ struct control_stop
 	BoundingBox bbox;
 	XMFLOAT3 hit_pos;
 	XMFLOAT3 avoidance;
-	float cooldown;
+	float flsuh_time;
 	float speed;
 	float avoid_time;
+	float last_time;
 };
 //
 template <typename T_app>
@@ -41,9 +42,10 @@ control_stop<T_app>::control_stop():
 	is_avoidance(false),
 	hit_pos(0.0f, 0.0f, 0.0f),
 	avoidance(0.0f, 0.0f, 0.0f),
-	cooldown(0.0f),
+	flsuh_time(0.0f),
 	speed(0.0f),
-	avoid_time(0.0f)
+	avoid_time(0.0f),
+	last_time(0.0f)
 {
 	;
 }
@@ -81,15 +83,17 @@ void control_stop<T_app>::update(T_app *app, const size_t &index, const float &d
 	bool is_inter = contains(app->m_Inst.m_BoundW.center(index));
 	if (is_inter) {
 		is_stop = true;
+		last_time = 0.0f;
 		app->m_Inst.m_Stat[index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		app->m_Inst.m_Troll[index].order |= ORDER_IDLE;
 	}
 	// adjust the direction
 	else {
-		cooldown += dt;
-		if (cooldown > AI_DELTA_TIME_PHY_SLOW) cooldown = 0.0f;
-		else return;
+		last_time += dt;
+		flsuh_time += dt;
 		if (!app->m_Inst.m_Stat[index].phy.is_on_land) return;
+		if (flsuh_time > AI_DELTA_TIME_PHY_SLOW) flsuh_time = 0.0f;
+		else return;
 		XMVECTOR hit = XMLoadFloat3(&hit_pos);
 		if (is_avoidance) {
 			math::mouse_move_toward_hit_ai_avoid(true, index, speed);
@@ -110,6 +114,7 @@ void control_stop<T_app>::interrupt(T_app *app, const size_t &index)
 {
 	if (is_stop) return;
 	is_stop = true;
+	last_time = 0.0f;
 	is_avoidance = false;
 	app->m_Inst.m_Stat[index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }

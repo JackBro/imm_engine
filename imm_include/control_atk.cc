@@ -74,7 +74,9 @@ void skill_data::strike(skill_para &pa)
 			return;
 		}
 		pa.skill_ix = chunk[pa.symbol];
-		if (!is_required_ap(pa)) return;
+		if (!is_required_ap(pa)) {
+			return;
+		}
 		current_apply(pa);
 		return;
 	}
@@ -123,10 +125,14 @@ void skill_data::update(const float &dt, skill_para &pa)
 			return;
 		}
 		if (pa.count_down < frame_turn[pa.skill_ix-1]) {
-			if (!is_required_ap(pa)) return;
+			if (!is_required_ap(pa)) {
+				return;
+			}
 			current_apply(pa);
 			pa.is_turn_next = false;
-			if (next_ix[pa.skill_ix] == -1) pa.skill_ix = -1;
+			if (next_ix[pa.skill_ix] == -1) {
+				pa.skill_ix = -1;
+			}
 			return;
 		}
 	}
@@ -304,9 +310,9 @@ void control_atk<T_app>::execute(const size_t &index_in, const char &symbol)
 	}
 	if (!para_ski.count(index_in)) init_skill_para(index_in);
 	if (para_ski[index_in].skill_ix == -1) para_ski[index_in].symbol = symbol;
-	data_ski[para_ski[index_in].model_name].strike(para_ski[index_in]);
 	para_ski[index_in].is_execute = true;
 	para_ski[index_in].is_adjust_dir = false;
+	data_ski[para_ski[index_in].model_name].strike(para_ski[index_in]);
 }
 //
 template <typename T_app>
@@ -318,6 +324,18 @@ void control_atk<T_app>::update(const float &dt)
 	for (auto &dmg: damage) {
 		dmg.second.update(dt);
 	}
+}
+//
+
+template <typename T_app>
+bool control_atk<T_app>::is_execute(const size_t &index_in)
+{
+	if (para_ski.count(index_in)) {
+		if (para_ski[index_in].is_execute) {	
+			return true;
+		}
+	}
+	return false;
 }
 //
 template <typename T_app>

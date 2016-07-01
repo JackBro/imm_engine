@@ -136,6 +136,7 @@ struct control_atk
 		const SKILL_SPECIFY &specify);
 	void execute(const size_t &index_in, const char &symbol);
 	void update(const float &dt);
+	bool is_execute(const size_t &index_in);
 	T_app *app;
 	std::map<std::string, skill_data> data_ski;
 	std::map<size_t, skill_para> para_ski;

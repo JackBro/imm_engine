@@ -264,6 +264,7 @@ void ai_attr<T_app>::update_regenerate()
 {
 	for (auto &poi: points) {
 		if (poi.second.ap > poi.second.ap_max-0.1f) continue;
+		if (PTR->m_Control.atk.is_execute(poi.first)) continue;
 		assert(poi.second.ap > 0.0f);
 		poi.second.ap += poi.second.ap_max*0.2f*AI_DELTA_TIME_LOGIC;
 	}
