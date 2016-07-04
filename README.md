@@ -9,7 +9,7 @@ This engine is designing for the action game [Dragon's Ingot](http://dragonsingo
 All features tend to be minimized. 
 The fundamental 3D rendering technique is derived from 
 the [DirectX 11 book](http://www.amazon.com/dp/1936420228/) by Frank Luna.
-**It is very difficult to use due to weak development scale and absence of visualization scene editor.**
+**It is almost impossible to use due to weak development scale and absence of visualization scene editor.**
 **Not recommended this engine for serious using.**
 
 Current State:

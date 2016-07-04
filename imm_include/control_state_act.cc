@@ -17,19 +17,14 @@ act_str::act_str(int &order_stat)
 //
 std::string act_str::Idle()
 {
-	if (*p_order_s & ORDER_IS_GUARD) return "IdleGuard";
-	if (*p_order_s & ORDER_IS_ENGAGE) {
-		return "Engage";
-		
-	}
+	if (*p_order_s & ORDER_IS_GUARD) return "Guard";
+	if (*p_order_s & ORDER_IS_ENGAGE) return "Engage";
 	return "Idle";
 }
 //
 std::string act_str::Run()
 {
-	if (*p_order_s & ORDER_IS_WALK) {
-		return "Walk";
-	}
+	if (*p_order_s & ORDER_IS_WALK) return "Walk";
 	return "Run";
 }
 //

@@ -134,14 +134,14 @@ void ui_attr<T_app>::update_target()
 {
 	if (dt_target_show > 0.0f) {
 		dt_target_show -= AI_DELTA_TIME_LOGIC;
+		if (app->m_UiMgr.status.m_IsOtherUIAppear) dt_target_show = -0.1f;
 	}
-	else {
-		if (dt_target_show > -10.0f) {
-			app->m_UiMgr.status.m_IsTarShow = false;
-			app->m_UiMgr.status.group_active("tar", false);
-			dt_target_show = -20.0f;
-		}
+	if (dt_target_show <0.0f && dt_target_show > -10.0f) {
+		app->m_UiMgr.status.m_IsTarShow = false;
+		app->m_UiMgr.status.group_active("tar", false);
+		dt_target_show = -20.0f;
 	}
+	if (app->m_UiMgr.status.m_IsOtherUIAppear) return;
 	if (tar_flush == app->m_Inst.m_Steering[app->m_Control.player1].attack.size()) {
 		dt_flush -= AI_DELTA_TIME_LOGIC;
 		if (dt_flush < 0.0f) return;
@@ -289,13 +289,13 @@ bool ai_attr<T_app>::is_required_ap(const SKILL_SPECIFY &specify, const size_t &
 	case SKILL_STAMINA_ROLL:
 		if (points[ix_atk].ap < 1.0f) return false;
 		points[ix_atk].ap -= 6.0f;
-		if (points[ix_atk].ap < 0.0f) points[ix_atk].ap = 0.1f;
+		if (points[ix_atk].ap < 0.01f) points[ix_atk].ap = 0.1f;
 		return true;
 		break;
 	default:
 		if (points[ix_atk].ap < 1.0f) return false;
 		points[ix_atk].ap -= 2.0f;
-		if (points[ix_atk].ap < 0.0f) points[ix_atk].ap = 0.1f;
+		if (points[ix_atk].ap < 0.01f) points[ix_atk].ap = 0.1f;
 		return true;
 		break;
 	}
