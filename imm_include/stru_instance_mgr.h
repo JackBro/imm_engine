@@ -205,8 +205,8 @@ void instance_mgr<T_app>::push_back_basic(
 				m_BoundL.bd0.back(),
 				v_inst[ix].model->m_Vertices,
 				get_pos_f);
-			if (m_App->m_Hit.model_bound_offset.count(name[ix])) {
-				phy_set_box_scale(m_BoundL.bd0.back(), m_App->m_Hit.model_bound_offset[name[ix]]);
+			if (m_App->m_Hit.model_bound_offset.count(*inst_stat.get_ModelName())) {
+				m_BoundL.set_box_offset(k-1, m_App->m_Hit.model_bound_offset[*inst_stat.get_ModelName()]);
 			}
 			break;
 		case PHY_BOUND_ORI_BOX:
@@ -216,8 +216,8 @@ void instance_mgr<T_app>::push_back_basic(
 				v_inst[ix].model->m_Vertices,
 				get_pos_f);
 			m_BoundL.bd1.back().Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-			if (m_App->m_Hit.model_bound_offset.count(name[ix])) {
-				phy_set_box_scale(m_BoundL.bd1.back(), m_App->m_Hit.model_bound_offset[name[ix]]);
+			if (m_App->m_Hit.model_bound_offset.count(*inst_stat.get_ModelName())) {
+				m_BoundL.set_box_offset(k-1, m_App->m_Hit.model_bound_offset[*inst_stat.get_ModelName()]);
 			}
 			break;
 		case PHY_BOUND_SPHERE:
@@ -478,6 +478,7 @@ void instance_mgr<T_app>::update_frustum_culling()
 	XMMATRIX inv_view = XMMatrixInverse(&det_view, m_App->m_Cam.get_View());
 	m_CamFrustumL.Transform(m_CamFrustumW, inv_view);
 	// disappear if not in frustum
+	m_BoundW.switch_box_alter(false, m_BoundL);
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		switch(m_BoundW.map[ix].first) {
 		case PHY_BOUND_BOX:
@@ -491,6 +492,7 @@ void instance_mgr<T_app>::update_frustum_culling()
 			break;
 		}
 	}
+	m_BoundW.switch_box_alter(true, m_BoundL);
 }
 //
 template <typename T_app>

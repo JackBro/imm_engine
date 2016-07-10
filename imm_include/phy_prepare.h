@@ -104,16 +104,29 @@ void phy_set_sphere(
 	return;
 }
 ////////////////
-// phy_set_box_scale
+// phy_set_box_offset
 ////////////////
 ////////////////
 template <typename T_bound>
-void phy_set_box_scale(T_bound &bbox, const std::vector<float> &offset)
+void phy_set_box_offset(T_bound &bbox, const std::vector<float> &offset, const bool &is_forward)
 {
-	assert(offset.size() == 3);
-	bbox.Extents.x = bbox.Extents.x*offset[0];
-	bbox.Extents.y = bbox.Extents.y*offset[1];
-	bbox.Extents.z = bbox.Extents.z*offset[2];
+	assert(offset.size() > 5);
+	if (is_forward) {
+		bbox.Extents.x *= offset[0];
+		bbox.Extents.y *= offset[1];
+		bbox.Extents.z *= offset[2];
+		bbox.Center.x += offset[3];
+		bbox.Center.y += offset[4];
+		bbox.Center.z += offset[5];
+	}
+	else {
+		bbox.Extents.x /= offset[0];
+		bbox.Extents.y /= offset[1];
+		bbox.Extents.z /= offset[2];
+		bbox.Center.x -= offset[3];
+		bbox.Center.y -= offset[4];
+		bbox.Center.z -= offset[5];
+	}
 }
 ////////////////
 // PHY_INTERACTIVE_TYPE
@@ -153,6 +166,15 @@ PHY_BOUND_TYPE phy_bound_type_str(const std::string &str)
 	if (str == "NULL") return PHY_BOUND_NULL;
 	ERROR_MESA("PHY_BOUND_TYPE error");
 }
+//
+////////////////
+// phy_bound_alter
+////////////////
+////////////////
+struct phy_bound_alter
+{
+	std::vector<float> offset;
+};
 ////////////////
 // phy_bound_mgr
 // manager various types of bounding
@@ -168,8 +190,13 @@ public:
 	std::vector<BoundingOrientedBox> bd1;
 	std::vector<BoundingSphere> bd2;
 	std::vector<std::pair<PHY_BOUND_TYPE, size_t>> map;
+	std::map<size_t, phy_bound_alter> alter;
+	bool is_altered;
 	void init(T_app *app_in);
 	void push_back_empty(const PHY_BOUND_TYPE &type);
+	void set_box_offset(const size_t &ix, const std::vector<float> &offset);
+	void set_box_offset(const size_t &ix, const std::vector<float> &offset, const bool &is_forward);
+	void switch_box_alter(const bool &is_alter, const phy_bound_mgr &mgr_in);
 	void transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world);
 	bool intersects(const size_t &ixA, const size_t &ixB);
 	bool intersects(const size_t &ix, CXMVECTOR &origin, CXMVECTOR &direction, float &dist);
@@ -198,7 +225,9 @@ phy_bound_mgr<T_app>::phy_bound_mgr():
 	bd0(),
 	bd1(),
 	bd2(),
-	map()
+	map(),
+	alter(),
+	is_altered(true)
 {
 	;
 }
@@ -230,6 +259,56 @@ void phy_bound_mgr<T_app>::push_back_empty(const PHY_BOUND_TYPE &type)
 		return;
 	}
 	assert(false);
+}
+//
+template <typename T_app>
+void phy_bound_mgr<T_app>::set_box_offset(const size_t &ix, const std::vector<float> &offset)
+{
+	alter[ix].offset = offset;
+	switch(map[ix].first) {
+	case PHY_BOUND_BOX:
+		phy_set_box_offset(bd0[map[ix].second], offset, true);
+		break;
+	case PHY_BOUND_ORI_BOX:
+		phy_set_box_offset(bd1[map[ix].second], offset, true);
+		break;
+	default:
+		assert(false);
+	}
+}
+//
+template <typename T_app>
+void phy_bound_mgr<T_app>::set_box_offset(const size_t &ix, const std::vector<float> &offset, const bool &is_forward)
+{
+	switch(map[ix].first) {
+	case PHY_BOUND_BOX:
+		phy_set_box_offset(bd0[map[ix].second], offset, is_forward);
+		break;
+	case PHY_BOUND_ORI_BOX:
+		phy_set_box_offset(bd1[map[ix].second], offset, is_forward);
+		break;
+	default:
+		assert(false);
+	}
+}
+//
+template <typename T_app>
+void phy_bound_mgr<T_app>::switch_box_alter(const bool &is_alter, const phy_bound_mgr &mgr_in)
+{
+	if (is_alter) {
+		assert(!is_altered);
+		for (auto &alt: mgr_in.alter) {
+			set_box_offset(alt.first, alt.second.offset, true);
+		}
+		is_altered = true;
+	}
+	else {
+		assert(is_altered);
+		for (auto &alt: mgr_in.alter) {
+			set_box_offset(alt.first, alt.second.offset, false);
+		}
+		is_altered = false;
+	}
 }
 //
 template <typename T_app>
@@ -398,10 +477,12 @@ void phy_bound_mgr<T_app>::remove_all()
 	bd1.clear();
 	bd2.clear();
 	map.clear();
+	alter.clear();
 	bd0.shrink_to_fit();
 	bd1.shrink_to_fit();
 	bd2.shrink_to_fit();
 	map.shrink_to_fit();
+	is_altered = true;
 }
 //
 }

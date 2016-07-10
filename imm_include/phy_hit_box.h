@@ -158,8 +158,17 @@ void phy_hit_arrange<T_app>::read_lua_bound_offset()
 	std::vector<std::vector<std::string>> vec2d;
 	l_reader.vec2d_str_from_table("csv_bound_offset", vec2d);
 	for (size_t ix = 1; ix < vec2d.size(); ++ix) {
-		vec2d[ix][1] = vec2d[ix][1].substr(1);
-		std::vector<float> offset = csv_string_to_percent(vec2d[ix][1]);
+		std::vector<float> offset;
+		offset.push_back(std::stof(vec2d[ix][1]));
+		offset.push_back(std::stof(vec2d[ix][2]));
+		offset.push_back(std::stof(vec2d[ix][3]));
+		
+		offset.push_back(std::stof(vec2d[ix][4]));
+		offset.push_back(std::stof(vec2d[ix][5]));
+		offset.push_back(std::stof(vec2d[ix][6]));
+		
+		
+		
 		model_bound_offset[vec2d[ix][0]] = offset;
 	}
 }

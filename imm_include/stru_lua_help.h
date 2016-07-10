@@ -252,20 +252,6 @@ std::vector<float> csv_string_to_float(const std::string &str, const size_t &cou
 	return rt;
 }
 ////////////////
-// csv_string_to_percent
-////////////////
-////////////////
-std::vector<float> csv_string_to_percent(const std::string &str)
-{
-	std::vector<float> rt;
-	for (size_t ix = 0; ix < str.size()-1; ix += 3) {
-		std::string str2 = str.substr(ix, 3);
-		str2.insert(1, ".");
-		rt.push_back(std::stof(str2));
-	}
-	return rt;
-}
-////////////////
 // csv_value_is_empty
 ////////////////
 ////////////////
