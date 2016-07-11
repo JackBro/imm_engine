@@ -14,9 +14,7 @@ the [DirectX 11 book](http://www.amazon.com/dp/1936420228/) by Frank Luna.
 
 Current State:
 ---------------
-Dragon's Ingot has not released yet.
-For the responsibility of a open source project, 
-just guarantee the able to compile the engine samples correctly and resolving bugs.
+This open source project is not guarantee to be the latest version compared with Dragon's Ingot.
 
 Disadvantage List:
 ------------------

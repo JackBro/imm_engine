@@ -186,6 +186,7 @@ void model_load_csv_basic(
 			model[model_name].set(device, tex_mgr, texture_path_full);
 		}
 		model[model_name].m_BoundType = phy_bound_type_str(csv_model[ix][5]);
+		model[model_name].m_InteractiveType = phy_interactive_type_str(csv_model[ix][6]);
 	}
 }
 ////////////////
