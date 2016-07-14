@@ -161,8 +161,7 @@ void model_load_csv_basic(
 	texture_mgr &tex_mgr,
 	const std::string &csv_name,
 	const std::string &model_path,
-	const std::wstring &texture_path,
-	std::map<std::string, int> &model_alpha)
+	const std::wstring &texture_path)
 {
 	// build model
 	l_reader.vec2d_str_from_table(csv_name, csv_model);
@@ -172,8 +171,6 @@ void model_load_csv_basic(
 		std::string subpath = csv_model[ix][1];
 		std::string model_file = model_path+subpath+csv_model[ix][2];
 		rot_front[model_name] = rotation_xyz(csv_model[ix][3]);
-		// assign alpha
-		model_alpha[model_name] = stoi(csv_model[ix][4]);
 		// load model
 		if (model.count(model_name)) continue;
 		std::wstring texture_path_full = texture_path+str_to_wstr(subpath);
@@ -185,6 +182,7 @@ void model_load_csv_basic(
 			model_bin.read_from_bin(model[model_name], model_file);
 			model[model_name].set(device, tex_mgr, texture_path_full);
 		}
+		model[model_name].m_IsAlpha = (stoi(csv_model[ix][4]) != 0);
 		model[model_name].m_BoundType = phy_bound_type_str(csv_model[ix][5]);
 		model[model_name].m_InteractiveType = phy_interactive_type_str(csv_model[ix][6]);
 	}

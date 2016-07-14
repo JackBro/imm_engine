@@ -69,6 +69,7 @@ void IMM_PATH_init()
 	IMM_PATH["text"]    = "script\\text_en\\";
 }
 static const bool ALWAYS_TRUE = true;
+static const size_t VECTOR_RESERVE = 1000;
 // for calclate UI size with factor
 static const float UI_RESOLUTION_WIDTH = 1366.0f;
 static const float UI_RESOLUTION_HEIGHT = 768.0f;

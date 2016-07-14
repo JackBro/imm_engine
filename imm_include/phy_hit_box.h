@@ -207,7 +207,7 @@ void phy_hit_arrange<T_app>::rebuild_bbox_from_instance()
 template <typename T_app>
 void phy_hit_arrange<T_app>::rebuild_info_from_attachment()
 {
-	app->m_Inst.m_Adapter.flush();
+	app->m_Inst.m_Adapter.attach_flush();
 	std::vector<inst_attachment> (*att) = &app->m_Inst.m_Adapter.attach;
 	for (size_t ix = 0; ix != (*att).size(); ++ix) {
 		if ((*att)[ix].is_enable) {

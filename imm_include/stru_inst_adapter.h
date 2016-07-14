@@ -7,10 +7,7 @@
 ////////////////
 #ifndef STRU_INST_ADAPTER_H
 #define STRU_INST_ADAPTER_H
-//#include "stru_lua_help.h"
-
 #include "stru_model_mgr.h"
-
 namespace imm
 {
 ////////////////
@@ -38,6 +35,15 @@ inst_attachment::inst_attachment():
 	XMStoreFloat4x4(&to_bone, XMMatrixIdentity());
 }
 ////////////////
+// inst_solid_effect
+////////////////
+////////////////
+struct inst_solid_effect
+{
+	;
+};
+//
+////////////////
 // inst_adapter
 ////////////////
 ////////////////
@@ -47,10 +53,13 @@ struct inst_adapter
 	inst_adapter();
 	void init_load(T_app *app_in);
 	void read_lua();
-	void flush();
+	void rebuild();
+	void attach_flush();
+	void effect_rebuild();
 	void update_world();
 	T_app *app;
 	std::vector<inst_attachment> attach;
+	std::vector<inst_solid_effect> effect;
 };
 //
 template <typename T_app>
@@ -66,6 +75,7 @@ void inst_adapter<T_app>::init_load(T_app *app_in)
 	app = app_in;
 	read_lua();
 }
+//
 template <typename T_app>
 void inst_adapter<T_app>::read_lua()
 {
@@ -91,7 +101,19 @@ void inst_adapter<T_app>::read_lua()
 }
 //
 template <typename T_app>
-void inst_adapter<T_app>::flush()
+void inst_adapter<T_app>::rebuild()
+{
+	effect_rebuild();
+}
+//
+template <typename T_app>
+void inst_adapter<T_app>::effect_rebuild()
+{
+	app->m_Inst.copy_instance("magic_text", "magic_text_test");
+}
+//
+template <typename T_app>
+void inst_adapter<T_app>::attach_flush()
 {
 	for (auto &att: attach) {
 		if (app->m_Inst.m_NameMap.count(att.name) && app->m_Inst.m_NameMap.count(att.owner_name)) {

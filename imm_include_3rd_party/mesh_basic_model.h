@@ -43,11 +43,13 @@ public:
 	mesh_geometry m_ModelMesh;
 	int m_BoundType;
 	int m_InteractiveType;
+	bool m_IsAlpha;
 };
 //
 basic_model::basic_model():
 	m_BoundType(0),
-	m_InteractiveType(0)
+	m_InteractiveType(0),
+	m_IsAlpha(false)
 {
 	;
 }

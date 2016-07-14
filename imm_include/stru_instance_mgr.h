@@ -31,14 +31,15 @@ struct instance_mgr
 		instance_stat &inst_stat,
 		size_t &k,
 		const get_pos &get_pos_f,
-		const std::vector<std::string> &name);
+		const std::map<size_t, std::string> &name);
 	template <typename instance, typename get_pos>
 	void push_back_pntt(
 		const std::vector<instance> &v_inst,
 		instance_stat &inst_stat,
 		size_t &k,
 		const get_pos &get_pos_f,
-		const std::vector<std::string> &name);
+		const std::map<size_t, std::string> &name);
+	void copy_instance(const std::string &inst_name, const std::string &new_name);
 	int get_index(const std::string &name);
 	void on_resize();
 	void update_all_physics(const float &dt);
@@ -143,8 +144,8 @@ void instance_mgr<T_app>::reload()
 		k,
 		[](const vertex::pntt &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
-	m_Troll.resize(m_Stat.size());
 	// controllable
+	m_Troll.resize(m_Stat.size());
 	for (size_t ix = 0; ix != m_Troll.size(); ++ix) {
 		m_Troll[ix].index = ix;
 		if (m_App->m_Control.atk.data_ski.count(*m_Stat[ix].get_ModelName())) {
@@ -177,6 +178,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 	// after instance load over
 	m_App->m_Control.rebuild();
 	m_App->m_Hit.rebuild();
+	m_Adapter.rebuild();
 	m_App->m_AiInfo.rebuild();
 	m_App->m_AiAttr.rebuild();
 	m_App->m_AiInterf.rebuild();
@@ -191,11 +193,12 @@ void instance_mgr<T_app>::push_back_basic(
 	instance_stat &inst_stat,
 	size_t &k,
 	const get_pos &get_pos_f,
-	const std::vector<std::string> &name)
+	const std::map<size_t, std::string> &name)
 {
 	for (size_t ix = 0; ix != v_inst.size(); ++ix) {
-		m_NameMap[name[ix]] = k++;
+		m_NameMap[name.at(ix)] = k++;
 		inst_stat.ptr = &v_inst[ix];
+		inst_stat.index = ix;
 		m_Stat.push_back(inst_stat);
 		m_BoundL.push_back_empty(m_Stat.back().get_BoundType());
 		m_BoundW.push_back_empty(m_Stat.back().get_BoundType());
@@ -235,11 +238,12 @@ void instance_mgr<T_app>::push_back_pntt(
 	instance_stat &inst_stat,
 	size_t &k,
 	const get_pos &get_pos_f,
-	const std::vector<std::string> &name)
+	const std::map<size_t, std::string> &name)
 {
 	for (size_t ix = 0; ix != v_inst.size(); ++ix) {
-		m_NameMap[name[ix]] = k++;
+		m_NameMap[name.at(ix)] = k++;
 		inst_stat.ptr = &v_inst[ix];
+		inst_stat.index = ix;
 		m_Stat.push_back(inst_stat);
 		m_BoundL.push_back_empty(PHY_BOUND_BOX);
 		m_BoundW.push_back_empty(PHY_BOUND_BOX);
@@ -251,6 +255,27 @@ void instance_mgr<T_app>::push_back_pntt(
 			vert_range.first,
 			vert_range.second);
 		//
+	}
+}
+//
+template <typename T_app>
+void instance_mgr<T_app>::copy_instance(const std::string &inst_name, const std::string &new_name)
+{
+	if (!m_NameMap.count(inst_name)) return;
+	size_t inst_ix = m_NameMap[inst_name];
+	if (m_Stat[inst_ix].type != MODEL_BASIC) return;
+	if (m_Stat[inst_ix].get_BoundType() != PHY_BOUND_BOX) return;
+	size_t inst_size = m_Stat.size();
+	m_Model.copy_instance(m_Stat, inst_ix, new_name);
+	if (inst_size == m_Stat.size()-1) {
+		m_NameMap[new_name] = inst_size;
+		m_IndexMap[inst_size] = new_name;
+		assert(m_Troll.size() == inst_size);
+		m_Troll.emplace_back();
+		m_Troll.at(inst_size).index = inst_size;
+		m_BoundL.push_back_empty(m_Stat.back().get_BoundType());
+		m_BoundW.push_back_empty(m_Stat.back().get_BoundType());
+		m_BoundL.bd0.back() = m_BoundL.bd0[m_BoundL.map.at(inst_ix).second];
 	}
 }
 //
@@ -469,6 +494,7 @@ void instance_mgr<T_app>::update_skinned(const float &dt)
 	// Troll
 	for (auto &troll: m_Troll) troll.update();
 	for (auto &ste: m_Steering) ste.second.update(dt);
+	assert(m_Troll.capacity() < VECTOR_RESERVE+1);
 }
 //
 template <typename T_app>
@@ -507,6 +533,8 @@ void instance_mgr<T_app>::remove_all()
 	m_Steering.clear();
 	m_NameMap.clear();
 	m_IndexMap.clear();
+	m_Stat.reserve(VECTOR_RESERVE);
+	m_Troll.reserve(VECTOR_RESERVE);
 }
 //
 }

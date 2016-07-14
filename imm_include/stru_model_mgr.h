@@ -33,6 +33,7 @@ enum MODEL_PROPERTY
 	MODEL_IS_ATTACH       = 0x1,
 	MODEL_IS_LAND         = 0x2,
 	MODEL_IS_CONTROLLABLE = 0x4,
+	MODEL_IS_EFFECT       = 0x8,
 };
 ////////////////
 // instance_stat
@@ -45,7 +46,7 @@ struct instance_stat
 	phy_property phy;
 	MODEL_TYPE type;
 	int property;
-	//
+	size_t index;
 	XMFLOAT4X4 *get_World();
 	XMFLOAT4X4 *get_RotFront();
 	XMFLOAT4X4 *get_FinalTransform(size_t ix);
@@ -64,6 +65,7 @@ struct instance_stat
 		const size_t &last_frame);
 	void set_switch_current_ClipName(const std::string &clip_second, const size_t &last_frame);
 	void set_sequence_ClipName(const std::string &clip_second);
+	bool is_alpha();
 	bool is_invoke_physics();
 	bool is_in_switch_clip();
 };
@@ -72,7 +74,8 @@ instance_stat::instance_stat():
 	ptr(nullptr),
 	phy(),
 	type(MODEL_BASIC),
-	property(MODEL_IS_NONE)
+	property(MODEL_IS_NONE),
+	index(0)
 {
 	;
 }
@@ -225,9 +228,22 @@ void instance_stat::set_sequence_ClipName(const std::string &clip_second)
 	((skinned_model_instance*)ptr)->set_sequence_ClipName(clip_second);
 }
 //
+
+bool instance_stat::is_alpha()
+{
+	switch(type) {
+	case MODEL_BASIC: return ((basic_model_instance*)ptr)->model->m_IsAlpha;
+	case MODEL_SKINNED: return ((skinned_model_instance*)ptr)->model->m_IsAlpha;
+	case MODEL_SIMPLE_P: return ((simple_model_instance<vertex::pntt>*)ptr)->model->m_IsAlpha;
+	}
+	assert(false);
+	return false;
+}
+//
 bool instance_stat::is_invoke_physics()
 {
 	if (property & MODEL_IS_ATTACH) return false;
+	if (property & MODEL_IS_EFFECT) return false;
 	return true;
 }
 //
@@ -249,6 +265,10 @@ struct model_mgr
 	void pntt_init(ID3D11Device *device, lua_reader &l_reader);
 	void skinned_init(ID3D11Device *device, lua_reader &l_reader);
 	void basic_init(ID3D11Device *device, lua_reader &l_reader);
+	void model_mgr::copy_instance(
+		std::vector<instance_stat> &stat,
+		const size_t &ix,
+		const std::string &new_name);
 	void remove_all();
 	texture_mgr m_TexMgr;
 	bool m_IsInitialized;
@@ -260,11 +280,11 @@ struct model_mgr
 	std::vector<skinned_model_instance> m_InstSkinned;
 	std::vector<basic_model_instance> m_InstBasicAlpha;
 	std::vector<basic_model_instance> m_InstBasic;
-	std::vector<std::string> m_NamePNTT;
-	std::vector<std::string> m_NameSkinnedAlpha;
-	std::vector<std::string> m_NameSkinned;
-	std::vector<std::string> m_NameBasicAlpha;
-	std::vector<std::string> m_NameBasic;
+	std::map<size_t, std::string> m_NamePNTT;
+	std::map<size_t, std::string> m_NameSkinnedAlpha;
+	std::map<size_t, std::string> m_NameSkinned;
+	std::map<size_t, std::string> m_NameBasicAlpha;
+	std::map<size_t, std::string> m_NameBasic;
 };
 model_mgr::model_mgr():
 	m_TexMgr(),
@@ -356,7 +376,7 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 	l_reader.vec2d_str_from_table("csv_instance_geometry", vec2d_instance);
 	for (size_t ix = 1; ix < vec2d_instance.size(); ++ix) {
 		std::string model_name = vec2d_instance[ix][1];
-		m_NamePNTT.push_back(vec2d_instance[ix][0]);
+		m_NamePNTT[m_InstPNTT.size()] = vec2d_instance[ix][0];
 		assert(m_PNTT["default"].m_NameSubid.count(model_name));
 		m_InstPNTT.push_back(simple_model_instance<vertex::pntt>());
 		std::vector<simple_model_instance<vertex::pntt>>::iterator it;
@@ -385,7 +405,6 @@ void model_mgr::skinned_init(ID3D11Device *device, lua_reader &l_reader)
 	std::vector<std::vector<std::string>> vec2d_model;
 	std::vector<std::vector<std::string>> vec2d_instance;
 	std::map<std::string, rotation_xyz> model_rot_front;
-	std::map<std::string, int> model_alpha;
 	// build model
 	model_load_csv_basic(
 		device,
@@ -396,21 +415,21 @@ void model_mgr::skinned_init(ID3D11Device *device, lua_reader &l_reader)
 		m_TexMgr,
 		"csv_model_skinned",
 		IMM_PATH["model"],
-		str_to_wstr(IMM_PATH["texture"]),
-		model_alpha);
+		str_to_wstr(IMM_PATH["texture"])
+	);
 	// build instance
 	l_reader.vec2d_str_from_table("csv_instance_skinned", vec2d_instance);
 	for (size_t ix = 1; ix < vec2d_instance.size(); ++ix) {
 		std::string model_name = vec2d_instance[ix][1];
 		assert(m_Skinned.count(model_name));
 		std::vector<skinned_model_instance>::iterator it;
-		if (model_alpha[model_name]) {
-			m_NameSkinnedAlpha.push_back(vec2d_instance[ix][0]);
+		if (m_Skinned[model_name].m_IsAlpha) {
+			m_NameSkinnedAlpha[m_InstSkinnedAlpha.size()] = vec2d_instance[ix][0];
 			m_InstSkinnedAlpha.push_back(skinned_model_instance());
 			it = m_InstSkinnedAlpha.end();
 		}
 		else {
-			m_NameSkinned.push_back(vec2d_instance[ix][0]);
+			m_NameSkinned[m_InstSkinned.size()] = vec2d_instance[ix][0];
 			m_InstSkinned.push_back(skinned_model_instance());
 			it = m_InstSkinned.end();
 		}
@@ -435,8 +454,8 @@ void model_mgr::basic_init(ID3D11Device *device, lua_reader &l_reader)
 {
 	std::vector<std::vector<std::string>> vec2d_model;
 	std::vector<std::vector<std::string>> vec2d_instance;
+	std::vector<std::vector<std::string>> vec2d_instance_prep;
 	std::map<std::string, rotation_xyz> model_rot_front;
-	std::map<std::string, int> model_alpha;
 	// build model
 	model_load_csv_basic(
 		device,
@@ -447,21 +466,40 @@ void model_mgr::basic_init(ID3D11Device *device, lua_reader &l_reader)
 		m_TexMgr,
 		"csv_model_basic",
 		IMM_PATH["model"],
-		str_to_wstr(IMM_PATH["texture"]),
-		model_alpha);
+		str_to_wstr(IMM_PATH["texture"])
+	);
 	// build instance
 	l_reader.vec2d_str_from_table("csv_instance_basic", vec2d_instance);
+	//
+	if (!l_reader.is_nil("csv_prep_instance_basic")) {
+		assert(!l_reader.is_nil("csv_prep_model_basic"));
+		model_load_csv_basic(
+			device,
+			m_Basic,
+			vec2d_model,
+			model_rot_front,
+			l_reader,
+			m_TexMgr,
+			"csv_prep_model_basic",
+			IMM_PATH["model"],
+			str_to_wstr(IMM_PATH["texture"])
+		);
+		// build instance
+		l_reader.vec2d_str_from_table("csv_prep_instance_basic", vec2d_instance_prep);
+		vec2d_instance.insert(vec2d_instance.end(), vec2d_instance_prep.begin()+1, vec2d_instance_prep.end());
+	}
+	//
 	for (size_t ix = 1; ix < vec2d_instance.size(); ++ix) {
 		std::string model_name = vec2d_instance[ix][1];
 		assert(m_Basic.count(model_name));
 		std::vector<basic_model_instance>::iterator it;
-		if (model_alpha[model_name]) {
-			m_NameBasicAlpha.push_back(vec2d_instance[ix][0]);
+		if (m_Basic[model_name].m_IsAlpha) {
+			m_NameBasicAlpha[m_InstBasicAlpha.size()] = vec2d_instance[ix][0];
 			m_InstBasicAlpha.push_back(basic_model_instance());
 			it = m_InstBasicAlpha.end();
 		}
 		else {
-			m_NameBasic.push_back(vec2d_instance[ix][0]);
+			m_NameBasic[m_InstBasic.size()] = vec2d_instance[ix][0];
 			m_InstBasic.push_back(basic_model_instance());
 			it = m_InstBasic.end();
 		}
@@ -474,7 +512,39 @@ void model_mgr::basic_init(ID3D11Device *device, lua_reader &l_reader)
 			ix,
 			model_name,
 			model_rot_front,
-			vec2d_instance);
+			vec2d_instance
+		);
+	}
+}
+//
+void model_mgr::copy_instance(
+	std::vector<instance_stat> &stat,
+	const size_t &ix,
+	const std::string &new_name)
+{
+	switch(stat[ix].type) {
+	case MODEL_BASIC:
+		if (stat[ix].is_alpha()) {
+			m_NameBasicAlpha[m_InstBasicAlpha.size()] = new_name;
+			m_InstBasicAlpha.push_back(m_InstBasicAlpha.at(stat[ix].index));
+			stat.emplace_back();
+			stat.back().ptr = &m_InstBasicAlpha.back();
+			stat.back().index = m_InstBasicAlpha.size()-1;
+		}
+		else {
+			m_NameBasic[m_InstBasic.size()] = new_name;
+			m_InstBasic.push_back(m_InstBasic.at(stat[ix].index));
+			stat.emplace_back();
+			stat.back().ptr = &m_InstBasic.back();
+			stat.back().index = m_InstBasic.size()-1;
+		}
+		break;
+	case MODEL_SKINNED:
+		return;
+		break;
+	case MODEL_SIMPLE_P:
+		return;
+		break;
 	}
 }
 //
@@ -497,11 +567,11 @@ void model_mgr::remove_all()
 	m_InstSkinned.shrink_to_fit();
 	m_InstBasicAlpha.shrink_to_fit();
 	m_InstBasic.shrink_to_fit();
-	m_NamePNTT.shrink_to_fit();
-	m_NameSkinnedAlpha.shrink_to_fit();
-	m_NameSkinned.shrink_to_fit();
-	m_NameBasicAlpha.shrink_to_fit();
-	m_NameBasic.shrink_to_fit();
+	m_InstPNTT.reserve(VECTOR_RESERVE);
+	m_InstSkinnedAlpha.reserve(VECTOR_RESERVE);
+	m_InstSkinned.reserve(VECTOR_RESERVE);
+	m_InstBasicAlpha.reserve(VECTOR_RESERVE);
+	m_InstBasic.reserve(VECTOR_RESERVE);
 }
 //
 }

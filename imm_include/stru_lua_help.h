@@ -119,6 +119,7 @@ void lua_reader::vec2d_str_from_table(
 {
 	std::lock_guard<std::recursive_mutex> lock(mutex1);
 	if (!L) {assert(false); abort();}
+	// must be empyt
 	vec2d_str = std::vector<std::vector<std::string>>();
 	int ix_1 = 1;
 	lua_getglobal(L, table_name.c_str());
