@@ -152,7 +152,7 @@ void ui_attr<T_app>::update_target()
 	tar_flush = app->m_Inst.m_Steering[app->m_Control.player1].attack.size();
 	if (tar_flush == 0) return;
 	size_t tmp_ix = app->m_Inst.m_Steering[app->m_Control.player1].attack.back();
-	if (app->m_Inst.m_Stat[tmp_ix].property & MODEL_IS_CONTROLLABLE) tar_ix = tmp_ix;
+	if (app->m_Inst.m_Stat[tmp_ix].property & INST_IS_CONTROLLABLE) tar_ix = tmp_ix;
 	else return;
 	if (!math::float_is_equal(tar_hp_max, app->m_AiAttr.points[tar_ix].hp_max) ||
 		!math::float_is_equal(tar_hp, app->m_AiAttr.points[tar_ix].hp)) {
@@ -232,7 +232,7 @@ void ai_attr<T_app>::rebuild_points()
 {
 	size_t ix = 0;
 	for (auto &stat: app->m_Inst.m_Stat) {
-		if (stat.property & MODEL_IS_CONTROLLABLE) {
+		if (stat.property & INST_IS_CONTROLLABLE) {
 			points[ix];
 			app->m_Status.assign_attr(points[ix], *(app->m_Inst.m_Stat[ix].get_ModelName()));
 			points_name[*(app->m_Inst.m_Stat[ix].get_ModelName())] = ix;

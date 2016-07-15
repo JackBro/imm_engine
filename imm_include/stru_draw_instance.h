@@ -36,7 +36,7 @@ void draw_inst_basic(
 	tech->GetDesc(&tech_desc);
 	for(UINT p = 0; p < tech_desc.Passes; ++p) {
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
-			if (!model_inst[ix].is_appear) continue;
+			if (!model_inst[ix].is_appear()) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
 			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;
@@ -77,7 +77,7 @@ void draw_inst_basic_shadow(
 	tech->GetDesc(&tech_desc);
 	for(UINT p = 0; p < tech_desc.Passes; ++p) {
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
-			if (!model_inst[ix].is_appear) continue;
+			if (!model_inst[ix].is_appear()) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
 			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;
@@ -118,7 +118,7 @@ void draw_inst_skinned(
 	tech->GetDesc(&tech_desc);
 	for(UINT p = 0; p < tech_desc.Passes; ++p) {
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
-			if (!model_inst[ix].is_appear) continue;
+			if (!model_inst[ix].is_appear()) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
 			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;
@@ -162,7 +162,7 @@ void draw_inst_skinned_shadow(
 	tech->GetDesc(&tech_desc);
 	for(UINT p = 0; p < tech_desc.Passes; ++p) {
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
-			if (!model_inst[ix].is_appear) continue;
+			if (!model_inst[ix].is_appear()) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
 			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;
@@ -207,7 +207,7 @@ void draw_inst_simple_pntt(
 	XMMATRIX world_view_proj;
 	XMMATRIX tex_transform;
 	for(UINT ix = 0; ix < model_inst.size(); ++ix) {
-		if (!model_inst[ix].is_appear) continue;
+		if (!model_inst[ix].is_appear()) continue;
 		world = XMLoadFloat4x4(&model_inst[ix].world);
 		world_inv_transpose = math::inverse_transpose(world);
 		world_view_proj = world*view_proj;
@@ -264,7 +264,7 @@ void draw_inst_simple_pntt_shadow(
 	tech->GetDesc(&tech_desc);
 	for(UINT p = 0; p < tech_desc.Passes; ++p) {
 		for(UINT ix = 0; ix < model_inst.size(); ++ix) {
-			if (!model_inst[ix].is_appear) continue;
+			if (!model_inst[ix].is_appear()) continue;
 			world = XMLoadFloat4x4(&model_inst[ix].world);
 			world_inv_transpose = math::inverse_transpose(world);
 			world_view_proj = world*view_proj;

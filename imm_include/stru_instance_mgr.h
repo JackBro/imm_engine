@@ -149,7 +149,7 @@ void instance_mgr<T_app>::reload()
 	for (size_t ix = 0; ix != m_Troll.size(); ++ix) {
 		m_Troll[ix].index = ix;
 		if (m_App->m_Control.atk.data_ski.count(*m_Stat[ix].get_ModelName())) {
-			m_Stat[ix].property |= MODEL_IS_CONTROLLABLE;
+			m_Stat[ix].property |= INST_IS_CONTROLLABLE;
 			m_Steering[ix].init(ix);
 		}
 	}
@@ -168,7 +168,7 @@ void instance_mgr<T_app>::reload_scene_instance_relate()
 {
 	if (csv_value_is_empty(m_App->m_Scene.get_misc["terrain_info"])) {
 		m_PlaneLandIx = get_index(m_App->m_Scene.get_misc["plane_land"]);
-		m_Stat[m_PlaneLandIx].property |= MODEL_IS_LAND;
+		m_Stat[m_PlaneLandIx].property |= INST_IS_LAND;
 		m_IsTerrainUse = false;
 	}
 	else {
@@ -333,7 +333,7 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 {
 	for (int ix = 0; ix < static_cast<int>(m_Stat.size()-1); ++ix) {
 	for (size_t ix2 = ix+1; ix2 != m_Stat.size(); ++ix2) {
-		if (m_Stat[ix].property & MODEL_IS_LAND || m_Stat[ix2].property & MODEL_IS_LAND) continue;
+		if (m_Stat[ix].property & INST_IS_LAND || m_Stat[ix2].property & INST_IS_LAND) continue;
 		if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
 		// record sensor
 		bool is_touch = m_BoundW.intersects(ix, ix2);
@@ -366,7 +366,7 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 	if (m_PlaneLandIx < 0) return;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		//
-		if (m_Stat[ix].property & MODEL_IS_LAND) continue;
+		if (m_Stat[ix].property & INST_IS_LAND) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		// physcis logic
 		int ix_land;		
@@ -466,7 +466,7 @@ template <typename T_app>
 void instance_mgr<T_app>::update_collision_liquid(float dt)
 {
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
-		if (m_Stat[ix].property & MODEL_IS_LAND) continue;
+		if (m_Stat[ix].property & INST_IS_LAND) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		if (m_Stat[ix].get_InteractiveType() & PHY_INTERA_FIXED) continue;
 		switch(m_BoundW.map[ix].first) {
@@ -508,13 +508,13 @@ void instance_mgr<T_app>::update_frustum_culling()
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		switch(m_BoundW.map[ix].first) {
 		case PHY_BOUND_BOX:
-			m_Stat[ix].set_IsAppear(m_CamFrustumW.Intersects(m_BoundW.bd0[m_BoundW.map[ix].second]));
+			m_Stat[ix].set_IsInFrustum(m_CamFrustumW.Intersects(m_BoundW.bd0[m_BoundW.map[ix].second]));
 			break;
 		case PHY_BOUND_ORI_BOX:
-			m_Stat[ix].set_IsAppear(m_CamFrustumW.Intersects(m_BoundW.bd1[m_BoundW.map[ix].second]));
+			m_Stat[ix].set_IsInFrustum(m_CamFrustumW.Intersects(m_BoundW.bd1[m_BoundW.map[ix].second]));
 			break;
 		case PHY_BOUND_SPHERE:
-			m_Stat[ix].set_IsAppear(m_CamFrustumW.Intersects(m_BoundW.bd2[m_BoundW.map[ix].second]));
+			m_Stat[ix].set_IsInFrustum(m_CamFrustumW.Intersects(m_BoundW.bd2[m_BoundW.map[ix].second]));
 			break;
 		}
 	}

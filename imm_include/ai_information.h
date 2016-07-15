@@ -74,7 +74,7 @@ void ai_info<T_app>::rebuild()
 	reset();
 	size_t ix = 0;
 	for (auto &stat: app->m_Inst.m_Stat) {
-		if (stat.property & MODEL_IS_CONTROLLABLE) {
+		if (stat.property & INST_IS_CONTROLLABLE) {
 			set_enemy.insert(ix);
 			vec_enemy.push_back(ix);
 			set_all.insert(ix);

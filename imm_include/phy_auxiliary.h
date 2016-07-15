@@ -118,7 +118,7 @@ void phy_wireframe<T_app>::rebuild_buffer()
 		XMFLOAT3 corners[8];
 		if (app->m_Inst.m_BoundL.map[ix].first != PHY_BOUND_BOX) continue;
 		app->m_Inst.m_BoundL.bd0[app->m_Inst.m_BoundL.map[ix].second].GetCorners(corners);
-		if (app->m_Inst.m_Stat[ix].property & MODEL_IS_ATTACH) color = XMFLOAT4(Colors::Orange);
+		if (app->m_Inst.m_Stat[ix].property & INST_IS_ATTACH) color = XMFLOAT4(Colors::Orange);
 		else color = XMFLOAT4(Colors::Yellow);
 		vertex::pos_color vertices[] = {
 			{corners[0], color},

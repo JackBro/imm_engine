@@ -24,16 +24,16 @@ enum MODEL_TYPE
 	MODEL_SIMPLE_P,
 };
 ////////////////
-// MODEL_PROPERTY
+// INST_PROPERTY
 ////////////////
 ////////////////
-enum MODEL_PROPERTY
+enum INST_PROPERTY
 {
-	MODEL_IS_NONE         = 0x0,
-	MODEL_IS_ATTACH       = 0x1,
-	MODEL_IS_LAND         = 0x2,
-	MODEL_IS_CONTROLLABLE = 0x4,
-	MODEL_IS_EFFECT       = 0x8,
+	INST_IS_NONE         = 0x0,
+	INST_IS_ATTACH       = 0x1,
+	INST_IS_LAND         = 0x2,
+	INST_IS_CONTROLLABLE = 0x4,
+	INST_IS_EFFECT       = 0x8,
 };
 ////////////////
 // instance_stat
@@ -56,7 +56,8 @@ struct instance_stat
 	PHY_INTERACTIVE_TYPE get_InteractiveType();
 	void set_World(const XMFLOAT4X4 &world);
 	void set_World(const XMMATRIX &world);
-	void set_IsAppear(const bool &is_appear);
+	void set_IsInFrustum(const bool &is_in_frustum);
+	void set_IsOffline(const bool &is_offline);
 	void set_ClipName(const std::string &clip_name, const bool &is_reset_time);
 	void check_set_ClipName(const std::string &clip_name, const bool &is_reset_time);
 	void set_switch_ClipName(
@@ -74,7 +75,7 @@ instance_stat::instance_stat():
 	ptr(nullptr),
 	phy(),
 	type(MODEL_BASIC),
-	property(MODEL_IS_NONE),
+	property(INST_IS_NONE),
 	index(0)
 {
 	;
@@ -185,12 +186,22 @@ void instance_stat::set_World(const XMMATRIX &world)
 	assert(false);
 }
 //
-void instance_stat::set_IsAppear(const bool &is_appear)
+void instance_stat::set_IsInFrustum(const bool &is_in_frustum)
 {
 	switch(type) {
-	case MODEL_BASIC: ((basic_model_instance*)ptr)->is_appear = is_appear; return;
-	case MODEL_SKINNED: ((skinned_model_instance*)ptr)->is_appear = is_appear; return;
-	case MODEL_SIMPLE_P: ((simple_model_instance<vertex::pntt>*)ptr)->is_appear = is_appear; return;
+	case MODEL_BASIC: ((basic_model_instance*)ptr)->is_in_frustum = is_in_frustum; return;
+	case MODEL_SKINNED: ((skinned_model_instance*)ptr)->is_in_frustum = is_in_frustum; return;
+	case MODEL_SIMPLE_P: ((simple_model_instance<vertex::pntt>*)ptr)->is_in_frustum = is_in_frustum; return;
+	}
+	assert(false);
+}
+//
+void instance_stat::set_IsOffline(const bool &is_offline)
+{
+	switch(type) {
+	case MODEL_BASIC: ((basic_model_instance*)ptr)->is_offline = is_offline; return;
+	case MODEL_SKINNED: ((skinned_model_instance*)ptr)->is_offline = is_offline; return;
+	case MODEL_SIMPLE_P: ((simple_model_instance<vertex::pntt>*)ptr)->is_offline = is_offline; return;
 	}
 	assert(false);
 }
@@ -242,8 +253,8 @@ bool instance_stat::is_alpha()
 //
 bool instance_stat::is_invoke_physics()
 {
-	if (property & MODEL_IS_ATTACH) return false;
-	if (property & MODEL_IS_EFFECT) return false;
+	if (property & INST_IS_ATTACH) return false;
+	if (property & INST_IS_EFFECT) return false;
 	return true;
 }
 //

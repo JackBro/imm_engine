@@ -28,11 +28,8 @@ struct ai_bound
 	void transform_alert(CXMMATRIX &world);
 	BoundingSphere CloseL;
 	BoundingSphere CloseW;
-	
-	
 	BoundingOrientedBox AlertL;
 	BoundingOrientedBox AlertW;
-	
 	BoundingOrientedBox OblongL;
 	BoundingOrientedBox OblongW;
 	bool is_active;
@@ -148,7 +145,7 @@ void ai_probe<T_app>::rebuild()
 {
 	reset();
 	for (auto &stat: app->m_Inst.m_Stat) {
-		if (stat.property & MODEL_IS_CONTROLLABLE) {
+		if (stat.property & INST_IS_CONTROLLABLE) {
 			size_t ix = &stat - &app->m_Inst.m_Stat[0];
 			XMMATRIX rot_front = XMLoadFloat4x4(app->m_Inst.m_Stat[ix].get_RotFront());
 			XMVECTOR out_scale, out_trans, out_rot;
@@ -241,7 +238,7 @@ void ai_probe<T_app>::update(const float &dt)
 template <typename T_app>
 void ai_probe<T_app>::close_test(const size_t &ix_probe, const size_t &ix_object)
 {
-	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
+	if (app->m_Inst.m_Stat[ix_object].property & INST_IS_LAND) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
 	bool is_close = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].CloseW);
 	app->m_Inst.m_Steering[ix_probe].close[ix_object] = is_close;
@@ -250,9 +247,9 @@ void ai_probe<T_app>::close_test(const size_t &ix_probe, const size_t &ix_object
 template <typename T_app>
 void ai_probe<T_app>::alert_test(const size_t &ix_probe, const size_t &ix_object)
 {
-	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
+	if (app->m_Inst.m_Stat[ix_object].property & INST_IS_LAND) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
-	if (~app->m_Inst.m_Stat[ix_object].property & MODEL_IS_CONTROLLABLE) return;
+	if (~app->m_Inst.m_Stat[ix_object].property & INST_IS_CONTROLLABLE) return;
 	bool is_alert = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].AlertW);
 	if (is_alert) app->m_Inst.m_Steering[ix_probe].alert[ix_object] = is_alert;
 }
@@ -267,9 +264,9 @@ void ai_probe<T_app>::obstacle_avoid_candidate(
 		float &radius_obj)
 {
 	// phy_obstacle_avoid
-	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_LAND) return;
+	if (app->m_Inst.m_Stat[ix_object].property & INST_IS_LAND) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
-	if (app->m_Inst.m_Stat[ix_object].property & MODEL_IS_CONTROLLABLE) return;
+	if (app->m_Inst.m_Stat[ix_object].property & INST_IS_CONTROLLABLE) return;
 	float radius_test = (app->m_Inst.m_BoundW.extents_x(ix_object)+app->m_Inst.m_BoundW.extents_z(ix_object))*0.5f;
 	if (radius_test < geometry[ix_probe].radius_inst*0.5f) return;
 	bool is_intersect = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].OblongW);

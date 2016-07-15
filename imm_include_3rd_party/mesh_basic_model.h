@@ -60,20 +60,30 @@ basic_model::basic_model():
 struct basic_model_instance
 {
 	basic_model_instance();
+	bool is_appear();
 	basic_model *model;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 rot_front;
 	std::string model_name;
-	bool is_appear;
+	bool is_in_frustum;
+	bool is_offline;
 };
 //
 basic_model_instance::basic_model_instance():
 	model(nullptr),
 	model_name(),
-	is_appear(true)
+	is_in_frustum(true),
+	is_offline(false)
 {
 	XMStoreFloat4x4(&world, XMMatrixIdentity());
 	XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
+}
+//
+bool basic_model_instance::is_appear()
+{
+	if (!is_in_frustum) return false;
+	if (is_offline) return false;
+	return true;	
 }
 //
 void basic_model::set(
@@ -153,6 +163,7 @@ public:
 struct skinned_model_instance
 {
 	skinned_model_instance();
+	bool is_appear();
 	skinned_model *model;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 rot_front;
@@ -162,7 +173,8 @@ struct skinned_model_instance
 	std::vector<XMFLOAT4X4> final_transforms;
 	float time_pos;
 	float time_switch;
-	bool is_appear;
+	bool is_in_frustum;
+	bool is_offline;
 	bool is_switching;
 	void update(float dt);
 	void set_ClipName(const std::string &clip_name, const bool &is_reset_time);
@@ -182,11 +194,19 @@ skinned_model_instance::skinned_model_instance():
 	final_transforms(),
 	time_pos(0.0f),
 	time_switch(-1.0f),
-	is_appear(true),
+	is_in_frustum(true),
+	is_offline(false),
 	is_switching(false)
 {
 	XMStoreFloat4x4(&world, XMMatrixIdentity());
 	XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
+}
+//
+bool skinned_model_instance::is_appear()
+{
+	if (!is_in_frustum) return false;
+	if (is_offline) return false;
+	return true;	
 }
 //
 void skinned_model::set(
@@ -235,7 +255,7 @@ void skinned_model::set(
 //
 void skinned_model_instance::update(float dt)
 {
-	if (!is_appear) return;
+	if (!is_in_frustum) return;
 	time_pos += dt;
 	if (time_switch > 0.0f) {
 		time_switch -= dt;
@@ -334,6 +354,7 @@ template <typename vertex_type>
 struct simple_model_instance
 {
 	simple_model_instance();
+	bool is_appear();
 	simple_model<vertex_type> *model;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 rot_front;
@@ -341,7 +362,8 @@ struct simple_model_instance
 	std::string model_name;
 	UINT subid;
 	bool is_textrue;
-	bool is_appear;
+	bool is_in_frustum;
+	bool is_offline;
 };
 //
 template <typename vertex_type>
@@ -350,11 +372,20 @@ simple_model_instance<vertex_type>::simple_model_instance():
 	model_name(),
 	subid(0),
 	is_textrue(true),
-	is_appear(true)
+	is_in_frustum(true),
+	is_offline(false)
 {
 	XMStoreFloat4x4(&world, XMMatrixIdentity());
 	XMStoreFloat4x4(&rot_front, XMMatrixIdentity());
 	XMStoreFloat4x4(&tex_transform, XMMatrixIdentity());
+}
+//
+template <typename vertex_type>
+bool simple_model_instance<vertex_type>::is_appear()
+{
+	if (!is_in_frustum) return false;
+	if (is_offline) return false;
+	return true;	
 }
 //
 template <typename vertex_type>

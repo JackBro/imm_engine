@@ -40,9 +40,23 @@ inst_attachment::inst_attachment():
 ////////////////
 struct inst_solid_effect
 {
-	;
+	inst_solid_effect();
+	size_t inst_ix;
+	size_t owner_ix;
+	bool is_loaded;
+	bool is_active;
+	float duration;
 };
 //
+inst_solid_effect::inst_solid_effect():
+	inst_ix(0),
+	owner_ix(0),
+	is_loaded(false),
+	is_active(false),
+	duration(0.0f)
+{
+	;
+}
 ////////////////
 // inst_adapter
 ////////////////
@@ -57,14 +71,19 @@ struct inst_adapter
 	void attach_flush();
 	void effect_rebuild();
 	void update_world();
+	void call_magic_text();
 	T_app *app;
 	std::vector<inst_attachment> attach;
-	std::vector<inst_solid_effect> effect;
+	std::vector<inst_solid_effect> magic_text;
+	std::string magic_text_name;
 };
 //
 template <typename T_app>
 inst_adapter<T_app>::inst_adapter():
-	app(nullptr)
+	app(nullptr),
+	attach(),
+	magic_text(),
+	magic_text_name("magic_text")
 {
 	;
 }
@@ -96,7 +115,6 @@ void inst_adapter<T_app>::read_lua()
 		XMMATRIX rot = rotation_xyz(vec2d[ix][6]).get_Matrix();
 		XMMATRIX to_bone = XMMatrixMultiply(rot, offset);
 		XMStoreFloat4x4(&attach.back().to_bone, to_bone);
-		//
 	}
 }
 //
@@ -109,7 +127,14 @@ void inst_adapter<T_app>::rebuild()
 template <typename T_app>
 void inst_adapter<T_app>::effect_rebuild()
 {
-	app->m_Inst.copy_instance("magic_text", "magic_text_test");
+	magic_text.resize(1);
+	magic_text[0].is_loaded = (app->m_Inst.m_NameMap.count(magic_text_name) != 0);
+	if (magic_text[0].is_loaded) {
+		app->m_Inst.copy_instance(magic_text_name, magic_text_name+"1");
+		magic_text[0].inst_ix = app->m_Inst.m_NameMap.at(magic_text_name);
+		app->m_Inst.m_Stat[magic_text[0].inst_ix].property = INST_IS_EFFECT;
+		app->m_Inst.m_Stat[magic_text[0].inst_ix].set_IsOffline(true);
+	}
 }
 //
 template <typename T_app>
@@ -120,7 +145,7 @@ void inst_adapter<T_app>::attach_flush()
 			att.is_enable = true;
 			att.ix = app->m_Inst.m_NameMap[att.name];
 			att.owner_ix = app->m_Inst.m_NameMap[att.owner_name];
-			app->m_Inst.m_Stat[att.ix].property |= MODEL_IS_ATTACH;
+			app->m_Inst.m_Stat[att.ix].property |= INST_IS_ATTACH;
 		}
 		else {
 			att.is_enable = false;
@@ -142,6 +167,12 @@ void inst_adapter<T_app>::update_world()
 		world = XMMatrixMultiply(to_bone, world);
 		app->m_Inst.m_Stat[att.ix].set_World(world);
 	}
+}
+//
+template <typename T_app>
+void inst_adapter<T_app>::call_magic_text()
+{
+	;
 }
 //
 }
