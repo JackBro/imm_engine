@@ -56,6 +56,7 @@ struct instance_stat
 	PHY_INTERACTIVE_TYPE get_InteractiveType();
 	void set_World(const XMFLOAT4X4 &world);
 	void set_World(const XMMATRIX &world);
+	void set_WorldPos(const XMFLOAT3 &pos);
 	void set_IsInFrustum(const bool &is_in_frustum);
 	void set_IsOffline(const bool &is_offline);
 	void set_ClipName(const std::string &clip_name, const bool &is_reset_time);
@@ -182,6 +183,28 @@ void instance_stat::set_World(const XMMATRIX &world)
 	case MODEL_BASIC: XMStoreFloat4x4(&((basic_model_instance*)ptr)->world, world); return;
 	case MODEL_SKINNED: XMStoreFloat4x4(&((skinned_model_instance*)ptr)->world, world); return;
 	case MODEL_SIMPLE_P: XMStoreFloat4x4(&((simple_model_instance<vertex::pntt>*)ptr)->world, world); return;
+	}
+	assert(false);
+}
+//
+void instance_stat::set_WorldPos(const XMFLOAT3 &pos)
+{
+	switch(type) {
+	case MODEL_BASIC:
+		((basic_model_instance*)ptr)->world._41 = pos.x;
+		((basic_model_instance*)ptr)->world._42 = pos.y;
+		((basic_model_instance*)ptr)->world._43 = pos.z;
+		return;
+	case MODEL_SKINNED:
+		((skinned_model_instance*)ptr)->world._41 = pos.x;
+		((skinned_model_instance*)ptr)->world._42 = pos.y;
+		((skinned_model_instance*)ptr)->world._43 = pos.z;
+		return;
+	case MODEL_SIMPLE_P:
+		((simple_model_instance<vertex::pntt>*)ptr)->world._41 = pos.x;
+		((simple_model_instance<vertex::pntt>*)ptr)->world._42 = pos.y;
+		((simple_model_instance<vertex::pntt>*)ptr)->world._43 = pos.z;
+		return;
 	}
 	assert(false);
 }
