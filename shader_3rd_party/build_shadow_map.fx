@@ -74,7 +74,7 @@ VertexOut SkinnedVS(SkinnedVertexIn vin)
 	weights[1] = vin.Weights.y;
 	weights[2] = vin.Weights.z;
 	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
-	float3 posL     = float3(0.0f, 0.0f, 0.0f);
+	float3 posL = float3(0.0f, 0.0f, 0.0f);
 	// weights should be 1.0f, or 0.0f for none influence
 	// ensure vin is sorted weights from large to small
 	// weights[3] > 0.9f means weights == 0.0f that none influence
@@ -135,7 +135,7 @@ PatchTess PatchHS(
 	pt.EdgeTess[0] = 0.5f*(patch[1].TessFactor + patch[2].TessFactor);
 	pt.EdgeTess[1] = 0.5f*(patch[2].TessFactor + patch[0].TessFactor);
 	pt.EdgeTess[2] = 0.5f*(patch[0].TessFactor + patch[1].TessFactor);
-	pt.InsideTess  = pt.EdgeTess[0];
+	pt.InsideTess = pt.EdgeTess[0];
 	return pt;
 }
 struct HullOut

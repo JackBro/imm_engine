@@ -103,15 +103,11 @@ void phy_hit_arrange<T_app>::remove_all()
 	map_box_active.clear();
 	map_box_owner.clear();
 	bbox_l.clear();
-	bbox_l.shrink_to_fit();
 	bbox_w.clear();
-	bbox_w.shrink_to_fit();
 	is_active_box.clear();
-	is_active_box.shrink_to_fit();
+	is_active_att.clear();
 	map_att_active.clear();
 	map_att_ix.clear();
-	is_active_att.clear();
-	is_active_att.shrink_to_fit();
 }
 //
 template <typename T_app>

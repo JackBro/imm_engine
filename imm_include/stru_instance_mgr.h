@@ -527,9 +527,7 @@ void instance_mgr<T_app>::remove_all()
 	m_BoundL.remove_all();
 	m_BoundW.remove_all();
 	m_Stat.clear();
-	m_Stat.shrink_to_fit();
 	m_Troll.clear();
-	m_Troll.shrink_to_fit();
 	m_Steering.clear();
 	m_NameMap.clear();
 	m_IndexMap.clear();

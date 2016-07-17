@@ -596,11 +596,6 @@ void model_mgr::remove_all()
 	m_NameSkinned.clear();
 	m_NameBasicAlpha.clear();
 	m_NameBasic.clear();
-	m_InstPNTT.shrink_to_fit();
-	m_InstSkinnedAlpha.shrink_to_fit();
-	m_InstSkinned.shrink_to_fit();
-	m_InstBasicAlpha.shrink_to_fit();
-	m_InstBasic.shrink_to_fit();
 	m_InstPNTT.reserve(VECTOR_RESERVE);
 	m_InstSkinnedAlpha.reserve(VECTOR_RESERVE);
 	m_InstSkinned.reserve(VECTOR_RESERVE);

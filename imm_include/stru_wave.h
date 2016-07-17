@@ -171,7 +171,6 @@ void state_liquid::update(ID3D11DeviceContext *context, float dt, float total_ti
 		float r = math::calc_randf(0.7f, 1.0f);
 		wave.disturb(context, collision[0].y, collision[0].x, r);
 		collision.clear();
-		collision.shrink_to_fit();
 	}
 	wave.update(context, dt, total_time);
 }
@@ -274,7 +273,6 @@ envi_liquid::~envi_liquid()
 void envi_liquid::reload(ID3D11Device* device, const std::string &scene_ix)
 {
 	liquid.clear();
-	liquid.shrink_to_fit();
 	std::string concrete = IMM_PATH["script"]+"scene"+scene_ix+"\\concrete_instance.lua";
 	lua_reader l_reader;
 	l_reader.loadfile(concrete);

@@ -478,10 +478,6 @@ void phy_bound_mgr<T_app>::remove_all()
 	bd2.clear();
 	map.clear();
 	alter.clear();
-	bd0.shrink_to_fit();
-	bd1.shrink_to_fit();
-	bd2.shrink_to_fit();
-	map.shrink_to_fit();
 	is_altered = true;
 }
 //

@@ -67,7 +67,6 @@ void phy_wireframe<T_app>::remove_all()
 	remove_buffer();
 	box_collision.clear();
 	box_hit.clear();
-	box_hit.shrink_to_fit();
 	box_ai_bound.clear();
 }
 //

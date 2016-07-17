@@ -63,9 +63,6 @@ void ai_info<T_app>::reset()
 	vec_friend.clear();
 	vec_enemy.clear();
 	vec_all.clear();
-	vec_friend.shrink_to_fit();
-	vec_enemy.shrink_to_fit();
-	vec_all.shrink_to_fit();
 }
 //
 template <typename T_app>

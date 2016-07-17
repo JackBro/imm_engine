@@ -84,7 +84,6 @@ template <typename T_app>
 void ai_interface<T_app>::reset()
 {
 	mental_scene.clear();
-	mental_scene.shrink_to_fit();
 }
 //
 template <typename T_app>
