@@ -77,7 +77,7 @@ scene_mgr<T_app>::scene_mgr():
 	dir_lights_orignial[1] = dir_lights[1].direction;
 	dir_lights_orignial[2] = dir_lights[2].direction;
 	bounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	bounds.Radius = sqrtf(80.0f*80.0f + 80.0f*80.0f);
+	bounds.Radius = sqrtf(200.0f*200.0f + 200.0f*200.0f);
 }
 template <typename T_app>
 scene_mgr<T_app>::~scene_mgr()

@@ -49,8 +49,8 @@ public:
 	void draw_scene_d3d_shadow();
 	void draw_scene_d3d_slient();
 	void draw_scene_d2d();
-	//
-	static const int m_SMapSize = 2048;
+	// light_helper.fx SMAP_SIZE
+	static const int m_SMapSize = 8192;
 	bool m_IsSyncInterval;
 	cmd_shell<imm_app> m_Cmd;
 	POINT m_LastMousePos;

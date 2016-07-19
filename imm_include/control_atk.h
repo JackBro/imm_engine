@@ -25,8 +25,8 @@ struct sfx
 };
 //
 std::string sfx::Punch     = "punch";
-std::string sfx::Prepare01 = "spark";
-std::string sfx::Lightning = "voltage";
+std::string sfx::Prepare01 = "magic_spell";
+std::string sfx::Lightning = "electricity_spark";
 ////////////////
 // SKILL_TYPE
 ////////////////
