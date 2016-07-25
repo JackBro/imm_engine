@@ -128,7 +128,7 @@ void ai_Seek::execute(steering *ste)
 		if (!ste->close[ste->target]) ste->count_down -= AI_DELTA_TIME_PHY_SLOW;
 	}
 	if (PTR->m_Control.map_stop[ste->index].last_time > 5.0f) {
-		PTR->m_Control.map_stop[ste->index].interrupt(PTR, ste->index);
+		PTR->m_Inst.m_Troll[ste->index].order |= ORDER_IDLE;
 		ste->count_down = -1.0f;
 	}
 	if (PTR->m_Inst.m_Steering[ste->index].close[ste->target]) {
@@ -161,6 +161,10 @@ void ai_Atk::enter(steering *ste)
 void ai_Atk::execute(steering *ste)
 {
 	if (PTR->m_Inst.m_Troll[ste->index].current_state == pose_Damage::instance()) {
+		return;
+	}
+	// wait pose_Idle
+	if (PTR->m_Inst.m_Troll[ste->index].current_state == pose_Move::instance()) {
 		return;
 	}
 	if (PTR->m_Control.atk.is_execute(ste->index)) {

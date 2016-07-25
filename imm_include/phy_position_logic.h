@@ -33,7 +33,7 @@ void phy_position_update(
 	phy_property &prop_Land,
 	const XMFLOAT3 &center,
 	const float &extents_y,
-	const float &Land_y)
+	const float &land_y)
 {
 	if (prop.is_abnormal) return;
 	if (!prop.is_on_land) {
@@ -57,7 +57,7 @@ void phy_position_update(
 		// stand_adjust keep object full stand on Land
 		// guarantee object.intersects(Land) return true, exclude if they have a little gap
 		float stand_adjust = -0.01f;
-		float stand = extents_y+Land_y+stand_adjust;
+		float stand = extents_y+land_y+stand_adjust;
 		center_y += prop.velocity.y*dt + prop.vel_indirect.y*dt;
 		world._41 += prop.velocity.x*dt + prop.vel_indirect.x*dt;
 		world._43 += prop.velocity.z*dt + prop.vel_indirect.z*dt;
@@ -101,6 +101,7 @@ void phy_impulse_casual(
 	const bool &is_B_fixed)
 {
 	if (!is_touch) return;
+	if (is_A_fixed && is_B_fixed) return;
 	XMMATRIX w_A = XMLoadFloat4x4(&world_A);
 	XMMATRIX w_B = XMLoadFloat4x4(&world_B);
 	XMVECTOR c_A = XMLoadFloat3(&center_A);

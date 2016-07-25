@@ -51,7 +51,7 @@ void pose_Idle::execute(troll *tro)
 			tro->order_stat ^= ORDER_IS_ENGAGE;
 			PTR->m_Inst.m_Stat[tro->index].set_switch_current_ClipName(tro->act.Idle(), 5);
 		}
-	}	
+	}
 	if (tro->order & ORDER_JUMP) {
 		tro->change_state_execute(pose_Jump::instance());
 		return;

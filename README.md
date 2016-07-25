@@ -14,7 +14,8 @@ the [DirectX 11 book](http://www.amazon.com/dp/1936420228/) by Frank Luna.
 
 Current State:
 ---------------
-This open source project is not guarantee to be the latest version compared with Dragon's Ingot.
+This open source project is just a technic showcase.
+It is not guarantee to be the latest version compared with Dragon's Ingot.
 
 Disadvantage List:
 ------------------
