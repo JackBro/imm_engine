@@ -158,13 +158,9 @@ void phy_hit_arrange<T_app>::read_lua_bound_offset()
 		offset.push_back(std::stof(vec2d[ix][1]));
 		offset.push_back(std::stof(vec2d[ix][2]));
 		offset.push_back(std::stof(vec2d[ix][3]));
-		
 		offset.push_back(std::stof(vec2d[ix][4]));
 		offset.push_back(std::stof(vec2d[ix][5]));
 		offset.push_back(std::stof(vec2d[ix][6]));
-		
-		
-		
 		model_bound_offset[vec2d[ix][0]] = offset;
 	}
 }
@@ -255,8 +251,8 @@ void phy_hit_arrange<T_app>::update_collision()
 					map_box_owner[ix],
 					ix_inst,
 					bbox_w[ix].Center,
-					SKILL_MELEE_STANDARD);
-				//
+					SKILL_MELEE_STANDARD
+				);
 			}
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),
@@ -271,10 +267,8 @@ void phy_hit_arrange<T_app>::update_collision()
 				bbox_w[ix].Center,
 				app->m_Inst.m_BoundW.center(ix_inst),
 				is_touch,
-				true,
-				false,
-				app->m_Inst.m_Stat[ix_inst].get_InteractiveType() & PHY_INTERA_FIXED);
-			//
+				true
+			);
 		}
 	}
 	// weapon
@@ -294,8 +288,8 @@ void phy_hit_arrange<T_app>::update_collision()
 					owner_ix,
 					ix_inst,
 					app->m_Inst.m_BoundW.center(weapon_ix),
-					SKILL_MELEE_STANDARD);
-				//
+					SKILL_MELEE_STANDARD
+				);
 			}
 			phy_impulse_casual(
 				app->m_Timer.delta_time(),
@@ -310,10 +304,8 @@ void phy_hit_arrange<T_app>::update_collision()
 				app->m_Inst.m_BoundW.center(ix),
 				app->m_Inst.m_BoundW.center(ix_inst),
 				is_touch,
-				true,
-				false,
-				app->m_Inst.m_Stat[ix_inst].get_InteractiveType() & PHY_INTERA_FIXED);
-			//
+				true
+			);
 		}
 	}
 }

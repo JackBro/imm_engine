@@ -53,7 +53,6 @@ struct instance_stat
 	std::string *get_ModelName();
 	std::string *get_ClipName();
 	PHY_BOUND_TYPE get_BoundType();
-	PHY_INTERACTIVE_TYPE get_InteractiveType();
 	void set_World(const XMFLOAT4X4 &world);
 	void set_World(const XMMATRIX &world);
 	void set_WorldPos(const XMFLOAT3 &pos);
@@ -146,25 +145,6 @@ PHY_BOUND_TYPE instance_stat::get_BoundType()
 	}
 	assert(bound_t <= 2 && bound_t >= 0);
 	return static_cast<PHY_BOUND_TYPE>(bound_t);
-}
-//
-PHY_INTERACTIVE_TYPE instance_stat::get_InteractiveType()
-{
-	int inter_t = -1;
-	switch(type) {
-	case MODEL_BASIC:
-		inter_t = ((basic_model_instance*)ptr)->model->m_InteractiveType;
-		break;
-	case MODEL_SKINNED:
-		inter_t = ((skinned_model_instance*)ptr)->model->m_InteractiveType;
-		break;
-	case MODEL_SIMPLE_P:
-		inter_t = ((simple_model_instance<vertex::pntt>*)ptr)->model->m_NameInteractiveType.at(
-			((simple_model_instance<vertex::pntt>*)ptr)->model_name);
-		break;
-	}
-	assert(inter_t > -1);
-	return static_cast<PHY_INTERACTIVE_TYPE>(inter_t);
 }
 //
 void instance_stat::set_World(const XMFLOAT4X4 &world)

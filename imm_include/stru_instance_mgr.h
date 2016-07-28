@@ -207,7 +207,8 @@ void instance_mgr<T_app>::push_back_basic(
 			phy_set_box(
 				m_BoundL.bd0.back(),
 				v_inst[ix].model->m_Vertices,
-				get_pos_f);
+				get_pos_f
+			);
 			if (m_App->m_Hit.model_bound_offset.count(*inst_stat.get_ModelName())) {
 				m_BoundL.set_box_offset(k-1, m_App->m_Hit.model_bound_offset[*inst_stat.get_ModelName()]);
 			}
@@ -217,7 +218,8 @@ void instance_mgr<T_app>::push_back_basic(
 			phy_set_box(
 				m_BoundL.bd1.back(),
 				v_inst[ix].model->m_Vertices,
-				get_pos_f);
+				get_pos_f
+			);
 			m_BoundL.bd1.back().Orientation = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 			if (m_App->m_Hit.model_bound_offset.count(*inst_stat.get_ModelName())) {
 				m_BoundL.set_box_offset(k-1, m_App->m_Hit.model_bound_offset[*inst_stat.get_ModelName()]);
@@ -228,6 +230,13 @@ void instance_mgr<T_app>::push_back_basic(
 			assert(false);
 			break;
 		}
+		
+		
+		XMMATRIX world = XMLoadFloat4x4(inst_stat.get_World());
+		m_BoundL.transform(k-1, m_BoundW, world);
+		
+		
+		m_BoundW.set_phy_value(k-1);
 	}
 }
 //
@@ -253,8 +262,9 @@ void instance_mgr<T_app>::push_back_pntt(
 			v_inst[ix].model->m_Vertices,
 			get_pos_f,
 			vert_range.first,
-			vert_range.second);
-		//
+			vert_range.second
+		);
+		m_BoundL.set_phy_value(k-1);
 	}
 }
 //
@@ -276,6 +286,7 @@ void instance_mgr<T_app>::copy_instance(const std::string &inst_name, const std:
 		m_BoundL.push_back_empty(m_Stat.back().get_BoundType());
 		m_BoundW.push_back_empty(m_Stat.back().get_BoundType());
 		m_BoundL.bd0.back() = m_BoundL.bd0[m_BoundL.map.at(inst_ix).second];
+		m_BoundL.set_phy_value(inst_size);
 	}
 }
 //
@@ -353,10 +364,8 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 			m_BoundW.center(ix),
 			m_BoundW.center(ix2),
 			is_touch,
-			false,
-			m_Stat[ix].get_InteractiveType() & PHY_INTERA_FIXED,
-			m_Stat[ix2].get_InteractiveType() & PHY_INTERA_FIXED);
-		//
+			false
+		);
 	}}
 }
 //
@@ -468,7 +477,7 @@ void instance_mgr<T_app>::update_collision_liquid(float dt)
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		if (m_Stat[ix].property & INST_IS_LAND) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
-		if (m_Stat[ix].get_InteractiveType() & PHY_INTERA_FIXED) continue;
+		if (*m_Stat[ix].phy.intera_tp & PHY_INTERA_FIXED) continue;
 		switch(m_BoundW.map[ix].first) {
 		case PHY_BOUND_BOX:
 			m_App->m_Scene.liquid.intersects(m_BoundW.bd0[m_BoundW.map[ix].second], dt, ix);

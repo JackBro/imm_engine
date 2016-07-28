@@ -30,7 +30,7 @@ void phy_position_update(
 	const float &dt,
 	XMFLOAT4X4 &world,
 	phy_property &prop,
-	phy_property &prop_Land,
+	phy_property &prop_land,
 	const XMFLOAT3 &center,
 	const float &extents_y,
 	const float &land_y)
@@ -45,8 +45,8 @@ void phy_position_update(
 		world._43 += prop.velocity.z*dt + prop.vel_indirect.z*dt;
 	}
 	else {
-		float bounce = prop.bounce*prop_Land.bounce;
-		float friction_rev = prop.friction_rev*prop_Land.friction_rev;
+		float bounce = prop.bounce*prop_land.bounce;
+		float friction_rev = prop.friction_rev*prop_land.friction_rev;
 		prop.acceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		if (prop.velocity.y < 0.0f) prop.velocity.y = -prop.velocity.y*bounce*FPS60*dt;
 		prop.velocity.x *= friction_rev*0.1f*FPS60*dt;
@@ -96,12 +96,10 @@ void phy_impulse_casual(
 	const XMFLOAT3 &center_A,
 	const XMFLOAT3 &center_B,
 	const bool &is_touch,
-	const bool &is_A_atk,
-	const bool &is_A_fixed,
-	const bool &is_B_fixed)
+	const bool &is_A_atk)
 {
 	if (!is_touch) return;
-	if (is_A_fixed && is_B_fixed) return;
+	if ((*prop_A.intera_tp & PHY_INTERA_FIXED) && (*prop_B.intera_tp & PHY_INTERA_FIXED)) return;
 	XMMATRIX w_A = XMLoadFloat4x4(&world_A);
 	XMMATRIX w_B = XMLoadFloat4x4(&world_B);
 	XMVECTOR c_A = XMLoadFloat3(&center_A);
@@ -109,18 +107,38 @@ void phy_impulse_casual(
 	XMVECTOR offset_A = XMVectorSubtract(w_A.r[3], c_A);
 	XMVECTOR offset_B = XMVectorSubtract(w_B.r[3], c_B);
 	// AtoB is the collision normal vector.
-	XMVECTOR AtoB = XMVector3Normalize(XMVectorSubtract(c_B, c_A));
+	XMVECTOR AtoB = XMVectorSubtract(c_B, c_A);
+	if (prop_A.p_aabb3 && prop_B.p_aabb3) {
+	if (abs(prop_A.avg_extent-prop_B.avg_extent)/(std::min)(prop_A.avg_extent, prop_B.avg_extent) > 1.0f) {
+		float big_x = (std::max)(prop_A.p_aabb3->x, prop_B.p_aabb3->x);
+		if (big_x < abs(XMVectorGetX(AtoB)) ) {
+			AtoB = XMVectorSetZ(AtoB, 0.0f);
+			AtoB = XMVectorSetY(AtoB, 0.0f);
+		}
+		float big_z = (std::max)(prop_A.p_aabb3->z, prop_B.p_aabb3->z);
+		if (big_z < abs(XMVectorGetZ(AtoB)) ) {
+			AtoB = XMVectorSetX(AtoB, 0.0f);
+			AtoB = XMVectorSetY(AtoB, 0.0f);
+		}
+		float big_y = (std::max)(prop_A.p_aabb3->y, prop_B.p_aabb3->y);
+		if (big_y < abs(XMVectorGetY(AtoB)) ) {
+			AtoB = XMVectorSetX(AtoB, 0.0f);
+			AtoB = XMVectorSetZ(AtoB, 0.0f);
+		}
+	}}
+	AtoB = XMVector3Normalize(AtoB);
+	//
 	XMVECTOR vel_A = XMLoadFloat3(&prop_A.velocity);
-	if (is_A_atk) vel_A += XMLoadFloat3(&prop_A.vel_indirect);
 	XMVECTOR vel_B = XMLoadFloat3(&prop_B.velocity);
 	// empirical formula, vel_indirect is different from velocity
-	XMVECTOR vel_A_nm = XMLoadFloat3(&prop_A.vel_indirect);
-	XMVECTOR vel_B_nm = XMLoadFloat3(&prop_B.vel_indirect);
-	XMVECTOR vel_A_all = XMVectorAdd(vel_A, vel_A_nm);
-	XMVECTOR vel_B_all = XMVectorAdd(vel_B, vel_B_nm);
+	XMVECTOR vel_A_indir = XMLoadFloat3(&prop_A.vel_indirect);
+	XMVECTOR vel_B_indir = XMLoadFloat3(&prop_B.vel_indirect);
+	XMVECTOR vel_A_all = XMVectorAdd(vel_A, vel_A_indir);
+	XMVECTOR vel_B_all = XMVectorAdd(vel_B, vel_B_indir);
 	// penetration depth estimate, not accurate, increase its value
-	float penetration_scale = 1.5f;
-	float penetration = XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*penetration_scale;
+	float penetration_scale = 1.0f;
+	float penetration = 
+		XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*penetration_scale;
 	// bounce
 	float bounce = prop_A.bounce*prop_B.bounce;
 	XMVECTOR vel_AB_all = XMVectorSubtract(vel_A_all, vel_B_all);
@@ -138,13 +156,15 @@ void phy_impulse_casual(
 	w_A.r[3] = XMVectorSetW(w_A.r[3], 1.0f);
 	w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
 	// store result
-	if (!is_B_fixed) {
+	if (!(*prop_B.intera_tp & PHY_INTERA_FIXED)) {
 		XMStoreFloat3(&prop_B.velocity, vel_B);
 		XMStoreFloat4x4(&world_B, w_B);
 	}
-	// if A is attacking, do not move
-	if (is_A_atk) return;
-	if (!is_A_fixed) {
+	if (is_A_atk) {
+		// no save A
+		return;
+	}
+	if (!(*prop_A.intera_tp & PHY_INTERA_FIXED)) {
 		XMStoreFloat3(&prop_A.velocity, vel_A);
 		XMStoreFloat4x4(&world_A, w_A);
 	}

@@ -11,6 +11,7 @@
 #include <DirectXCollision.h>
 #include <vector>
 #include <string>
+#include <algorithm>
 using namespace DirectX;
 namespace imm
 {
@@ -25,10 +26,13 @@ struct phy_property
 	XMFLOAT3 vel_indirect; // velcoity of no direct mechanical motion, for example: walk, run
 	XMFLOAT3 vel_bring;
 	XMFLOAT3 acceleration;
+	XMFLOAT3 *p_aabb3;
 	float mass; // not use now
 	float friction_rev; // reversed coefficient of friction, 0 <= this <= 1, ignore original friction > 1
 	float bounce;
+	float avg_extent;
 	int stand_on;
+	int *intera_tp;
 	bool is_land;
 	bool is_on_land;
 	bool is_abnormal;
@@ -39,10 +43,13 @@ phy_property::phy_property():
 	vel_indirect(0.0f, 0.0f, 0.0f),
 	vel_bring(0.0f, 0.0f, 0.0f),
 	acceleration(0.0f, 0.0f, 0.0f),
+	p_aabb3(nullptr),
 	mass(0.0f),
 	friction_rev(0.3f),
 	bounce(0.3f),
+	avg_extent(1.0f),
 	stand_on(-1),
+	intera_tp(nullptr),
 	is_land(false),
 	is_on_land(false),
 	is_abnormal(false)
@@ -196,6 +203,7 @@ public:
 	void push_back_empty(const PHY_BOUND_TYPE &type);
 	void set_box_offset(const size_t &ix, const std::vector<float> &offset);
 	void set_box_offset(const size_t &ix, const std::vector<float> &offset, const bool &is_forward);
+	void set_phy_value(const size_t &ix);
 	void switch_box_alter(const bool &is_alter, const phy_bound_mgr &mgr_in);
 	void transform(const size_t &ix, phy_bound_mgr &out, CXMMATRIX &world);
 	bool intersects(const size_t &ixA, const size_t &ixB);
@@ -289,6 +297,51 @@ void phy_bound_mgr<T_app>::set_box_offset(const size_t &ix, const std::vector<fl
 		break;
 	default:
 		assert(false);
+	}
+}
+template <typename T_app>
+void phy_bound_mgr<T_app>::set_phy_value(const size_t &ix)
+{
+	XMFLOAT3 extent;
+	float sum_extent;
+	switch(map[ix].first) {
+	case PHY_BOUND_BOX:
+		// phy_impulse_casual() calculate PHY_BOUND_BOX collision normal vector
+		// PHY_BOUND_ORI_BOX, PHY_BOUND_SPHERE not use p_aabb3
+		app->m_Inst.m_Stat[ix].phy.p_aabb3 = &bd0[map[ix].second].Extents;
+		extent = bd0[map[ix].second].Extents;
+		sum_extent = extent.x + extent.y + extent.z;
+		app->m_Inst.m_Stat[ix].phy.avg_extent = sum_extent/3.0f;
+		break;
+	case PHY_BOUND_ORI_BOX:
+		app->m_Inst.m_Stat[ix].phy.p_aabb3 = nullptr;
+		extent = bd1[map[ix].second].Extents;
+		sum_extent = extent.x + extent.y + extent.z;
+		app->m_Inst.m_Stat[ix].phy.avg_extent = sum_extent/3.0f;
+		break;
+	case PHY_BOUND_SPHERE:
+		app->m_Inst.m_Stat[ix].phy.p_aabb3 = nullptr;
+		app->m_Inst.m_Stat[ix].phy.avg_extent = bd2[map[ix].second].Radius;
+		break;
+	default:
+		assert(false);
+	}
+	//
+	auto ptr = app->m_Inst.m_Stat[ix].ptr;
+	switch(app->m_Inst.m_Stat[ix].type) {
+	case MODEL_BASIC:
+		app->m_Inst.m_Stat[ix].phy.intera_tp = 
+			&((basic_model_instance*)ptr)->model->m_InteractiveType;
+		break;
+	case MODEL_SKINNED:
+		app->m_Inst.m_Stat[ix].phy.intera_tp = 
+			&((skinned_model_instance*)ptr)->model->m_InteractiveType;
+		break;
+	case MODEL_SIMPLE_P:
+		app->m_Inst.m_Stat[ix].phy.intera_tp = 
+			&((simple_model_instance<vertex::pntt>*)ptr)->model->m_NameInteractiveType.at(
+			((simple_model_instance<vertex::pntt>*)ptr)->model_name);
+		break;
 	}
 }
 //
@@ -476,6 +529,9 @@ void phy_bound_mgr<T_app>::remove_all()
 	bd0.clear();
 	bd1.clear();
 	bd2.clear();
+	bd0.reserve(VECTOR_RESERVE);
+	bd1.reserve(VECTOR_RESERVE);
+	bd2.reserve(VECTOR_RESERVE);
 	map.clear();
 	alter.clear();
 	is_altered = true;
