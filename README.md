@@ -96,5 +96,6 @@ You must write a game object by handwriting, this limits the complexity of a sce
 Copyright and License:
 ----------------------
 * Copyright 2015-2016 Huang Yiting (http://endrollex.com)
-* immature engine is distributed under the the terms of the BSD license
-* Not include the files in folders of suffix "_3rd_party".
+* immature engine is distributed under the the terms of the BSD license.
+* immature engine's work not include the code in folders of suffix "_3rd_party".
+* The complete game Dragon's Ingot is proprietary and retains intellectual property rights.

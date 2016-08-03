@@ -54,8 +54,11 @@ void phy_position_update(
 		// use center compare stand
 		float offset_y = world._42-center.y;
 		float center_y = center.y;
-		// stand_adjust keep object full stand on Land
-		// guarantee object.intersects(Land) return true, exclude if they have a little gap
+		// phy_impulse_casual() produce fake velocity of PHY_INTERA_FIXED
+		// but not adjust PHY_INTERA_FIXED's full stand on land
+		if (*prop.intera_tp & PHY_INTERA_FIXED) return;
+		// stand_adjust keep object full stand on land
+		// guarantee object.intersects(land) return true, exclude if they have a little gap
 		float stand_adjust = -0.01f;
 		float stand = extents_y+land_y+stand_adjust;
 		center_y += prop.velocity.y*dt + prop.vel_indirect.y*dt;
@@ -135,6 +138,15 @@ void phy_impulse_casual(
 	XMVECTOR vel_B_indir = XMLoadFloat3(&prop_B.vel_indirect);
 	XMVECTOR vel_A_all = XMVectorAdd(vel_A, vel_A_indir);
 	XMVECTOR vel_B_all = XMVectorAdd(vel_B, vel_B_indir);
+	//
+	if (prop_B.bring_ix != prop_A.ix) {
+		XMVECTOR vel_B_bring = XMLoadFloat3(&prop_B.vel_bring);
+		vel_B_all = XMVectorAdd(vel_B_all, vel_B_bring);
+	}
+	if (prop_A.bring_ix != prop_B.ix) {
+		XMVECTOR vel_A_bring = XMLoadFloat3(&prop_A.vel_bring);
+		vel_A_all = XMVectorAdd(vel_A_all, vel_A_bring);
+	}
 	// penetration depth estimate, not accurate, increase its value
 	float penetration_scale = 1.0f;
 	float penetration = 
@@ -148,6 +160,15 @@ void phy_impulse_casual(
 	injected_impulse = XMVectorScale(injected_impulse, FPS60*dt);
 	vel_A = XMVectorAdd(vel_A, injected_impulse);
 	vel_B = XMVectorSubtract(vel_B, injected_impulse);
+	// translate force as estimated velocity value
+	if (*prop_A.intera_tp & PHY_INTERA_STATIC) {
+		XMStoreFloat3(&prop_A.vel_bring, XMVectorScale(vel_B_all, 1.5f));
+		prop_A.bring_ix = prop_B.ix;
+	}
+	if (*prop_B.intera_tp & PHY_INTERA_STATIC) {
+		XMStoreFloat3(&prop_B.vel_bring, XMVectorScale(vel_A_all, 1.5f));
+		prop_B.bring_ix = prop_A.ix;
+	}
 	// Fix the positions so that the two objects are apart, not accurate
 	c_A = XMVectorSubtract(c_A, XMVectorScale(AtoB, penetration));
 	c_B = XMVectorAdd(c_B, XMVectorScale(AtoB, penetration));

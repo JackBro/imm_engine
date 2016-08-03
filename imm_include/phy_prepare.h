@@ -32,6 +32,8 @@ struct phy_property
 	float bounce;
 	float avg_extent;
 	int stand_on;
+	int ix;
+	int bring_ix;
 	int *intera_tp;
 	bool is_land;
 	bool is_on_land;
@@ -49,6 +51,8 @@ phy_property::phy_property():
 	bounce(0.3f),
 	avg_extent(1.0f),
 	stand_on(-1),
+	ix(0),
+	bring_ix(-1),
 	intera_tp(nullptr),
 	is_land(false),
 	is_on_land(false),
@@ -141,16 +145,18 @@ void phy_set_box_offset(T_bound &bbox, const std::vector<float> &offset, const b
 ////////////////
 enum PHY_INTERACTIVE_TYPE
 {
-	PHY_INTERA_DEFAULT  = 0x0,
+	PHY_INTERA_MOVABLE  = 0x0,
 	PHY_INTERA_FIXED    = 0x1,
 	PHY_INTERA_NO_BOUND = 0x2,
+	PHY_INTERA_STATIC   = 0x4,
 };
 //
 PHY_INTERACTIVE_TYPE phy_interactive_type_str(const std::string &str)
 {
-	if (str == "DEFAULT") return PHY_INTERA_DEFAULT;
+	if (str == "MOVABLE") return PHY_INTERA_MOVABLE;
 	if (str == "FIXED") return PHY_INTERA_FIXED;
 	if (str == "NO_BOUND") return PHY_INTERA_NO_BOUND;
+	if (str == "STATIC") return PHY_INTERA_STATIC;
 	ERROR_MESA("PHY_INTERACTIVE_TYPE error");
 }
 ////////////////
@@ -343,6 +349,8 @@ void phy_bound_mgr<T_app>::set_phy_value(const size_t &ix)
 			((simple_model_instance<vertex::pntt>*)ptr)->model_name);
 		break;
 	}
+	//
+	app->m_Inst.m_Stat[ix].phy.ix = static_cast<int>(ix);
 }
 //
 template <typename T_app>

@@ -230,12 +230,8 @@ void instance_mgr<T_app>::push_back_basic(
 			assert(false);
 			break;
 		}
-		
-		
 		XMMATRIX world = XMLoadFloat4x4(inst_stat.get_World());
 		m_BoundL.transform(k-1, m_BoundW, world);
-		
-		
 		m_BoundW.set_phy_value(k-1);
 	}
 }
