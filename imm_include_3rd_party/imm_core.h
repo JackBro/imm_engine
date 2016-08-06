@@ -123,7 +123,6 @@ public:
 	__int64 m_PrevTime;
 	__int64 m_CurrTime;
 	__int64 m_CurrTest;
-	
 	bool m_Stopped;
 };
 // inial all!

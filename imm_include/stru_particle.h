@@ -121,7 +121,7 @@ void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 	pt_lightning.init(device, effects::m_PtLightningFX, tex_lightning_srv, tex_random_srv, 1, 10);
 	// Test
 	list_fire.emplace_back();
-	list_fire.back().pos = XMFLOAT3(10.0f, 20.0f, 0.0f);
+	list_fire.back().pos = XMFLOAT3(10.0f, 20.0f, -10.0f);
 	list_fire.back().count_down = 50.0f;
 }
 //

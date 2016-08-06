@@ -10,7 +10,7 @@ All features tend to be minimized.
 The fundamental 3D rendering technique is derived from 
 the [DirectX 11 book](http://www.amazon.com/dp/1936420228/) by Frank Luna.
 **It is almost impossible to use due to weak development scale and absence of visualization scene editor.**
-**Not recommended this engine for serious using.**
+**Strongly recommend Unity3D or Unreal Engine but not this engine.**
 
 Current State:
 ---------------

@@ -100,7 +100,7 @@ base_win<DERIVED_TYPE>::base_win():
 	m_IsInteropD2D(true),
 	m_IsLockFrameRate(false),
 	m_4xMsaaQuality(0),
-	m_ClientWidth(800),
+	m_ClientWidth(1067),
 	m_ClientHeight(600),
 	m_AspectRatio(0.0f),
 	m_FrameDeltaLock(1.0/60.0),
