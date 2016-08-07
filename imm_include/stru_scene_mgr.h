@@ -17,6 +17,23 @@
 namespace imm
 {
 ////////////////
+// loading_info
+////////////////
+////////////////
+struct loading_info
+{
+	loading_info();
+	std::string scene_ix;
+	std::wstring text;
+};
+//
+loading_info::loading_info():
+	scene_ix(),
+	text()
+{
+	;	
+}
+////////////////
 // scene_mgr
 ////////////////
 ////////////////
@@ -34,8 +51,8 @@ struct scene_mgr
 	void reload_instance();
 	void reload_skybox();
 	void reload_terrain(lua_reader &l_reader);
-	void relaod_terrain_after_instance();
-	void reload_media_misc();
+	void relaod_after_instance_build();
+	void reload_stop_misc();
 	T_app *app;
 	std::map<std::string, std::string> get_misc;
 	light_dir dir_lights[3];
@@ -49,8 +66,10 @@ struct scene_mgr
 	audio_dxtk audio;
 	phy_wireframe<T_app> phy_wire;
 	std::string scene_ix;
+	std::map<std::string, loading_info> map_loading;
 	float begin_time;
 	float shadow_light_pos_far;
+	float loading_wait;
 	bool is_reload_schedule;
 	bool is_loading_atmosphere;
 	bool is_reload_done;
@@ -66,8 +85,10 @@ scene_mgr<T_app>::scene_mgr():
 	audio(),
 	phy_wire(),
 	scene_ix(),
+	map_loading(),
 	begin_time(FLT_MAX),
 	shadow_light_pos_far(100.0f),
+	loading_wait(0.0f),
 	is_reload_schedule(false),
 	is_loading_atmosphere(false),
 	is_reload_done(false)
@@ -97,7 +118,17 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 	app->m_AiInfo.init(app);
 	app->m_AiAttr.init(app);
 	app->m_AiInterf.init_load(app);
-	reload(L"00");
+	//
+	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
+	lua_reader l_reader;
+	l_reader.loadfile(concrete);
+	std::vector<std::vector<std::string>> vec2d;
+	l_reader.vec2d_str_from_table("csv_scene_info1", vec2d);
+	for (size_t ix = 1; ix < vec2d.size(); ++ix) {
+		map_loading[vec2d[ix][0]].text = str_to_wstr(vec2d[ix][1]);
+	}
+	//
+	reload(SCENE_FIRST);
 }
 //
 template <typename T_app>
@@ -137,12 +168,13 @@ void scene_mgr<T_app>::update_listen_thread_for_reload()
 	// Clean update in main,
 	// that guarantee no other update when reload,
 	// avoid thread(instance_mgr::reload).detach and instance_mgr::update conflict
-	if (is_reload_schedule) {
+	// ID3D11DeviceContext is not thread-safe, avoid loading conflict
+	if (is_reload_schedule && !app->m_Cmd.is_draw_loading_1frame) {
 		reload_in_main_update();
 		is_reload_schedule = false;
 	}
 	if (!is_reload_done && !app->m_Inst.m_IsLoading && !is_loading_atmosphere) {
-		relaod_terrain_after_instance();
+		relaod_after_instance_build();
 		app->m_Cmd.is_preparing = false;
 		begin_time = app->m_Timer.total_time();
 		is_reload_done = true;
@@ -157,10 +189,18 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	is_loading_atmosphere = true;
 	is_reload_done = false;
 	begin_time = FLT_MAX;
+	app->m_Cmd.loading_time_min = loading_wait;
+	app->m_Cmd.is_wait_loading = true;
 	app->m_Cmd.is_preparing = true;
 	assert(!app->m_Inst.m_IsLoading);
 	app->m_Inst.m_IsLoading = true;
 	scene_ix = wstr_to_str(scene_ix_in);
+	if (app->m_Cmd.loading_time_min > 0.1f) app->m_Cmd.is_draw_loading_1frame = true;
+	if (scene_ix_in != SCENE_FIRST) {
+		app->m_Cmd.input_loading.assign(map_loading[scene_ix].text);
+		app->m_Cmd.back_color = Colors::Black;
+		app->m_Cmd.chage_loading_font_factor(app->m_Cmd.font_factor*2.0f);
+	}
 }
 //
 template <typename T_app>
@@ -181,7 +221,7 @@ void scene_mgr<T_app>::reload_in_main_update()
 	reload_instance();
 	reload_skybox();
 	reload_terrain(l_reader);
-	reload_media_misc();
+	reload_stop_misc();
 	is_loading_atmosphere = false;
 }
 //
@@ -237,7 +277,7 @@ void scene_mgr<T_app>::reload_terrain(lua_reader &l_reader)
 	terrain1.init(app->m_D3DDevice, app->m_D3DDC, tii);
 }
 template <typename T_app>
-void scene_mgr<T_app>::relaod_terrain_after_instance()
+void scene_mgr<T_app>::relaod_after_instance_build()
 {
 	if (!terrain1.is_initialized()) return;
 	// fix instance height
@@ -254,16 +294,13 @@ void scene_mgr<T_app>::relaod_terrain_after_instance()
 	}
 }
 template <typename T_app>
-void scene_mgr<T_app>::reload_media_misc()
+void scene_mgr<T_app>::reload_stop_misc()
 {
-	// Audio
 	audio.stop_bgm();
-	if (!csv_value_is_empty(get_misc["play_bgm"])) audio.play_bgm(get_misc["play_bgm"]);
-	// UI
-	app->m_UiMgr.reload_active(get_misc["ui_class"], get_misc["ui_group"]);
-	app->m_UiMgr.dialogue.rebuild_text();
-	// misc
 	app->m_Condition.reset();
+	app->m_UiMgr.dialogue.rebuild_text();
+	if (!csv_value_is_empty(get_misc["play_bgm"])) audio.play_bgm(get_misc["play_bgm"]);
+	app->m_UiMgr.reload_active(get_misc["ui_class"], get_misc["ui_group"]);
 }
 //
 }

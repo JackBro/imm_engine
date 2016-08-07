@@ -232,7 +232,7 @@ bool ui_def_welcome<T_app>::define_apply_ix_if(int &index)
 	// entrance
 	if (index == m_MapID["entrance_start"]) {
 		// avoid pad update case scene reload conflict
-		if (!m_App->m_Cmd.is_preparing) m_App->m_Scene.reload(L"01");
+		if (!m_App->m_Cmd.is_preparing) m_App->m_Scene.reload(SCENE_SECOND);
 		return true;
 	}
 	if (index == m_MapID["entrance_options"]) {
@@ -267,7 +267,8 @@ bool ui_def_welcome<T_app>::define_apply_ix_if(int &index)
 	}
 	// exit
 	if (index == m_MapID["exit_yes"]) {
-		PostQuitMessage(0);
+		DestroyWindow(m_App->m_hwnd);
+		SendMessage(m_App->m_hwnd, WM_DESTROY, 0, 0);
 		return true;
 	}
 	if (index == m_MapID["exit_no"]) {

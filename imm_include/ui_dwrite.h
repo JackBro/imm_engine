@@ -38,7 +38,8 @@ struct dwrite_simple
 		HWND &hwnd,
 		const std::wstring &font_name,
 		const FLOAT &margin_factor,
-		const float &font_factor);
+		const float &font_factorm,
+		const DWRITE_ALIG_STYLE &text_alig_style);
 	// for draw rect form external
 	void init_external_rect(
 		ID2D1DeviceContext *d2d_dc,
@@ -158,9 +159,11 @@ void dwrite_simple::init_member_rect(
 	HWND &hwnd,
 	const std::wstring &font_name,
 	const FLOAT &margin_factor,
-	const float &font_factor)
+	const float &font_factor,
+	const DWRITE_ALIG_STYLE &text_alig_style)
 {
 	m_FontName = font_name;
+	m_TextAligStyle = text_alig_style;
 	m_FontFactor = font_factor;
 	HR(DWriteCreateFactory(
 		DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&m_WriteFactory)));

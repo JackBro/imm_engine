@@ -5,15 +5,27 @@
 void imm_app::draw_scene()
 {
 	// ID3D11DeviceContext is not thread-safe, avoid loading conflict
-	// ID3D11Device::CreateBuffer has a bug with atidxx64.dll (because of the driver optimizing),
-	// avoid draw scene when loading
-	// Problem Url:
-	// ID3D11Device::CreateBuffer crashes, redux
-	// https://community.amd.com/thread/170834
-	if (m_Cmd.is_preparing) return;
-	if (!m_Cmd.is_waiting_for_something()) draw_scene_d3d();
-	else draw_scene_d3d_slient();
-	draw_scene_d2d();
+	if (m_Cmd.is_draw_loading_1frame) {
+		draw_scene_d3d_slient();
+		draw_scene_d2d();		
+		m_Cmd.is_draw_loading_1frame = false;
+	}
+	else if (m_Cmd.is_wait_loading) {
+		m_Cmd.loading_time_min -= m_Timer.delta_time();
+		if (m_Cmd.loading_time_min < 0.0f) {
+			m_Cmd.is_wait_loading = false;
+		}
+		if (!m_Cmd.is_preparing) {
+			draw_scene_d3d_slient();
+			draw_scene_d2d();
+		}
+	}
+	else {
+		if (m_Cmd.is_preparing) return;
+		if (!m_Cmd.is_waiting_for_something()) draw_scene_d3d();
+		else draw_scene_d3d_slient();
+		draw_scene_d2d();
+	}
 	// Synchronize presentation
 	if (m_IsSyncInterval) m_SwapChain->Present1(1, 0, &m_DXGIPresentPara);
 	else m_SwapChain->Present(0, 0);
@@ -245,7 +257,12 @@ void imm_app::draw_scene_d2d()
 	assert(m_D2DDC);
 	m_D2DDC->BeginDraw();
 	m_D2DDC->SetTransform(D2D1::IdentityMatrix());
-	m_UiMgr.draw_d2d();
-	m_Cmd.draw();
+	if (m_Cmd.is_wait_loading) {
+		m_Cmd.draw_loading();
+	}
+	else {
+		m_Cmd.draw();
+		m_UiMgr.draw_d2d();
+	}
 	HR(m_D2DDC->EndDraw());
 }

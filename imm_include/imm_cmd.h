@@ -25,20 +25,28 @@ struct cmd_shell
 	std::atomic<bool> is_slient;
 	std::atomic<bool> is_busying;
 	std::atomic<bool> is_preparing;
+	std::atomic<bool> is_wait_loading;
+	std::atomic<bool> is_draw_loading_1frame;
 	FLOAT margin_factor;
 	float font_factor;
+	float loading_time_min;
 	std::wstring cmd;
 	atomic_wstring input;
+	atomic_wstring input_loading;
 	XMVECTORF32 back_color;
 	T_app *app;
 	dwrite_simple dwrite;
+	dwrite_simple dwrite_loading;
 	void init(T_app *app_in);
 	void on_input_char(WPARAM &w_param, LPARAM &l_param);
 	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void apply();
 	void on_resize();
 	void draw();
+	void draw_loading();
 	void do_slient_on();
+	void ascii_loading_predefined();
+	void chage_loading_font_factor(const float &font_f);
 	bool is_waiting_for_something();
 };
 //
@@ -48,11 +56,15 @@ cmd_shell<T_app>::cmd_shell():
 	is_slient(true),
 	is_busying(false),
 	is_preparing(true),
+	is_wait_loading(false),
+	is_draw_loading_1frame(false),
 	margin_factor(0.018f),
 	font_factor(16.0f),
+	loading_time_min(1.0f),
 	cmd(),
 	input(),
-	back_color(Colors::Blue),
+	input_loading(),
+	back_color(Colors::DarkBlue),
 	app(nullptr),
 	dwrite()
 {
@@ -63,8 +75,9 @@ template <typename T_app>
 void cmd_shell<T_app>::init(T_app *app_in)
 {
 	app = app_in;
-	input.assign(L"> immature engine\n");
-	dwrite.init_member_rect(app->m_D2DDC, app->m_hwnd, L"Consolas", margin_factor, font_factor);
+	dwrite.init_member_rect(app->m_D2DDC, app->m_hwnd, L"Consolas", margin_factor, font_factor, DWRITE_ALIG_STYLE_CMD);
+	dwrite_loading.init_member_rect(app->m_D2DDC, app->m_hwnd, L"Consolas", margin_factor, font_factor, DWRITE_ALIG_STYLE_CENTER);
+	ascii_loading_predefined();
 }
 //
 template <typename T_app>
@@ -97,7 +110,8 @@ void cmd_shell<T_app>::apply()
 	std::wstring cmd_get(cmd);
 	cmd.clear();
 	if (cmd_get == L"exit") {
-		PostQuitMessage(0);
+		DestroyWindow(app->m_hwnd);
+		SendMessage(app->m_hwnd, WM_DESTROY, 0, 0);
 		return;
 	}
 	if (cmd_get == L"help") {
@@ -189,7 +203,7 @@ void cmd_shell<T_app>::apply()
 	if (cmd_get == L"draw_wire") {
 		app->m_Scene.phy_wire.is_drawing = !app->m_Scene.phy_wire.is_drawing;
 		std::wstring info_mes = L"off.";
-		if (app->m_Scene.phy_wire.is_drawing) info_mes = L"on, notice this function producing incorrect result.";
+		if (app->m_Scene.phy_wire.is_drawing) info_mes = L"on, notice drawing AABB is wrong.";
 		input += L"\n> Draw bounding wireframe is "+info_mes;
 		input += L"\n";
 	}
@@ -220,12 +234,20 @@ void cmd_shell<T_app>::on_resize()
 	if (app == nullptr) return;
 	dwrite.on_resize_CreateTextFormat(app->m_hwnd);
 	dwrite.on_resize_LayoutRc(app->m_hwnd, margin_factor);
+	dwrite_loading.on_resize_CreateTextFormat(app->m_hwnd);
+	dwrite_loading.on_resize_LayoutRc(app->m_hwnd, margin_factor);
 }
 //
 template <typename T_app>
 void cmd_shell<T_app>::draw()
 {
 	dwrite.draw_MemberRect(app->m_D2DDC, input);
+}
+//
+template <typename T_app>
+void cmd_shell<T_app>::draw_loading()
+{
+	dwrite_loading.draw_MemberRect(app->m_D2DDC, input_loading);
 }
 //
 template <typename T_app>
@@ -236,9 +258,31 @@ void cmd_shell<T_app>::do_slient_on()
 }
 //
 template <typename T_app>
+void cmd_shell<T_app>::ascii_loading_predefined()
+{
+	// http://patorjk.com/software/taag/
+	// Font Name: Small
+	std::wstring predefined;
+	predefined = L"Craft by Huang Yiting\n";
+	predefined += L"   ___           __ _     _           _  _                      __   ___ _   _            1\n";
+	predefined += L"  / __|_ _ __ _ / _| |_  | |__ _  _  | || |_  _ __ _ _ _  __ _  \\ \\ / (_) |_(_)_ _  __ _  1\n";
+	predefined += L" | (__| '_/ _` |  _|  _| | '_ \\ || | | __ | || / _` | ' \\/ _` |  \\ V /| |  _| | ' \\/ _` | 1\n";
+	predefined += L"  \\___|_| \\__,_|_|  \\__| |_.__/\\_, | |_||_|\\_,_\\__,_|_||_\\__, |   |_| |_|\\__|_|_||_\\__, | 1\n";
+	predefined += L"                               |__/                      |___/                     |___/  1\n";
+	input_loading.assign(predefined);
+}
+//
+template <typename T_app>
+void cmd_shell<T_app>::chage_loading_font_factor(const float &font_f)
+{
+	dwrite_loading.m_FontFactor = font_f;
+	on_resize();
+}
+//
+template <typename T_app>
 bool cmd_shell<T_app>::is_waiting_for_something()
 {
-	if (is_slient || is_preparing) return true;
+	if (is_slient || is_preparing || is_wait_loading) return true;
 	return false;
 }
 //

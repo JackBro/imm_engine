@@ -106,8 +106,6 @@ void instance_mgr<T_app>::reload()
 		m_App->m_Cmd.input += load_done;
 		return;
 	}
-	m_App->m_Cmd.input += L"> Loading...\n";
-	m_App->m_Cmd.input += L"> Please wait...\n";
 	remove_all();
 	instance_stat inst_stat;
 	size_t k = 0;
@@ -159,8 +157,6 @@ void instance_mgr<T_app>::reload()
 	reload_scene_instance_relate();
 	on_resize();
 	m_IsLoading = false;
-	load_done = L"> Scene "+load_done+L" load done\n";
-	m_App->m_Cmd.input.assign(load_done);
 }
 //
 template <typename T_app>

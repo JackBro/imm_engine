@@ -10,6 +10,23 @@
 #include "stru_load_help.h"
 #include <Audio.h>
 ////////////////
+// audio_play_bgm
+////////////////
+////////////////
+struct audio_play_bgm
+{
+	audio_play_bgm();
+	bool is_executed;
+	bool is_loop;
+};
+//
+audio_play_bgm::audio_play_bgm():
+	is_executed(true),
+	is_loop(false)
+{
+	;	
+}
+////////////////
 // audio_dxtk
 ////////////////
 ////////////////
@@ -21,6 +38,7 @@ struct audio_dxtk
 	void init_load();
 	void update();
 	void play_bgm(const std::string &name, const bool &is_loop);
+	void play_bgm_update();
 	void stop_bgm();
 	void play_effect(const std::string &name);
 	void set_effect_inst_volume(float volume);
@@ -35,6 +53,7 @@ struct audio_dxtk
 	std::unique_ptr<AudioEngine> aud_engine;
 	std::unique_ptr<SoundEffect> sound_effect;
 	std::unique_ptr<SoundEffectInstance> effect_inst;
+	audio_play_bgm play_bgm_task;
 };
 //
 audio_dxtk::audio_dxtk():
@@ -80,6 +99,7 @@ void audio_dxtk::init_load()
 void audio_dxtk::update()
 {
 	aud_engine->Update();
+	play_bgm_update();
 }
 //
 void audio_dxtk::play_bgm(const std::string &name, const bool &is_loop = false)
@@ -91,12 +111,22 @@ void audio_dxtk::play_bgm(const std::string &name, const bool &is_loop = false)
 			ERROR_MESA(err_str.c_str());
 		}
 		data_check_file_exist(map_bgm[name]);
-		sound_effect = std::unique_ptr<SoundEffect>(new SoundEffect(aud_engine.get(), map_bgm[name].c_str()));
+		sound_effect.reset(new SoundEffect(aud_engine.get(), map_bgm[name].c_str()));
+		SoundEffectInstance *temp_effect_inst = effect_inst.release();
+		delete temp_effect_inst;
 		effect_inst = sound_effect->CreateInstance();
 		current_bgm_name = name;
 	}
 	if (effect_inst == nullptr) return;
-	effect_inst->Play(is_loop);
+	play_bgm_task.is_executed = false;
+	play_bgm_task.is_loop = is_loop;
+}
+//
+void audio_dxtk::play_bgm_update()
+{
+	if (play_bgm_task.is_executed) return;
+	effect_inst->Play(play_bgm_task.is_loop);
+	play_bgm_task.is_executed = true;
 }
 //
 void audio_dxtk::stop_bgm()

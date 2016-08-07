@@ -225,7 +225,7 @@ bool ui_def_main_menu<T_app>::define_apply_ix_if(int &index)
 		return true;
 	}
 	if (index == m_MapID["menu_title"]) {
-		m_App->m_Scene.reload(L"00");
+		m_App->m_Scene.reload(SCENE_FIRST);
 		return true;
 	}
 	if (index == m_MapID["menu_exit"]) {
@@ -238,7 +238,8 @@ bool ui_def_main_menu<T_app>::define_apply_ix_if(int &index)
 	}
 	// exit
 	if (index == m_MapID["exit_yes"]) {
-		PostQuitMessage(0);
+		DestroyWindow(m_App->m_hwnd);
+		SendMessage(m_App->m_hwnd, WM_DESTROY, 0, 0);
 		return true;
 	}
 	if (index == m_MapID["exit_no"]) {

@@ -84,6 +84,8 @@ static const float GAME_HP_BAR = 20.0f;
 static const float AI_DELTA_TIME_LOGIC = 0.05;
 static const float AI_DELTA_TIME_PHY_FAST = 0.05f;
 static const float AI_DELTA_TIME_PHY_SLOW = 0.1f;
+static const std::wstring SCENE_FIRST = L"_00";
+static const std::wstring SCENE_SECOND = L"_01";
 ////////////////
 // str, wstr
 ////////////////

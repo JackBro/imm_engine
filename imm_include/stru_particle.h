@@ -122,7 +122,7 @@ void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 	// Test
 	list_fire.emplace_back();
 	list_fire.back().pos = XMFLOAT3(10.0f, 20.0f, -10.0f);
-	list_fire.back().count_down = 50.0f;
+	list_fire.back().count_down = 60.0f;
 }
 //
 void state_plasma::update(const float &dt, const float &total_time)
