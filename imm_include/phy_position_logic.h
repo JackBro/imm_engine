@@ -111,8 +111,10 @@ void phy_impulse_casual(
 	XMVECTOR offset_B = XMVectorSubtract(w_B.r[3], c_B);
 	// AtoB is the collision normal vector.
 	XMVECTOR AtoB = XMVectorSubtract(c_B, c_A);
+	float relative_size = 1.1f;
 	if (prop_A.p_aabb3 && prop_B.p_aabb3) {
-	if (abs(prop_A.avg_extent-prop_B.avg_extent)/(std::min)(prop_A.avg_extent, prop_B.avg_extent) > 1.0f) {
+	relative_size = abs(prop_A.avg_extent-prop_B.avg_extent)/(std::min)(prop_A.avg_extent, prop_B.avg_extent);
+	if (relative_size > 1.0f) {
 		float big_x = (std::max)(prop_A.p_aabb3->x, prop_B.p_aabb3->x);
 		if (big_x < abs(XMVectorGetX(AtoB)) ) {
 			AtoB = XMVectorSetZ(AtoB, 0.0f);
@@ -147,10 +149,6 @@ void phy_impulse_casual(
 		XMVECTOR vel_A_bring = XMLoadFloat3(&prop_A.vel_bring);
 		vel_A_all = XMVectorAdd(vel_A_all, vel_A_bring);
 	}
-	// penetration depth estimate, not accurate, increase its value
-	float penetration_scale = 1.0f;
-	float penetration = 
-		XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*penetration_scale;
 	// bounce
 	float bounce = prop_A.bounce*prop_B.bounce;
 	XMVECTOR vel_AB_all = XMVectorSubtract(vel_A_all, vel_B_all);
@@ -168,6 +166,14 @@ void phy_impulse_casual(
 	if (*prop_B.intera_tp & PHY_INTERA_STATIC) {
 		XMStoreFloat3(&prop_B.vel_bring, XMVectorScale(vel_A_all, 1.5f));
 		prop_B.bring_ix = prop_A.ix;
+	}
+	// penetration depth estimate, not accurate, increase its value
+	float penetration_scale = 1.0f;
+	float penetration = 
+		XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*penetration_scale;
+	// small object need more penetration
+	if (prop_A.p_aabb3 && prop_B.p_aabb3 && !is_A_atk && relative_size < 1.0f) {
+		penetration += 0.2f*FPS60*dt;
 	}
 	// Fix the positions so that the two objects are apart, not accurate
 	c_A = XMVectorSubtract(c_A, XMVectorScale(AtoB, penetration));

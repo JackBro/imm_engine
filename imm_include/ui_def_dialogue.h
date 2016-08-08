@@ -230,7 +230,7 @@ void ui_def_dialogue<T_app>::rebuild_text()
 		concrete = IMM_PATH["text"]+it->second;
 		l_reader.loadfile(concrete);
 		std::map<std::string, std::string> get_chunk_info;
-		l_reader.map_from_table( "chunk", get_chunk_info);
+		l_reader.map_from_table("chunk", get_chunk_info);
 		for (auto &chunk: get_chunk_info) {
 			std::map<std::string, std::string> chunk_raw;
 			l_reader.map_from_table(chunk.second, chunk_raw);

@@ -68,6 +68,7 @@ ui_text_chunk::ui_text_chunk():
 void ui_text_chunk::remove_all()
 {
 	map.clear();
+	reset();
 }
 //
 void ui_text_chunk::reset()

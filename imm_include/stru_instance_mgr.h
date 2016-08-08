@@ -256,7 +256,9 @@ void instance_mgr<T_app>::push_back_pntt(
 			vert_range.first,
 			vert_range.second
 		);
-		m_BoundL.set_phy_value(k-1);
+		XMMATRIX world = XMLoadFloat4x4(inst_stat.get_World());
+		m_BoundL.transform(k-1, m_BoundW, world);
+		m_BoundW.set_phy_value(k-1);
 	}
 }
 //
@@ -278,7 +280,9 @@ void instance_mgr<T_app>::copy_instance(const std::string &inst_name, const std:
 		m_BoundL.push_back_empty(m_Stat.back().get_BoundType());
 		m_BoundW.push_back_empty(m_Stat.back().get_BoundType());
 		m_BoundL.bd0.back() = m_BoundL.bd0[m_BoundL.map.at(inst_ix).second];
-		m_BoundL.set_phy_value(inst_size);
+		XMMATRIX world = XMLoadFloat4x4(m_Stat[inst_size].get_World());
+		m_BoundL.transform(inst_size, m_BoundW, world);
+		m_BoundW.set_phy_value(inst_size);
 	}
 }
 //

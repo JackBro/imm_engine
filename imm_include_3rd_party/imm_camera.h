@@ -63,6 +63,7 @@ public:
 	void rotate_y(float angle);
 	// After modifying camera position/orientation, call to rebuild the view matrix.
 	void update_view_matrix();
+	void reset();
 //private:
 	// Camera coordinate system with coordinates relative to world space.
 	XMFLOAT3 m_Position;
@@ -229,5 +230,13 @@ void camera::update_view_matrix()
 	m_View(2, 3) = 0.0f;
 	m_View(3, 3) = 1.0f;
 }
+//
+void camera::reset()
+{
+	m_Right = {1.0f, 0.0f, 0.0f};
+	m_Up = {0.0f, 1.0f, 0.0f};
+	m_Look = {0.001f, 0.0f, 1.0f};
+}
+//
 }
 #endif

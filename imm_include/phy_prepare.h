@@ -31,6 +31,7 @@ struct phy_property
 	float friction_rev; // reversed coefficient of friction, 0 <= this <= 1, ignore original friction > 1
 	float bounce;
 	float avg_extent;
+	float min_extent; // not use now
 	int stand_on;
 	int ix;
 	int bring_ix;
@@ -50,6 +51,7 @@ phy_property::phy_property():
 	friction_rev(0.3f),
 	bounce(0.3f),
 	avg_extent(1.0f),
+	min_extent(1.0f),
 	stand_on(-1),
 	ix(0),
 	bring_ix(-1),
@@ -309,6 +311,7 @@ template <typename T_app>
 void phy_bound_mgr<T_app>::set_phy_value(const size_t &ix)
 {
 	XMFLOAT3 extent;
+	float min_extent;
 	float sum_extent;
 	switch(map[ix].first) {
 	case PHY_BOUND_BOX:
@@ -318,16 +321,23 @@ void phy_bound_mgr<T_app>::set_phy_value(const size_t &ix)
 		extent = bd0[map[ix].second].Extents;
 		sum_extent = extent.x + extent.y + extent.z;
 		app->m_Inst.m_Stat[ix].phy.avg_extent = sum_extent/3.0f;
+		min_extent = (std::min)(extent.x, extent.y);
+		min_extent = (std::min)(min_extent, extent.z);
+		app->m_Inst.m_Stat[ix].phy.min_extent = min_extent;
 		break;
 	case PHY_BOUND_ORI_BOX:
 		app->m_Inst.m_Stat[ix].phy.p_aabb3 = nullptr;
 		extent = bd1[map[ix].second].Extents;
 		sum_extent = extent.x + extent.y + extent.z;
 		app->m_Inst.m_Stat[ix].phy.avg_extent = sum_extent/3.0f;
+		min_extent = (std::min)(extent.x, extent.y);
+		min_extent = (std::min)(min_extent, extent.z);
+		app->m_Inst.m_Stat[ix].phy.min_extent = min_extent;
 		break;
 	case PHY_BOUND_SPHERE:
 		app->m_Inst.m_Stat[ix].phy.p_aabb3 = nullptr;
 		app->m_Inst.m_Stat[ix].phy.avg_extent = bd2[map[ix].second].Radius;
+		app->m_Inst.m_Stat[ix].phy.min_extent = bd2[map[ix].second].Radius;
 		break;
 	default:
 		assert(false);

@@ -43,7 +43,8 @@ struct condition_trigger
 	void reset();
 	bool trigger(const std::string &task_name);
 	void update(const float &dt);
-	void update_scene01();
+	void update_scene_01();
+	void update_scene_00();
 	float scene_pass_time;
 	float delta_time;
 	std::map<std::string, condition_task> task;
@@ -70,7 +71,7 @@ void condition_trigger<T_app>::reset()
 template <typename T_app>
 bool condition_trigger<T_app>::trigger(const std::string &task_name)
 {
-	auto tas = &task[task_name];
+	auto tas = &task.at(task_name);
 	if (tas->is_ran) return false;
 	if (scene_pass_time > tas->certain_time) {
 		tas->is_ran = true;
@@ -85,8 +86,10 @@ void condition_trigger<T_app>::init(T_app *app_in)
 	app = app_in;
 	task.emplace("clear_cmd", condition_task());
 	task["clear_cmd"].certain_time = 3.0f;
-	task.emplace("01_test", condition_task());
-	task["01_test"].certain_time = 5.0f;
+	task.emplace("_01_test", condition_task());
+	task["_01_test"].certain_time = 5.0f;
+	task.emplace("_00_camera_reset", condition_task());
+	task["_00_camera_reset"].certain_time = -1.0f;
 }
 //
 template <typename T_app>
@@ -100,14 +103,24 @@ void condition_trigger<T_app>::update(const float &dt)
 		if (!app->m_Cmd.is_active) app->m_Cmd.input.clear();
 	}
 	//
-	update_scene01();
+	update_scene_00();
+	update_scene_01();
 }
 //
 template <typename T_app>
-void condition_trigger<T_app>::update_scene01()
+void condition_trigger<T_app>::update_scene_00()
 {
-	if (app->m_Scene.scene_ix != "01") return;
-	if (trigger("01_test")) {
+	if (app->m_Scene.scene_ix != "_00") return;
+	if (trigger("_00_camera_reset")) {
+		app->m_Cam.reset();
+	}
+}
+//
+template <typename T_app>
+void condition_trigger<T_app>::update_scene_01()
+{
+	if (app->m_Scene.scene_ix != "_01") return;
+	if (trigger("_01_test")) {
 		app->m_UiMgr.group_active("dialogue", "test", true);
 	}
 }

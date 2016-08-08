@@ -16,11 +16,13 @@
 struct audio_play_bgm
 {
 	audio_play_bgm();
+	std::string current;
 	bool is_executed;
 	bool is_loop;
 };
 //
 audio_play_bgm::audio_play_bgm():
+	current(),
 	is_executed(true),
 	is_loop(false)
 {
@@ -45,23 +47,19 @@ struct audio_dxtk
 	void set_wave_bank_volume(float volume);
 	void suspend(const bool &is_stop);
 	float wave_bank_volume;
-	std::string current_bgm_name;
 	std::map<std::string, std::wstring> map_bgm;
 	std::map<std::string, std::string> map_effect_bank;
 	std::map<std::string, int> map_effect_ix;
 	std::map<std::string, std::unique_ptr<WaveBank>> map_wave_bank;
+	std::map<std::string, std::unique_ptr<SoundEffect>> map_sound_effect;
+	std::map<std::string, std::unique_ptr<SoundEffectInstance>> map_effect_inst;
 	std::unique_ptr<AudioEngine> aud_engine;
-	std::unique_ptr<SoundEffect> sound_effect;
-	std::unique_ptr<SoundEffectInstance> effect_inst;
-	audio_play_bgm play_bgm_task;
+	audio_play_bgm bgm_task;
 };
 //
 audio_dxtk::audio_dxtk():
 	wave_bank_volume(0.7f),
-	current_bgm_name("none"),
-	aud_engine(nullptr),
-	sound_effect(nullptr),
-	effect_inst(nullptr)
+	aud_engine(nullptr)
 {
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
@@ -104,35 +102,32 @@ void audio_dxtk::update()
 //
 void audio_dxtk::play_bgm(const std::string &name, const bool &is_loop = false)
 {
-	if (name != current_bgm_name) {
-		if (!map_bgm.count(name)) {
-			std::string err_str("Audio bgm file not found: ");
-			err_str += name;
-			ERROR_MESA(err_str.c_str());
-		}
-		data_check_file_exist(map_bgm[name]);
-		sound_effect.reset(new SoundEffect(aud_engine.get(), map_bgm[name].c_str()));
-		SoundEffectInstance *temp_effect_inst = effect_inst.release();
-		delete temp_effect_inst;
-		effect_inst = sound_effect->CreateInstance();
-		current_bgm_name = name;
+	if (!map_bgm.count(name)) {
+		std::string err_str("Audio bgm file not found: ");
+		err_str += name;
+		ERROR_MESA(err_str.c_str());
 	}
-	if (effect_inst == nullptr) return;
-	play_bgm_task.is_executed = false;
-	play_bgm_task.is_loop = is_loop;
+	if (!map_sound_effect.count(name)) {
+		data_check_file_exist(map_bgm[name]);
+		map_sound_effect[name] = std::unique_ptr<SoundEffect>(new SoundEffect(aud_engine.get(), map_bgm[name].c_str()));
+		map_effect_inst[name] = map_sound_effect[name]->CreateInstance();
+	}
+	bgm_task.current = name;
+	bgm_task.is_executed = false;
+	bgm_task.is_loop = is_loop;
 }
 //
 void audio_dxtk::play_bgm_update()
 {
-	if (play_bgm_task.is_executed) return;
-	effect_inst->Play(play_bgm_task.is_loop);
-	play_bgm_task.is_executed = true;
+	if (bgm_task.is_executed) return;
+	map_effect_inst[bgm_task.current]->Play(bgm_task.is_loop);
+	bgm_task.is_executed = true;
 }
 //
 void audio_dxtk::stop_bgm()
 {
-	if (effect_inst == nullptr) return;
-	effect_inst->Stop(true);
+	if (!map_effect_inst.count(bgm_task.current)) return;
+	map_effect_inst[bgm_task.current]->Stop(true);
 }
 //
 void audio_dxtk::play_effect(const std::string &name)
@@ -143,8 +138,8 @@ void audio_dxtk::play_effect(const std::string &name)
 //
 void audio_dxtk::set_effect_inst_volume(float volume)
 {
-	assert(effect_inst);
-	effect_inst->SetVolume(volume);
+	if (!map_effect_inst.count(bgm_task.current)) return;
+	map_effect_inst[bgm_task.current]->SetVolume(volume);
 }
 //
 void audio_dxtk::set_wave_bank_volume(float volume)
