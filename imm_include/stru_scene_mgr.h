@@ -280,6 +280,7 @@ template <typename T_app>
 void scene_mgr<T_app>::relaod_after_instance_build()
 {
 	app->m_UiMgr.reload_active(get_misc["ui_class"], get_misc["ui_group"]);
+	app->m_UiMgr.dialogue.rebuild_text();
 	if (!terrain1.is_initialized()) return;
 	// fix instance height
 	size_t ix = 0;
@@ -299,7 +300,6 @@ void scene_mgr<T_app>::reload_stop_misc()
 {
 	audio.stop_bgm();
 	app->m_Condition.reset();
-	app->m_UiMgr.dialogue.rebuild_text();
 	if (!csv_value_is_empty(get_misc["play_bgm"])) audio.play_bgm(get_misc["play_bgm"]);
 }
 //

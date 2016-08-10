@@ -132,6 +132,7 @@ void audio_dxtk::stop_bgm()
 //
 void audio_dxtk::play_effect(const std::string &name)
 {
+	if (name == sfx::Empty) return;
 	assert(map_effect_bank.count(name));
 	map_wave_bank[map_effect_bank[name]]->Play(map_effect_ix[name], wave_bank_volume, 0.0f, 0.0f);
 }

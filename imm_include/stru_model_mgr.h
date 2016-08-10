@@ -242,7 +242,6 @@ void instance_stat::set_sequence_ClipName(const std::string &clip_second)
 	((skinned_model_instance*)ptr)->set_sequence_ClipName(clip_second);
 }
 //
-
 bool instance_stat::is_alpha()
 {
 	switch(type) {

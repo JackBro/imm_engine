@@ -119,6 +119,7 @@ void ui_def_dialogue<T_app>::define_style()
 		}
 		rect.active = false;
 	}
+	m_ClickSound = sfx::Empty;
 }
 //
 template <typename T_app>

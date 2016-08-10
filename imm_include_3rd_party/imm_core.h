@@ -392,6 +392,24 @@ effect::effect(ID3D11Device *device, const std::wstring &filename):
 	fin.close();
 	HR(D3DX11CreateEffectFromMemory(&compiled_shader[0], size, 0, device, &m_FX));
 }
+////////////////
+// sfx
+////////////////
+////////////////
+struct sfx
+{
+	static std::string Punch;
+	static std::string Prepare01;
+	static std::string Lightning;
+	static std::string Click;
+	static std::string Empty;
+};
+//
+std::string sfx::Punch     = "punch";
+std::string sfx::Prepare01 = "magic_spell";
+std::string sfx::Lightning = "electricity_spark";
+std::string sfx::Click     = "click";
+std::string sfx::Empty     = "empty";
 //
 }
 #endif

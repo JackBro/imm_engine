@@ -98,8 +98,7 @@ void phy_impulse_casual(
 	phy_property &prop_B,
 	const XMFLOAT3 &center_A,
 	const XMFLOAT3 &center_B,
-	const bool &is_touch,
-	const bool &is_A_atk)
+	const bool &is_touch)
 {
 	if (!is_touch) return;
 	if ((*prop_A.intera_tp & PHY_INTERA_FIXED) && (*prop_B.intera_tp & PHY_INTERA_FIXED)) return;
@@ -172,7 +171,7 @@ void phy_impulse_casual(
 	float penetration = 
 		XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*penetration_scale;
 	// small object need more penetration
-	if (prop_A.p_aabb3 && prop_B.p_aabb3 && !is_A_atk && relative_size < 1.0f) {
+	if (prop_A.p_aabb3 && prop_B.p_aabb3 && relative_size < 1.0f) {
 		penetration += 0.2f*FPS60*dt;
 	}
 	// Fix the positions so that the two objects are apart, not accurate
@@ -186,10 +185,6 @@ void phy_impulse_casual(
 	if (!(*prop_B.intera_tp & PHY_INTERA_FIXED)) {
 		XMStoreFloat3(&prop_B.velocity, vel_B);
 		XMStoreFloat4x4(&world_B, w_B);
-	}
-	if (is_A_atk) {
-		// no save A
-		return;
 	}
 	if (!(*prop_A.intera_tp & PHY_INTERA_FIXED)) {
 		XMStoreFloat3(&prop_A.velocity, vel_A);
@@ -213,6 +208,41 @@ void phy_impulse_casual(
 			prop_B.is_on_land = true;
 		}
 	}
+	return;
+}
+////////////////
+// phy_attack_impulse
+// A is attacker
+////////////////
+////////////////
+void phy_attack_impulse(
+	const float &dt,
+	XMFLOAT4X4 &world_B,
+	phy_property &prop_B,
+	const XMFLOAT3 &center_Hit,
+	const XMFLOAT3 &center_B,
+	const XMFLOAT3 &center_A,
+	const bool &is_touch)
+{
+	if (!is_touch) return;
+	if (*prop_B.intera_tp & PHY_INTERA_FIXED) return;
+	XMMATRIX w_B = XMLoadFloat4x4(&world_B);
+	XMVECTOR c_Hit = XMLoadFloat3(&center_Hit);
+	XMVECTOR c_B = XMLoadFloat3(&center_B);
+	XMVECTOR c_A = XMLoadFloat3(&center_A);
+	XMVECTOR offset_B = XMVectorSubtract(w_B.r[3], c_B);
+	// AtoB is the collision normal vector.
+	XMVECTOR Hit_to_B = XMVectorSubtract(c_B, c_A);
+	if (XMVectorGetX(XMVector3Length(Hit_to_B)) > 8.0f) {
+		Hit_to_B = XMVectorSubtract(c_B, c_Hit);
+	}
+	Hit_to_B = XMVector3Normalize(Hit_to_B);
+	float penetration = 0.025f*FPS60*dt;
+	c_B = XMVectorAdd(c_B, XMVectorScale(Hit_to_B, penetration));
+	w_B.r[3] = XMVectorAdd(c_B, offset_B);
+	w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
+	// store result
+	XMStoreFloat4x4(&world_B, w_B);
 	return;
 }
 //

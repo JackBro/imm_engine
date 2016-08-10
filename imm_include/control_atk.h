@@ -14,20 +14,6 @@
 namespace imm
 {
 ////////////////
-// sfx
-////////////////
-////////////////
-struct sfx
-{
-	static std::string Punch;
-	static std::string Prepare01;
-	static std::string Lightning;
-};
-//
-std::string sfx::Punch     = "punch";
-std::string sfx::Prepare01 = "magic_spell";
-std::string sfx::Lightning = "electricity_spark";
-////////////////
 // SKILL_TYPE
 ////////////////
 ////////////////

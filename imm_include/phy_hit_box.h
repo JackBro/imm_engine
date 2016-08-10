@@ -254,20 +254,14 @@ void phy_hit_arrange<T_app>::update_collision()
 					SKILL_MELEE_STANDARD
 				);
 			}
-			phy_impulse_casual(
+			phy_attack_impulse(
 				app->m_Timer.delta_time(),
-				0.0f, // following 4 parameters not use when is_A_atk
-				0.0f,
-				0,
-				0,
-				*(app->m_Inst.m_Stat[map_box_owner[ix]].get_World()),
 				*(app->m_Inst.m_Stat[ix_inst].get_World()),
-				app->m_Inst.m_Stat[map_box_owner[ix]].phy,
 				app->m_Inst.m_Stat[ix_inst].phy,
 				bbox_w[ix].Center,
 				app->m_Inst.m_BoundW.center(ix_inst),
-				is_touch,
-				true
+				app->m_Inst.m_BoundW.center(map_box_owner[ix]),
+				is_touch
 			);
 		}
 	}
@@ -291,20 +285,14 @@ void phy_hit_arrange<T_app>::update_collision()
 					SKILL_MELEE_STANDARD
 				);
 			}
-			phy_impulse_casual(
+			phy_attack_impulse(
 				app->m_Timer.delta_time(),
-				0.0f, // following 4 parameters not use when is_A_atk
-				0.0f,
-				0,
-				0,
-				*(app->m_Inst.m_Stat[owner_ix].get_World()),
 				*(app->m_Inst.m_Stat[ix_inst].get_World()),
-				app->m_Inst.m_Stat[owner_ix].phy,
 				app->m_Inst.m_Stat[ix_inst].phy,
 				app->m_Inst.m_BoundW.center(ix),
 				app->m_Inst.m_BoundW.center(ix_inst),
-				is_touch,
-				true
+				app->m_Inst.m_BoundW.center(owner_ix),
+				is_touch
 			);
 		}
 	}

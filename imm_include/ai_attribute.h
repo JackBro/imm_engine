@@ -294,7 +294,7 @@ bool ai_attr<T_app>::is_required_ap(const SKILL_SPECIFY &specify, const size_t &
 		break;
 	default:
 		if (points[ix_atk].ap < 1.0f) return false;
-		points[ix_atk].ap -= 2.0f;
+		points[ix_atk].ap -= 0.0f;
 		if (points[ix_atk].ap < 0.01f) points[ix_atk].ap = 0.1f;
 		return true;
 		break;

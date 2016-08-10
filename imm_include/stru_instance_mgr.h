@@ -359,8 +359,7 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 			m_Stat[ix2].phy,
 			m_BoundW.center(ix),
 			m_BoundW.center(ix2),
-			is_touch,
-			false
+			is_touch
 		);
 	}}
 }
