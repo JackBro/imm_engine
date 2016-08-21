@@ -14,6 +14,7 @@
 #include "render_sky.h"
 #include "render_terrain.h"
 #include "audio_dxtk.h"
+#include "stru_land_surface.h"
 namespace imm
 {
 ////////////////
@@ -65,6 +66,7 @@ struct scene_mgr
 	envi_liquid liquid;
 	audio_dxtk audio;
 	phy_wireframe<T_app> phy_wire;
+	land_surface<T_app> surface;
 	std::string scene_ix;
 	std::map<std::string, loading_info> map_loading;
 	float begin_time;
@@ -77,6 +79,7 @@ struct scene_mgr
 //
 template <typename T_app>
 scene_mgr<T_app>::scene_mgr():
+	app(nullptr),
 	skybox(nullptr),
 	terrain1(),
 	terrain1_phy(),
@@ -84,6 +87,7 @@ scene_mgr<T_app>::scene_mgr():
 	liquid(),
 	audio(),
 	phy_wire(),
+	surface(),
 	scene_ix(),
 	map_loading(),
 	begin_time(FLT_MAX),
@@ -113,6 +117,7 @@ void scene_mgr<T_app>::init_load(T_app *app_in)
 	plasma.init_load(app->m_D3DDevice, app->m_D3DDC);
 	audio.init_load();
 	phy_wire.init(app);
+	surface.init(app);
 	app->m_Hit.init_load(app);
 	app->m_Magic.init(app);
 	app->m_AiInfo.init(app);

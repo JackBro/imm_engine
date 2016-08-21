@@ -137,6 +137,7 @@ void inst_adapter<T_app>::effect_rebuild()
 	if (magic_text[0].is_loaded) {
 		// test
 		app->m_Inst.copy_instance(magic_text_name, magic_text_name+"1");
+		app->m_Inst.m_Stat[app->m_Inst.m_NameMap[magic_text_name+"1"]].property = INST_IS_EFFECT;
 		app->m_Inst.m_Stat[app->m_Inst.m_NameMap[magic_text_name+"1"]].set_IsOffline(true);
 		//
 		magic_text[0].inst_ix = app->m_Inst.m_NameMap.at(magic_text_name);
