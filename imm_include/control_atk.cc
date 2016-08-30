@@ -201,8 +201,7 @@ void damage_data::update_melee(const float &dt)
 			XMFLOAT3 box = *box_center;
 			XMFLOAT3 center = PTR->m_Inst.m_BoundW.center(ix_dmg);
 			center.y += (box.y-center.y)*0.8f;
-			PTR->m_Scene.plasma.push_back(PLASMA_STRIKE, 0.5f, center);
-			PTR->m_Scene.audio.play_effect(sfx::Punch);
+			PTR->m_SfxSelect.play_effect(specify, ix_atk, ix_dmg, center);
 			PTR->m_AiAttr.calc_skill(specify, ix_atk, ix_dmg);
 			is_delay = false;
 		}

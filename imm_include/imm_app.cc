@@ -26,6 +26,7 @@ imm_app::imm_app():
 	m_AiInfo(),
 	m_AiAttr(),
 	m_AiInterf(),
+	m_SfxSelect(),
 	m_Status(),
 	m_MouseMode(CAM_MOVE_BY_BUTTON)
 {
@@ -58,6 +59,7 @@ bool imm_app::init_imm()
 	m_Cmd.init(this);
 	m_Inst.init(this);
 	m_Control.init(this);
+	m_SfxSelect.init(this);
 	m_Scene.init_load(this);
 	m_Condition.init(this);
 	m_Config.init_additional();

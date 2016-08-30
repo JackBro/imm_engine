@@ -312,7 +312,7 @@ lua_config<T_app>::lua_config(T_app *app_in)
 	lua_reader l_reader;
 	l_reader.loadfile(IMM_PATH["script"]+"imm_config.lua");
 	l_reader.map_from_string(g_map);
-	l_reader.assign_bool(m_App->m_FullScreen, g_map["is_fullscreen"]);
+	l_reader.assign_bool(m_App->m_FullScreen, g_map["is_windowed_fullscreen"]);
 	l_reader.assign_bool(m_App->m_Enable4xMsaa, g_map["is_4xmsaa"]);
 	l_reader.assign_bool(m_App->m_IsSyncInterval, g_map["is_sync_interval"]);
 	l_reader.assign_bool(m_App->m_IsLockFrameRate, g_map["is_lock_frame_rate"]);

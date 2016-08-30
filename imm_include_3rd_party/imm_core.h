@@ -403,13 +403,15 @@ struct sfx
 	static std::string Lightning;
 	static std::string Click;
 	static std::string Empty;
+	static std::string PunchLight;
 };
 //
-std::string sfx::Punch     = "punch";
-std::string sfx::Prepare01 = "magic_spell";
-std::string sfx::Lightning = "electricity_spark";
-std::string sfx::Click     = "click";
-std::string sfx::Empty     = "empty";
+std::string sfx::Punch      = "punch";
+std::string sfx::Prepare01  = "magic_spell";
+std::string sfx::Lightning  = "electricity_spark";
+std::string sfx::Click      = "click";
+std::string sfx::Empty      = "empty";
+std::string sfx::PunchLight = "punch_light";
 //
 }
 #endif

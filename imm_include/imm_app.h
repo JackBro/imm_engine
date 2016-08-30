@@ -20,6 +20,7 @@
 #include "stru_draw_instance.h"
 #include "imm_base.h"
 #include "render_shadow.h"
+#include "audio_sfx_select.h"
 namespace imm
 {
 ////////////////
@@ -67,6 +68,7 @@ public:
 	ai_info<imm_app> m_AiInfo;
 	ai_attr<imm_app> m_AiAttr;
 	ai_interface<imm_app> m_AiInterf;
+	sfx_select<imm_app> m_SfxSelect;
 	status_data m_Status;
 	MOUSE_MODEL m_MouseMode;
 	XMFLOAT4X4 m_LightView;

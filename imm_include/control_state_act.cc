@@ -45,6 +45,7 @@ std::string act_str::Engage()
 //
 std::string act_str::Damage()
 {
+	if (*p_order_s & ORDER_IS_GUARD) return "GuardDamage";
 	return "Damage";
 }
 //
