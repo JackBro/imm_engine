@@ -54,6 +54,7 @@ struct control_sys
 	POINT mouse_down;
 	POINT mouse_move;
 	std::map<size_t, control_stop<T_app>> map_stop;
+	std::map<size_t, control_speed<T_app>> map_speed;
 	control_xinput pad;
 	control_cam<T_app> cam;
 	control_atk<T_app> atk;
@@ -87,6 +88,7 @@ template <typename T_app>
 void control_sys<T_app>::reset()
 {
 	map_stop.clear();
+	map_speed.clear();
 	cam.reset();
 	atk.reset();
 	player1 = -1;
@@ -222,6 +224,9 @@ void control_sys<T_app>::update_stop(const float &dt)
 	for (auto it = map_stop.begin(); it != map_stop.end(); ++it) {
 		it->second.update(app, it->first, dt);
 	}
+	for (auto it = map_speed.begin(); it != map_speed.end(); ++it) {
+		it->second.update(app, it->first, dt);
+	}	
 }
 //
 template <typename T_app>

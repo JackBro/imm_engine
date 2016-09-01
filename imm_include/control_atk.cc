@@ -25,7 +25,7 @@ void skill_data::current_apply(skill_para &pa)
 	pa.is_judge = false;
 	pa.count_down = frame_end[pa.skill_ix];
 	PTR->m_Inst.m_Stat[pa.inst_ix].check_set_ClipName(atk[pa.skill_ix], true);
-	math::set_inst_speed(pa.inst_ix, inst_speed[pa.skill_ix]);
+	PTR->m_Control.map_speed[pa.inst_ix].set(pa.inst_ix, inst_speed2[pa.skill_ix]);
 	pa.is_busy = true;
 	pa.current_ix = pa.skill_ix;
 	if (get_skill_type(pa) == SKILL_TYPE_MAGIC) {
@@ -85,7 +85,7 @@ void skill_data::strike(skill_para &pa)
 		return;
 	}
 	// if trun next hit
-	if (!pa.is_turn_next && pa.count_down > 0.01f) {
+	if (!pa.is_turn_next && pa.count_down > FPS_MIN_REQ_1DIV && pa.count_down > frame_turn[pa.skill_ix]) {
 		++pa.skill_ix;
 		pa.is_turn_next = true;
 		return;
@@ -125,7 +125,9 @@ void skill_data::update(const float &dt, skill_para &pa)
 			return;
 		}
 		if (pa.count_down < frame_turn[pa.skill_ix-1]) {
-			if (!is_required_ap(pa)) {
+			if (frame_turn[pa.skill_ix-1]-pa.count_down > FPS_MIN_REQ_1DIV || !is_required_ap(pa)) {
+				--pa.skill_ix;
+				pa.is_turn_next = false;
 				return;
 			}
 			current_apply(pa);
@@ -353,15 +355,31 @@ void control_atk<T_app>::init(T_app *app_in)
 		}
 		d_skill->atk.push_back(vec2d[ix][2]);
 		d_skill->frame_end.push_back(std::stof(vec2d[ix][3]) * FRAME_RATE_1DIV);
-		d_skill->frame_turn.push_back(std::stof(vec2d[ix][4]) * FRAME_RATE_1DIV);
+		d_skill->frame_turn.push_back( (std::stof(vec2d[ix][3])-std::stof(vec2d[ix][4])) * FRAME_RATE_1DIV);
 		d_skill->judge_start.push_back(std::stof(vec2d[ix][5]) * FRAME_RATE_1DIV);
 		d_skill->judge_end.push_back(std::stof(vec2d[ix][6]) * FRAME_RATE_1DIV);
-		d_skill->inst_speed.push_back(std::stof(vec2d[ix][7]));
-		d_skill->next_ix.push_back(std::stoi(vec2d[ix][8]));
-		d_skill->specify.push_back(skill_specify_str(vec2d[ix][9]));
-		std::vector<std::string> box_name = csv_str_split(vec2d[ix][10], '$');
+		d_skill->next_ix.push_back(std::stoi(vec2d[ix][7]));
+		d_skill->specify.push_back(skill_specify_str(vec2d[ix][8]));
+		std::vector<std::string> box_name = csv_str_split(vec2d[ix][9], '$');
 		if (box_name[0].size() == 0) box_name.clear();
 		d_skill->atk_box.push_back(box_name);
+		std::vector<std::string> speed_str = csv_str_split(vec2d[ix][10], '$');
+		XMFLOAT2 speed;
+		std::list<XMFLOAT2> speed_list;
+		if (speed_str.size() % 2) {
+			speed.x = 0.0f;
+			speed.y = std::stof(speed_str[0]);
+			speed_list.emplace_back(speed);
+			d_skill->inst_speed2.emplace_back(speed_list);
+		}
+		else {
+			for (size_t ind = 0; ind < speed_str.size(); ind += 2) {
+				speed.x = std::stof(speed_str[ind]) * FRAME_RATE_1DIV;
+				speed.y = std::stof(speed_str[ind+1]);
+				speed_list.emplace_back(speed);
+			}
+			d_skill->inst_speed2.emplace_back(speed_list);
+		}
 	}
 	//
 	l_reader.vec2d_str_from_table("csv_action", vec2d);

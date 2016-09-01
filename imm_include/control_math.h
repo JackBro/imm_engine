@@ -47,7 +47,7 @@ void mouse_hit_plane_y(XMVECTOR &hit_pos_out);
 void mouse_hit_terrain(XMVECTOR &hit_pos_out);
 void pad_move_toward(const size_t &index, const float &speed);
 bool key_move_wasd(const size_t &index, const float &speed);
-void set_inst_speed(const size_t &index, const float &speed);
+void set_inst_speed(const size_t &index, const float &speed, const bool &is_reset_list);
 void set_inst_face_to_inst2(const size_t &index, const size_t &index2);
 void set_face_to_face(const size_t &index, const size_t &index2);
 void ai_move_pos(const size_t &index, const float &speed);

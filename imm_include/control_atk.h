@@ -76,10 +76,10 @@ public:
 	std::vector<float> frame_turn;
 	std::vector<float> judge_start;
 	std::vector<float> judge_end;
-	std::vector<float> inst_speed;
 	std::vector<int> next_ix;
 	std::vector<SKILL_SPECIFY> specify;
 	std::vector<std::vector<std::string>> atk_box;
+	std::vector<std::list<XMFLOAT2>> inst_speed2;
 	std::map<char, int> chunk;
 };
 ////////////////

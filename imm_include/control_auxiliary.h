@@ -118,7 +118,58 @@ void control_stop<T_app>::interrupt(T_app *app, const size_t &index)
 	is_avoidance = false;
 	app->m_Inst.m_Stat[index].phy.vel_indirect = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
-
+////////////////
+// control_speed
+////////////////
+////////////////
+template <typename T_app>
+struct control_speed
+{
+	control_speed();
+	void update(T_app *app, const size_t &index, const float &dt);
+	void reset();
+	void set(const size_t &index, const std::list<XMFLOAT2> speed_in);
+	float count_d;
+	std::list<XMFLOAT2> speed;
+};
+//
+template <typename T_app>
+control_speed<T_app>::control_speed():
+	count_d(-1.0f)
+{
+	;
+}
+//
+template <typename T_app>
+void control_speed<T_app>::update(T_app *app, const size_t &index, const float &dt)
+{
+	app;
+	if (speed.size() == 0) return;
+	count_d += dt;
+	if (count_d > speed.front().x) {
+		math::set_inst_speed(index, speed.front().y, false);
+		speed.pop_front();
+	}
+}
+//
+template <typename T_app>
+void control_speed<T_app>::reset()
+{
+	speed.clear();
+	count_d = 0.0f;
+}
+//
+template <typename T_app>
+void control_speed<T_app>::set(const size_t &index, const std::list<XMFLOAT2> speed_in)
+{
+	assert(speed_in.size() > 0);
+	reset();
+	speed = speed_in;
+	if (speed.front().x < FPS_MIN_REQ_1DIV) {
+		math::set_inst_speed(index, speed.front().y, false);
+		speed.pop_front();
+	}
+}
 //
 }
 #endif

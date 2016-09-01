@@ -275,8 +275,12 @@ bool key_move_wasd(const size_t &index, const float &speed)
 	return true;
 }
 //
-void set_inst_speed(const size_t &index, const float &speed)
+void set_inst_speed(const size_t &index, const float &speed, const bool &is_reset_list = true)
 {
+	if (is_reset_list) {
+		PTR->m_Control.map_speed[index].reset();
+	}
+	//
 	XMFLOAT4X4 &world = *PTR->m_Inst.m_Stat[index].get_World();
 	XMFLOAT4X4 &rot_front = *PTR->m_Inst.m_Stat[index].get_RotFront();
 	XMMATRIX W = XMLoadFloat4x4(&world);
