@@ -80,6 +80,7 @@ public:
 	std::vector<SKILL_SPECIFY> specify;
 	std::vector<std::vector<std::string>> atk_box;
 	std::vector<std::list<XMFLOAT2>> inst_speed2;
+	std::vector<float> impulse;
 	std::map<char, int> chunk;
 };
 ////////////////
@@ -123,6 +124,7 @@ struct control_atk
 	void execute(const size_t &index_in, const char &symbol);
 	void update(const float &dt);
 	bool is_execute(const size_t &index_in);
+	float current_impulse(const size_t &index_in);
 	T_app *app;
 	std::map<std::string, skill_data> data_ski;
 	std::map<size_t, skill_para> para_ski;

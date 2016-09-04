@@ -63,8 +63,9 @@ bool skill_data::is_required_ap(skill_para &pa)
 //
 void skill_data::strike(skill_para &pa)
 {
+	assert(pa.skill_ix > -2);
 	if (pa.skill_ix < 0 && pa.count_down > 0.0f) {
-		// in attacking
+		// in first attack
 		return;
 	}
 	if (pa.skill_ix == -1) {
@@ -86,7 +87,7 @@ void skill_data::strike(skill_para &pa)
 	}
 	// if trun next hit
 	if (!pa.is_turn_next && pa.count_down > FPS_MIN_REQ_1DIV && pa.count_down > frame_turn[pa.skill_ix]) {
-		++pa.skill_ix;
+		pa.skill_ix = next_ix[pa.skill_ix];
 		pa.is_turn_next = true;
 		return;
 	}
@@ -125,9 +126,11 @@ void skill_data::update(const float &dt, skill_para &pa)
 			return;
 		}
 		if (pa.count_down < frame_turn[pa.skill_ix-1]) {
-			if (frame_turn[pa.skill_ix-1]-pa.count_down > FPS_MIN_REQ_1DIV || !is_required_ap(pa)) {
-				--pa.skill_ix;
-				pa.is_turn_next = false;
+			if (frame_turn[pa.skill_ix-1]-pa.count_down > FPS_MIN_REQ_1DIV) {
+				return;
+			}
+			
+			if (!is_required_ap(pa)) {
 				return;
 			}
 			current_apply(pa);
@@ -340,6 +343,18 @@ bool control_atk<T_app>::is_execute(const size_t &index_in)
 }
 //
 template <typename T_app>
+float control_atk<T_app>::current_impulse(const size_t &index_in)
+{
+	if (para_ski.count(index_in)) {
+		if (para_ski[index_in].is_execute) {	
+			return data_ski.at(*app->m_Inst.m_Stat[index_in].get_ModelName()).impulse[para_ski[index_in].current_ix];
+		}
+	}
+	assert(false);
+	return 0.0f;
+}
+//
+template <typename T_app>
 void control_atk<T_app>::init(T_app *app_in)
 {
 	app = app_in;
@@ -380,6 +395,7 @@ void control_atk<T_app>::init(T_app *app_in)
 			}
 			d_skill->inst_speed2.emplace_back(speed_list);
 		}
+		d_skill->impulse.push_back(std::stof(vec2d[ix][11]));
 	}
 	//
 	l_reader.vec2d_str_from_table("csv_action", vec2d);

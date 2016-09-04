@@ -17,8 +17,8 @@ namespace imm
 void steering::update(const float &dt)
 {
 	// clear old data
-	if (attack.size() > 100) attack.erase(attack.begin()+50);
-	if (damage.size() > 100) damage.erase(damage.begin()+50);
+	if (attack.size() > 100) attack.erase(attack.begin(), attack.begin()+50);
+	if (damage.size() > 100) damage.erase(damage.begin(), damage.begin()+50);
 	if (PTR->m_Control.player1 == index || !is_active) return;
 	update_dt += dt;
 	action_dt += dt;

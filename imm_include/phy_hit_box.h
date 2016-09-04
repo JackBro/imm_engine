@@ -261,7 +261,8 @@ void phy_hit_arrange<T_app>::update_collision()
 				bbox_w[ix].Center,
 				app->m_Inst.m_BoundW.center(ix_inst),
 				app->m_Inst.m_BoundW.center(map_box_owner[ix]),
-				is_touch
+				is_touch,
+				app->m_Control.atk.current_impulse(map_box_owner[ix])
 			);
 		}
 	}
@@ -292,7 +293,8 @@ void phy_hit_arrange<T_app>::update_collision()
 				app->m_Inst.m_BoundW.center(ix),
 				app->m_Inst.m_BoundW.center(ix_inst),
 				app->m_Inst.m_BoundW.center(owner_ix),
-				is_touch
+				is_touch,
+				app->m_Control.atk.current_impulse(owner_ix)
 			);
 		}
 	}

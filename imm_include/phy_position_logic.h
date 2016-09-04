@@ -222,7 +222,8 @@ void phy_attack_impulse(
 	const XMFLOAT3 &center_Hit,
 	const XMFLOAT3 &center_B,
 	const XMFLOAT3 &center_A,
-	const bool &is_touch)
+	const bool &is_touch,
+	const float &impulse_scale)
 {
 	if (!is_touch) return;
 	if (*prop_B.intera_tp & PHY_INTERA_FIXED) return;
@@ -237,7 +238,7 @@ void phy_attack_impulse(
 		Hit_to_B = XMVectorSubtract(c_B, c_Hit);
 	}
 	Hit_to_B = XMVector3Normalize(Hit_to_B);
-	float penetration = 0.025f*FPS60*dt;
+	float penetration = 0.095f*FPS60*dt*impulse_scale;
 	c_B = XMVectorAdd(c_B, XMVectorScale(Hit_to_B, penetration));
 	w_B.r[3] = XMVectorAdd(c_B, offset_B);
 	w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
