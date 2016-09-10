@@ -1,12 +1,12 @@
 ////////////////
-// pipe_effect_misc.h
+// pipe_effect2.h
 // Effects.h by Frank Luna (C) 2011 All Rights Reserved.
 // Defines lightweight effect wrappers to group an effect and its variables.
 // Also defines a static Effects class from which we can access all of our effects.
 ////////////////
 ////////////////
-#ifndef PIPE_EFFECT_MISC_H
-#define PIPE_EFFECT_MISC_H
+#ifndef PIPE_EFFECT2_H
+#define PIPE_EFFECT2_H
 #include "imm_core.h"
 namespace imm
 {

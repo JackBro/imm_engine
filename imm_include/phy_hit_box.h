@@ -81,6 +81,7 @@ struct phy_hit_arrange
 	// # map_att_ix[is_active_att_ix] = weapon_ix
 	std::map<size_t, std::map<std::string, size_t>> map_att_active;
 	std::map<size_t, size_t> map_att_ix;
+	std::map<size_t, std::map<size_t, bool> > map_touch;
 	T_app *app;
 };
 //
@@ -237,6 +238,7 @@ void phy_hit_arrange<T_app>::update_world()
 template <typename T_app>
 void phy_hit_arrange<T_app>::update_collision()
 {
+	map_touch.clear();
 	// unarmed
 	for (size_t ix = 0; ix != is_active_box.size(); ++ix) {
 		if (!is_active_box[ix]) continue;
@@ -245,8 +247,10 @@ void phy_hit_arrange<T_app>::update_collision()
 			if (!app->m_Inst.m_Stat[ix_inst].is_invoke_physics()) continue;
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneLandIx) continue;
 			if (app->m_Inst.m_Troll[ix_inst].battle_stat & BATTLE_STAT_DODGE) continue;
+			if (map_touch[map_box_owner[ix]][ix_inst]) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, bbox_w[ix]);
 			if (is_touch) {
+				map_touch[map_box_owner[ix]][ix_inst] = true;
 				app->m_Control.atk.cause_damage(
 					map_box_owner[ix],
 					ix_inst,
@@ -277,8 +281,11 @@ void phy_hit_arrange<T_app>::update_collision()
 			if (!app->m_Inst.m_Stat[ix_inst].is_invoke_physics()) continue;
 			if (static_cast<int>(ix_inst) == app->m_Inst.m_PlaneLandIx) continue;
 			if (app->m_Inst.m_Troll[ix_inst].battle_stat & BATTLE_STAT_DODGE) continue;
+			if (map_touch[owner_ix][ix_inst]) continue;
 			bool is_touch = app->m_Inst.m_BoundW.intersects(ix_inst, weapon_ix);
+			map_touch[owner_ix][ix_inst] &= is_touch;
 			if (is_touch) {
+				map_touch[owner_ix][ix_inst] = true;
 				app->m_Control.atk.cause_damage(
 					owner_ix,
 					ix_inst,

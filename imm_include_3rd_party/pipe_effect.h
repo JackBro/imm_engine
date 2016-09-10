@@ -8,7 +8,7 @@
 #ifndef PIPE_EFFECT_H
 #define PIPE_EFFECT_H
 #include "imm_core.h"
-#include "pipe_effect_misc.h"
+#include "pipe_effect2.h"
 namespace imm
 {
 ////////////////

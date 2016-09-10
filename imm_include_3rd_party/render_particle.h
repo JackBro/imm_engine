@@ -150,8 +150,12 @@ void particle::draw_list(ID3D11DeviceContext *dc, const camera &cam1, list_plasa
 		m_FX->set_EmitPosW(inst.pos);
 		// On the first pass, use the initialization VB.  Otherwise, use
 		// the VB that contains the current particle list.
-		if (inst.is_first_run) dc->IASetVertexBuffers(0, 1, &m_InitVB, &stride, &offset);
-		else dc->IASetVertexBuffers(0, 1, &m_DrawVBList[inst.slot], &stride, &offset);
+		if (inst.is_first_run) {
+			dc->IASetVertexBuffers(0, 1, &m_InitVB, &stride, &offset);
+		}
+		else {
+			dc->IASetVertexBuffers(0, 1, &m_DrawVBList[inst.slot], &stride, &offset);
+		}
 		// Draw the current particle list using stream-out only to update them.
 		// The updated vertices are streamed-out to the target VB.
 		dc->SOSetTargets(1, &m_StreamOutVBList[inst.slot], &offset);
@@ -163,7 +167,9 @@ void particle::draw_list(ID3D11DeviceContext *dc, const camera &cam1, list_plasa
 				dc->Draw(1, 0);
 				inst.is_first_run = false;
 			}
-			else dc->DrawAuto();
+			else {
+				dc->DrawAuto();
+			}
 		}
 		// done streaming-out--unbind the vertex buffer
 		ID3D11Buffer *bufferArray[1] = {0};
@@ -193,7 +199,7 @@ void particle::build_VB(ID3D11Device *device)
 	// The initial particle emitter has type 0 and age 0.  The rest
 	// of the particle attributes do not apply to an emitter.
 	vertex::particle p;
-	ZeroMemory(&p, sizeof(vertex::particle));
+	ZeroMemory(&p, sizeof(vertex::particle) * 1);
 	p.age = 0.0f;
 	p.type = 0;
 	D3D11_SUBRESOURCE_DATA vinit_data;

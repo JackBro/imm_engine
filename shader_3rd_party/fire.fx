@@ -97,7 +97,7 @@ Particle StreamOutVS(Particle vin)
 // programed here will generally vary from particle system
 // to particle system, as the destroy/spawn rules will be
 // different.
-[maxvertexcount(2)]
+[maxvertexcount(4)]
 void StreamOutGS(
 	point Particle gin[1],
 	inout PointStream<Particle> ptStream)
@@ -105,7 +105,7 @@ void StreamOutGS(
 	gin[0].Age += gTimeStep;
 	if (gin[0].Type == PT_EMITTER) {
 		// time to emit a new particle?
-		if (gin[0].Age > 0.005f) {
+		if (gin[0].Age > 0.016f) {
 			float3 vRandom = RandUnitVec3(0.0f);
 			vRandom.x *= 0.5f;
 			vRandom.z *= 0.5f;
@@ -118,6 +118,17 @@ void StreamOutGS(
 			ptStream.Append(p);
 			// reset the time to emit
 			gin[0].Age = 0.0f;
+			// more particles
+			vRandom = RandUnitVec3(0.1f);
+			vRandom.x *= 0.5f;
+			vRandom.z *= 0.5f;
+			p.InitialVelW = 4.0f*vRandom;
+			ptStream.Append(p);
+			vRandom = RandUnitVec3(0.2f);
+			vRandom.x *= 0.5f;
+			vRandom.z *= 0.5f;
+			p.InitialVelW = 4.0f*vRandom;
+			ptStream.Append(p);			
 		}
 		// always keep emitters
 		ptStream.Append(gin[0]);

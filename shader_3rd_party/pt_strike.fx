@@ -97,7 +97,7 @@ Particle StreamOutVS(Particle vin)
 // programed here will generally vary from particle system
 // to particle system, as the destroy/spawn rules will be
 // different.
-[maxvertexcount(4)]
+[maxvertexcount(8)]
 void StreamOutGS(
 	point Particle gin[1],
 	inout PointStream<Particle> ptStream)
@@ -105,11 +105,10 @@ void StreamOutGS(
 	gin[0].Age += gTimeStep;
 	if (gin[0].Type == PT_EMITTER) {
 		// time to emit a new particle?
-		if (gin[0].Age > 0.005f) {
-			float3 vRandom = RandUnitVec3(0.0f);
+		if (gin[0].Age > 0.016) {
 			Particle p;
 			p.InitialPosW = gEmitPosW.xyz;
-			p.InitialVelW = 4.0f*vRandom;
+			p.InitialVelW = 4.0f*RandUnitVec3(0.0f);
 			p.SizeW       = float2(0.15f, 0.15f);
 			p.Age         = 0.0f;
 			p.Type        = PT_FLARE;
@@ -117,11 +116,17 @@ void StreamOutGS(
 			// reset the time to emit
 			gin[0].Age = 0.0f;
 			// more particles
-			vRandom = RandUnitVec3(0.1f);
-			p.InitialVelW = 4.0f*vRandom;
+			p.InitialVelW = 4.0f*RandUnitVec3(0.1f);
 			ptStream.Append(p);
-			vRandom = RandUnitVec3(0.2f);
-			p.InitialVelW = 4.0f*vRandom;
+			p.InitialVelW = 4.0f*RandUnitVec3(0.2f);
+			ptStream.Append(p);
+			p.InitialVelW = 4.0f*RandUnitVec3(0.3f);
+			ptStream.Append(p);
+			p.InitialVelW = 4.0f*RandUnitVec3(0.4f);
+			ptStream.Append(p);
+			p.InitialVelW = 4.0f*RandUnitVec3(0.5f);
+			ptStream.Append(p);
+			p.InitialVelW = 4.0f*RandUnitVec3(0.6f);
 			ptStream.Append(p);
 		}
 		// always keep emitters

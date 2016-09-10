@@ -120,22 +120,22 @@ void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 	// Fire
 	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_fire_dds"]));
 	tex_fire_srv = create_Texture2DArraySRV(device, context, file_names);
-	pt_fire.init(device, effects::m_PtFireFX, tex_fire_srv, tex_random_srv, 500, 10);
+	pt_fire.init(device, effects::m_PtFireFX, tex_fire_srv, tex_random_srv, 512, 16);
 	// Strike
 	file_names.clear();
 	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_strike_dds"]));
 	tex_strike_srv = create_Texture2DArraySRV(device, context, file_names);
-	pt_strike.init(device, effects::m_PtStrikeFX, tex_strike_srv, tex_random_srv, 500, 10);
+	pt_strike.init(device, effects::m_PtStrikeFX, tex_strike_srv, tex_random_srv, 512, 16);
 	// Strike2
 	file_names.clear();
 	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_strike2_dds"]));
 	tex_strike2_srv = create_Texture2DArraySRV(device, context, file_names);
-	pt_strike2.init(device, effects::m_PtStrikeFX, tex_strike2_srv, tex_random_srv, 500, 10);
+	pt_strike2.init(device, effects::m_PtStrikeFX, tex_strike2_srv, tex_random_srv, 512, 16);
 	// Lightning
 	file_names.clear();
 	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_lightning_dds"]));
 	tex_lightning_srv = create_Texture2DArraySRV(device, context, file_names);
-	pt_lightning.init(device, effects::m_PtLightningFX, tex_lightning_srv, tex_random_srv, 1, 10);
+	pt_lightning.init(device, effects::m_PtLightningFX, tex_lightning_srv, tex_random_srv, 1, 16);
 	// Test
 	list_fire.emplace_back();
 	list_fire.back().pos = XMFLOAT3(10.0f, 20.0f, -10.0f);

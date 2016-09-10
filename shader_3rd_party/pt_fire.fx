@@ -124,8 +124,9 @@ void StreamOutGS(
 	}
 	else {
 		// Specify conditions to keep particle; this may vary from system to system.
-		if (gin[0].Age <= 1.0f)
+		if (gin[0].Age <= 1.0f) {
 			ptStream.Append(gin[0]);
+		}
 	}
 }
 GeometryShader gsStreamOut = ConstructGSWithSO(
