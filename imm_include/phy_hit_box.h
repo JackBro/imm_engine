@@ -238,7 +238,6 @@ void phy_hit_arrange<T_app>::update_world()
 template <typename T_app>
 void phy_hit_arrange<T_app>::update_collision()
 {
-	map_touch.clear();
 	// unarmed
 	for (size_t ix = 0; ix != is_active_box.size(); ++ix) {
 		if (!is_active_box[ix]) continue;
@@ -259,8 +258,6 @@ void phy_hit_arrange<T_app>::update_collision()
 				);
 			}
 			phy_attack_impulse(
-				app->m_Timer.delta_time(),
-				*(app->m_Inst.m_Stat[ix_inst].get_World()),
 				app->m_Inst.m_Stat[ix_inst].phy,
 				bbox_w[ix].Center,
 				app->m_Inst.m_BoundW.center(ix_inst),
@@ -294,8 +291,6 @@ void phy_hit_arrange<T_app>::update_collision()
 				);
 			}
 			phy_attack_impulse(
-				app->m_Timer.delta_time(),
-				*(app->m_Inst.m_Stat[ix_inst].get_World()),
 				app->m_Inst.m_Stat[ix_inst].phy,
 				app->m_Inst.m_BoundW.center(ix),
 				app->m_Inst.m_BoundW.center(ix_inst),
@@ -313,6 +308,7 @@ void phy_hit_arrange<T_app>::set_active_box(
 	const std::vector<std::string> &box_name,
 	const bool &active = true)
 {
+	map_touch.clear();
 	assert(map_box_active.count(inst_ix) || map_att_active.count(inst_ix));
 	// unarmed
 	if (map_box_active.count(inst_ix)) {
@@ -333,6 +329,7 @@ void phy_hit_arrange<T_app>::set_active_box(
 template <typename T_app>
 void phy_hit_arrange<T_app>::deactive_box(const size_t &inst_ix)
 {
+	map_touch.clear();
 	assert(map_box_active.count(inst_ix) || map_att_active.count(inst_ix));
 	// unarmed
 	if (map_box_active.count(inst_ix)) {

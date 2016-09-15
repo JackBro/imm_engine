@@ -46,7 +46,7 @@ struct instance_stat
 	phy_property phy;
 	MODEL_TYPE type;
 	int property;
-	size_t index;
+	size_t index; // index for std::vector<instance_type>
 	XMFLOAT4X4 *get_World();
 	XMFLOAT4X4 *get_RotFront();
 	XMFLOAT4X4 *get_FinalTransform(size_t ix);

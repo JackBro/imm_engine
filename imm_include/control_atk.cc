@@ -375,10 +375,10 @@ void control_atk<T_app>::init(T_app *app_in)
 		d_skill->judge_end.push_back(std::stof(vec2d[ix][6]) * FRAME_RATE_1DIV);
 		d_skill->next_ix.push_back(std::stoi(vec2d[ix][7]));
 		d_skill->specify.push_back(skill_specify_str(vec2d[ix][8]));
-		std::vector<std::string> box_name = csv_str_split(vec2d[ix][9], '$');
+		std::vector<std::string> box_name = csv_str_split(vec2d[ix][9], '~');
 		if (box_name[0].size() == 0) box_name.clear();
 		d_skill->atk_box.push_back(box_name);
-		std::vector<std::string> speed_str = csv_str_split(vec2d[ix][10], '$');
+		std::vector<std::string> speed_str = csv_str_split(vec2d[ix][10], '~');
 		XMFLOAT2 speed;
 		std::list<XMFLOAT2> speed_list;
 		if (speed_str.size() % 2) {
@@ -397,8 +397,6 @@ void control_atk<T_app>::init(T_app *app_in)
 		}
 		d_skill->impulse.push_back(std::stof(vec2d[ix][11]));
 	}
-	//
-	l_reader.vec2d_str_from_table("csv_action", vec2d);
 }
 //
 template <typename T_app>

@@ -25,6 +25,7 @@ struct phy_property
 	XMFLOAT3 velocity;
 	XMFLOAT3 vel_indirect; // velcoity of no direct mechanical motion, for example: walk, run
 	XMFLOAT3 vel_bring;
+	XMFLOAT3 vel_absolute;
 	XMFLOAT3 acceleration;
 	XMFLOAT3 *p_aabb3;
 	float mass; // not use now
@@ -32,6 +33,7 @@ struct phy_property
 	float bounce;
 	float avg_extent;
 	float min_extent; // not use now
+	float dt;
 	int stand_on;
 	int ix;
 	int bring_ix;
@@ -45,6 +47,7 @@ phy_property::phy_property():
 	velocity(0.0f, 0.0f, 0.0f),
 	vel_indirect(0.0f, 0.0f, 0.0f),
 	vel_bring(0.0f, 0.0f, 0.0f),
+	vel_absolute(0.0f, 0.0f, 0.0f),
 	acceleration(0.0f, 0.0f, 0.0f),
 	p_aabb3(nullptr),
 	mass(0.0f),
@@ -52,6 +55,7 @@ phy_property::phy_property():
 	bounce(0.3f),
 	avg_extent(1.0f),
 	min_extent(1.0f),
+	dt(0.0f),
 	stand_on(-1),
 	ix(0),
 	bring_ix(-1),
@@ -147,10 +151,11 @@ void phy_set_box_offset(T_bound &bbox, const std::vector<float> &offset, const b
 ////////////////
 enum PHY_INTERACTIVE_TYPE
 {
-	PHY_INTERA_MOVABLE  = 0x0,
-	PHY_INTERA_FIXED    = 0x1,
-	PHY_INTERA_NO_BOUND = 0x2,
-	PHY_INTERA_STATIC   = 0x4,
+	PHY_INTERA_MOVABLE         = 0x0,
+	PHY_INTERA_FIXED           = 0x1,
+	PHY_INTERA_NO_BOUND        = 0x2,
+	PHY_INTERA_STATIC          = 0x4,
+	PHY_INTERA_FIXED_INVISILBE = 0x9,
 };
 //
 PHY_INTERACTIVE_TYPE phy_interactive_type_str(const std::string &str)
@@ -159,6 +164,7 @@ PHY_INTERACTIVE_TYPE phy_interactive_type_str(const std::string &str)
 	if (str == "FIXED") return PHY_INTERA_FIXED;
 	if (str == "NO_BOUND") return PHY_INTERA_NO_BOUND;
 	if (str == "STATIC") return PHY_INTERA_STATIC;
+	if (str == "FIXED_INVISILBE") return PHY_INTERA_FIXED_INVISILBE;
 	ERROR_MESA("PHY_INTERACTIVE_TYPE error");
 }
 ////////////////

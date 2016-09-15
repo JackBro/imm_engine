@@ -36,21 +36,34 @@ void phy_position_update(
 	const float &land_y)
 {
 	if (prop.is_abnormal) return;
+	bool is_fps_dt = false;
+	prop.dt += dt;
+	if (prop.dt > FPS60_1DIV) {
+		prop.dt = 0.0f;
+		is_fps_dt = true;
+	}
+	if (is_fps_dt) {
+		prop.vel_absolute.x *= 0.5f;
+		prop.vel_absolute.y *= 0.5f;
+		prop.vel_absolute.z *= 0.5f;
+	}
 	if (!prop.is_on_land) {
 		prop.velocity.x += prop.acceleration.x*dt;
 		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt;
 		prop.velocity.z += prop.acceleration.z*dt;
-		world._41 += prop.velocity.x*dt + prop.vel_indirect.x*dt;
-		world._42 += prop.velocity.y*dt + prop.vel_indirect.y*dt;
-		world._43 += prop.velocity.z*dt + prop.vel_indirect.z*dt;
+		world._41 += (prop.velocity.x + prop.vel_indirect.x + prop.vel_absolute.x)*dt;
+		world._42 += (prop.velocity.y + prop.vel_indirect.y)*dt;
+		world._43 += (prop.velocity.z + prop.vel_indirect.z + prop.vel_absolute.z)*dt;
 	}
 	else {
 		float bounce = prop.bounce*prop_land.bounce;
 		float friction_rev = prop.friction_rev*prop_land.friction_rev;
 		prop.acceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		if (prop.velocity.y < 0.0f) prop.velocity.y = -prop.velocity.y*bounce*FPS60*dt;
-		prop.velocity.x *= friction_rev*0.1f*FPS60*dt;
-		prop.velocity.z *= friction_rev*0.1f*FPS60*dt;
+		if (is_fps_dt) {
+			prop.velocity.x *= friction_rev;
+			prop.velocity.z *= friction_rev;
+		}
 		// use center compare stand
 		float offset_y = world._42-center.y;
 		float center_y = center.y;
@@ -61,9 +74,9 @@ void phy_position_update(
 		// guarantee object.intersects(land) return true, exclude if they have a little gap
 		float stand_adjust = -0.01f;
 		float stand = extents_y+land_y+stand_adjust;
-		center_y += prop.velocity.y*dt + prop.vel_indirect.y*dt;
-		world._41 += prop.velocity.x*dt + prop.vel_indirect.x*dt;
-		world._43 += prop.velocity.z*dt + prop.vel_indirect.z*dt;
+		center_y += (prop.velocity.y + prop.vel_indirect.y)*dt;
+		world._41 += (prop.velocity.x + prop.vel_indirect.x + prop.vel_absolute.x)*dt;
+		world._43 += (prop.velocity.z + prop.vel_indirect.z + prop.vel_absolute.z)*dt;
 		if (abs(prop.velocity.y) < PHY_IGNORE_GRAVITY) prop.velocity.y = 0.0f;
 		if (center_y < stand) center_y = stand;
 		world._42 = center_y+offset_y;
@@ -102,12 +115,10 @@ void phy_impulse_casual(
 {
 	if (!is_touch) return;
 	if ((*prop_A.intera_tp & PHY_INTERA_FIXED) && (*prop_B.intera_tp & PHY_INTERA_FIXED)) return;
-	XMMATRIX w_A = XMLoadFloat4x4(&world_A);
-	XMMATRIX w_B = XMLoadFloat4x4(&world_B);
 	XMVECTOR c_A = XMLoadFloat3(&center_A);
 	XMVECTOR c_B = XMLoadFloat3(&center_B);
-	XMVECTOR offset_A = XMVectorSubtract(w_A.r[3], c_A);
-	XMVECTOR offset_B = XMVectorSubtract(w_B.r[3], c_B);
+	XMMATRIX w_A = XMLoadFloat4x4(&world_A);
+	XMMATRIX w_B = XMLoadFloat4x4(&world_B);
 	// AtoB is the collision normal vector.
 	XMVECTOR AtoB = XMVectorSubtract(c_B, c_A);
 	float relative_size = 1.1f;
@@ -139,6 +150,8 @@ void phy_impulse_casual(
 	XMVECTOR vel_B_indir = XMLoadFloat3(&prop_B.vel_indirect);
 	XMVECTOR vel_A_all = XMVectorAdd(vel_A, vel_A_indir);
 	XMVECTOR vel_B_all = XMVectorAdd(vel_B, vel_B_indir);
+	vel_A_all = XMVectorAdd(vel_A_all, XMLoadFloat3(&prop_A.vel_absolute));
+	vel_B_all = XMVectorAdd(vel_B_all, XMLoadFloat3(&prop_B.vel_absolute));
 	//
 	if (prop_B.bring_ix != prop_A.ix) {
 		XMVECTOR vel_B_bring = XMLoadFloat3(&prop_B.vel_bring);
@@ -166,29 +179,66 @@ void phy_impulse_casual(
 		XMStoreFloat3(&prop_B.vel_bring, XMVectorScale(vel_A_all, 1.5f));
 		prop_B.bring_ix = prop_A.ix;
 	}
-	// penetration depth estimate, not accurate, increase its value
-	float penetration_scale = 1.0f;
-	float penetration = 
-		XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*penetration_scale;
+	// penetration depth estimate as vel_absolute
+	// fix the positions so that the two objects are apart, not accurate
+	XMVECTOR vel_absolute_A = XMLoadFloat3(&prop_A.vel_absolute);
+	XMVECTOR vel_absolute_B = XMLoadFloat3(&prop_B.vel_absolute);
 	// small object need more penetration
 	if (prop_A.p_aabb3 && prop_B.p_aabb3 && relative_size < 1.0f) {
-		penetration += 0.2f*FPS60*dt;
+		AtoB = XMVectorSetY(AtoB, XMVectorGetY(AtoB)*0.3f);
+		AtoB = XMVectorScale(AtoB, 30.0f);
 	}
-	// Fix the positions so that the two objects are apart, not accurate
-	c_A = XMVectorSubtract(c_A, XMVectorScale(AtoB, penetration));
-	c_B = XMVectorAdd(c_B, XMVectorScale(AtoB, penetration));
-	w_A.r[3] = XMVectorAdd(c_A, offset_A);
-	w_B.r[3] = XMVectorAdd(c_B, offset_B);
-	w_A.r[3] = XMVectorSetW(w_A.r[3], 1.0f);
-	w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
+	// scene boundary
+	else if (*prop_B.intera_tp == PHY_INTERA_FIXED_INVISILBE) {
+		XMVECTOR offset_A = XMVectorSubtract(w_A.r[3], c_A);
+		float penetration = XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt;
+		XMVECTOR to_scene = XMVectorZero();
+		if (abs(XMVectorGetX(c_B)) > 1.0f) {
+			if (XMVectorGetX(c_B) > 0.0f) to_scene = XMVectorSetX(to_scene, -1.0f);
+			else to_scene = XMVectorSetX(to_scene, 1.0f);
+		}
+		else {
+			if (XMVectorGetZ(c_B) > 0.0f) to_scene = XMVectorSetZ(to_scene, -1.0f);
+			else to_scene = XMVectorSetZ(to_scene, 1.0f);
+		}
+		c_A = XMVectorAdd(c_A, XMVectorScale(to_scene, penetration));
+		w_A.r[3] = XMVectorAdd(c_A, offset_A);
+		w_A.r[3] = XMVectorSetW(w_A.r[3], 1.0f);
+	}
+	else if (*prop_A.intera_tp == PHY_INTERA_FIXED_INVISILBE) {
+		XMVECTOR offset_B = XMVectorSubtract(w_B.r[3], c_B);
+		float penetration = XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*1.0f;
+		XMVECTOR to_scene = XMVectorZero();
+		if (abs(XMVectorGetX(c_A)) > 1.0f) {
+			if (XMVectorGetX(c_A) > 0.0f) to_scene = XMVectorSetX(to_scene, -1.0f);
+			else to_scene = XMVectorSetX(to_scene, 1.0f);
+		}
+		else {
+			if (XMVectorGetZ(c_A) > 0.0f) to_scene = XMVectorSetZ(to_scene, -1.0f);
+			else to_scene = XMVectorSetZ(to_scene, 1.0f);
+		}
+		c_B = XMVectorAdd(c_B, XMVectorScale(to_scene, penetration));
+		w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
+		w_B.r[3] = XMVectorAdd(c_B, offset_B);
+		AtoB = XMVectorScale(to_scene, 20.0f);
+	}
+	// big object
+	// !(relative_size < 1.0f)
+	else {
+		AtoB = XMVectorScale(AtoB, 20.0f);
+	}
 	// store result
 	if (!(*prop_B.intera_tp & PHY_INTERA_FIXED)) {
+		vel_absolute_B = XMVectorAdd(vel_absolute_B, AtoB);
 		XMStoreFloat3(&prop_B.velocity, vel_B);
-		XMStoreFloat4x4(&world_B, w_B);
+		XMStoreFloat3(&prop_B.vel_absolute, vel_absolute_B);
+		if (*prop_A.intera_tp == PHY_INTERA_FIXED_INVISILBE) XMStoreFloat4x4(&world_B, w_B);
 	}
 	if (!(*prop_A.intera_tp & PHY_INTERA_FIXED)) {
+		vel_absolute_A = XMVectorSubtract(vel_absolute_A, AtoB);
 		XMStoreFloat3(&prop_A.velocity, vel_A);
-		XMStoreFloat4x4(&world_A, w_A);
+		XMStoreFloat3(&prop_A.vel_absolute, vel_absolute_A);
+		if (*prop_B.intera_tp == PHY_INTERA_FIXED_INVISILBE) XMStoreFloat4x4(&world_A, w_A);
 	}
 	// check if instance stand on instance
 	// c_A, c_B is updated, but center_A, center_B is not
@@ -216,8 +266,6 @@ void phy_impulse_casual(
 ////////////////
 ////////////////
 void phy_attack_impulse(
-	const float &dt,
-	XMFLOAT4X4 &world_B,
 	phy_property &prop_B,
 	const XMFLOAT3 &center_Hit,
 	const XMFLOAT3 &center_B,
@@ -227,23 +275,23 @@ void phy_attack_impulse(
 {
 	if (!is_touch) return;
 	if (*prop_B.intera_tp & PHY_INTERA_FIXED) return;
-	XMMATRIX w_B = XMLoadFloat4x4(&world_B);
 	XMVECTOR c_Hit = XMLoadFloat3(&center_Hit);
 	XMVECTOR c_B = XMLoadFloat3(&center_B);
 	XMVECTOR c_A = XMLoadFloat3(&center_A);
-	XMVECTOR offset_B = XMVectorSubtract(w_B.r[3], c_B);
-	// AtoB is the collision normal vector.
-	XMVECTOR Hit_to_B = XMVectorSubtract(c_B, c_A);
+	//
+	XMVECTOR Hit_to_B = XMVectorZero();
 	if (XMVectorGetX(XMVector3Length(Hit_to_B)) > 8.0f) {
 		Hit_to_B = XMVectorSubtract(c_B, c_Hit);
 	}
+	else {
+		Hit_to_B = XMVectorSubtract(c_B, c_A);
+		Hit_to_B = XMVectorSetY(Hit_to_B, 0.0f);
+	}
 	Hit_to_B = XMVector3Normalize(Hit_to_B);
-	float penetration = 0.095f*FPS60*dt*impulse_scale;
-	c_B = XMVectorAdd(c_B, XMVectorScale(Hit_to_B, penetration));
-	w_B.r[3] = XMVectorAdd(c_B, offset_B);
-	w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
-	// store result
-	XMStoreFloat4x4(&world_B, w_B);
+	XMVECTOR vel_absolute = XMLoadFloat3(&prop_B.vel_absolute);
+	Hit_to_B = XMVectorScale(Hit_to_B, 20.0f * impulse_scale);
+	vel_absolute = XMVectorAdd(vel_absolute, Hit_to_B);
+	XMStoreFloat3(&prop_B.vel_absolute, vel_absolute);
 	return;
 }
 //

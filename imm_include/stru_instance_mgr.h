@@ -154,6 +154,7 @@ void instance_mgr<T_app>::reload()
 	for (auto &name: m_NameMap) {
 		m_IndexMap[name.second] = name.first;
 	}
+	//
 	reload_scene_instance_relate();
 	on_resize();
 	m_IsLoading = false;

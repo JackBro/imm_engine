@@ -209,6 +209,7 @@ void ai_attr<T_app>::init(T_app *app_in)
 {
 	app = app_in;
 	ui.init(app);
+	app->m_Status.init();
 }
 //
 template <typename T_app>
@@ -246,7 +247,13 @@ void ai_attr<T_app>::rebuild_points()
 template <typename T_app>
 void ai_attr<T_app>::rebuild_troll()
 {
-	;
+	size_t ix = 0;
+	for (auto &stat: app->m_Inst.m_Stat) {
+		if (app->m_Status.ability.count(*stat.get_ModelName())) {
+			app->m_Inst.m_Troll.at(ix).A = app->m_Status.ability[*stat.get_ModelName()];
+		}
+		++ix;
+	}
 }
 //
 template <typename T_app>
