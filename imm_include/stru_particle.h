@@ -130,7 +130,7 @@ void state_plasma::init_load(ID3D11Device *device, ID3D11DeviceContext *context)
 	file_names.clear();
 	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_strike2_dds"]));
 	tex_strike2_srv = create_Texture2DArraySRV(device, context, file_names);
-	pt_strike2.init(device, effects::m_PtStrikeFX, tex_strike2_srv, tex_random_srv, 512, 16);
+	pt_strike2.init(device, effects::m_PtGuardFX, tex_strike2_srv, tex_random_srv, 512, 16);
 	// Lightning
 	file_names.clear();
 	file_names.push_back(path_tex+str_to_wstr(get_dds["plasma_lightning_dds"]));

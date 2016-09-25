@@ -228,6 +228,8 @@ public:
 	static particle_effect         *m_PtFireFX;
 	static particle_effect         *m_PtRainFX;
 	static particle_effect         *m_PtStrikeFX;
+	static particle_effect         *m_PtGuardFX;
+	static particle_effect         *m_PtChargeFX;
 	static particle_effect         *m_PtLightningFX;
 };
 basic_effect            *effects::m_BasicFX          = nullptr;
@@ -242,6 +244,8 @@ wave_render_effect      *effects::m_WaveRenderFX     = nullptr;
 particle_effect         *effects::m_PtFireFX         = nullptr;
 particle_effect         *effects::m_PtRainFX         = nullptr;
 particle_effect         *effects::m_PtStrikeFX       = nullptr;
+particle_effect         *effects::m_PtGuardFX        = nullptr;
+particle_effect         *effects::m_PtChargeFX       = nullptr;
 particle_effect         *effects::m_PtLightningFX    = nullptr;
 void effects::destroy_all()
 {
@@ -257,6 +261,8 @@ void effects::destroy_all()
 	SAFE_DELETE(m_PtFireFX);
 	SAFE_DELETE(m_PtRainFX);
 	SAFE_DELETE(m_PtStrikeFX);
+	SAFE_DELETE(m_PtGuardFX);
+	SAFE_DELETE(m_PtChargeFX);
 	SAFE_DELETE(m_PtLightningFX);
 }
 //
@@ -275,6 +281,8 @@ void effects::init_all(ID3D11Device *device)
 	m_PtFireFX         = new particle_effect(device, path+L"pt_fire.fxo");
 	m_PtRainFX         = new particle_effect(device, path+L"pt_rain.fxo");
 	m_PtStrikeFX       = new particle_effect(device, path+L"pt_strike.fxo");
+	m_PtGuardFX        = new particle_effect(device, path+L"pt_guard.fxo");
+	m_PtChargeFX       = new particle_effect(device, path+L"pt_charge.fxo");
 	m_PtLightningFX    = new particle_effect(device, path+L"pt_lightning.fxo");
 }
 }

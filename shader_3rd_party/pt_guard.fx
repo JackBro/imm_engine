@@ -20,7 +20,7 @@ cbuffer cbPerFrame
 cbuffer cbFixed
 {
 	// Net constant acceleration used to accerlate the particles.
-	float3 gAccelW = {0.0f, 7.8f, 0.0f};
+	float3 gAccelW = {0.0f, 0.0f, 0.0f};
 	// Texture coordinates used to stretch texture over quad
 	// when we expand point particle into a quad.
 	float2 gQuadTexC[4] =
@@ -111,8 +111,8 @@ void StreamOutGS(
 			vRandom.z *= 0.5f;
 			Particle p;
 			p.InitialPosW = gEmitPosW.xyz;
-			p.InitialVelW = 4.0f*vRandom;
-			p.SizeW       = float2(3.0f, 3.0f);
+			p.InitialVelW = 1.0f*vRandom;
+			p.SizeW       = float2(0.1f, 0.7f);
 			p.Age         = 0.0f;
 			p.Type        = PT_FLARE;
 			ptStream.Append(p);
@@ -122,13 +122,8 @@ void StreamOutGS(
 			vRandom = RandUnitVec3(0.1f);
 			vRandom.x *= 0.5f;
 			vRandom.z *= 0.5f;
-			p.InitialVelW = 4.0f*vRandom;
+			p.InitialVelW = 1.0f*vRandom;
 			ptStream.Append(p);
-			vRandom = RandUnitVec3(0.2f);
-			vRandom.x *= 0.5f;
-			vRandom.z *= 0.5f;
-			p.InitialVelW = 4.0f*vRandom;
-			ptStream.Append(p);			
 		}
 		// always keep emitters
 		ptStream.Append(gin[0]);
@@ -168,7 +163,7 @@ VertexOut DrawVS(Particle vin)
 	VertexOut vout;
 	float t = vin.Age;
 	// constant acceleration equation
-	vout.PosW = 0.5f*t*t*gAccelW + t*vin.InitialVelW + vin.InitialPosW;
+	vout.PosW = 5.0f*t*vin.InitialVelW + vin.InitialPosW;
 	// fade color with time
 	float opacity = 1.0f - smoothstep(0.0f, 1.0f, t/1.0f);
 	vout.Color = float4(1.0f, 1.0f, 1.0f, opacity);
