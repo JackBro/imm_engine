@@ -132,7 +132,7 @@ void sprite_simple::draw_d3d(
 	for (auto &map: map_sprite_rect) {
 		if (rect[map.second].active) {
 			const std::string *s_name = &map_sprite_name.at(map.first);
-			if (!map_tex.count(*s_name)) continue;
+			assert(map_tex.count(*s_name));
 			sprite_batch->Draw(
 				map_tex[*s_name],
 				map_pos[*s_name],

@@ -9,6 +9,7 @@
 #define IMM_CMD_H
 #include "imm_cmd_util.h"
 #include "ui_dwrite.h"
+#include "ui_sprite.h"
 #include "control_key_define.h"
 #include <DirectXColors.h>
 namespace imm
@@ -37,13 +38,20 @@ struct cmd_shell
 	T_app *app;
 	dwrite_simple dwrite;
 	dwrite_simple dwrite_loading;
+	sprite_simple sprite_loading;
+	std::map<std::string, size_t> sprite_rect_map;
+	std::vector<ui_rect> sprite_rect;
+	std::map<std::string, std::string> sprite_name_map;
 	void init(T_app *app_in);
+	void sprite_build_buffer();
 	void on_input_char(WPARAM &w_param, LPARAM &l_param);
 	void on_input_keydown(WPARAM &w_param, LPARAM &l_param);
 	void apply();
 	void on_resize();
-	void draw();
-	void draw_loading();
+	void on_resize_sprite();
+	void draw_d2d();
+	void draw_d2d_loading();
+	void draw_d3d_loading();
 	void do_slient_on();
 	void ascii_loading_predefined();
 	void chage_loading_font_factor(const float &font_f);
@@ -77,7 +85,44 @@ void cmd_shell<T_app>::init(T_app *app_in)
 	app = app_in;
 	dwrite.init_member_rect(app->m_D2DDC, app->m_hwnd, L"Consolas", margin_factor, font_factor, DWRITE_ALIG_STYLE_CMD);
 	dwrite_loading.init_member_rect(app->m_D2DDC, app->m_hwnd, L"Consolas", margin_factor, font_factor, DWRITE_ALIG_STYLE_CENTER);
+	sprite_loading.init(app->m_D3DDevice, app->m_D3DDC);
+	sprite_build_buffer();
 	ascii_loading_predefined();
+}
+//
+template <typename T_app>
+void cmd_shell<T_app>::sprite_build_buffer()
+{
+	sprite_name_map["loading"] = "";
+	sprite_rect_map["loading"] = 0;
+	//
+	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
+	lua_reader l_reader;
+	l_reader.loadfile(concrete);
+	std::vector<std::vector<std::string>> vec2d;
+	l_reader.vec2d_str_from_table("csv_avatar", vec2d);
+	vec2d.erase(vec2d.begin());
+	std::vector<std::vector<std::string>> loading_dds;
+	for (size_t ix = 0; ix != vec2d.size(); ++ix) {
+		if (vec2d[ix][0] == "loading") {
+			loading_dds.push_back(vec2d[ix]);
+			sprite_name_map["loading"] = vec2d[ix][0];
+			break;
+		}
+	}
+	sprite_loading.build_buffer(loading_dds);
+	//
+	sprite_rect.emplace_back();
+	sprite_rect.back().id_str = "loading";
+	sprite_rect.back().parent_str = "-1";
+	sprite_rect.back().group = "loading";
+	sprite_rect.back().tp = ui_rect::type::sprite;
+	sprite_rect.back().brush_sel = {""};
+	sprite_rect.back().text = L"";
+	sprite_rect.back().dwrite_ix = "";
+	sprite_rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	//
+	sprite_rect.back().active = true;
 }
 //
 template <typename T_app>
@@ -235,19 +280,44 @@ void cmd_shell<T_app>::on_resize()
 	dwrite.on_resize_CreateTextFormat(app->m_hwnd);
 	dwrite.on_resize_LayoutRc(app->m_hwnd, margin_factor);
 	dwrite_loading.on_resize_CreateTextFormat(app->m_hwnd);
-	dwrite_loading.on_resize_LayoutRc(app->m_hwnd, margin_factor);
+	float left_offset = 0.3f;
+	if (app->m_Scene.is_show_logo) left_offset = 0.0f;
+	dwrite_loading.on_resize_LayoutRc(app->m_hwnd, margin_factor, left_offset);
+	on_resize_sprite();
 }
 //
 template <typename T_app>
-void cmd_shell<T_app>::draw()
+void cmd_shell<T_app>::on_resize_sprite()
+{
+	RECT get_rect;
+	GetClientRect(app->m_hwnd, &get_rect);
+	float scr_height = static_cast<float>(get_rect.bottom - get_rect.top);
+	float scr_width = static_cast<float>(get_rect.right - get_rect.left);
+	float scale = scr_height/UI_RESOLUTION_HEIGHT*0.6f;
+	float left_offset = math::calc_lerp(0.0f, 0.2f, (scr_width/scr_height-1.33f)/1.01f);
+	for (auto it = sprite_loading.map_height.begin(); it != sprite_loading.map_height.end(); ++it) {
+		sprite_loading.map_pos[it->first] = XMFLOAT2(scr_width*left_offset*scale, (scr_height-(it->second*scale))*0.5f);
+	}
+	sprite_loading.on_resize(scale);
+}
+//
+template <typename T_app>
+void cmd_shell<T_app>::draw_d2d()
 {
 	dwrite.draw_MemberRect(app->m_D2DDC, input);
 }
 //
 template <typename T_app>
-void cmd_shell<T_app>::draw_loading()
+void cmd_shell<T_app>::draw_d2d_loading()
 {
 	dwrite_loading.draw_MemberRect(app->m_D2DDC, input_loading);
+}
+//
+template <typename T_app>
+void cmd_shell<T_app>::draw_d3d_loading()
+{
+	if (app->m_Scene.is_show_logo) return;
+	sprite_loading.draw_d3d(sprite_rect_map, sprite_rect, sprite_name_map);
 }
 //
 template <typename T_app>

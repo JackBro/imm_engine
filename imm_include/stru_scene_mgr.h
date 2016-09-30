@@ -75,6 +75,8 @@ struct scene_mgr
 	bool is_reload_schedule;
 	bool is_loading_atmosphere;
 	bool is_reload_done;
+	bool is_first_run;
+	bool is_show_logo;
 };
 //
 template <typename T_app>
@@ -95,7 +97,9 @@ scene_mgr<T_app>::scene_mgr():
 	loading_wait(0.0f),
 	is_reload_schedule(false),
 	is_loading_atmosphere(false),
-	is_reload_done(false)
+	is_reload_done(false),
+	is_first_run(true),
+	is_show_logo(true)
 {
 	scene_dir_lights_common(dir_lights);
 	dir_lights_orignial[0] = dir_lights[0].direction;
@@ -201,7 +205,12 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 	app->m_Inst.m_IsLoading = true;
 	scene_ix = wstr_to_str(scene_ix_in);
 	if (app->m_Cmd.loading_time_min > 0.1f) app->m_Cmd.is_draw_loading_1frame = true;
-	if (scene_ix_in != SCENE_FIRST) {
+	if (is_first_run) {
+		is_first_run = false;
+		is_show_logo = true;
+	}
+	else {
+		is_show_logo = false;
 		app->m_Cmd.input_loading.assign(map_loading[scene_ix].text);
 		app->m_Cmd.back_color = Colors::Black;
 		app->m_Cmd.chage_loading_font_factor(app->m_Cmd.font_factor*2.0f);

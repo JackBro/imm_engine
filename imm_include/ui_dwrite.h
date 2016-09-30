@@ -47,7 +47,7 @@ struct dwrite_simple
 		const std::wstring &font_name,
 		const float &font_factor,
 		const DWRITE_ALIG_STYLE &text_alig_style);
-	void on_resize_LayoutRc(HWND &hwnd, const FLOAT &margin_factor);
+	void on_resize_LayoutRc(HWND &hwnd, const FLOAT &margin_factor, const float &left_offset = 0.0f);
 	void set_Brush(ID2D1DeviceContext *d2d_dc, D2D1::ColorF::Enum color);
 	template <typename T_wstring>
 	void build_TextLayout(
@@ -190,13 +190,13 @@ void dwrite_simple::init_external_rect(
 	HR(d2d_dc->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_Brush));
 }
 //
-void dwrite_simple::on_resize_LayoutRc(HWND &hwnd, const FLOAT &margin_factor)
+void dwrite_simple::on_resize_LayoutRc(HWND &hwnd, const FLOAT &margin_factor, const float &left_offset)
 {
 	RECT rc;
 	GetClientRect(hwnd, &rc);
 	FLOAT margin = (rc.bottom - rc.top)*margin_factor;
 	m_LayoutRc = D2D1::RectF(
-		static_cast<FLOAT>(rc.left+margin),
+		static_cast<FLOAT>(rc.left+margin+(rc.right*left_offset) ),
 		static_cast<FLOAT>(rc.top+margin),
 		static_cast<FLOAT>(rc.right-rc.left-margin),
 		static_cast<FLOAT>(rc.bottom-rc.top-margin)

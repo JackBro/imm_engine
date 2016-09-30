@@ -60,7 +60,7 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Dwrite["22_page"].init_external_rect(m_App->m_D2DDC, m_App->m_hwnd, L"Consolas", 22.0f, DWRITE_ALIG_STYLE_PAGE);
 	// brush
 	m_Brush["black"];
-	set_Brush(D2D1::ColorF::Black, 0.5f, "black");
+	set_Brush(D2D1::ColorF::Black, 0.0f, "black");
 	m_Brush["transparent"];
 	set_Brush(D2D1::ColorF::Black, 0.0f, "transparent");
 	////////////////
@@ -82,6 +82,16 @@ void ui_def_dialogue<T_app>::define_style()
 	m_Rect.back().parent_str = "-1";
 	m_Rect.back().group = "test";
 	m_Rect.back().tp = ui_rect::type::background;
+	m_Rect.back().brush_sel = {"black"};
+	m_Rect.back().text = L"";
+	m_Rect.back().dwrite_ix = "32";
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.75f, 0.0f, 0.0f);
+	//
+	m_Rect.emplace_back();
+	m_Rect.back().id_str = "test_zz_background_img";
+	m_Rect.back().parent_str = "-1";
+	m_Rect.back().group = "test";
+	m_Rect.back().tp = ui_rect::type::sprite;
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"";
 	m_Rect.back().dwrite_ix = "32";
@@ -194,6 +204,12 @@ void ui_def_dialogue<T_app>::define_sprite_build_buffer()
 	vec2d.erase(vec2d.begin());
 	m_Sprite.build_buffer(vec2d);
 	m_MapSpriteName["test_sprite"] = "";
+	m_MapSpriteName["test_zz_background_img"] = "";
+	//
+	if (m_Sprite.map_tex.count("backg_img")) {
+		m_MapSpriteName["test_zz_background_img"] = "backg_img";
+	}
+	//
 }
 //
 template <typename T_app>
@@ -202,7 +218,6 @@ void ui_def_dialogue<T_app>::define_on_resize_sprite()
 	float scr_height = static_cast<float>(m_RcHWND.bottom - m_RcHWND.top);
 	float scr_width = static_cast<float>(m_RcHWND.right - m_RcHWND.left);
 	float scale = scr_height/UI_RESOLUTION_HEIGHT*0.6f;
-	std::map<std::string, XMFLOAT2> get_resize;
 	for (auto it = m_Sprite.map_height.begin(); it != m_Sprite.map_height.end(); ++it) {
 		m_Sprite.map_pos[it->first] = XMFLOAT2(scr_width*0.0f*scale, scr_height-(it->second*scale));
 	}

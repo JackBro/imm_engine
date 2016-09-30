@@ -250,6 +250,9 @@ void imm_app::draw_scene_d3d_slient()
 	assert(m_SwapChain);
 	m_D3DDC->ClearRenderTargetView(m_RenderTargetView, reinterpret_cast<const float*>(&m_Cmd.back_color));
 	m_D3DDC->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+	if (m_Cmd.is_wait_loading) {
+		m_Cmd.draw_d3d_loading();
+	}
 }
 //
 void imm_app::draw_scene_d2d()
@@ -258,10 +261,10 @@ void imm_app::draw_scene_d2d()
 	m_D2DDC->BeginDraw();
 	m_D2DDC->SetTransform(D2D1::IdentityMatrix());
 	if (m_Cmd.is_wait_loading) {
-		m_Cmd.draw_loading();
+		m_Cmd.draw_d2d_loading();
 	}
 	else {
-		m_Cmd.draw();
+		m_Cmd.draw_d2d();
 		m_UiMgr.draw_d2d();
 	}
 	HR(m_D2DDC->EndDraw());
