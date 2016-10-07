@@ -1,5 +1,5 @@
 ////////////////
-// fire.fx
+// pt_charge.fx
 // Fire.fx by Frank Luna (C) 2011 All Rights Reserved.
 // Fire particle system.  Particles are emitted directly in world space.
 ////////////////

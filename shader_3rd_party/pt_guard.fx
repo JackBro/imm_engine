@@ -1,5 +1,5 @@
 ////////////////
-// fire.fx
+// pt_guard.fx
 // Fire.fx by Frank Luna (C) 2011 All Rights Reserved.
 // Fire particle system.  Particles are emitted directly in world space.
 ////////////////
@@ -97,7 +97,7 @@ Particle StreamOutVS(Particle vin)
 // programed here will generally vary from particle system
 // to particle system, as the destroy/spawn rules will be
 // different.
-[maxvertexcount(4)]
+[maxvertexcount(8)]
 void StreamOutGS(
 	point Particle gin[1],
 	inout PointStream<Particle> ptStream)
@@ -105,24 +105,21 @@ void StreamOutGS(
 	gin[0].Age += gTimeStep;
 	if (gin[0].Type == PT_EMITTER) {
 		// time to emit a new particle?
-		if (gin[0].Age > 0.016f) {
-			float3 vRandom = RandUnitVec3(0.0f);
-			vRandom.x *= 0.5f;
-			vRandom.z *= 0.5f;
+		if (gin[0].Age > 0.016) {
 			Particle p;
 			p.InitialPosW = gEmitPosW.xyz;
-			p.InitialVelW = 1.0f*vRandom;
-			p.SizeW       = float2(0.1f, 0.7f);
+			p.InitialVelW = 4.0f*RandUnitVec3(0.0f);
+			//p.SizeW       = float2(0.15f, 0.15f);
+			p.SizeW       = float2(0.3f, 0.3f);
 			p.Age         = 0.0f;
 			p.Type        = PT_FLARE;
 			ptStream.Append(p);
 			// reset the time to emit
 			gin[0].Age = 0.0f;
 			// more particles
-			vRandom = RandUnitVec3(0.1f);
-			vRandom.x *= 0.5f;
-			vRandom.z *= 0.5f;
-			p.InitialVelW = 1.0f*vRandom;
+			p.InitialVelW = 4.0f*RandUnitVec3(0.1f);
+			ptStream.Append(p);
+			p.InitialVelW = 4.0f*RandUnitVec3(0.2f);
 			ptStream.Append(p);
 		}
 		// always keep emitters
@@ -130,8 +127,9 @@ void StreamOutGS(
 	}
 	else {
 		// Specify conditions to keep particle; this may vary from system to system.
-		if (gin[0].Age <= 1.0f)
+		if (gin[0].Age <= 1.0f) {
 			ptStream.Append(gin[0]);
+		}
 	}
 }
 GeometryShader gsStreamOut = ConstructGSWithSO(
@@ -163,10 +161,9 @@ VertexOut DrawVS(Particle vin)
 	VertexOut vout;
 	float t = vin.Age;
 	// constant acceleration equation
-	vout.PosW = 5.0f*t*vin.InitialVelW + vin.InitialPosW;
+	vout.PosW = 0.25f*(t+t)/(t+0.1f)*vin.InitialVelW + vin.InitialPosW;
 	// fade color with time
-	float opacity = 1.0f - smoothstep(0.0f, 1.0f, t/1.0f);
-	vout.Color = float4(1.0f, 1.0f, 1.0f, opacity);
+	vout.Color = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	vout.SizeW = vin.SizeW;
 	vout.Type  = vin.Type;
 	return vout;
@@ -189,7 +186,7 @@ void DrawGS(
 		// Compute world matrix so that billboard faces the camera.
 		//
 		float3 look  = normalize(gEyePosW.xyz - gin[0].PosW);
-		float3 right = normalize(cross(float3(0,1,0), look));
+		float3 right = normalize(cross(float3(0, 1, 0), look));
 		float3 up    = cross(look, right);
 		//
 		// Compute triangle strip vertices (quad) in world space.

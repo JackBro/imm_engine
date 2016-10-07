@@ -109,25 +109,13 @@ void StreamOutGS(
 			Particle p;
 			p.InitialPosW = gEmitPosW.xyz;
 			p.InitialVelW = 4.0f*RandUnitVec3(0.0f);
-			p.SizeW       = float2(0.15f, 0.15f);
+			p.SizeW       = float2(0.7f, 0.7f);
 			p.Age         = 0.0f;
 			p.Type        = PT_FLARE;
 			ptStream.Append(p);
 			// reset the time to emit
 			gin[0].Age = 0.0f;
 			// more particles
-			p.InitialVelW = 4.0f*RandUnitVec3(0.1f);
-			ptStream.Append(p);
-			p.InitialVelW = 4.0f*RandUnitVec3(0.2f);
-			ptStream.Append(p);
-			p.InitialVelW = 4.0f*RandUnitVec3(0.3f);
-			ptStream.Append(p);
-			p.InitialVelW = 4.0f*RandUnitVec3(0.4f);
-			ptStream.Append(p);
-			p.InitialVelW = 4.0f*RandUnitVec3(0.5f);
-			ptStream.Append(p);
-			p.InitialVelW = 4.0f*RandUnitVec3(0.6f);
-			ptStream.Append(p);
 		}
 		// always keep emitters
 		ptStream.Append(gin[0]);
