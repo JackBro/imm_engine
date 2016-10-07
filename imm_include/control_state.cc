@@ -61,7 +61,7 @@ void pose_Idle::execute(troll *tro)
 		return;
 	}
 	if (tro->order & ORDER_DMG) {
-		tro->change_state(pose_Damage::instance());
+		tro->change_state_execute(pose_Damage::instance());
 		return;
 	}
 	if (tro->order & ORDER_GUARD) {
@@ -121,7 +121,7 @@ void pose_Move::execute(troll *tro)
 {
 	if (tro->order & ORDER_DMG) {
 		math::ai_move_pos_stop(tro->index);
-		tro->change_state(pose_Damage::instance());
+		tro->change_state_execute(pose_Damage::instance());
 		return;
 	}
 	if (tro->order & ORDER_IDLE) {
@@ -343,7 +343,7 @@ void pose_Atk::execute(troll *tro)
 		return;
 	}
 	if (tro->order & ORDER_DMG) {
-		tro->change_state(pose_Damage::instance());
+		tro->change_state_execute(pose_Damage::instance());
 		return;
 	}
 }
@@ -364,19 +364,46 @@ pose_Damage *pose_Damage::instance()
 //
 void pose_Damage::enter(troll *tro)
 {
-	tro->order = ORDER_NONE;
-	if (tro->order_stat & ORDER_IS_GUARD) {
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Damage(), true);
-		tro->A.cd_Damage = tro->A.frame_Damage;
+	
+	
+	
+	if (tro->order & ORDER_HITFLY) {
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName("DamageFly", true);
+		tro->A.cd_Damage = 37.0f*FRAME_RATE_1DIV;
 	}
+	
+	
+	
+	
+	
 	else {
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Damage(), true);
-		tro->A.cd_Damage = tro->A.frame_Damage;
+		if (tro->order_stat & ORDER_IS_GUARD) {
+			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Damage(), true);
+			tro->A.cd_Damage = tro->A.frame_Damage;
+		}
+		else {
+			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Damage(), true);
+			tro->A.cd_Damage = tro->A.frame_Damage;
+		}
 	}
+	tro->order = ORDER_NONE;
 }
 //
 void pose_Damage::execute(troll *tro)
 {
+	
+	
+	
+	if (tro->order & ORDER_HITFLY) {
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName("DamageFly", true);
+		tro->A.cd_Damage = 37.0f*FRAME_RATE_1DIV;
+		tro->order = ORDER_NONE;
+	}
+	
+	
+	
+	
+	
 	tro->A.cd_Damage -= PTR->m_Timer.delta_time();
 	if (tro->A.cd_Damage < 0.0f) {
 		tro->order |= ORDER_ENGAGE;

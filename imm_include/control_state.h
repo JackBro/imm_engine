@@ -30,7 +30,8 @@ enum ORDER_ACT_TYPE
 	ORDER_ROLL        = 0x100,
 	ORDER_GUARD       = 0x200,
 	ORDER_GUARD_NO    = 0x400,
-	ORDER_ENGAGE      = 0x800
+	ORDER_ENGAGE      = 0x800,
+	ORDER_HITFLY      = 0x1000,
 };
 //
 enum ORDER_STAT_TYPE

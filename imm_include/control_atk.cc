@@ -184,7 +184,20 @@ void damage_data::update(const float &dt)
 void damage_data::update_melee(const float &dt)
 {
 	if (!is_calculated) {
+		
+		
+		
+		
 		PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
+		if (PTR->m_Control.atk.current_impulse(ix_atk) > ATK_IMPULSE_PHASE) {
+			PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_HITFLY;
+		}
+		
+		
+		
+		
+		
+		
 		math::set_inst_speed(ix_dmg, 0.0f);
 		if (!PTR->m_Control.atk.para_ski[ix_atk].is_adjust_dir) {
 			if (PTR->m_Inst.m_Probe.intersects_oblong(ix_atk, ix_dmg)) {
@@ -303,6 +316,7 @@ void control_atk<T_app>::cause_damage(
 	}
 	damage[index].stamp();
 	hits[inst_ix_atk].insert(inst_ix_dmg);
+	//
 }
 //
 template <typename T_app>
@@ -330,7 +344,6 @@ void control_atk<T_app>::update(const float &dt)
 	}
 }
 //
-
 template <typename T_app>
 bool control_atk<T_app>::is_execute(const size_t &index_in)
 {

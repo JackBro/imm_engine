@@ -196,12 +196,13 @@ void control_sys<T_app>::update_scene(const float &dt)
 {
 	// assert check update
 	assert(player1 > -1);
-	app->m_Inst.update_all_physics(dt);
+	app->m_Inst.update_all_physics1(dt);
+	atk.update(dt);
+	app->m_Inst.update_all_physics2(dt);
 	update_scene_bounds();
 	update_stop(dt);
 	// camera follow update even m_Cmd.is_active()
 	cam.follow_update();
-	atk.update(dt);
 }
 //
 template <typename T_app>

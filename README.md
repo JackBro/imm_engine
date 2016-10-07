@@ -86,7 +86,7 @@ Asset Tools:
 ------------
 * **[immature Blender export](https://github.com/endrollex/imm_blender_export)**: 
 Export Blender model data to .m3d file format for immature engine.
-* **m3dtob3m.exe**: 
+* **[m3dtob3m.exe](https://github.com/endrollex/imm_engine/tree/master/sample/m3dtob3m)**: 
 Convert .m3d file to binary .b3m file. 
 Notice .b3m file corresponding x64/x86 version.
 * **CSV based scene data**: 

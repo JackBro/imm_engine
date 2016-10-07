@@ -34,6 +34,7 @@ struct phy_property
 	float avg_extent;
 	float min_extent; // not use now
 	float dt;
+	float absolute_alt;
 	int stand_on;
 	int ix;
 	int bring_ix;
@@ -56,6 +57,7 @@ phy_property::phy_property():
 	avg_extent(1.0f),
 	min_extent(1.0f),
 	dt(0.0f),
+	absolute_alt(-1.0f),
 	stand_on(-1),
 	ix(0),
 	bring_ix(-1),

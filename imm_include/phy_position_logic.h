@@ -42,10 +42,13 @@ void phy_position_update(
 		prop.dt = 0.0f;
 		is_fps_dt = true;
 	}
+	if (prop.absolute_alt > 0.0f) prop.absolute_alt -= dt;
 	if (is_fps_dt) {
-		prop.vel_absolute.x *= 0.5f;
-		prop.vel_absolute.y *= 0.5f;
-		prop.vel_absolute.z *= 0.5f;
+		float decay = 0.5f;
+		if (prop.absolute_alt > 0.0f) decay = 0.9f;
+		prop.vel_absolute.x *= decay;
+		prop.vel_absolute.y *= decay;
+		prop.vel_absolute.z *= decay;
 	}
 	if (!prop.is_on_land) {
 		prop.velocity.x += prop.acceleration.x*dt;
@@ -289,9 +292,15 @@ void phy_attack_impulse(
 	}
 	Hit_to_B = XMVector3Normalize(Hit_to_B);
 	XMVECTOR vel_absolute = XMLoadFloat3(&prop_B.vel_absolute);
-	Hit_to_B = XMVectorScale(Hit_to_B, 20.0f * impulse_scale);
+	//Hit_to_B = XMVectorScale(Hit_to_B, 20.0f * impulse_scale);
+	
+	
+	
+	
+	Hit_to_B = XMVectorScale(Hit_to_B, 20.0f*3.0f);
 	vel_absolute = XMVectorAdd(vel_absolute, Hit_to_B);
 	XMStoreFloat3(&prop_B.vel_absolute, vel_absolute);
+	if (impulse_scale > ATK_IMPULSE_PHASE) prop_B.absolute_alt = 3.0f*FRAME_RATE_1DIV;
 	return;
 }
 //

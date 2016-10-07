@@ -42,7 +42,8 @@ struct instance_mgr
 	void copy_instance(const std::string &inst_name, const std::string &new_name);
 	int get_index(const std::string &name);
 	void on_resize();
-	void update_all_physics(const float &dt);
+	void update_all_physics1(const float &dt);
+	void update_all_physics2(const float &dt);
 	void update_bound();
 	void update_collision(float dt);
 	void update_collision_impulse(float dt);
@@ -303,9 +304,8 @@ void instance_mgr<T_app>::on_resize()
 }
 //
 template <typename T_app>
-void instance_mgr<T_app>::update_all_physics(const float &dt)
+void instance_mgr<T_app>::update_all_physics1(const float &dt)
 {
-	update_skinned(dt);
 	update_bound();
 	update_collision(dt);
 	update_frustum_culling();
@@ -314,6 +314,13 @@ void instance_mgr<T_app>::update_all_physics(const float &dt)
 	m_Probe.update(dt);
 	m_App->m_Hit.update();
 	m_App->m_Magic.update();
+}
+
+//
+template <typename T_app>
+void instance_mgr<T_app>::update_all_physics2(const float &dt)
+{
+	update_skinned(dt);
 }
 //
 template <typename T_app>
@@ -493,13 +500,13 @@ template <typename T_app>
 void instance_mgr<T_app>::update_skinned(const float &dt)
 {
 	if (m_App->m_Cmd.is_preparing) return;
+	// Troll
+	assert(m_Troll.capacity() < VECTOR_RESERVE+1);
+	for (auto &troll: m_Troll) troll.update();
+	for (auto &ste: m_Steering) ste.second.update(dt);
 	// should be multithread?
 	for (auto &skinned: m_Model.m_InstSkinned) skinned.update(dt);
 	for (auto &skinned: m_Model.m_InstSkinnedAlpha) skinned.update(dt);
-	// Troll
-	for (auto &troll: m_Troll) troll.update();
-	for (auto &ste: m_Steering) ste.second.update(dt);
-	assert(m_Troll.capacity() < VECTOR_RESERVE+1);
 }
 //
 template <typename T_app>
