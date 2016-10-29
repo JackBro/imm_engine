@@ -60,8 +60,8 @@ void status_data::build_ability()
 		ability[model].speed_Walk = std::stof(vec2d[ix][2]);
 		ability[model].speed_Run = std::stof(vec2d[ix][3]);
 		ability[model].speed_Roll = std::stof(vec2d[ix][4]);
-		ability[model].frame_RollStep1 = std::stof(vec2d[ix][5])*FRAME_RATE_1DIV;
-		ability[model].frame_RollStep2 = std::stof(vec2d[ix][6])*FRAME_RATE_1DIV;
+		ability[model].frame_RollStep = std::stof(vec2d[ix][5])*FRAME_RATE_1DIV;
+		ability[model].frame_RollToIdle = std::stof(vec2d[ix][6])*FRAME_RATE_1DIV;
 	}
 }
 //

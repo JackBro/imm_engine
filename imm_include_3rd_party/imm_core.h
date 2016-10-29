@@ -80,12 +80,14 @@ static const float FRAME_RATE_1DIV = 1.0f/FRAME_RATE;
 static const float FPS60 = 60.0f;
 static const float FPS60_1DIV = 1.0f/60.0f;
 static const float FPS_MIN_REQ_1DIV = 1.0f/20.0f;
+static const float TIME_1_MINITE = 60.0f;
+static const float TIME_59_SECONDS = 59.0F;
 static bool IS_STANDALONE_M3DTOB3M = false;
 static const float GAME_HP_BAR = 20.0f;
 static const float AI_DELTA_TIME_LOGIC = 0.05;
 static const float AI_DELTA_TIME_PHY_FAST = 0.05f;
 static const float AI_DELTA_TIME_PHY_SLOW = 0.1f;
-static const float ATK_IMPULSE_PHASE = 7.0f;
+static const float ATK_IMPULSE_PHASE = 5.0f;
 static const std::wstring SCENE_FIRST = L"_00";
 static const std::wstring SCENE_SECOND = L"_01";
 ////////////////

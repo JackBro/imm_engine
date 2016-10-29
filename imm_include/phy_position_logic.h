@@ -36,16 +36,17 @@ void phy_position_update(
 	const float &land_y)
 {
 	if (prop.is_abnormal) return;
-	bool is_fps_dt = false;
+	bool is_fps60_dt = false;
 	prop.dt += dt;
+	// Game FPS must >= 60
 	if (prop.dt > FPS60_1DIV) {
 		prop.dt = 0.0f;
-		is_fps_dt = true;
+		is_fps60_dt = true;
 	}
 	if (prop.absolute_alt > 0.0f) prop.absolute_alt -= dt;
-	if (is_fps_dt) {
+	if (is_fps60_dt) {
 		float decay = 0.5f;
-		if (prop.absolute_alt > 0.0f) decay = 0.9f;
+		if (prop.absolute_alt > 0.0f) decay = 1.0f;
 		prop.vel_absolute.x *= decay;
 		prop.vel_absolute.y *= decay;
 		prop.vel_absolute.z *= decay;
@@ -63,7 +64,7 @@ void phy_position_update(
 		float friction_rev = prop.friction_rev*prop_land.friction_rev;
 		prop.acceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		if (prop.velocity.y < 0.0f) prop.velocity.y = -prop.velocity.y*bounce*FPS60*dt;
-		if (is_fps_dt) {
+		if (is_fps60_dt) {
 			prop.velocity.x *= friction_rev;
 			prop.velocity.z *= friction_rev;
 		}
@@ -292,15 +293,16 @@ void phy_attack_impulse(
 	}
 	Hit_to_B = XMVector3Normalize(Hit_to_B);
 	XMVECTOR vel_absolute = XMLoadFloat3(&prop_B.vel_absolute);
-	//Hit_to_B = XMVectorScale(Hit_to_B, 20.0f * impulse_scale);
-	
-	
-	
-	
-	Hit_to_B = XMVectorScale(Hit_to_B, 20.0f*3.0f);
+	// think aimlessly
+	float impulse = 3.0f;
+	if (impulse_scale < 3.0f) impulse = impulse_scale;
+	Hit_to_B = XMVectorScale(Hit_to_B, 20.0f * impulse);
 	vel_absolute = XMVectorAdd(vel_absolute, Hit_to_B);
 	XMStoreFloat3(&prop_B.vel_absolute, vel_absolute);
-	if (impulse_scale > ATK_IMPULSE_PHASE) prop_B.absolute_alt = 3.0f*FRAME_RATE_1DIV;
+	if (impulse_scale > ATK_IMPULSE_PHASE) {
+		float f_time = impulse_scale - 3.0f;
+		prop_B.absolute_alt = f_time*FRAME_RATE_1DIV;
+	}
 	return;
 }
 //

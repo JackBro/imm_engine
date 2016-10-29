@@ -32,6 +32,7 @@ enum ORDER_ACT_TYPE
 	ORDER_GUARD_NO    = 0x400,
 	ORDER_ENGAGE      = 0x800,
 	ORDER_HITFLY      = 0x1000,
+	ORDER_KNOCKDOWN   = 0x2000,
 };
 //
 enum ORDER_STAT_TYPE
@@ -160,6 +161,22 @@ private:
 	pose_Damage &operator=(const pose_Damage&);
 };
 ////////////////
+// pose_FallDown
+////////////////
+////////////////
+struct troll;
+struct pose_FallDown: public state<troll>
+{
+	static pose_FallDown *instance();
+	void enter(troll*);
+	void execute(troll*);
+	void exit(troll*);
+private:
+	pose_FallDown() {;}
+	pose_FallDown(const pose_FallDown&);
+	pose_FallDown &operator=(const pose_FallDown&);
+};
+////////////////
 // act_str
 ////////////////
 ////////////////
@@ -173,9 +190,12 @@ struct act_str
 	std::string JumpLand();
 	std::string Engage();
 	std::string Damage();
+	std::string DamageFly();
 	std::string Roll();
 	std::string WalkRev();
 	std::string Guard();
+	std::string LieDown();
+	std::string GetUp();
 	int *p_order_s;
 };
 ////////////////
@@ -190,15 +210,19 @@ struct action_data
 	float speed_Run;
 	float speed_Roll;
 	float frame_Damage;
-	float frame_RollStep1;
-	float frame_RollStep2;
+	float frame_DamageFly;
+	float frame_RollStep;
+	float frame_RollToIdle;
 	float frame_JumpLand;
+	float frame_GetUp;
 	float cd_Idle;
 	float cd_Jump;
 	float cd_Damage;
-	float cd_RollStep1;
-	float cd_RollStep2;
+	float cd_RollStep;
+	float cd_RollToIdle;
 	float cd_GuardMin;
+	float cd_LieDown;
+	float cd_GetUp;
 };
 //
 action_data::action_data():
@@ -207,15 +231,20 @@ action_data::action_data():
 	speed_Run(13.5f),
 	speed_Roll(30.0f),
 	frame_Damage(10.0f*FRAME_RATE_1DIV),
-	frame_RollStep1(10.0f*FRAME_RATE_1DIV),
-	frame_RollStep2(10.0f*FRAME_RATE_1DIV),
+	frame_DamageFly(12.0f*FRAME_RATE_1DIV),
+	frame_RollStep(10.0f*FRAME_RATE_1DIV),
+	frame_RollToIdle(10.0f*FRAME_RATE_1DIV),
 	frame_JumpLand(7.0f*FRAME_RATE_1DIV),
+	frame_GetUp(25.0f*FRAME_RATE_1DIV),
 	cd_Idle(-1.0f),
 	cd_Jump(-1.0f),
 	cd_Damage(-1.0f),
-	cd_RollStep1(-1.0f),
-	cd_RollStep2(-1.0f),
-	cd_GuardMin(-1.0f)
+	cd_RollStep(-1.0f),
+	cd_RollToIdle(-1.0f),
+	cd_GuardMin(-1.0f),
+	cd_LieDown(-1.0f),
+	cd_GetUp(-1.0f)
+	
 {
 	;
 }
@@ -239,7 +268,9 @@ struct troll
 	int order_stat;
 	int battle_stat;
 	int focus;
-	bool is_on_air;
+	bool is_ON_AIR;
+	bool is_DOWN;
+	bool is_GET_UP;
 	action_data A;
 	act_str act;
 };
@@ -252,7 +283,9 @@ troll::troll():
 	order_stat(ORDER_IS_CLEAR),
 	battle_stat(BATTLE_STAT_NONE),
 	focus(-1),
-	is_on_air(false),
+	is_ON_AIR(false),
+	is_DOWN(false),
+	is_GET_UP(false),
 	A(),
 	act(order_stat)
 {

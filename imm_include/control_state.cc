@@ -204,15 +204,15 @@ void pose_Roll::execute(troll *tro)
 	}
 	if (tro->order & ORDER_MOVE_WASD || tro->order & ORDER_MOVE_TOWARD) {
 		// roll
-		if (tro->A.cd_RollStep1 > 0.0f) {
-			tro->A.cd_RollStep1 -= PTR->m_Timer.delta_time();
+		if (tro->A.cd_RollStep > 0.0f) {
+			tro->A.cd_RollStep -= PTR->m_Timer.delta_time();
 			return;
 		}
-		if (tro->A.cd_RollStep2 > 0.0f) {
-			tro->A.cd_RollStep2 -= PTR->m_Timer.delta_time();
+		if (tro->A.cd_RollToIdle > 0.0f) {
+			tro->A.cd_RollToIdle -= PTR->m_Timer.delta_time();
 			math::key_move_wasd(tro->index, 0.0f);
-			tro->A.cd_RollStep1 = tro->A.cd_RollStep2;
-			tro->A.cd_RollStep2 = -1.0f;
+			tro->A.cd_RollStep = tro->A.cd_RollToIdle;
+			tro->A.cd_RollToIdle = -1.0f;
 			tro->battle_stat ^= BATTLE_STAT_DODGE;
 			tro->order |= ORDER_ENGAGE;
 			return;
@@ -240,8 +240,8 @@ void pose_Roll::execute(troll *tro)
 				}
 			}
 			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Roll(), true);
-			tro->A.cd_RollStep1 = tro->A.frame_RollStep1;
-			tro->A.cd_RollStep2 = tro->A.frame_RollStep2;
+			tro->A.cd_RollStep = tro->A.frame_RollStep;
+			tro->A.cd_RollToIdle = tro->A.frame_RollToIdle;
 			tro->battle_stat |= BATTLE_STAT_DODGE;
 			return;
 		}
@@ -273,7 +273,7 @@ void pose_Jump::enter(troll *tro)
 	if (!PTR->m_Inst.m_Stat[tro->index].phy.is_on_land) tro->revert_previous_state();
 	PTR->m_Inst.m_Stat[tro->index].phy.velocity.y = tro->A.velocity_Jump;
 	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Jump());
-	tro->A.cd_Jump = 60.0f;
+	tro->A.cd_Jump = TIME_1_MINITE;
 }
 //
 void pose_Jump::execute(troll *tro)
@@ -283,17 +283,17 @@ void pose_Jump::execute(troll *tro)
 	}
 	//
 	bool is_on_land = PTR->m_Inst.m_Stat[tro->index].phy.is_on_land;
-	if (!tro->is_on_air && !is_on_land && tro->A.cd_Jump > 59.0f) {
-		tro->is_on_air = true;
+	if (!tro->is_ON_AIR && !is_on_land && tro->A.cd_Jump > TIME_59_SECONDS) {
+		tro->is_ON_AIR = true;
 	}
-	if (tro->is_on_air && is_on_land) {
+	if (tro->is_ON_AIR && is_on_land) {
 		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.JumpLand(), true);
-		tro->is_on_air = false;
+		tro->is_ON_AIR = false;
 		// Idle do full JumpLand
 		if (tro->previous_state == pose_Idle::instance()) tro->A.cd_Jump = tro->A.frame_JumpLand;
 		else tro->A.cd_Jump = 0.1f;
 	}
-	if (!tro->is_on_air && is_on_land && tro->A.cd_Jump < 59.0f) {
+	if (!tro->is_ON_AIR && is_on_land && tro->A.cd_Jump < TIME_59_SECONDS) {
 		if (tro->A.cd_Jump > 0.0f) {
 			tro->A.cd_Jump -= PTR->m_Timer.delta_time();
 		}
@@ -364,18 +364,11 @@ pose_Damage *pose_Damage::instance()
 //
 void pose_Damage::enter(troll *tro)
 {
-	
-	
-	
 	if (tro->order & ORDER_HITFLY) {
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName("DamageFly", true);
-		tro->A.cd_Damage = 37.0f*FRAME_RATE_1DIV;
+		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.DamageFly(), true);
+		tro->A.cd_Damage = tro->A.frame_DamageFly;
+		tro->is_DOWN = true;
 	}
-	
-	
-	
-	
-	
 	else {
 		if (tro->order_stat & ORDER_IS_GUARD) {
 			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.Damage(), true);
@@ -391,30 +384,65 @@ void pose_Damage::enter(troll *tro)
 //
 void pose_Damage::execute(troll *tro)
 {
-	
-	
-	
-	if (tro->order & ORDER_HITFLY) {
-		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName("DamageFly", true);
-		tro->A.cd_Damage = 37.0f*FRAME_RATE_1DIV;
-		tro->order = ORDER_NONE;
-	}
-	
-	
-	
-	
-	
 	tro->A.cd_Damage -= PTR->m_Timer.delta_time();
 	if (tro->A.cd_Damage < 0.0f) {
-		tro->order |= ORDER_ENGAGE;
-		tro->change_state(pose_Idle::instance());
-		return;
+		if (tro->is_DOWN) {
+			tro->change_state(pose_FallDown::instance());
+		}
+		else {
+			tro->order |= ORDER_ENGAGE;
+			tro->change_state(pose_Idle::instance());
+		}
 	}
 }
 //
 void pose_Damage::exit(troll *tro)
 {
 	tro;
+}
+////////////////
+// pose_FallDown
+////////////////
+////////////////
+pose_FallDown *pose_FallDown::instance()
+{
+	static pose_FallDown instance;
+	return &instance;
+}
+//
+void pose_FallDown::enter(troll *tro)
+{
+	PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.LieDown());
+	tro->is_DOWN = true;
+	tro->is_GET_UP = false;
+	tro->A.cd_LieDown = 1.0f;
+	tro->A.cd_GetUp = tro->A.frame_GetUp;
+}
+//
+void pose_FallDown::execute(troll *tro)
+{
+	if (tro->A.cd_LieDown > 0.0f) {
+		tro->A.cd_LieDown -= PTR->m_Timer.delta_time();
+	}
+	else if (tro->A.cd_GetUp > 0.0f) {
+		// get up
+		tro->A.cd_GetUp -= PTR->m_Timer.delta_time();
+		if (!tro->is_GET_UP) {
+			PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.GetUp(), true);
+			tro->is_GET_UP = true;
+		}
+	}
+	if (tro->A.cd_GetUp < 0.0f) {
+		// return idle
+		tro->order = ORDER_NONE;
+		tro->order |= ORDER_ENGAGE;
+		tro->change_state(pose_Idle::instance());
+	}
+}
+//
+void pose_FallDown::exit(troll *tro)
+{
+	tro->is_DOWN = false;
 }
 //
 }

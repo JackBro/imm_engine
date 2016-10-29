@@ -184,20 +184,12 @@ void damage_data::update(const float &dt)
 void damage_data::update_melee(const float &dt)
 {
 	if (!is_calculated) {
-		
-		
-		
-		
+		//
 		PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
 		if (PTR->m_Control.atk.current_impulse(ix_atk) > ATK_IMPULSE_PHASE) {
 			PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_HITFLY;
 		}
-		
-		
-		
-		
-		
-		
+		//
 		math::set_inst_speed(ix_dmg, 0.0f);
 		if (!PTR->m_Control.atk.para_ski[ix_atk].is_adjust_dir) {
 			if (PTR->m_Inst.m_Probe.intersects_oblong(ix_atk, ix_dmg)) {
