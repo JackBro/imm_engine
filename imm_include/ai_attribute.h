@@ -184,7 +184,9 @@ struct ai_attr
 	void rebuild_troll();
 	void update(const float &dt);
 	void update_regenerate();
-	void calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg);
+	void calc_skill_melee_immediately(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg);
+	void calc_skill_magic_delay(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg);
+	void calc_skill_melee_delay(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg);
 	bool is_required_ap(const SKILL_SPECIFY &specify, const size_t &ix);
 	T_app *app;
 	float delta_time;
@@ -278,7 +280,31 @@ void ai_attr<T_app>::update_regenerate()
 }
 //
 template <typename T_app>
-void ai_attr<T_app>::calc_skill(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg)
+void ai_attr<T_app>::calc_skill_melee_immediately(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg)
+{
+	specify;
+	ix_atk;
+	app->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
+	if (app->m_Control.atk.current_impulse(ix_atk) > ATK_IMPULSE_PHASE) {
+		app->m_Inst.m_Troll[ix_dmg].order |= ORDER_HITFLY;
+	}
+}
+//
+template <typename T_app>
+void ai_attr<T_app>::calc_skill_magic_delay(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg)
+{
+	ix_atk;
+	app->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
+	switch (specify) {
+	case SKILL_MELEE_STANDARD:
+		points[ix_dmg].hp -= 3.0f;
+		if (points[ix_dmg].hp < 0.0f) points[ix_dmg].hp = points[ix_dmg].hp_max;
+		break;
+	}
+}
+//
+template <typename T_app>
+void ai_attr<T_app>::calc_skill_melee_delay(const SKILL_SPECIFY &specify, const size_t &ix_atk, const size_t &ix_dmg)
 {
 	ix_atk;
 	switch (specify) {

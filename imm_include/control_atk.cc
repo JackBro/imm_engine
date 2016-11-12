@@ -184,12 +184,7 @@ void damage_data::update(const float &dt)
 void damage_data::update_melee(const float &dt)
 {
 	if (!is_calculated) {
-		//
-		PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
-		if (PTR->m_Control.atk.current_impulse(ix_atk) > ATK_IMPULSE_PHASE) {
-			PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_HITFLY;
-		}
-		//
+		PTR->m_AiAttr.calc_skill_melee_immediately(specify, ix_atk, ix_dmg);
 		math::set_inst_speed(ix_dmg, 0.0f);
 		if (!PTR->m_Control.atk.para_ski[ix_atk].is_adjust_dir) {
 			if (PTR->m_Inst.m_Probe.intersects_oblong(ix_atk, ix_dmg)) {
@@ -212,7 +207,7 @@ void damage_data::update_melee(const float &dt)
 			XMFLOAT3 center = PTR->m_Inst.m_BoundW.center(ix_dmg);
 			center.y += (box.y-center.y)*0.8f;
 			PTR->m_SfxSelect.play_effect(specify, ix_atk, ix_dmg, center);
-			PTR->m_AiAttr.calc_skill(specify, ix_atk, ix_dmg);
+			PTR->m_AiAttr.calc_skill_melee_delay(specify, ix_atk, ix_dmg);
 			is_delay = false;
 		}
 	}
@@ -228,7 +223,6 @@ void damage_data::update_magic(const float &dt)
 	if (is_delay) {
 		delay -= dt;
 		if (delay < 0.0f) {
-			PTR->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
 			math::set_inst_speed(ix_dmg, 0.0f);
 			if (!PTR->m_Control.atk.para_ski[ix_atk].is_adjust_dir) {
 				if (PTR->m_Inst.m_Probe.intersects_oblong(ix_atk, ix_dmg)) {
@@ -238,7 +232,7 @@ void damage_data::update_magic(const float &dt)
 				}
 			}
 			PTR->m_Scene.audio.play_effect(sfx::Punch);
-			PTR->m_AiAttr.calc_skill(specify, ix_atk, ix_dmg);
+			PTR->m_AiAttr.calc_skill_magic_delay(specify, ix_atk, ix_dmg);
 			is_delay = false;
 		}
 	}

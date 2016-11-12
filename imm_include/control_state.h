@@ -244,7 +244,6 @@ action_data::action_data():
 	cd_GuardMin(-1.0f),
 	cd_LieDown(-1.0f),
 	cd_GetUp(-1.0f)
-	
 {
 	;
 }
