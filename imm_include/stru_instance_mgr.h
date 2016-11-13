@@ -355,7 +355,7 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 		// if instance stand on instance, continue;
 		if (m_Stat[ix].phy.stand_on == ix2 || m_Stat[ix2].phy.stand_on == ix) continue;
 		//
-		phy_impulse_casual(
+		m_App->m_PhyPos.impulse_casual(
 			dt,
 			m_BoundW.extents_y(ix),
 			m_BoundW.extents_y(ix2),
@@ -404,7 +404,7 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 			land_y = m_BoundW.center(ix_land).y + m_BoundW.extents_y(ix_land);
 		}
 		//
-		phy_position_update(
+		m_App->m_PhyPos.update(
 			dt,
 			*(m_Stat[ix].get_World()),
 			m_Stat[ix].phy,
@@ -447,7 +447,7 @@ void instance_mgr<T_app>::update_collision_terrain(float dt)
 		if (ix_land < 0) phy_gro = &m_App->m_Scene.terrain1_phy;
 		else phy_gro = &m_Stat[ix_land].phy;
 		//
-		phy_position_update(
+		m_App->m_PhyPos.update(
 			dt,
 			*(m_Stat[ix].get_World()),
 			m_Stat[ix].phy,

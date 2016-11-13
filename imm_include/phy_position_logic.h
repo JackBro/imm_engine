@@ -23,10 +23,64 @@ static const float PHY_IGNORE_GRAVITY = 1.8f;
 // if runtime stun, restrict delta time not too big
 static const float PHY_MAX_DELTA_TIME = 0.1f;
 ////////////////
-// phy_position_update
+// phy_position
 ////////////////
 ////////////////
-void phy_position_update(
+template <typename T_app>
+struct phy_position
+{
+	phy_position();
+	void init(T_app *app_in);
+	void update(
+		const float &dt,
+		XMFLOAT4X4 &world,
+		phy_property &prop,
+		phy_property &prop_land,
+		const XMFLOAT3 &center,
+		const float &extents_y,
+		const float &land_y);
+	void impulse_casual(
+		const float &dt,
+		const float &extents_y_A,
+		const float &extents_y_B,
+		const size_t &ix_A,
+		const size_t &ix_B,
+		XMFLOAT4X4 &world_A,
+		XMFLOAT4X4 &world_B,
+		phy_property &prop_A,
+		phy_property &prop_B,
+		const XMFLOAT3 &center_A,
+		const XMFLOAT3 &center_B,
+		const bool &is_touch);
+	void attack_impulse(
+		phy_property &prop_B,
+		const XMFLOAT3 &center_Hit,
+		const XMFLOAT3 &center_B,
+		const XMFLOAT3 &center_A,
+		const bool &is_touch,
+		const float &impulse_scale,
+		const size_t &ix_dmg);
+	T_app *app;
+};
+//
+template <typename T_app>
+phy_position<T_app>::phy_position():
+	app(nullptr)
+{
+	;
+}
+//
+template <typename T_app>
+void phy_position<T_app>::init(T_app *app_in)
+{
+	app = app_in;
+}
+////////////////
+// phy_position::update
+////////////////
+////////////////
+template <typename T_app>
+void phy_position<T_app>::update(
 	const float &dt,
 	XMFLOAT4X4 &world,
 	phy_property &prop,
@@ -94,7 +148,7 @@ void phy_position_update(
 	return;
 }
 ////////////////
-// phy_impulse_casual
+// phy_position::impulse_casual
 // method reference 1:
 // (http://gamedevelopment.tutsplus.com/tutorials/
 // how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331)
@@ -103,7 +157,8 @@ void phy_position_update(
 // it is originally used with two spheres, but there is used with two AABB or others, inaccuracy solution
 ////////////////
 ////////////////
-void phy_impulse_casual(
+template <typename T_app>
+void phy_position<T_app>::impulse_casual(
 	const float &dt,
 	const float &extents_y_A,
 	const float &extents_y_B,
@@ -265,20 +320,23 @@ void phy_impulse_casual(
 	return;
 }
 ////////////////
-// phy_attack_impulse
+// phy_position::attack_impulse
 // A is attacker
 ////////////////
 ////////////////
-void phy_attack_impulse(
+template <typename T_app>
+void phy_position<T_app>::attack_impulse(
 	phy_property &prop_B,
 	const XMFLOAT3 &center_Hit,
 	const XMFLOAT3 &center_B,
 	const XMFLOAT3 &center_A,
 	const bool &is_touch,
-	const float &impulse_scale)
+	const float &impulse_scale,
+	const size_t &ix_dmg)
 {
 	if (!is_touch) return;
 	if (*prop_B.intera_tp & PHY_INTERA_FIXED) return;
+	if (app->m_Inst.m_Troll[ix_dmg].current_state == pose_FallDown::instance()) return;
 	XMVECTOR c_Hit = XMLoadFloat3(&center_Hit);
 	XMVECTOR c_B = XMLoadFloat3(&center_B);
 	XMVECTOR c_A = XMLoadFloat3(&center_A);

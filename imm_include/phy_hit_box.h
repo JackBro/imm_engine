@@ -257,13 +257,14 @@ void phy_hit_arrange<T_app>::update_collision()
 					SKILL_MELEE_STANDARD
 				);
 			}
-			phy_attack_impulse(
+			app->m_PhyPos.attack_impulse(
 				app->m_Inst.m_Stat[ix_inst].phy,
 				bbox_w[ix].Center,
 				app->m_Inst.m_BoundW.center(ix_inst),
 				app->m_Inst.m_BoundW.center(map_box_owner[ix]),
 				is_touch,
-				app->m_Control.atk.current_impulse(map_box_owner[ix])
+				app->m_Control.atk.current_impulse(map_box_owner[ix]),
+				ix_inst
 			);
 		}
 	}
@@ -290,13 +291,14 @@ void phy_hit_arrange<T_app>::update_collision()
 					SKILL_MELEE_STANDARD
 				);
 			}
-			phy_attack_impulse(
+			app->m_PhyPos.attack_impulse(
 				app->m_Inst.m_Stat[ix_inst].phy,
 				app->m_Inst.m_BoundW.center(ix),
 				app->m_Inst.m_BoundW.center(ix_inst),
 				app->m_Inst.m_BoundW.center(owner_ix),
 				is_touch,
-				app->m_Control.atk.current_impulse(owner_ix)
+				app->m_Control.atk.current_impulse(owner_ix),
+				ix_inst
 			);
 		}
 	}

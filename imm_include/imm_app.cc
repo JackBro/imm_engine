@@ -17,6 +17,7 @@ imm_app::imm_app():
 	m_Smap(0),
 	m_Scene(),
 	m_Inst(),
+	m_PhyPos(),
 	m_Hit(),
 	m_Magic(),
 	m_UiMgr(),
@@ -58,6 +59,7 @@ bool imm_app::init_imm()
 	m_UiMgr.init(this);
 	m_Cmd.init(this);
 	m_Inst.init(this);
+	m_PhyPos.init(this);
 	m_Control.init(this);
 	m_SfxSelect.init(this);
 	m_Scene.init_load(this);

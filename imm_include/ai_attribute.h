@@ -296,7 +296,7 @@ void ai_attr<T_app>::calc_skill_magic_delay(const SKILL_SPECIFY &specify, const 
 	ix_atk;
 	app->m_Inst.m_Troll[ix_dmg].order |= ORDER_DMG;
 	switch (specify) {
-	case SKILL_MELEE_STANDARD:
+	case SKILL_MAGIC_LIGHTNING:
 		points[ix_dmg].hp -= 3.0f;
 		if (points[ix_dmg].hp < 0.0f) points[ix_dmg].hp = points[ix_dmg].hp_max;
 		break;
