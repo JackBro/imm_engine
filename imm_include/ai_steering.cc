@@ -24,8 +24,14 @@ void steering::update(const float &dt)
 	action_dt += dt;
 	if (update_dt > AI_DELTA_TIME_PHY_SLOW) {
 		update_dt -= AI_DELTA_TIME_PHY_SLOW;
-		current_state->execute(this);
+		if (!is_out_of_control()) current_state->execute(this);
 	}
+}
+//
+bool steering::is_out_of_control()
+{
+	if (PTR->m_Inst.m_Troll[index].current_state == pose_FallDown::instance()) return true;
+	return false;
 }
 ////////////////
 // ai_Standby

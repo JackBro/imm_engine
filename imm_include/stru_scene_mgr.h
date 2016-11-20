@@ -228,6 +228,7 @@ void scene_mgr<T_app>::reload_in_main_update()
 	get_misc["ui_group"] = "";
 	get_misc["ui_group"] = "";
 	get_misc["terrain_info"] = "";
+	get_misc["camera_preset"] = "";
 	lua_reader l_reader;
 	std::string concrete = IMM_PATH["script"]+"scene"+scene_ix+"\\concrete_instance.lua";
 	l_reader.loadfile(concrete);
@@ -237,6 +238,7 @@ void scene_mgr<T_app>::reload_in_main_update()
 	reload_terrain(l_reader);
 	reload_stop_misc();
 	is_loading_atmosphere = false;
+	app->m_Cam.reset(std::stoi(get_misc["camera_preset"]));
 }
 //
 template <typename T_app>

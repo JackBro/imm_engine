@@ -94,7 +94,7 @@ void phy_position<T_app>::update(
 	prop.dt += dt;
 	// Game FPS must >= 60
 	if (prop.dt > FPS60_1DIV) {
-		prop.dt = 0.0f;
+		prop.dt -= FPS60_1DIV;
 		is_fps60_dt = true;
 	}
 	if (prop.absolute_alt > 0.0f) prop.absolute_alt -= dt;

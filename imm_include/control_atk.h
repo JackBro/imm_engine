@@ -124,6 +124,7 @@ struct control_atk
 	void execute(const size_t &index_in, const char &symbol);
 	void update(const float &dt);
 	bool is_execute(const size_t &index_in);
+	bool is_cannot_be_attacked(const size_t &damage_ix);
 	float current_impulse(const size_t &index_in);
 	T_app *app;
 	std::map<std::string, skill_data> data_ski;

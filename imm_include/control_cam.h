@@ -36,6 +36,7 @@ struct control_cam
 	void mouse_move();
 	void follow_update();
 	void follow_update_reset(const XMVECTOR &rot_quat);
+	bool is_restrict_pitch();
 	T_app *app;
 	bool is_pad_follow_reset;
 	bool is_smooth;
@@ -43,9 +44,13 @@ struct control_cam
 	float follow_walk_def;
 	float follow_up_def;
 	float follow_walk;
+	float follow_walk_min;
+	float follow_walk_max;
 	float follow_up;
 	float follow_reset_timer;
 	float follow_reset_cd_max;
+	float restrict_pitch_range;
+	float restrict_pitch_value;
 	XMFLOAT3 reset_R;
 	XMFLOAT3 reset_U;
 	XMFLOAT3 reset_L;
@@ -60,8 +65,12 @@ control_cam<T_app>::control_cam():
 	is_resetting(false),
 	follow_walk_def(-30.0f),
 	follow_up_def(3.0f),
+	follow_walk_min(-40.0f),
+	follow_walk_max(-10.0f),
 	follow_reset_timer(0.0f),
 	follow_reset_cd_max(5.0f),
+	restrict_pitch_range(0.2f),
+	restrict_pitch_value(0.0f),
 	reset_R(0.0f, 0.0f, 0.0f),
 	reset_U(0.0f, 0.0f, 0.0f),
 	reset_L(0.0f, 0.0f, 0.0f)
@@ -79,7 +88,8 @@ void control_cam<T_app>::init(T_app *app_in)
 template <typename T_app>
 void control_cam<T_app>::reset()
 {
-	map_rot_front_c.clear();	
+	map_rot_front_c.clear();
+	restrict_pitch_value = 0.0f;
 }
 //
 template <typename T_app>
@@ -108,7 +118,7 @@ void control_cam<T_app>::pad_update(const float &dt)
 	else {
 		if (w_buttons & XGPAD_CAM_FOLLOW_FORWARD) follow_walk += 10.0f*dt;
 		if (w_buttons & XGPAD_CAM_FOLLOW_BACKWARD) follow_walk += -10.0f*dt;
-		follow_walk = math::calc_clamp(follow_walk, -50.0f, -10.0f);
+		follow_walk = math::calc_clamp(follow_walk, follow_walk_min, follow_walk_max);
 		follow_up = follow_walk * (follow_up_def/follow_walk_def);
 	}
 }
@@ -138,7 +148,7 @@ void control_cam<T_app>::mouse_wheel(const short &z_delta)
 	}
 	else {
 		follow_walk += z_delta/120*1.0f;
-		follow_walk = math::calc_clamp(follow_walk, -50.0f, -10.0f);
+		follow_walk = math::calc_clamp(follow_walk, follow_walk_min, follow_walk_max);
 		follow_up = follow_walk * (follow_up_def/follow_walk_def);
 	}
 }
@@ -150,6 +160,10 @@ void control_cam<T_app>::mouse_move()
 	// Make each pixel correspond to a quarter of a degree.
 	float dx = XMConvertToRadians(0.25f*static_cast<float>(app->m_Control.mouse_move.x - app->m_LastMousePos.x));
 	float dy = XMConvertToRadians(0.25f*static_cast<float>(app->m_Control.mouse_move.y - app->m_LastMousePos.y));
+	if (is_restrict_pitch()) {
+		if (abs(restrict_pitch_value+dy) > restrict_pitch_range) dy = 0;
+		restrict_pitch_value += dy;
+	}
 	app->m_Cam.pitch(dy);
 	app->m_Cam.rotate_y(dx);
 	// keep move continuous
@@ -182,6 +196,7 @@ void control_cam<T_app>::follow_update()
 	}
 	XMStoreFloat3(&app->m_Cam.m_Position, pos);
 	// reset
+	if (is_restrict_pitch()) return;
 	if (follow_reset_timer > -1.0f) {
 		follow_reset_timer -= app->m_Timer.delta_time();
 	}
@@ -256,6 +271,13 @@ void control_cam<T_app>::follow_update_reset(const XMVECTOR &rot_quat)
 	XMStoreFloat3(&app->m_Cam.m_Look, L);
 	XMStoreFloat3(&app->m_Cam.m_Right, R);
 	XMStoreFloat3(&app->m_Cam.m_Up, U);	
+}
+//
+template <typename T_app>
+bool control_cam<T_app>::is_restrict_pitch()
+{
+	if (app->m_Cam.m_Preset != 0) return true;
+	return false;
 }
 //
 }

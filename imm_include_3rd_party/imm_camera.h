@@ -63,7 +63,7 @@ public:
 	void rotate_y(float angle);
 	// After modifying camera position/orientation, call to rebuild the view matrix.
 	void update_view_matrix();
-	void reset();
+	void reset(const int &preset);
 //private:
 	// Camera coordinate system with coordinates relative to world space.
 	XMFLOAT3 m_Position;
@@ -77,6 +77,7 @@ public:
 	float m_FovY;
 	float m_NearWindowHeight;
 	float m_FarWindowHeight;
+	int m_Preset;
 	// Cache View/Proj matrices.
 	XMFLOAT4X4 m_View;
 	XMFLOAT4X4 m_Proj;
@@ -86,7 +87,14 @@ camera::camera():
 	m_Position(0.0f, 0.0f, 0.0f),
 	m_Right(1.0f, 0.0f, 0.0f),
 	m_Up(0.0f, 1.0f, 0.0f),
-	m_Look(0.001f, 0.0f, 1.0f)
+	m_Look(0.001f, 0.0f, 1.0f),
+	m_NearZ(0.0f),
+	m_FarZ(0.0f),
+	m_Aspect(0.0f),
+	m_FovY(0.0f),
+	m_NearWindowHeight(0.0f),
+	m_FarWindowHeight(0.0f),
+	m_Preset(0)
 {
 	set_Lens(0.25f*XM_PI, 1.0f, 1.0f, 1000.0f);
 }
@@ -231,11 +239,19 @@ void camera::update_view_matrix()
 	m_View(3, 3) = 1.0f;
 }
 //
-void camera::reset()
+void camera::reset(const int &preset = 0)
 {
-	m_Right = {1.0f, 0.0f, 0.0f};
-	m_Up = {0.0f, 1.0f, 0.0f};
-	m_Look = {0.001f, 0.0f, 1.0f};
+	m_Preset = preset;
+	if (m_Preset == 0) {
+		m_Right = {1.0f, 0.0f, 0.0f};
+		m_Up = {0.0f, 1.0f, 0.0f};
+		m_Look = {0.001f, 0.0f, 1.0f};
+	}
+	else {
+		m_Right = {1.0f, 0.0f, 0.0f};	
+		m_Up = {0.0f, 1.0f, 0.0f};
+		m_Look = {0.001f, -1.0f, 0.7f};
+	}
 }
 //
 }

@@ -263,6 +263,57 @@ control_atk<T_app>::control_atk():
 }
 //
 template <typename T_app>
+void control_atk<T_app>::init(T_app *app_in)
+{
+	app = app_in;
+	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
+	lua_reader l_reader;
+	l_reader.loadfile(concrete);
+	std::vector<std::vector<std::string>> vec2d;
+	l_reader.vec2d_str_from_table("csv_skill", vec2d);
+	for (size_t ix = 1; ix < vec2d.size(); ++ix) {
+		auto d_skill = &data_ski[vec2d[ix][0]];
+		if (!d_skill->chunk.count(vec2d[ix][1][0])) {
+			d_skill->chunk[vec2d[ix][1][0]] = static_cast<int>(data_ski[vec2d[ix][0]].atk.size());
+		}
+		d_skill->atk.push_back(vec2d[ix][2]);
+		d_skill->frame_end.push_back(std::stof(vec2d[ix][3]) * FRAME_RATE_1DIV);
+		d_skill->frame_turn.push_back( (std::stof(vec2d[ix][3])-std::stof(vec2d[ix][4])) * FRAME_RATE_1DIV);
+		d_skill->judge_start.push_back(std::stof(vec2d[ix][5]) * FRAME_RATE_1DIV);
+		d_skill->judge_end.push_back(std::stof(vec2d[ix][6]) * FRAME_RATE_1DIV);
+		d_skill->next_ix.push_back(std::stoi(vec2d[ix][7]));
+		d_skill->specify.push_back(skill_specify_str(vec2d[ix][8]));
+		std::vector<std::string> box_name = csv_str_split(vec2d[ix][9], '~');
+		if (box_name[0].size() == 0) box_name.clear();
+		d_skill->atk_box.push_back(box_name);
+		std::vector<std::string> speed_str = csv_str_split(vec2d[ix][10], '~');
+		XMFLOAT2 speed;
+		std::list<XMFLOAT2> speed_list;
+		if (speed_str.size() % 2) {
+			speed.x = 0.0f;
+			speed.y = std::stof(speed_str[0]);
+			speed_list.emplace_back(speed);
+			d_skill->inst_speed2.emplace_back(speed_list);
+		}
+		else {
+			for (size_t ind = 0; ind < speed_str.size(); ind += 2) {
+				speed.x = std::stof(speed_str[ind]) * FRAME_RATE_1DIV;
+				speed.y = std::stof(speed_str[ind+1]);
+				speed_list.emplace_back(speed);
+			}
+			d_skill->inst_speed2.emplace_back(speed_list);
+		}
+		d_skill->impulse.push_back(std::stof(vec2d[ix][11]));
+	}
+}
+//
+template <typename T_app>
+void control_atk<T_app>::rebuild_action()
+{
+	;
+}
+//
+template <typename T_app>
 void control_atk<T_app>::reset()
 {
 	para_ski.clear();
@@ -284,6 +335,7 @@ void control_atk<T_app>::cause_damage(
 	const XMFLOAT3 &box_center,
 	const SKILL_SPECIFY &specify)
 {
+	if (is_cannot_be_attacked(inst_ix_dmg)) return;
 	assert(inst_ix_atk < 1000);
 	assert(inst_ix_dmg < 1000);
 	assert(para_ski[inst_ix_atk].current_ix < 100);
@@ -342,6 +394,13 @@ bool control_atk<T_app>::is_execute(const size_t &index_in)
 }
 //
 template <typename T_app>
+bool control_atk<T_app>::is_cannot_be_attacked(const size_t &damage_ix)
+{
+	if (PTR->m_Inst.m_Troll[damage_ix].current_state == pose_FallDown::instance()) return true;
+	return false;
+}
+//
+template <typename T_app>
 float control_atk<T_app>::current_impulse(const size_t &index_in)
 {
 	if (para_ski.count(index_in)) {
@@ -349,59 +408,9 @@ float control_atk<T_app>::current_impulse(const size_t &index_in)
 			return data_ski.at(*app->m_Inst.m_Stat[index_in].get_ModelName()).impulse[para_ski[index_in].current_ix];
 		}
 	}
-	assert(false);
+	assert(para_ski.count(index_in));
+	assert(para_ski[index_in].is_execute);
 	return 0.0f;
-}
-//
-template <typename T_app>
-void control_atk<T_app>::init(T_app *app_in)
-{
-	app = app_in;
-	std::string concrete = IMM_PATH["script"]+"concrete_common.lua";
-	lua_reader l_reader;
-	l_reader.loadfile(concrete);
-	std::vector<std::vector<std::string>> vec2d;
-	l_reader.vec2d_str_from_table("csv_skill", vec2d);
-	for (size_t ix = 1; ix < vec2d.size(); ++ix) {
-		auto d_skill = &data_ski[vec2d[ix][0]];
-		if (!d_skill->chunk.count(vec2d[ix][1][0])) {
-			d_skill->chunk[vec2d[ix][1][0]] = static_cast<int>(data_ski[vec2d[ix][0]].atk.size());
-		}
-		d_skill->atk.push_back(vec2d[ix][2]);
-		d_skill->frame_end.push_back(std::stof(vec2d[ix][3]) * FRAME_RATE_1DIV);
-		d_skill->frame_turn.push_back( (std::stof(vec2d[ix][3])-std::stof(vec2d[ix][4])) * FRAME_RATE_1DIV);
-		d_skill->judge_start.push_back(std::stof(vec2d[ix][5]) * FRAME_RATE_1DIV);
-		d_skill->judge_end.push_back(std::stof(vec2d[ix][6]) * FRAME_RATE_1DIV);
-		d_skill->next_ix.push_back(std::stoi(vec2d[ix][7]));
-		d_skill->specify.push_back(skill_specify_str(vec2d[ix][8]));
-		std::vector<std::string> box_name = csv_str_split(vec2d[ix][9], '~');
-		if (box_name[0].size() == 0) box_name.clear();
-		d_skill->atk_box.push_back(box_name);
-		std::vector<std::string> speed_str = csv_str_split(vec2d[ix][10], '~');
-		XMFLOAT2 speed;
-		std::list<XMFLOAT2> speed_list;
-		if (speed_str.size() % 2) {
-			speed.x = 0.0f;
-			speed.y = std::stof(speed_str[0]);
-			speed_list.emplace_back(speed);
-			d_skill->inst_speed2.emplace_back(speed_list);
-		}
-		else {
-			for (size_t ind = 0; ind < speed_str.size(); ind += 2) {
-				speed.x = std::stof(speed_str[ind]) * FRAME_RATE_1DIV;
-				speed.y = std::stof(speed_str[ind+1]);
-				speed_list.emplace_back(speed);
-			}
-			d_skill->inst_speed2.emplace_back(speed_list);
-		}
-		d_skill->impulse.push_back(std::stof(vec2d[ix][11]));
-	}
-}
-//
-template <typename T_app>
-void control_atk<T_app>::rebuild_action()
-{
-	;
 }
 //
 }

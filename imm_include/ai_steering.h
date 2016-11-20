@@ -105,7 +105,7 @@ struct steering
 	void update(const float &dt);
 	void change_state(state<steering> *new_state);
 	void revert_previous_state();
-	float speed_move();
+	bool is_out_of_control();
 	std::string &act_move();
 	state<steering> *current_state;
 	state<steering> *previous_state;

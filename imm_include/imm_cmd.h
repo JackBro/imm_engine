@@ -304,6 +304,10 @@ void cmd_shell<T_app>::on_resize_sprite()
 template <typename T_app>
 void cmd_shell<T_app>::draw_d2d()
 {
+	if (app->m_UiMgr.is_not_draw_response) {
+		input.clear();
+		input += L"Screen aspect ratio error.";
+	}
 	dwrite.draw_MemberRect(app->m_D2DDC, input);
 }
 //
@@ -353,6 +357,7 @@ template <typename T_app>
 bool cmd_shell<T_app>::is_waiting_for_something()
 {
 	if (is_slient || is_preparing || is_wait_loading) return true;
+	if (app->m_UiMgr.is_not_draw_response) return true;
 	return false;
 }
 //
