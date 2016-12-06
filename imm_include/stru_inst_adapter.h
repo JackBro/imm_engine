@@ -198,13 +198,13 @@ void inst_adapter<T_app>::update_attach()
 	for (auto &att: attach) {
 		if (!att.is_enable) continue;
 		XMMATRIX world = XMLoadFloat4x4(app->m_Inst.m_Stat[att.owner_ix].get_World());
-		XMMATRIX bone_trans = XMLoadFloat4x4(
+		XMMATRIX to_bone = XMLoadFloat4x4(&att.to_bone);
+		XMMATRIX trans_bone = XMLoadFloat4x4(
 			app->m_Inst.m_Stat[att.owner_ix].get_FinalTransform(att.bone_ix)
 		);
-		XMMATRIX to_bone = XMLoadFloat4x4(&att.to_bone);
-		world = XMMatrixMultiply(bone_trans, world);
-		world = XMMatrixMultiply(to_bone, world);
-		app->m_Inst.m_Stat[att.ix].set_World(world);
+		XMMATRIX att_world = XMMatrixMultiply(to_bone, trans_bone);
+		att_world = XMMatrixMultiply(att_world, world);
+		app->m_Inst.m_Stat[att.ix].set_World(att_world);
 	}
 }
 //
@@ -214,7 +214,6 @@ void inst_adapter<T_app>::update_magic_text()
 	if (!magic_text[0].is_active) return;
 	if(magic_text[0].time_pos >= magic_text[0].animation.get_end_time()) {
 		magic_text[0].is_active = false;
-		
 		app->m_Inst.m_Stat[magic_text[0].inst_ix].set_IsOffline(true);
 		return;
 	}

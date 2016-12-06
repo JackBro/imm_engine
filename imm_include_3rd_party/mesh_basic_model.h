@@ -255,6 +255,7 @@ void skinned_model::set(
 //
 void skinned_model_instance::update(float dt)
 {
+	// if instance is not in frustum, skinned not update, actions will be mistake
 	if (!is_in_frustum) return;
 	time_pos += dt;
 	if (time_switch > 0.0f) {

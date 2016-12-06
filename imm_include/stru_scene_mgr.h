@@ -237,8 +237,6 @@ void scene_mgr<T_app>::reload_in_main_update()
 	reload_skybox();
 	reload_terrain(l_reader);
 	reload_stop_misc();
-	is_loading_atmosphere = false;
-	app->m_Cam.reset(std::stoi(get_misc["camera_preset"]));
 }
 //
 template <typename T_app>
@@ -302,12 +300,17 @@ void scene_mgr<T_app>::relaod_after_instance_build()
 	size_t ix = 0;
 	for (auto &inst: app->m_Inst.m_Stat) {
 		if (*inst.phy.intera_tp & PHY_INTERA_FIXED) continue;
+		
+		///*
 		XMFLOAT4X4 *world = inst.get_World();
 		XMMATRIX W = XMLoadFloat4x4(world);
 		app->m_Inst.m_BoundL.transform(ix, app->m_Inst.m_BoundW, W);
 		float extents_y = app->m_Inst.m_BoundW.extents_y(ix);
 		float height = terrain1.get_Height(world->_41, world->_43) + extents_y*2.0f;
 		if (world->_42 < height) world->_42 = height+1.0f;
+		
+		//*/
+		
 		ix++;
 	}
 	// PHY_INTERA_FIXED_INVISILBE
@@ -321,6 +324,9 @@ void scene_mgr<T_app>::reload_stop_misc()
 	audio.stop_bgm();
 	app->m_Condition.reset();
 	if (!csv_value_is_empty(get_misc["play_bgm"])) audio.play_bgm(get_misc["play_bgm"]);
+	is_loading_atmosphere = false;
+	app->m_Cam.reset(std::stoi(get_misc["camera_preset"]));
+	plasma.remove_all();
 }
 //
 }

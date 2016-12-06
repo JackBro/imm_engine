@@ -88,8 +88,8 @@ void condition_trigger<T_app>::init(T_app *app_in)
 	task.emplace("clear_cmd", condition_task());
 	task["clear_cmd"].certain_time = 3.0f;
 	task.emplace("_01_test", condition_task());
-	task.emplace("_00_camera_reset", condition_task());
-	task["_00_camera_reset"].certain_time = -1.0f;
+	task.emplace("_00_add_fire", condition_task());
+	task["_00_add_fire"].certain_time = -1.0f;
 	task["_01_test"].certain_time = 5.0f;
 	task.emplace("_02_test", condition_task());
 	task["_02_test"].certain_time = 5.0f;
@@ -115,8 +115,8 @@ template <typename T_app>
 void condition_trigger<T_app>::update_scene_00()
 {
 	if (app->m_Scene.scene_ix != "_00") return;
-	if (trigger("_00_camera_reset")) {
-		app->m_Cam.reset();
+	if (trigger("_00_add_fire")) {
+		app->m_Scene.plasma.push_back(PLASMA_FIRE, 60.0f, XMFLOAT3(10.0f, 20.0f, -10.0f));
 	}
 }
 //

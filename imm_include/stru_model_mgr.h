@@ -460,6 +460,10 @@ void model_mgr::skinned_init(ID3D11Device *device, lua_reader &l_reader)
 		it->time_pos = stof(vec2d_instance[ix][7]);
 		it->set_ClipName(vec2d_instance[ix][8]);
 		it->final_transforms.resize(m_Skinned[model_name].m_SkinnedData.m_BoneCount());
+		// avoid all zero matrix
+		for (auto &final: it->final_transforms) {
+			XMStoreFloat4x4(&final, XMMatrixIdentity());
+		}
 	}
 }
 //

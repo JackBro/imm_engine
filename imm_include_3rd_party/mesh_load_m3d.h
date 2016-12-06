@@ -231,6 +231,7 @@ void m3d_loader::read_BoneOffsets(std::ifstream &fin, UINT num_bones, std::vecto
 			bone_offsets[i](1,0) >> bone_offsets[i](1,1) >> bone_offsets[i](1,2) >> bone_offsets[i](1,3) >>
 			bone_offsets[i](2,0) >> bone_offsets[i](2,1) >> bone_offsets[i](2,2) >> bone_offsets[i](2,3) >>
 			bone_offsets[i](3,0) >> bone_offsets[i](3,1) >> bone_offsets[i](3,2) >> bone_offsets[i](3,3);
+		//
 	}
 }
 //

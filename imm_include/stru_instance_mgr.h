@@ -315,7 +315,6 @@ void instance_mgr<T_app>::update_all_physics1(const float &dt)
 	m_App->m_Hit.update();
 	m_App->m_Magic.update();
 }
-
 //
 template <typename T_app>
 void instance_mgr<T_app>::update_all_physics2(const float &dt)
