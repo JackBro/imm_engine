@@ -22,6 +22,12 @@ static const float PHY_GRAVITY = -9.8f*PHY_FLOAT_EQUAL_1METER*PHY_GRAVITY_RATE;
 static const float PHY_IGNORE_GRAVITY = 1.8f;
 // if runtime stun, restrict delta time not too big
 static const float PHY_MAX_DELTA_TIME = 0.1f;
+//
+float PHY_GET_GRAVITY(const bool &is_drift)
+{
+	if (is_drift) return PHY_GRAVITY*0.3f;
+	return PHY_GRAVITY;
+}
 ////////////////
 // phy_position
 ////////////////
@@ -107,7 +113,7 @@ void phy_position<T_app>::update(
 	}
 	if (!prop.is_on_land) {
 		prop.velocity.x += prop.acceleration.x*dt;
-		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt;
+		prop.velocity.y += (PHY_GET_GRAVITY(app->m_Scene.is_drift())+prop.acceleration.y)*dt;
 		prop.velocity.z += prop.acceleration.z*dt;
 		world._41 += (prop.velocity.x + prop.vel_indirect.x + prop.vel_absolute.x)*dt;
 		world._42 += (prop.velocity.y + prop.vel_indirect.y)*dt;
