@@ -66,6 +66,7 @@ control_sys<T_app>::control_sys():
 	picked1(-1),
 	player1(-1),
 	style1(CONTROL_CAM_FOLLOW),
+	//style1(CONTROL_CAM_FREE),
 	wait_ui_disappear(0.0f),
 	pad(),
 	cam()

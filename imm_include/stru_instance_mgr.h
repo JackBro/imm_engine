@@ -143,6 +143,7 @@ void instance_mgr<T_app>::reload()
 		k,
 		[](const vertex::pntt &x) {return &x.pos;},
 		m_Model.m_NamePNTT);
+	//
 	// controllable
 	m_Troll.resize(m_Stat.size());
 	for (size_t ix = 0; ix != m_Troll.size(); ++ix) {
@@ -358,8 +359,6 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 			dt,
 			m_BoundW.extents_y(ix),
 			m_BoundW.extents_y(ix2),
-			ix,
-			ix2,
 			*(m_Stat[ix].get_World()),
 			*(m_Stat[ix2].get_World()),
 			m_Stat[ix].phy,

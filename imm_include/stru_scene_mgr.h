@@ -55,7 +55,6 @@ struct scene_mgr
 	void relaod_after_instance_build();
 	void reload_stop_misc();
 	float pass_time();
-	bool is_drift();
 	T_app *app;
 	std::map<std::string, std::string> get_misc;
 	light_dir dir_lights[3];
@@ -299,8 +298,9 @@ void scene_mgr<T_app>::relaod_after_instance_build()
 	app->m_UiMgr.dialogue.rebuild_text();
 	if (!terrain1.is_initialized()) return;
 	// fix instance height
-	size_t ix = 0;
+	int ix = -1;
 	for (auto &inst: app->m_Inst.m_Stat) {
+		ix++;
 		if (*inst.phy.intera_tp & PHY_INTERA_FIXED) continue;
 		XMFLOAT4X4 *world = inst.get_World();
 		XMMATRIX W = XMLoadFloat4x4(world);
@@ -308,7 +308,6 @@ void scene_mgr<T_app>::relaod_after_instance_build()
 		float extents_y = app->m_Inst.m_BoundW.extents_y(ix);
 		float height = terrain1.get_Height(world->_41, world->_43) + extents_y*2.0f;
 		if (world->_42 < height) world->_42 = height+1.0f;
-		ix++;
 	}
 	// PHY_INTERA_FIXED_INVISILBE
 	for (auto &inst: app->m_Inst.m_Stat) {
@@ -330,13 +329,6 @@ template <typename T_app>
 float scene_mgr<T_app>::pass_time()
 {
 	return app->m_Timer.total_time() - begin_time;
-}
-//
-template <typename T_app>
-bool scene_mgr<T_app>::is_drift()
-{
-	if (pass_time() < 10.0f) return true;
-	return false;
 }
 //
 }

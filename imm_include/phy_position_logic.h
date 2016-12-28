@@ -21,13 +21,8 @@ static const float PHY_GRAVITY = -9.8f*PHY_FLOAT_EQUAL_1METER*PHY_GRAVITY_RATE;
 // if too small velocity rebound, ignore it
 static const float PHY_IGNORE_GRAVITY = 1.8f;
 // if runtime stun, restrict delta time not too big
-static const float PHY_MAX_DELTA_TIME = 0.1f;
-//
-float PHY_GET_GRAVITY(const bool &is_drift)
-{
-	if (is_drift) return PHY_GRAVITY*0.3f;
-	return PHY_GRAVITY;
-}
+static const float PHY_MAX_DELTA_TIME = 0.034f;
+static const float PHY_DIFF_JUDGE = 1.0f;
 ////////////////
 // phy_position
 ////////////////
@@ -49,8 +44,6 @@ struct phy_position
 		const float &dt,
 		const float &extents_y_A,
 		const float &extents_y_B,
-		const size_t &ix_A,
-		const size_t &ix_B,
 		XMFLOAT4X4 &world_A,
 		XMFLOAT4X4 &world_B,
 		phy_property &prop_A,
@@ -113,7 +106,7 @@ void phy_position<T_app>::update(
 	}
 	if (!prop.is_on_land) {
 		prop.velocity.x += prop.acceleration.x*dt;
-		prop.velocity.y += (PHY_GET_GRAVITY(app->m_Scene.is_drift())+prop.acceleration.y)*dt;
+		prop.velocity.y += (PHY_GRAVITY+prop.acceleration.y)*dt;
 		prop.velocity.z += prop.acceleration.z*dt;
 		world._41 += (prop.velocity.x + prop.vel_indirect.x + prop.vel_absolute.x)*dt;
 		world._42 += (prop.velocity.y + prop.vel_indirect.y)*dt;
@@ -168,8 +161,6 @@ void phy_position<T_app>::impulse_casual(
 	const float &dt,
 	const float &extents_y_A,
 	const float &extents_y_B,
-	const size_t &ix_A,
-	const size_t &ix_B,
 	XMFLOAT4X4 &world_A,
 	XMFLOAT4X4 &world_B,
 	phy_property &prop_A,
@@ -189,7 +180,36 @@ void phy_position<T_app>::impulse_casual(
 	float relative_size = 1.1f;
 	if (prop_A.p_aabb3 && prop_B.p_aabb3) {
 	relative_size = abs(prop_A.avg_extent-prop_B.avg_extent)/(std::min)(prop_A.avg_extent, prop_B.avg_extent);
-	if (relative_size > 1.0f) {
+	//
+	bool is_specified_AtoB = false;
+	// check if instance stand on instance
+	// notice center_A, center_B is not updated in this cycle
+	if (center_A.y > center_B.y) {
+		float diff = center_A.y-extents_y_A-(center_B.y+extents_y_B);
+		if (abs(diff) < PHY_DIFF_JUDGE) {
+			// if already on land
+			if (prop_A.is_on_land) return;
+			prop_A.stand_on = static_cast<int>(prop_B.ix);
+			prop_A.is_on_land = true;
+			is_specified_AtoB = true;
+			AtoB = XMVectorSetX(AtoB, 0.0f);
+			AtoB = XMVectorSetZ(AtoB, 0.0f);
+		}
+	}
+	else {
+		float diff = center_B.y-extents_y_B-(center_A.y+extents_y_A);
+		if (abs(diff) < PHY_DIFF_JUDGE) {
+			// if already on land
+			if (prop_B.is_on_land) return;
+			prop_B.stand_on = static_cast<int>(prop_A.ix);
+			prop_B.is_on_land = true;
+			is_specified_AtoB = true;
+			AtoB = XMVectorSetX(AtoB, 0.0f);
+			AtoB = XMVectorSetZ(AtoB, 0.0f);
+		}
+	}
+	//
+	if (relative_size > 1.0f && (!is_specified_AtoB)) {
 		float big_x = (std::max)(prop_A.p_aabb3->x, prop_B.p_aabb3->x);
 		if (big_x < abs(XMVectorGetX(AtoB)) ) {
 			AtoB = XMVectorSetZ(AtoB, 0.0f);
@@ -253,7 +273,9 @@ void phy_position<T_app>::impulse_casual(
 		AtoB = XMVectorSetY(AtoB, XMVectorGetY(AtoB)*0.3f);
 		AtoB = XMVectorScale(AtoB, 30.0f);
 	}
+	//
 	// scene boundary
+	//
 	else if (*prop_B.intera_tp == PHY_INTERA_FIXED_INVISILBE) {
 		XMVECTOR offset_A = XMVectorSubtract(w_A.r[3], c_A);
 		float penetration = XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt;
@@ -283,9 +305,8 @@ void phy_position<T_app>::impulse_casual(
 			else to_scene = XMVectorSetZ(to_scene, 1.0f);
 		}
 		c_B = XMVectorAdd(c_B, XMVectorScale(to_scene, penetration));
-		w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
 		w_B.r[3] = XMVectorAdd(c_B, offset_B);
-		AtoB = XMVectorScale(to_scene, 20.0f);
+		w_B.r[3] = XMVectorSetW(w_B.r[3], 1.0f);
 	}
 	// big object
 	// !(relative_size < 1.0f)
@@ -304,24 +325,6 @@ void phy_position<T_app>::impulse_casual(
 		XMStoreFloat3(&prop_A.velocity, vel_A);
 		XMStoreFloat3(&prop_A.vel_absolute, vel_absolute_A);
 		if (*prop_B.intera_tp == PHY_INTERA_FIXED_INVISILBE) XMStoreFloat4x4(&world_A, w_A);
-	}
-	// check if instance stand on instance
-	// c_A, c_B is updated, but center_A, center_B is not
-	// currently using center_A, center_B
-	static const float proportion_extens_y = 0.1f;
-	if (center_A.y > center_B.y) {
-		float diff = center_A.y-extents_y_A-(center_B.y+extents_y_B);
-		if (abs(diff) < extents_y_B*proportion_extens_y) {
-			prop_A.stand_on = static_cast<int>(ix_B);
-			prop_A.is_on_land = true;
-		}
-	}
-	else {
-		float diff = center_B.y-extents_y_B-(center_A.y+extents_y_A);
-		if (abs(diff) < extents_y_A*proportion_extens_y) {
-			prop_B.stand_on = static_cast<int>(ix_A);
-			prop_B.is_on_land = true;
-		}
 	}
 	return;
 }

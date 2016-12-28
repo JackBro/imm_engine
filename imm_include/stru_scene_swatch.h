@@ -135,6 +135,11 @@ void model_material_common(material &mat, const float &mat_refraction, const int
 		mat.diffuse  = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 		mat.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 		break;
+	case 24: //White No Specular
+		mat.ambient  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		mat.diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		mat.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 10.0f);
+		break;
 	default:
 		mat.ambient  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 		mat.diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);

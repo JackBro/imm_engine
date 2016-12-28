@@ -409,7 +409,6 @@ float control_atk<T_app>::current_impulse(const size_t &index_in)
 		}
 	}
 	assert(para_ski.count(index_in));
-	assert(para_ski[index_in].is_execute);
 	return 0.0f;
 }
 //
