@@ -209,7 +209,7 @@ void ui_def_status<T_app>::define_style()
 	m_Rect.back().brush_sel = {"black"};
 	m_Rect.back().text = L"Unknow";
 	m_Rect.back().dwrite_ix = "tar_name";
-	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.3f, 0.3f);
+	m_Rect.back().margin = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.3f);
 	////////////////
 	//
 	////////////////

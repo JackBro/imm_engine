@@ -30,6 +30,7 @@ struct phy_property
 	XMFLOAT3 *p_aabb3;
 	float mass; // not use now
 	float friction_rev; // reversed coefficient of friction, 0 <= this <= 1, ignore original friction > 1
+	float friction_rev_give;
 	float bounce;
 	float avg_extent;
 	float min_extent; // not use now
@@ -53,6 +54,7 @@ phy_property::phy_property():
 	p_aabb3(nullptr),
 	mass(0.0f),
 	friction_rev(0.3f),
+	friction_rev_give(-1.0f),
 	bounce(0.3f),
 	avg_extent(1.0f),
 	min_extent(1.0f),

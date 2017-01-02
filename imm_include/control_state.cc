@@ -289,6 +289,7 @@ void pose_Jump::execute(troll *tro)
 	if (tro->is_ON_AIR && is_on_land) {
 		PTR->m_Inst.m_Stat[tro->index].check_set_ClipName(tro->act.JumpLand(), true);
 		tro->is_ON_AIR = false;
+		PTR->m_Inst.m_Stat[tro->index].phy.friction_rev_give = 0.01f;
 		// Idle do full JumpLand
 		if (tro->previous_state == pose_Idle::instance()) tro->A.cd_Jump = tro->A.frame_JumpLand;
 		else tro->A.cd_Jump = 0.1f;

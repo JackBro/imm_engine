@@ -120,6 +120,12 @@ void phy_position<T_app>::update(
 		if (is_fps60_dt) {
 			prop.velocity.x *= friction_rev;
 			prop.velocity.z *= friction_rev;
+			// braking
+			if (prop.friction_rev_give > 0.0f) {
+				prop.velocity.x *= prop.friction_rev_give;
+				prop.velocity.z *= prop.friction_rev_give;
+				prop.friction_rev_give = -1.0f;
+			}
 		}
 		// use center compare stand
 		float offset_y = world._42-center.y;
@@ -271,14 +277,15 @@ void phy_position<T_app>::impulse_casual(
 	// small object need more penetration
 	if (prop_A.p_aabb3 && prop_B.p_aabb3 && relative_size < 1.0f) {
 		AtoB = XMVectorSetY(AtoB, XMVectorGetY(AtoB)*0.3f);
-		AtoB = XMVectorScale(AtoB, 30.0f);
+		float penetration = XMVectorGetX(XMVector3LengthEst(XMVectorSubtract(vel_A_all, vel_B_all)))*(dt/FPS60_1DIV);
+		AtoB = XMVectorScale(AtoB, 30.0f+penetration);
 	}
 	//
 	// scene boundary
 	//
 	else if (*prop_B.intera_tp == PHY_INTERA_FIXED_INVISILBE) {
 		XMVECTOR offset_A = XMVectorSubtract(w_A.r[3], c_A);
-		float penetration = XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt;
+		float penetration = XMVectorGetX(XMVector3LengthEst(XMVectorSubtract(vel_A_all, vel_B_all)))*dt;
 		XMVECTOR to_scene = XMVectorZero();
 		if (abs(XMVectorGetX(c_B)) > 1.0f) {
 			if (XMVectorGetX(c_B) > 0.0f) to_scene = XMVectorSetX(to_scene, -1.0f);
@@ -294,7 +301,7 @@ void phy_position<T_app>::impulse_casual(
 	}
 	else if (*prop_A.intera_tp == PHY_INTERA_FIXED_INVISILBE) {
 		XMVECTOR offset_B = XMVectorSubtract(w_B.r[3], c_B);
-		float penetration = XMVectorGetX(XMVector3Length(XMVectorSubtract(vel_A_all, vel_B_all)))*dt*1.0f;
+		float penetration = XMVectorGetX(XMVector3LengthEst(XMVectorSubtract(vel_A_all, vel_B_all)))*dt;
 		XMVECTOR to_scene = XMVectorZero();
 		if (abs(XMVectorGetX(c_A)) > 1.0f) {
 			if (XMVectorGetX(c_A) > 0.0f) to_scene = XMVectorSetX(to_scene, -1.0f);
@@ -311,7 +318,8 @@ void phy_position<T_app>::impulse_casual(
 	// big object
 	// !(relative_size < 1.0f)
 	else {
-		AtoB = XMVectorScale(AtoB, 20.0f);
+		float penetration = XMVectorGetX(XMVector3LengthEst(XMVectorSubtract(vel_A_all, vel_B_all)))*(dt/FPS60_1DIV);
+		AtoB = XMVectorScale(AtoB, 20.0f+penetration);
 	}
 	// store result
 	if (!(*prop_B.intera_tp & PHY_INTERA_FIXED)) {
